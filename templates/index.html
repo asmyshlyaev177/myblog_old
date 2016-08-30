@@ -1,0 +1,19 @@
+{% load staticfiles %}
+<!DOCTYPE html>
+<html>
+<head>
+
+  <title>{% block title %}{% endblock %}</title>
+
+</head>
+<body>
+<div class="content">
+{% autoescape off %}
+  {% block content %}
+
+  {% endblock %}
+{% endautoescape %}
+</div>
+
+</body>
+</html>

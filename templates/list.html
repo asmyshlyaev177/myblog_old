@@ -1,0 +1,16 @@
+{% extends "index.html" %}
+
+{% block title %}List posts{% endblock %}
+
+{% block content %}
+<h1>List Posts</h1>
+  {% for post in posts %}
+    <div class="post">
+      <a href="{{ post.get_absolute_url }}"><h2>{{ post.title }}</h2></a>
+      <p>
+        {{ post.text }}
+      </p>
+    </div>
+
+  {% endfor %}
+{% endblock %}

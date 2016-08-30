@@ -1,0 +1,14 @@
+{% extends "index.html" %}
+
+
+{% block title %}{{ post.title }}{% endblock %}
+
+{% block content %}
+<h1>{{ post.title }}</h1>
+<p>
+  <img src="{{ MEDIA_URL }}{{ post.post_thumbnail.url }}"></a>
+</p>
+<p>
+  {{ post.text }}
+</p>
+{% endblock %}
