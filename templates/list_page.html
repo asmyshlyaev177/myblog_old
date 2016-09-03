@@ -1,0 +1,23 @@
+{% load el_pagination_tags %}
+
+{% paginate 2 posts %}
+{% autoescape off %}
+{% for post in posts %}
+
+  <div class="post">
+    <a href="{{ post.get_absolute_url }}"><h2>{{ post.title }}</h2></a>
+    {% if post.post_image %}
+    <div class="thumbnail">
+        {{ post.get_image }}
+    </div>
+    {% endif %}
+    <p>
+      {{ post.text|truncatewords_html:90 }}
+    </p>
+  </div>
+{% endfor %}
+
+
+{% show_more %}
+
+{% endautoescape %}

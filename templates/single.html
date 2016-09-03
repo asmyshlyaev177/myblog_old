@@ -4,6 +4,7 @@
 {% block title %}{{ post.title }}{% endblock %}
 
 {% block content %}
+{% autoescape off %}
 <h1>{{ post.title }}</h1>
 {% if post.post_image %}
 <p>
@@ -13,4 +14,5 @@
 <p>
   {{ post.text }}
 </p>
+{% endautoescape %}
 {% endblock %}

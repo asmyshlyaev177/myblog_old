@@ -4,18 +4,13 @@
 
 {% block content %}
 <h1>List Posts</h1>
-  {% for post in posts|dictsortreversed:"published" %}
-    <div class="post">
-      <a href="{{ post.get_absolute_url }}"><h2>{{ post.title }}</h2></a>
-      {% if post.post_image %}
-      <div class="thumbnail">
-          {{ post.get_image }}
-      </div>
-      {% endif %}
-      <p>
-        {{ post.text|truncatechars_html:23 }}
-      </p>
-    </div>
+{% include page_template %}
 
-  {% endfor %}
+{% block js %}
+    {{ block.super }}
+    <script src="http://code.jquery.com/jquery-latest.js"></script>
+    <script src="{{ STATIC_URL }}static/el-pagination/js/el-pagination.js"></script>
+    <script>$.endlessPaginate({paginateOnScroll: true});</script>
+{% endblock %}
+
 {% endblock %}
