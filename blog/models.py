@@ -9,9 +9,23 @@ from imagekit.models import ImageSpecField
 from imagekit.processors import ResizeToFit
 from django.utils.safestring import mark_safe
 
+class User(AbstractBaseUser):
+    username = models.CharField("Username", max_length=20,
+                                blank=False,
+                                unique=True)
+    email = models.EmailField(unique=True)
+    is_active = models.BooleanField("Is active?", default=True)
+    is_staff = models.BooleanField("Is admin", default=False)
+    last_login = models.DateTimeField(auto_now=True)
+    date_joined = models.DateTimeField(auto_now_add=True)
+    USERNAME_FIELD = 'email'
+    REQUIRED_FIELDS = 'email'
+    def __str__(self):
+        return self.username
+
 class Post(models.Model):
     title = models.CharField(max_length=150)
-    text = RichTextField()
+    text = RichTextUploadingField()
     today = datetime.date.today()
     post_image = models.ImageField(upload_to =
                         str(today.year)+'/'
@@ -27,8 +41,8 @@ class Post(models.Model):
     created = models.DateTimeField(auto_now_add=True)
     edited = models.DateTimeField(auto_now=True)
     published = models.DateTimeField(default=timezone.now)
-    author = models.ForeignKey('User')
-    category = models.ForeignKey('Category', blank=True)
+    author = models.ForeignKey('User', default=User.username )
+    category = models.ForeignKey('Category')
     tags = models.ManyToManyField('Tag',
                                         related_name='posts',
                                         related_query_name='post',
@@ -48,19 +62,6 @@ class Post(models.Model):
         post_url = slugify(self.title)
         return "/%s/%s-%i/" % (slugify(self.category), self.url, self.id)
 
-class User(AbstractBaseUser):
-    username = models.CharField("Username", max_length=20,
-                                blank=False,
-                                unique=True)
-    email = models.EmailField(unique=True)
-    is_active = models.BooleanField("Is active?", default=True)
-    is_staff = models.BooleanField("Is admin", default=False)
-    last_login = models.DateTimeField(auto_now=True)
-    date_joined = models.DateTimeField(auto_now_add=True)
-    USERNAME_FIELD = 'email'
-    REQUIRED_FIELDS = 'email'
-    def __str__(self):
-        return self.username
 
 class Category(models.Model):
     name = models.CharField(max_length=30, unique=True)

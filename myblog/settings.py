@@ -58,10 +58,25 @@ INSTALLED_APPS = [
 CKEDITOR_JQUERY_URL = '//ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js'
 CKEDITOR_UPLOAD_PATH = 'uploads/'
 CKEDITOR_IMAGE_BACKEND = 'pillow'
+CKEDITOR_RESTRICT_BY_USER = True
+CKEDITOR_BROWSE_SHOW_DIRS = True
 
 CKEDITOR_CONFIGS = {
     "default": {
+        "toolbar": "Custom",
+        "toolbar_Custom": [
+            { 'name': 'undo_redo', 'items': ["Undo", "Redo", "-", "Preview"]},
+            '/',
+            { 'name': 'style', 'items': ['Format', "Bold", "Italic", "Underline",
+                                     "Strike", "Blockquote"]},
+            ["NumberedList", "BulletedList", "-", "JustifyLeft", "JustifyCenter",
+              "JustifyRight", "JustifyBlock"],
+            '/',
+            ["Link", "Unlink"],["Table", "Image", "Youtube"]
+        ],
         "removePlugins": "flash",
+        "extraPlugins": ','.join(["autogrow",
+                        "youtube", "preview"])
     }
 }
 
@@ -129,7 +144,7 @@ AUTH_PASSWORD_VALIDATORS = [
 # Internationalization
 # https://docs.djangoproject.com/en/1.10/topics/i18n/
 
-LANGUAGE_CODE = 'en-us'
+LANGUAGE_CODE = 'ru'
 
 TIME_ZONE = 'UTC'
 

@@ -5,9 +5,11 @@
 
 {% block content %}
 <h1>{{ post.title }}</h1>
+{% if post.post_image %}
 <p>
-  <img src="{{ MEDIA_URL }}{{ post.post_thumbnail.url }}"></a>
+  <img src="{{ MEDIA_URL }}{{ post.post_image.url }}"></a>
 </p>
+{% endif %}
 <p>
   {{ post.text }}
 </p>
