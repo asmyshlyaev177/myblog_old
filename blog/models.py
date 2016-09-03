@@ -15,10 +15,10 @@ class Post(models.Model):
     today = datetime.date.today()
     post_image = models.ImageField(upload_to =
                         str(today.year)+'/'
-                        +str(today.month)+'/'+str(today.day)+'/')
+                        +str(today.month)+'/'+str(today.day)+'/', blank=True)
     post_image.short_description = 'Image'
     def get_image(self):
-        return mark_safe('<img src="%s" height="300" />' % (self.post_image.url))
+        return mark_safe('<img src="%s" />' % (self.post_thumbnail.url))
     get_image.short_description = 'Thumbnail'
     post_thumbnail = ImageSpecField(source='post_image',
                                 processors=[ResizeToFit(640, 480)],
