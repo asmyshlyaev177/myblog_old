@@ -22,7 +22,7 @@ from django.conf import settings
 
 urlpatterns = [
 
-    url(r'^$', views.Index, name='index' ),
+    url(r'^$', views.Index, name='Index' ),
     url(r'^ckeditor/', include('ckeditor_uploader.urls')),
     url(r'^(?P<category>[-\w]+)/(?P<title>[-\w]+)-(?P<id>[-vi\d]+)/',
             views.single_post, name='single_post'),

@@ -4,16 +4,21 @@
 <head>
 
   <title>{% block title %}{% endblock %}</title>
-
+<link rel="stylesheet" href="/static/css/backtotop.css" type="text/css">
 </head>
 <body>
+
 <div class="content">
 
   {% block content %}
 
   {% endblock %}
-
+<a href="#" class="back-to-top">up</a>
 </div>
 
+{% block js %}
+<script src="http://code.jquery.com/jquery-latest.js"></script>
+<script src="/static/js/backtotop.js"></script>
+{% endblock %}
 </body>
 </html>
