@@ -1,0 +1,31 @@
+{% extends 'index.html' %}
+
+{% block title %}Log-in to site{% endblock %}
+
+{% block content %}
+
+{% if user.is_authenticated %}
+  <h1>You are logged in already</h1>
+  <p>
+    can <a href="{% url 'logout' %}">Logout</a>
+  </p>
+
+{% else %}
+
+<h1>Log-In</h1>
+<p>
+  <enter email and password for login
+</p>
+
+<div>
+  <form action="{% url 'login' %}" method="post">
+    {{ form.as_p }}
+    {% csrf_token %}
+    <p>
+      <input type="submit" value="Login" />
+    </p>
+  </form>
+</div>
+{% endif %}
+
+{% endblock %}
