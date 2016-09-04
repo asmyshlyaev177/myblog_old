@@ -57,14 +57,14 @@ class Post(models.Model):
     )
     status = models.CharField(max_length=1, choices=STATUS, default="D")
     ordering = ('-published',)
-    def save(self, *args, **kwargs):
-        self.description = re.sub(
-            '\<img((\W+)|(\w+))*\ \/>', '', self.description)
-        self.description = re.sub(
-            '\<script((\W+)|(\w+))*\<\/script\>', '', self.description)
-        self.description = re.sub(
-            '\<iframe((\W+)|(\w+))*\<\/iframe\>', '', self.description)
-        super(Post, self).save(*args, **kwargs) # Call the "real" save() method.
+    #def save(self, *args, **kwargs):
+    #    self.description = re.sub(
+    #        '\<img((\W+)|(\w+))*\ \/>', '', self.description)
+    #    self.description = re.sub(
+    #        '\<script((\W+)|(\w+))*\<\/script\>', '', self.description)
+    #    self.description = re.sub(
+    #        '\<iframe((\W+)|(\w+))*\<\/iframe\>', '', self.description)
+    #    super(Post, self).save(*args, **kwargs) # Call the "real" save() method.
 
     def __str__(self):
         return self.title
