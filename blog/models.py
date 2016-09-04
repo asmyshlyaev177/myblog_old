@@ -8,6 +8,7 @@ from ckeditor_uploader.fields import RichTextUploadingField
 from imagekit.models import ImageSpecField
 from imagekit.processors import ResizeToFit
 from django.utils.safestring import mark_safe
+import re
 
 class User(AbstractBaseUser):
     username = models.CharField("Username", max_length=20,
@@ -25,6 +26,7 @@ class User(AbstractBaseUser):
 
 class Post(models.Model):
     title = models.CharField(max_length=150)
+    description = models.TextField(max_length = 400, blank=True)
     text = RichTextUploadingField()
     today = datetime.date.today()
     post_image = models.ImageField(upload_to =
@@ -41,7 +43,7 @@ class Post(models.Model):
     created = models.DateTimeField(auto_now_add=True)
     edited = models.DateTimeField(auto_now=True)
     published = models.DateTimeField(default=timezone.now)
-    author = models.ForeignKey('User' , default=User.username)
+    author = models.ForeignKey('User', default=User.username ) ###
     category = models.ForeignKey('Category')
     tags = models.ManyToManyField('Tag',
                                         related_name='posts',
@@ -54,6 +56,15 @@ class Post(models.Model):
     )
     status = models.CharField(max_length=1, choices=STATUS, default="D")
     ordering = ('-published',)
+    def save(self, *args, **kwargs):
+        self.description = re.sub(
+            '\<img((\W+)|(\w+))*\ \/>', '', self.description)
+        self.description = re.sub(
+            '\<script((\W+)|(\w+))*\<\/script\>', '', self.description)
+        self.description = re.sub(
+            '\<iframe((\W+)|(\w+))*\<\/iframe\>', '', self.description)
+        super(Post, self).save(*args, **kwargs) # Call the "real" save() method.
+
     def __str__(self):
         return self.title
 

@@ -1,6 +1,6 @@
 {% load el_pagination_tags %}
 
-{% paginate 3 posts %}
+{% paginate 5 posts %}
 {% autoescape off %}
 {% for post in posts %}
 
@@ -12,7 +12,7 @@
     </div>
     {% endif %}
     <p>
-      {{ post.text|truncatewords_html:90 }}
+      {{ post.description }}
     </p>
   </div>
 {% endfor %}

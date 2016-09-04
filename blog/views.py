@@ -1,6 +1,7 @@
 from django.shortcuts import render
 from blog.models import Post, User, Category, Tag
 
+
 def Index(request):
     template = 'list.html'
     page_template = 'list_page.html'
