@@ -26,8 +26,9 @@ class User(AbstractBaseUser):
 
 class Post(models.Model):
     title = models.CharField(max_length=150)
-    description = models.TextField(max_length = 400, blank=True)
-    text = RichTextUploadingField()
+    description = RichTextField(max_length = 500, config_name = "description",
+                                blank=True)
+    text = RichTextUploadingField(config_name = "post")
     today = datetime.date.today()
     post_image = models.ImageField(upload_to =
                         str(today.year)+'/'

@@ -32,12 +32,12 @@ STATIC_ROOT = '/django/python3/myblog/blog/static/'
 MEDIA_ROOT = '/django/python3/myblog/blog/static/media/'
 MEDIA_URL = '/media/'
 
-#CACHES = {
-#    'default': {
-#        'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
-#        'LOCATION': 'unique-snowflake',
-#    }
-#}
+CACHES = {
+    'default': {
+        'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
+        'LOCATION': 'unique-snowflake',
+    }
+}
 # Application definition
 
 INSTALLED_APPS = [
@@ -63,9 +63,8 @@ CKEDITOR_RESTRICT_BY_USER = True
 CKEDITOR_BROWSE_SHOW_DIRS = True
 
 CKEDITOR_CONFIGS = {
-    "default": {
-        "toolbar": "Custom",
-        "toolbar_Custom": [
+    "post": {
+        "toolbar": [
             { 'name': 'undo_redo', 'items': ["Undo", "Redo", "-", "Preview"]},
             '/',
             { 'name': 'style', 'items': ['Format', "Bold", "Italic", "Underline",
@@ -78,6 +77,20 @@ CKEDITOR_CONFIGS = {
         "removePlugins": "flash",
         "extraPlugins": ','.join(["autogrow",
                         "youtube", "preview"])
+    },
+    "description": {
+        "toolbar": [
+            { 'name': 'undo_redo', 'items': ["Undo", "Redo"]},
+            { 'name': 'style', 'items': ["Bold", "Italic", "Underline",
+                                     "Strike", "Blockquote"]},
+            ["NumberedList", "BulletedList", "-", "JustifyLeft", "JustifyCenter",
+              "JustifyRight", "JustifyBlock"],
+            ["Table"]
+        ],
+        "removePlugins": "flash",
+        "extraPlugins": ','.join(["autogrow",
+                        "youtube", "preview"])
+
     }
 }
 

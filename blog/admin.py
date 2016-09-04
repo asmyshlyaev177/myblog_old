@@ -17,7 +17,7 @@ admin.site.register(User, UserAdmin)
 
 class PostAdmin(admin.ModelAdmin):
     empty_value_display = '-empty-'
-    fields = ('title', 'get_image', 'post_image', 'text', 'description',
+    fields = ('title', 'get_image', 'post_image', 'description', 'text',
                'author', 'category',
                 'published', 'url', 'status')
     readonly_fields = ('get_image',)
