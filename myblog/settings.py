@@ -27,6 +27,14 @@ DEBUG = True
 
 ALLOWED_HOSTS = ['*']
 
+AUTHENTICATION_BACKENDS = (
+    'blog.authentication.UsernameAuthBackend',
+    'blog.authentication.EmailAuthBackend',
+    'django.contrib.auth.backends.ModelBackend',
+)
+
+AUTH_USER_MODEL = 'blog.myUser'
+
 STATIC_URL = '/static/'
 STATIC_ROOT = '/django/python3/myblog/blog/static/'
 MEDIA_ROOT = '/django/python3/myblog/blog/static/media/'
