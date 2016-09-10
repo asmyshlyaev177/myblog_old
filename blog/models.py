@@ -34,8 +34,9 @@ class MyUserManager(BaseUserManager):
         user = self.create_user(
             username, email, password=password
         )
-        user.is_superuser = True
-        user.save(using.self._db)
+        user.is_it_superuser = True
+        user.is_it_staff = True
+        user.save(using=self._db)
         return user
     def create_staff(self, username, email, password):
         user = self.create_user(
@@ -70,7 +71,7 @@ class myUser(AbstractBaseUser):
 
     def has_module_perms(self, app_label):
         return True
-        
+
     @property
     def is_superuser(self):
         return self.is_it_superuser
