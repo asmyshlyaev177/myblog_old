@@ -34,7 +34,7 @@ class UserAdmin(BaseUserAdmin):
     filter_horizontal = ()
 
 admin.site.register(myUser, UserAdmin)
-#admin.site.unregister(Group)
+admin.site.unregister(Group)
 
 class PostAdmin(admin.ModelAdmin):
     empty_value_display = '-empty-'

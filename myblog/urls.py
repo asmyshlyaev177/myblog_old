@@ -34,5 +34,5 @@ urlpatterns = [
             {'document_root': settings.MEDIA_ROOT}),
     #url(r'^media/(?P<path>.*)$', cache_page(60 *15)(serve),
     #        {'document_root': settings.MEDIA_ROOT}),
-    url(r'^admin/', admin.site.urls),
+    url(r'^admin/', admin.site.urls, name='myadmin'),
 ]

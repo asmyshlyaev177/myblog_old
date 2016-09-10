@@ -51,7 +51,7 @@ class myUser(AbstractBaseUser):
                                 blank=False,
                                 unique=True)
     email = models.EmailField(unique=True, blank=False)
-    #password = models.CharField(max_length=400)
+    #password = models.CharField("Password", max_length=230)
     is_active = models.BooleanField("Is active", default=True)
     is_it_staff = models.BooleanField("Is stuff", default=False)
     is_it_superuser = models.BooleanField("Is admin", default=False)

@@ -29,7 +29,12 @@ class UserCreationForm(forms.ModelForm):
 
 class UserChangeForm(forms.ModelForm):
 
-    password = ReadOnlyPasswordHashField()
+    password = ReadOnlyPasswordHashField(label=("Password"),
+                help_text=("""<p>There is no way to see
+                    this user's password, but you can change the password
+                    using
+                    http://siteurl/admin/blog/myuser/userid/password/</p>
+                    <p>or manage.py changepassword *username* </p>"""))
 
     class Meta:
         model = myUser
