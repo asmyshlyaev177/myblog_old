@@ -4,7 +4,7 @@ from django.conf import settings
 class UsernameAuthBackend(object):
     def authenticate(self, username=None, password=None):
         try:
-            user = User.objects.get(username__iexact=username)
+            user = User.objects.get(username__iexact=username.lower())
             if user.check_password(password):
                 return user
             return None
@@ -19,7 +19,7 @@ class UsernameAuthBackend(object):
 class EmailAuthBackend(object):
     def authenticate(self, username=None, password=None):
         try:
-            user = User.objects.get(email__iexact=username)
+            user = User.objects.get(email__iexact=username.lower())
             if user.check_password(password):
                 return user
             return None

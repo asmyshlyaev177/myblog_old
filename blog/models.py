@@ -22,8 +22,8 @@ class MyUserManager(BaseUserManager):
             raise ValueError('User mush have unique username!')
 
         user = self.model(
-            username = username,
-            email = email
+            username = username.lower(),
+            email = email.lower()
         )
 
         user.set_password(password)
@@ -61,11 +61,11 @@ class myUser(AbstractBaseUser):
     USERNAME_FIELD = 'username'
     objects = MyUserManager()
     def __str__(self):
-        return self.username
+        return self.username.lower()
     def get_full_name(self):
-        return self.username
+        return self.username.lower()
     def get_short_name(self):
-        return self.username
+        return self.username.lower()
     def has_perm(self, perm, obj=None):
         return True
 
