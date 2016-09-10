@@ -30,7 +30,6 @@ ALLOWED_HOSTS = ['*']
 AUTHENTICATION_BACKENDS = (
     'blog.authentication.UsernameAuthBackend',
     'blog.authentication.EmailAuthBackend',
-    'django.contrib.auth.backends.ModelBackend',
 )
 
 AUTH_USER_MODEL = 'blog.myUser'

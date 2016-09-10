@@ -29,7 +29,8 @@ class UserAdmin(BaseUserAdmin):
     search_fields = ['email', 'username']
     ordering = ['username', 'email']
     show_full_result_count = True
-    list_filter = ()
+    list_filter = ('is_active',
+                       'is_it_staff', 'is_it_superuser')
     filter_horizontal = ()
 
 admin.site.register(myUser, UserAdmin)
