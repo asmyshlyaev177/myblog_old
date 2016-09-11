@@ -26,6 +26,7 @@ urlpatterns = [
     #url(r'^$', cache_page(60 * 15)(views.Index), name='Index'),
     url(r'^$', views.Index, name='Index'),
     url(r'^ckeditor/', include('ckeditor_uploader.urls')),
+    url(r'^(?P<category>[-\w]+)/$', views.category, name='category'),
     url(r'^(?P<category>[-\w]+)/(?P<title>[-\w]+)-(?P<id>[-vi\d]+)/',
             views.single_post, name='single_post'),
     #url(r'^(?P<category>[-\w]+)/(?P<title>[-\w]+)-(?P<id>[-vi\d]+)/',

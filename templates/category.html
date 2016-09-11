@@ -1,0 +1,21 @@
+{% extends 'index.html' %}
+
+{% block title %}Index of {{ category.name }}{% endblock %}
+
+{% block content %}
+<h1>List Posts from {{ category.name }}</h1>
+<h2>
+  Category description: {{ category.description }}
+</h2>
+{% include page_template %}
+
+{% block js %}
+    {{ block.super }}
+    <script
+    src="{{ request.scheme }}://{{ request.get_host }}/{{ STATIC_URL }}static/js/el-pagination.js">
+    </script>
+    <script>$.endlessPaginate({paginateOnScroll: true});</script>
+
+{% endblock %}
+
+{% endblock %}

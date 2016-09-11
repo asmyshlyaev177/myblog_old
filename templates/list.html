@@ -8,7 +8,7 @@
 
 {% block js %}
     {{ block.super }}
-    <script src="{{ STATIC_URL }}static/js/el-pagination.js"></script>
+    <script src="{{ request.scheme }}://{{ request.get_host }}/{{ STATIC_URL }}static/js/el-pagination.js"></script>
     <script>$.endlessPaginate({paginateOnScroll: true});</script>
 {% endblock %}
 

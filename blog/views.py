@@ -20,4 +20,15 @@ def single_post(request, category, title, id):
     post = Post.objects.get(pk=id)
     return render(request, 'single.html', {'post': post })
 
-#def category_list(request):
+def category(request, category):
+    template = 'category.html'
+    page_template = 'list_page.html'
+    context = {
+        'posts': Post.objects.filter(status="P",category__name=category).order_by('-published'),
+        'category': Category.objects.get(name=category),
+        'page_template': page_template
+        }
+    if request.is_ajax():
+        template = page_template
+
+    return render(request, template, context)
