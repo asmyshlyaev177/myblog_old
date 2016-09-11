@@ -24,16 +24,13 @@ from django.views.decorators.cache import cache_page
 urlpatterns = [
 
     #url(r'^$', cache_page(60 * 15)(views.Index), name='Index'),
+    
     url(r'^$', views.Index, name='Index'),
     url(r'^ckeditor/', include('ckeditor_uploader.urls')),
     url(r'^(?P<category>[-\w]+)/$', views.category, name='category'),
     url(r'^(?P<category>[-\w]+)/(?P<title>[-\w]+)-(?P<id>[-vi\d]+)/',
             views.single_post, name='single_post'),
-    #url(r'^(?P<category>[-\w]+)/(?P<title>[-\w]+)-(?P<id>[-vi\d]+)/',
-    #        cache_page(60 * 15)(views.single_post), name='single_post'),
     url(r'^media/(?P<path>.*)$', serve,
             {'document_root': settings.MEDIA_ROOT}),
-    #url(r'^media/(?P<path>.*)$', cache_page(60 *15)(serve),
-    #        {'document_root': settings.MEDIA_ROOT}),
     url(r'^admin/', admin.site.urls, name='myadmin'),
 ]
