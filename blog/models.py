@@ -128,7 +128,8 @@ class Post(models.Model):
         cat_url = slugify(self.category)
         post_url = slugify(self.title)
         return "/%s/%s-%i/" % (slugify(self.category), self.url, self.id)
-
+    def get_category(self):
+        return slugify(self.category)
 
 class Category(models.Model):
     name = models.CharField(max_length=30, unique=True)

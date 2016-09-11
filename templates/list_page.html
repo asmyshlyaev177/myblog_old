@@ -6,6 +6,10 @@
 
   <div class="post">
     <a href="{{ post.get_absolute_url }}"><h2>{{ post.title }}</h2></a>
+    <div =class="post_category">
+      <a href="{{ request.scheme }}://{{ request.get_host }}/{{ post.get_category }}">
+        {{ post.category }}</a>
+    </div>
     {% if post.post_image %}
     <div class="thumbnail">
         {{ post.get_image }}
