@@ -127,15 +127,32 @@ class Post(models.Model):
     def get_absolute_url(self):
         cat_url = slugify(self.category)
         post_url = slugify(self.title)
-        return "/%s/%s-%i/" % (slugify(self.category), self.url, self.id)
+        return "/%s/%s-%i/" % (cat_url, self.url, self.id)
     def get_category(self):
         return slugify(self.category)
 
 class Category(models.Model):
     name = models.CharField(max_length=30, unique=True)
     description = models.TextField(max_length=250)
+    slug = models.SlugField("URL",blank=True, max_length=150)
+    order = models.SmallIntegerField(blank=True, default=1)
     def __str__(self):
         return self.name
+    def get_url(self):
+        cat_url = slugify(self.name)
+        return "/%s/" % (cat_url)
+    @classmethod
+    def list(self):
+        cat = self.objects.all().order_by('order','name')
+        cat_list = list()
+        for c in cat:
+            cat_list.append(c.name)
+        return cat_list
+    def save(self, *args, **kwargs):
+        if not self.slug:
+            self.slug = slugify(self.name)
+        super(Category,self).save(*args, **kwargs)
+
 
 class Tag(models.Model):
     name = models.CharField(max_length=30, unique=True)

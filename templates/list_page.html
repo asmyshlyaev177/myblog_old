@@ -6,7 +6,7 @@
 
   <div class="post">
     <a href="{{ post.get_absolute_url }}"><h2>{{ post.title }}</h2></a>
-    <div =class="post_category">
+    <div class="post_category">
       <a href="{{ request.scheme }}://{{ request.get_host }}/{{ post.get_category }}">
         {{ post.category }}</a>
     </div>
@@ -19,6 +19,12 @@
       {{ post.description }}
     </p>
   </div>
+
+{% empty %}
+<div class="post">
+    <h3>No posts in this category yet...</h3>
+</div>
+
 {% endfor %}
 
 {% show_more %}

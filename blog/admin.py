@@ -59,6 +59,7 @@ class CategoryAdmin(admin.ModelAdmin):
     list_display = ('name', 'description')
     orderinng = ['name',]
 
+
 admin.site.register(Category, CategoryAdmin)
 
 admin.site.register(Tag)
