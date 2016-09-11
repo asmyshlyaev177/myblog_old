@@ -44,6 +44,24 @@
   </div>
 
 
+<div class="container">
+<div class="row">
+  <div class="col-md-4 pull-right sidebar">
+    <div class="sidebar1">
+      <p>
+        Sidebar 1<br />
+        Context-specific usage
+Like the standard button classes, .navbar-btn can be used on
+  elements. However, neither .navbar-btn nor the standard button classes
+  should be used on  elements within .navbar-nav.
+      </p>
+    </div>
+  </div>
+
+
+<div class="col-md-8 main">
+<h1 class="text-center">{% block title2 %}{% endblock %}</h1>
+
 <div class="content">
 
   {% block content %}
@@ -56,7 +74,9 @@
 <script src="/static/js/jquery-latest.js"></script>
 <script src="/static/js/backtotop.js"></script>
 {% endblock %}
+</div>
 
-
+</div>
+</div>
 </body>
 </html>

@@ -5,17 +5,27 @@
 {% for post in posts %}
 
   <div class="post">
-    <a href="{{ post.get_absolute_url }}"><h2>{{ post.title }}</h2></a>
-    <div class="post_category">
-      <a href="{{ request.scheme }}://{{ request.get_host }}/{{ post.get_category }}">
+    <a href="{{ post.get_absolute_url }}"><h2 class="text-center">{{ post.title }}</h2></a>
+    <div class="post_category pull-left">
+      <a href="{{ request.scheme }}://{{ request.get_host }}/{{ post.get_category }}"
+        class="post-category">
         {{ post.category }}</a>
     </div>
+
+    <div class="post-author pull-right">
+      {{ post.author }}
+    </div>
+
+    <div class="clearfix">
+
+    </div>
+
     {% if post.post_image %}
-    <div class="thumbnail">
+    <div class="post-thumbnail">
         {{ post.get_image }}
     </div>
     {% endif %}
-    <p>
+    <p class="post-description">
       {{ post.description }}
     </p>
   </div>
@@ -27,6 +37,9 @@
 
 {% endfor %}
 
-{% show_more %}
+<div class="more-loader text-center">
+  {% show_more %}
+</div>
+
 
 {% endautoescape %}

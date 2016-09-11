@@ -5,10 +5,11 @@
 
 {% block content %}
 {% autoescape off %}
-<h1>{{ post.title }}</h1>
+<h1 class="text-center">{{ post.title }}</h1>
 {% if post.post_image %}
 <p>
-  <img src="{{ MEDIA_URL }}{{ post.post_image.url }}"></a>
+  <img src="{{ MEDIA_URL }}{{ post.post_image.url }}"
+    class="img-responsive center-block"></a>
 </p>
 {% endif %}
 <p>
