@@ -1,11 +1,11 @@
 {% extends 'index.html' %}
 
-{% block title %}Index of {{ category.name }}{% endblock %}
+{% block title %}Index of {{ category }}{% endblock %}
 
 {% block content %}
-<h1>List Posts from {{ category.name }}</h1>
+<h1>List Posts from {{ category }}</h1>
 <h2>
-  Category description: {{ category.description }}
+  Category description: {{ description }}
 </h2>
 {% include page_template %}
 
