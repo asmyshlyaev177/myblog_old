@@ -2,6 +2,7 @@
 
 {% paginate 3 posts %}
 {% autoescape off %}
+
 {% for post in posts %}
 
   <div class="post">
@@ -39,6 +40,8 @@
 </div>
 
 {% endfor %}
+
+
 
 <div class="more-loader text-center">
   {% show_more %}
