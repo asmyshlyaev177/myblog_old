@@ -26,6 +26,7 @@ urlpatterns = [
 
     #url(r'^$', cache_page(60 * 15)(views.Index), name='Index'),
     url(r'^__debug__/', include(debug_toolbar.urls)),
+    url(r'^admin/', admin.site.urls, name='myadmin'),
     url(r'^$', views.Index, name='Index'),
     url(r'^ckeditor/', include('ckeditor_uploader.urls')),
     url(r'^(?P<category>[-\w]+)/$', views.category, name='category'),
@@ -33,5 +34,5 @@ urlpatterns = [
             views.single_post, name='single_post'),
     url(r'^media/(?P<path>.*)$', serve,
             {'document_root': settings.MEDIA_ROOT}),
-    url(r'^admin/', admin.site.urls, name='myadmin'),
+
 ]

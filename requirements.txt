@@ -2,9 +2,14 @@ click==6.6
 Django==1.10
 django-appconf==1.0.2
 django-ckeditor==5.1.0
+django-debug-toolbar==1.5
 django-el-pagination==3.0.1
+django-haystack==2.5.0
 django-imagekit==3.3
 django-taggit==0.21.1
+Flask==0.11.1
+gevent==1.1.1
+greenlet==0.4.10
 itsdangerous==0.24
 Jinja2==2.8
 Markdown==2.6.6
@@ -12,7 +17,9 @@ MarkupSafe==0.23
 msgpack-python==0.4.8
 pilkit==1.1.13
 Pillow==3.3.1
+pysolr==3.5.0
 pytz==2016.6.1
 requests==2.11.1
 six==1.10.0
+sqlparse==0.2.1
 Werkzeug==0.11.10
