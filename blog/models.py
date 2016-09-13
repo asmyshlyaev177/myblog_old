@@ -89,14 +89,15 @@ class Post(models.Model):
                         str(today.year)+'/'
                         +str(today.month)+'/'+str(today.day)+'/', blank=True)
     post_image.short_description = 'Image'
-    def get_image(self):
-        return mark_safe('<img src="%s" class ="img-responsive center-block"/>'\
-                         % (self.post_thumbnail.url))
-    get_image.short_description = 'Thumbnail'
     post_thumbnail = ImageSpecField(source='post_image',
                                 processors=[ResizeToFit(640, 480)],
                                 format='JPEG',
                                 options={'quality': 85})
+    def get_image(self):
+        return mark_safe('<img src="%s" class ="img-responsive center-block"/>'\
+                         % (self.post_thumbnail.url))
+    get_image.short_description = 'Thumbnail'
+
     created = models.DateTimeField(auto_now_add=True)
     edited = models.DateTimeField(auto_now=True)
     published = models.DateTimeField(default=timezone.now)

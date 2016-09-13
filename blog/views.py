@@ -6,9 +6,10 @@ def Index(request):
     template = 'list.html'
     page_template = 'list_page.html'
     context = {
-        'posts': Post.objects.filter(status="P").order_by('-published'),
+        'posts': Post.objects\
+            .filter(status="P").order_by('-published'),
         'page_template': page_template,
-        'categories': Category.objects.all(),
+        #'categories': Category.objects.all(),
         'cat_list': Category.list()
     }
 
