@@ -5,7 +5,8 @@
 {% for post in posts %}
 
   <div class="post">
-    <a href="{{ post.get_absolute_url }}"><h2 class="text-center">{{ post.title }}</h2></a>
+    <a href="{{ post.get_absolute_url }}"><h2 class="text-center">
+      {{ post.title }}</h2></a>
     <div class="post_category pull-left">
       <a href="{{ request.scheme }}://{{ request.get_host }}/{{ post.get_category }}"
         class="post-category">
@@ -25,9 +26,11 @@
         {{ post.get_image }}
     </div>
     {% endif %}
+    {% if post.description %}
     <p class="post-description">
       {{ post.description }}
     </p>
+    {% endif %}
   </div>
 
 {% empty %}

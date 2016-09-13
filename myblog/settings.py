@@ -26,6 +26,9 @@ SECRET_KEY = '*er@wzdwuga0)0u%j22+pthd0)wzgl%oka)+a^na37()xgr%f9'
 DEBUG = True
 
 ALLOWED_HOSTS = ['*']
+DEBUG_TOOLBAR_PATCH_SETTINGS = False
+INTERNAL_IPS = ['192.168.1.68', '192.168.1.70']
+
 
 AUTHENTICATION_BACKENDS = (
     'blog.authentication.UsernameAuthBackend',
@@ -59,6 +62,7 @@ INSTALLED_APPS = [
     'ckeditor_uploader',
     'imagekit',
     'el_pagination',
+    'debug_toolbar',
 ]
 
 #IMAGEKIT_DEFAULT_CACHEFILE_STRATEGY = 'imagekit.cachefiles.strategies.Optimistic'
@@ -102,6 +106,7 @@ CKEDITOR_CONFIGS = {
 }
 
 MIDDLEWARE = [
+    'debug_toolbar.middleware.DebugToolbarMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -109,6 +114,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+
 ]
 
 ROOT_URLCONF = 'myblog.urls'

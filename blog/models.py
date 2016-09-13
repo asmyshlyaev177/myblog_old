@@ -47,6 +47,9 @@ class MyUserManager(BaseUserManager):
         return user
 
 class myUser(AbstractBaseUser):
+    index_together = [
+    ["id", "username"],
+    ]
     username = models.CharField("Username", max_length=30,
                                 blank=False,
                                 unique=True)
@@ -80,6 +83,10 @@ class myUser(AbstractBaseUser):
         return self.is_it_staff
 
 class Post(models.Model):
+    index_together = [
+    ["title", "description", "post_thumbnail", "author", "category",
+     "url", "published", "status"],
+    ]
     title = models.CharField(max_length=150)
     description = RichTextField(max_length = 500, config_name = "description",
                                 blank=True)
@@ -134,6 +141,9 @@ class Post(models.Model):
         return slugify(self.category)
 
 class Category(models.Model):
+    index_together = [
+    ["id","name", "order"],
+    ]
     name = models.CharField(max_length=30, unique=True)
     description = models.TextField(max_length=250)
     slug = models.SlugField("URL",blank=True, max_length=150)
@@ -145,10 +155,12 @@ class Category(models.Model):
         return "/%s/" % (cat_url)
     @classmethod
     def list(self):
-        cat = self.objects.all().order_by('order','name')
-        cat_list = list()
-        for c in cat:
-            cat_list.append(c.name)
+        cat_list = cat = self.objects.all().only("name","order")\
+            .order_by('order','name')
+        #cat = self.objects.all().order_by('order','name')
+        #cat_list = list()
+        #for c in cat:
+            #cat_list.append(c.name)
         return cat_list
     def save(self, *args, **kwargs):
         if not self.slug:

@@ -20,11 +20,12 @@ from blog.views import Index
 from django.views.static import serve
 from django.conf import settings
 from django.views.decorators.cache import cache_page
+import debug_toolbar
 
 urlpatterns = [
 
     #url(r'^$', cache_page(60 * 15)(views.Index), name='Index'),
-    
+    url(r'^__debug__/', include(debug_toolbar.urls)),
     url(r'^$', views.Index, name='Index'),
     url(r'^ckeditor/', include('ckeditor_uploader.urls')),
     url(r'^(?P<category>[-\w]+)/$', views.category, name='category'),
