@@ -50,7 +50,7 @@ class myUser(AbstractBaseUser):
     index_together = [
     ["id", "username"],
     ]
-    username = models.CharField("Username", max_length=30,
+    username = models.CharField("Username/email", max_length=30,
                                 blank=False,
                                 unique=True)
     email = models.EmailField(unique=True, blank=False)

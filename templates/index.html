@@ -50,10 +50,13 @@
     <div class="sidebar1">
       <p>
         Sidebar 1<br />
-        Context-specific usage
-Like the standard button classes, .navbar-btn can be used on
-  elements. However, neither .navbar-btn nor the standard button classes
-  should be used on  elements within .navbar-nav.
+      {% if user.is_authenticated %}
+        <p><a href="{% url 'logout' %}">Logout</a></p>
+        <p><a href="{% url 'password_change' %}">Change password</a></p>
+      {% else %}
+        <p><a href="{% url 'login' %}">Login</a></p>
+        <p><a href="{% url 'password_reset' %}">Reset password</a></p>
+      {% endif %}
       </p>
     </div>
   </div>

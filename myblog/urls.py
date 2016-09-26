@@ -30,7 +30,7 @@ urlpatterns = [
     url(r'^admin/', admin.site.urls, name='myadmin'),
     url(r'^$', views.Index, name='Index'),
     url(r'^ckeditor/', include('ckeditor_uploader.urls')),
-    
+
     url(r'^login/', auth_views.login, name='login'),
     url(r'^logout/', auth_views.logout, name='logout'),
     url(r'^password_change/$', auth_views.password_change, name='password_change'),
