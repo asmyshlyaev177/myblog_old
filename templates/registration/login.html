@@ -19,6 +19,7 @@
 
 <div>
   <form action="{% url 'login' %}" method="post">
+    <!-- label[for="id_username"] { color: red } -->
     {{ form.as_p }}
     {% csrf_token %}
     <p>
