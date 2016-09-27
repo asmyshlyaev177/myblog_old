@@ -108,7 +108,9 @@ class Post(models.Model):
     created = models.DateTimeField(auto_now_add=True)
     edited = models.DateTimeField(auto_now=True)
     published = models.DateTimeField(default=timezone.now)
-    author = models.ForeignKey(settings.AUTH_USER_MODEL) ###
+    author = models.ForeignKey(settings.AUTH_USER_MODEL,
+                               default = 1,
+                               on_delete=models.SET_DEFAULT) ###
     category = models.ForeignKey('Category')
     tags = models.ManyToManyField('Tag',
                                         related_name='posts',
