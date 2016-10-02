@@ -10,6 +10,8 @@ from imagekit.models import ImageSpecField, ProcessedImageField
 from imagekit.processors import ResizeToFit
 from django.utils.safestring import mark_safe
 import re
+import os
+from django.dispatch import receiver
 from django.conf import settings
 
 
@@ -92,6 +94,29 @@ class myUser(AbstractBaseUser):
     def is_staff(self):
         return self.is_it_staff
 
+@receiver(models.signals.post_delete, sender=myUser)
+def delete_avatar(sender, instance, **kwargs):
+    """delete avatar when delete user"""
+    if instance.avatar:
+        if os.path.isfile(instance.avatar.path):
+            os.remove(instance.avatar.path)
+
+@receiver(models.signals.pre_save, sender=myUser)
+def delete_old_avatar(sender, instance, **kwargs):
+    """delete old file when avatar changed"""
+    if not instance.pk:
+        return False
+
+    try:
+        old_file = myUser.objects.get(pk=instance.pk).avatar
+    except myUser.DoesNotExist:
+        return False
+
+    new_file = instance.avatar
+    if not old_file == new_file:
+        if os.path.isfile(old_file.path):
+            os.remove(old_file.path)
+
 class Post(models.Model):
     index_together = [
     ["title", "description", "post_thumbnail", "author", "category",
@@ -151,6 +176,43 @@ class Post(models.Model):
         return "/%s/%s-%i/" % (cat_url, self.url, self.id)
     def get_category(self):
         return slugify(self.category)
+
+@receiver(models.signals.post_delete, sender=Post)
+def delete_image_and_thumb(sender, instance, **kwargs):
+    """delete image when post deleted"""
+    if instance.post_image:
+        if os.path.isfile(instance.post_image.path):
+            os.remove(instance.post_image.path)
+    if instance.post_thumbnail:
+        if os.path.isfile(instance.post_thumbnail.path):
+            os.remove(instance.post_thumbnail.path)
+
+@receiver(models.signals.pre_save, sender=Post)
+def delete_old_image_and_thumb(sender, instance, **kwargs):
+    """delete old file when thumbnail changed"""
+    if not instance.pk:
+        return False
+
+    try:
+        old_file = Post.objects.get(pk=instance.pk).post_image
+    except Post.DoesNotExist:
+        return False
+
+    new_file = instance.post_image
+
+    if not old_file == new_file and old_file:
+        if os.path.isfile(old_file.path):
+            os.remove(old_file.path)
+
+    try:
+        old_file = Post.objects.get(pk=instance.pk).post_thumbnail
+    except Post.DoesNotExist:
+        return False
+
+    new_file = instance.post_thumbnail
+    if not old_file == new_file and old_file:
+        if os.path.isfile(old_file.path):
+            os.remove(old_file.path)
 
 class Category(models.Model):
     index_together = [
