@@ -4,6 +4,7 @@ from django.utils.text import slugify
 from blog.forms import SignupForm
 from django.http import HttpResponseRedirect
 from django.views.decorators.csrf import csrf_protect
+from django.contrib.auth.decorators import login_required
 
 cat_list= Category.list()
 
@@ -20,6 +21,9 @@ def signup(request):
 def signup_success(request):
     return render(request, 'registration/signup_success.html')
 
+@login_required
+def dashboard(request):
+    return render(request, 'dashboard.html')
 
 def Index(request):
     template = 'list.html'

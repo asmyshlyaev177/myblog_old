@@ -4,28 +4,30 @@ from blog.models import Post, Category, Tag, myUser
 from django import forms
 from django.utils.text import slugify
 from imagekit.admin import AdminThumbnail
-from .forms import UserCreationForm, UserChangeForm
+from .forms import UserCreationForm, UserChangeForm, MyUserChangeForm
 from django.contrib.auth.models import Group
 from django.contrib.auth.models import AbstractBaseUser
 
 class UserAdmin(BaseUserAdmin):
-    form = UserChangeForm
+    form = MyUserChangeForm
     add_form = UserCreationForm
     empty_value_display = '-empty-'
     list_display = ('username', 'email', 'date_joined', 'is_active')
 
     fieldsets = (
-        (None, {'fields': ('username', 'email','password','is_active',
+        (None, {'fields': ('username','get_avatar','avatar',
+                           'email','password','is_active',
                            'is_it_staff', 'is_it_superuser')}),
-        #('Permissions', {'fields': ('is_staff', 'is_superuser', 'is_active')}),
     )
-    add_fieldsets = (
-        (None, {
-        'classes': ('wide',),
-        'fields': ('username', 'email','password1','password2')}
-            ),
-    )
-    readonly_fields = ('date_joined', 'last_login')
+
+    #add_fieldsets = (
+    #    (None, {
+    #    'classes': ('wide',),
+    #    'fields': ('username', 'email','password1','password2')}
+    #        ),
+    #)
+
+    readonly_fields = ('date_joined', 'last_login','get_avatar')
     search_fields = ['email', 'username']
     ordering = ['username', 'email']
     show_full_result_count = True

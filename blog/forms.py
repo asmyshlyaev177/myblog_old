@@ -31,16 +31,6 @@ class SignupForm(forms.ModelForm):
 #forms for users
 class MyUserChangeForm(forms.ModelForm):
 
-    password = ReadOnlyPasswordHashField(label=("Password"),
-                help_text=("""<p>There is no way to see
-                    this password, but you can change the password
-                    using
-                    http://siteurl/password_change/</p>
-                    """))
-
     class Meta:
         model = myUser
-        fields = ('username', 'email', 'password')
-
-    def clean_password(self):
-        return self.initial["password"]
+        fields = ('username', 'email','avatar')

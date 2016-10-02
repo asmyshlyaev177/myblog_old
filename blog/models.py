@@ -6,7 +6,7 @@ from django.utils import timezone
 import datetime
 from ckeditor.fields import RichTextField
 from ckeditor_uploader.fields import RichTextUploadingField
-from imagekit.models import ImageSpecField
+from imagekit.models import ImageSpecField, ProcessedImageField
 from imagekit.processors import ResizeToFit
 from django.utils.safestring import mark_safe
 import re
@@ -53,6 +53,10 @@ class myUser(AbstractBaseUser):
     username = models.CharField("Username/email", max_length=30,
                                 blank=False,
                                 unique=True)
+    avatar = ProcessedImageField(upload_to='avatars',
+                                 processors=[ResizeToFit(50, 50)],
+                                 format='JPEG',
+                                 options={'quality': 90}, blank=True)
     email = models.EmailField(unique=True, blank=False)
     #password = models.CharField("Password", max_length=230)
     is_active = models.BooleanField("Is active", default=True)
@@ -63,6 +67,12 @@ class myUser(AbstractBaseUser):
     REQUIRED_FIELDS = ['email',]
     USERNAME_FIELD = 'username'
     objects = MyUserManager()
+
+    def get_avatar(self):
+        return mark_safe('<img src="%s" class ="img-responsive"/>'\
+                         % (self.avatar.url))
+    get_avatar.short_description = 'Current avatar'
+
     def __str__(self):
         return self.username.lower()
     def get_full_name(self):

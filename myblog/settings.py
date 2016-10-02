@@ -29,6 +29,8 @@ ALLOWED_HOSTS = ['*']
 DEBUG_TOOLBAR_PATCH_SETTINGS = False
 INTERNAL_IPS = ['192.168.1.68', '192.168.1.70']
 
+LOGIN_REDIRECT_URL = '/dashboard'
+
 EMAIL_USE_TLS = True
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_HOST='smtp.gmail.com'
