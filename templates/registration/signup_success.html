@@ -1,0 +1,16 @@
+{% extends 'index.html' %}
+
+{% block title %}Sign-up done!{% endblock %}
+
+{% block content %}
+
+<div>
+  <p>
+    Your registration complete successfully!
+  </p>
+  <p>
+    You can log-in using this<a href="{% url 'login' %}"> form </a>
+  </p>
+</div>
+
+{% endblock %}

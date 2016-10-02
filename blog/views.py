@@ -1,8 +1,25 @@
 from django.shortcuts import render
 from blog.models import Post, myUser, Category, Tag
 from django.utils.text import slugify
+from blog.forms import SignupForm
+from django.http import HttpResponseRedirect
+from django.views.decorators.csrf import csrf_protect
 
 cat_list= Category.list()
+
+@csrf_protect
+def signup(request):
+    if request.method == 'POST':
+        form = SignupForm(request.POST)
+        if form.is_valid():
+            form.save()
+            return HttpResponseRedirect('/signup_success/')
+    form = SignupForm()
+    return render(request, 'registration/signup.html', { 'form': form })
+
+def signup_success(request):
+    return render(request, 'registration/signup_success.html')
+
 
 def Index(request):
     template = 'list.html'

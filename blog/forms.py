@@ -5,7 +5,8 @@ from django import forms
 from blog.models import myUser
 from django.conf import settings
 
-class UserCreationForm(forms.ModelForm):
+#forms for users
+class SignupForm(forms.ModelForm):
     password1 = forms.CharField(label='Password', widget=forms.PasswordInput)
     password2 = forms.CharField(label='Repeat password',
                                 widget=forms.PasswordInput)
@@ -21,24 +22,25 @@ class UserCreationForm(forms.ModelForm):
         return password2
 
     def save(self, commit=True):
-        user = super(UserCreationForm, self).save(commit=False)
+        user = super(SignupForm, self).save(commit=False)
         user.set_password(self.cleaned_data["password1"])
         if commit:
             user.save()
         return user
 
-class UserChangeForm(forms.ModelForm):
+#forms for users
+class MyUserChangeForm(forms.ModelForm):
 
     password = ReadOnlyPasswordHashField(label=("Password"),
                 help_text=("""<p>There is no way to see
-                    this user's password, but you can change the password
+                    this password, but you can change the password
                     using
-                    http://siteurl/admin/blog/myuser/userid/password/</p>
-                    <p>or manage.py changepassword *username* </p>"""))
+                    http://siteurl/password_change/</p>
+                    """))
 
     class Meta:
         model = myUser
-        fields = ('username', 'email', 'password', 'is_active')
+        fields = ('username', 'email', 'password')
 
     def clean_password(self):
         return self.initial["password"]
