@@ -27,7 +27,8 @@ DEBUG = True
 
 ALLOWED_HOSTS = ['*']
 DEBUG_TOOLBAR_PATCH_SETTINGS = False
-INTERNAL_IPS = ['192.168.1.68', '192.168.1.70']
+SHOW_COLLAPSED = True
+INTERNAL_IPS = ['192.168.1.68', '192.168.1.70', '127.0.0.1']
 
 LOGIN_REDIRECT_URL = '/dashboard'
 
@@ -36,7 +37,7 @@ EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_HOST='smtp.gmail.com'
 EMAIL_PORT=587
 EMAIL_HOST_USER = 'asmyshlyaev177@gmail.com'
-EMAIL_HOST_PASSWORD = 'Bfrxgdzfqvjuzowu_177'
+EMAIL_HOST_PASSWORD = 'mypass'
 DEFAULT_EMAIL_FROM = 'asmyshlyaev177@gmail.com'
 
 AUTHENTICATION_BACKENDS = (

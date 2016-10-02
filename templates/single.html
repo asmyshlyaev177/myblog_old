@@ -5,11 +5,33 @@
 
 {% block content %}
 {% autoescape off %}
-<h1 class="text-center">{{ post.title }}</h1>
+<h1 class="text-center post-title">{{ post.title }}</h1>
+
+<div class="post-author pull-left">
+  <div class="author-name">
+    {{ post.author }}
+  </div>
+  <div class="author-avatar">
+    {% if post.author.avatar %}
+    {{ post.author.get_avatar }}
+    {% else %}
+    <img src="/static/img/avatar.jpg" class ="img-avatar"/>
+    {% endif %}
+  </div>
+</div>
+
+<div class="post_category pull-right">
+  <a href="{{ request.scheme }}://{{ request.get_host }}/{{ post.get_category }}"
+    class="post-category">
+    Category: {{ post.category }}</a>
+</div>
+
+<div class="clearfix">
+
 {% if post.post_image %}
 <p>
   <img src="{{ MEDIA_URL }}{{ post.post_image.url }}"
-    class="img-responsive center-block"></a>
+    class="img-responsive center-block post-image"></a>
 </p>
 {% endif %}
 <p>

@@ -8,13 +8,13 @@
   <div class="post">
     <a href="{{ post.get_absolute_url }}"><h2 class="text-center">
       {{ post.title }}</h2></a>
-    <div class="post_category pull-left">
+    <div class="post_category pull-right">
       <a href="{{ request.scheme }}://{{ request.get_host }}/{{ post.get_category }}"
         class="post-category">
-        {{ post.category }}</a>
+        Category: {{ post.category }}</a>
     </div>
 
-    <div class="post-author pull-right">
+    <div class="post-author pull-left">
       <div class="author-name">
         {{ post.author }}
       </div>
