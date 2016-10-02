@@ -15,7 +15,16 @@
     </div>
 
     <div class="post-author pull-right">
-      {{ post.author }}
+      <div class="author-name">
+        {{ post.author }}
+      </div>
+      <div class="author-avatar">
+        {% if post.author.avatar %}
+        {{ post.author.get_avatar }}
+        {% else %}
+        <img src="/static/img/avatar.jpg" class ="img-avatar"/>
+        {% endif %}
+      </div>
     </div>
 
     <div class="clearfix">

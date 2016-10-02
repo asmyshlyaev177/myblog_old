@@ -60,6 +60,7 @@ CACHES = {
 # Application definition
 
 INSTALLED_APPS = [
+    'debug_toolbar',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -71,7 +72,6 @@ INSTALLED_APPS = [
     'ckeditor_uploader',
     'imagekit',
     'el_pagination',
-    'debug_toolbar',
 ]
 
 #IMAGEKIT_DEFAULT_CACHEFILE_STRATEGY = 'imagekit.cachefiles.strategies.Optimistic'

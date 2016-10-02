@@ -113,7 +113,7 @@ def delete_old_avatar(sender, instance, **kwargs):
         return False
 
     new_file = instance.avatar
-    if not old_file == new_file:
+    if not old_file == new_file and old_file:
         if os.path.isfile(old_file.path):
             os.remove(old_file.path)
 
