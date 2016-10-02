@@ -54,8 +54,8 @@
         <p><a href="{% url 'logout' %}">Logout</a></p>
         <p><a href="{% url 'password_change' %}">Change password</a></p>
       {% else %}
+        <p><a href="{% url 'signup' %}">Register</a></p>
         <p><a href="{% url 'login' %}">Login</a></p>
-        <p><a href="{% url 'password_reset' %}">Reset password</a></p>
       {% endif %}
       </p>
     </div>
