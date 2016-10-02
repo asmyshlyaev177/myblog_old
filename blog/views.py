@@ -23,7 +23,9 @@ def signup_success(request):
 
 @login_required
 def dashboard(request):
-    return render(request, 'dashboard.html')
+    posts = Post.objects.filter(author=request.user.id)
+    return render(request, 'dashboard.html', {'posts':posts,
+                                              'cat_list': cat_list})
 
 def Index(request):
     template = 'list.html'
