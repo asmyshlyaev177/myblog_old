@@ -11,8 +11,22 @@
   <form action="{% url 'dashboard' %}" method="post"
    enctype="multipart/form-data">
     <!-- label[for="id_username"] { color: red } -->
-    {{ form.as_p }}
-    {% csrf_token %}
+
+    <div>
+      <label for="username">Username</label>{{ form.username }}
+    </div>
+    <div>
+    <label for="email">Email</label>{{ form.email }}
+    </div>
+    <div>
+      <label for="avatar">Avatar </label>
+      <img src="{{ request.scheme }}://{{ request.get_host }}/media/{{ request.user.avatar }}" />
+    </div>
+    <div>
+      {{ form.avatar }}
+    </div>
+
+    {% csrf_token %}<br />
     <p>
       <input type="submit" value="Save" />
     </p>
