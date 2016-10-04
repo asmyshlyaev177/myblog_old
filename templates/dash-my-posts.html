@@ -1,0 +1,36 @@
+{% extends "dashboard.html" %}
+{% load imagekit %}
+
+{% block title %}My Posts{% endblock %}
+
+{% block content %}
+
+<h3 class="text-center">My posts</h3>
+<div class="container-fluid">
+
+    {% for post in posts %}
+    <div class="row">
+    <div class="col-md-4">
+      {% if post.post_image %}
+       {% thumbnail '200x200' post.post_image -- class="post-thumb-small" %}
+       {% endif %}
+    </div>
+
+      <div class="col-md-8">
+       <a href="{{ post.get_absolute_url }}" >
+         <h4 class="post-title-dash text-center">{{ post.title }} </h4></a>
+         <div class="pull-right">Category:
+           <a href="
+           {% url 'category' category=post.category|slugify %}">
+           {{post.category}}</a>
+         </div>
+
+            <p class="post-description">{% autoescape off %}
+              {{ post.description }}{% endautoescape %}</p>
+         </div>
+         </div>
+    {% endfor %}
+
+</div>
+
+{% endblock %}

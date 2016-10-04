@@ -1,7 +1,7 @@
 from django.shortcuts import render
 from blog.models import Post, myUser, Category, Tag
 from django.utils.text import slugify
-from blog.forms import SignupForm
+from blog.forms import SignupForm, MyUserChangeForm
 from django.http import HttpResponseRedirect
 from django.views.decorators.csrf import csrf_protect
 from django.contrib.auth.decorators import login_required
@@ -23,8 +23,22 @@ def signup_success(request):
 
 @login_required
 def dashboard(request):
+    if request.method == 'POST':
+        form = MyUserChangeForm(request.POST, request.FILES,
+                                instance=request.user)
+        if form.is_valid():
+            form.save()
+    else:
+        form = MyUserChangeForm(instance=request.user)
+
+    return render(request, 'dashboard.html', {'cat_list': cat_list,
+                                              'form': form},
+                                )
+
+@login_required
+def my_posts(request):
     posts = Post.objects.filter(author=request.user.id)
-    return render(request, 'dashboard.html', {'posts':posts,
+    return render(request, 'dash-my-posts.html', {'posts':posts,
                                               'cat_list': cat_list})
 
 def Index(request):

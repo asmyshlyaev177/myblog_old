@@ -56,14 +56,23 @@
                               {{ user.get_avatar}}
                               {% endif %}</a></p>
         <p><a href="{% url 'logout' %}">Logout</a></p>
-        <p><a href="{% url 'password_change' %}">Change password</a></p>
       {% else %}
         <p><a href="{% url 'signup' %}">Register</a></p>
         <p><a href="{% url 'login' %}">Login</a></p>
       {% endif %}
       </p>
     </div>
+    {% if user.is_authenticated %}
+    <div class="sidebar2">
+      <p>
+        Sidebar 2<br />
+        <p><a href="{% url 'password_change' %}">Change password</a></p>
+        <p><a href="{% url 'my_posts' %}">My Posts</a></p>
+      </p>
+    </div>
+    {% endif %}
   </div>
+
 
 
 <div class="col-md-8 main">

@@ -5,6 +5,7 @@ from django import forms
 from blog.models import myUser
 from django.conf import settings
 
+
 #forms for users
 class SignupForm(forms.ModelForm):
     password1 = forms.CharField(label='Password', widget=forms.PasswordInput)
