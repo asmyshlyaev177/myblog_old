@@ -2,7 +2,7 @@ from django.contrib.auth.forms import (UserCreationForm,
                                        UserChangeForm,
                                        ReadOnlyPasswordHashField)
 from django import forms
-from blog.models import myUser
+from blog.models import myUser, Post
 from django.conf import settings
 
 
@@ -35,3 +35,9 @@ class MyUserChangeForm(forms.ModelForm):
     class Meta:
         model = myUser
         fields = ('username', 'email','avatar')
+
+class AddPostForm(forms.ModelForm):
+
+    class Meta:
+        model = Post
+        fields = ('title', 'post_image', 'category', 'description','text')

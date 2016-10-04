@@ -55,6 +55,7 @@
                               {% if user.avatar %}
                               {{ user.get_avatar}}
                               {% endif %}</a></p>
+        <p><a href="{% url 'add_post' %}">Add Post</a></p>
         <p><a href="{% url 'logout' %}">Logout</a></p>
       {% else %}
         <p><a href="{% url 'signup' %}">Register</a></p>

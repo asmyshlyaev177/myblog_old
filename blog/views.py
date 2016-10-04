@@ -1,7 +1,7 @@
 from django.shortcuts import render
 from blog.models import Post, myUser, Category, Tag
 from django.utils.text import slugify
-from blog.forms import SignupForm, MyUserChangeForm
+from blog.forms import SignupForm, MyUserChangeForm, AddPostForm
 from django.http import HttpResponseRedirect
 from django.views.decorators.csrf import csrf_protect
 from django.contrib.auth.decorators import login_required
@@ -40,6 +40,17 @@ def my_posts(request):
     posts = Post.objects.filter(author=request.user.id)
     return render(request, 'dash-my-posts.html', {'posts':posts,
                                               'cat_list': cat_list})
+
+@login_required
+def add_post(request):
+    if request.method == 'POST':
+        form = AddPostForm(request.POST, request.FILES)
+        if form.is_valid():
+            form.save()
+            #return HttpResponseRedirect('/signup_success/')
+    form = AddPostForm()
+    return render(request, 'add_post.html', { 'form': form,
+                                             'cat_list': cat_list})
 
 def Index(request):
     template = 'list.html'
