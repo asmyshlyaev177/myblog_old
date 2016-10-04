@@ -26,16 +26,17 @@
     Category: {{ post.category }}</a>
 </div>
 
-<div class="clearfix">
+<div class="clearfix"></div>
 
 {% if post.post_image %}
-<p>
+<p class="post-image">
   <img src="{{ MEDIA_URL }}{{ post.post_image.url }}"
     class="img-responsive center-block post-image"></a>
 </p>
 {% endif %}
-<p>
+
+<div class="post-text">
   {{ post.text }}
-</p>
+</div>
 {% endautoescape %}
 {% endblock %}
