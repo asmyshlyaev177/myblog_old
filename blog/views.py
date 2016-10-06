@@ -106,3 +106,20 @@ def category(request, category):
         template = page_template
 
     return render(request, template, context)
+
+def tag(request, tag):
+    template = 'category.html'
+    page_template = 'list_page.html'
+    context = {
+        'posts': Post.objects.select_related("author", "category")\
+            .filter(status="P",tags__name=tag)\
+            .order_by('-published'),
+        'category': tag,
+        'page_template': page_template,
+        #'cat_list': Category.list()
+        'cat_list': cat_list
+        }
+    if request.is_ajax():
+        template = page_template
+
+    return render(request, template, context)

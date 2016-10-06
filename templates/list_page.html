@@ -9,9 +9,19 @@
     <a href="{{ post.get_absolute_url }}"><h2 class="text-center">
       {{ post.title }}</h2></a>
     <div class="post_category pull-right">
-      <a href="{{ request.scheme }}://{{ request.get_host }}/{{ post.get_category }}"
-        class="post-category">
-        Category: {{ post.category }}</a>
+      <p>
+        Category: <a href="{{ request.scheme }}://{{ request.get_host }}/{{ post.get_category }}"
+          class="post-category">
+           {{ post.category }}</a>
+      </p>
+      {% if post.get_tags_list %}<p>
+        Tags:
+        {% for tag in post.get_tags_list %}
+        <a href="/tag/{{ tag }}">{{ tag}}</a>
+        {% if not forloop.last %},{% endif %}
+        {% endfor %}
+      </p>
+      {% endif %}
     </div>
 
     <div class="post-author pull-left">

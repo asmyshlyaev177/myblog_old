@@ -150,7 +150,7 @@ class Post(models.Model):
     category = models.ForeignKey('Category')
     tags = models.ManyToManyField('Tag',
                                         related_name='posts',
-                                        related_query_name='post',
+                                        related_query_name='tag',
                                         blank=True)
     url = models.SlugField(blank=True)
     STATUS = (
@@ -177,6 +177,8 @@ class Post(models.Model):
         return "/%s/%s-%i/" % (cat_url, self.url, self.id)
     def get_category(self):
         return slugify(self.category)
+    def get_tags_list(self):
+        return self.tags.values_list('name', flat=True)
 
 @receiver(models.signals.post_delete, sender=Post)
 def delete_image_and_thumb(sender, instance, **kwargs):

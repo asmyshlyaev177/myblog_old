@@ -41,7 +41,7 @@ admin.site.unregister(Group)
 class PostAdmin(admin.ModelAdmin):
     empty_value_display = '-empty-'
     fields = ('title', 'get_image', 'post_image', 'description', 'text',
-               'author', 'category',
+               'author', 'category', 'tags',
                 'published', 'url', 'status')
     readonly_fields = ('get_image',)
     list_display = ('title', 'author', 'category',
