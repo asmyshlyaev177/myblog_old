@@ -46,8 +46,15 @@ def add_post(request):
     if request.method == 'POST':
         form = AddPostForm(request.POST, request.FILES)
         if form.is_valid():
-            form.save()
-            #return HttpResponseRedirect('/signup_success/')
+            data = form.save(commit=False)
+            data.author = request.user
+            data.url = slugify(data.title)
+            url = data.get_absolute_url
+            title = data.title
+            data.save()
+            return render(request, 'added-post.html',
+                          {'url': url, 'title': title,
+                           'cat_list':cat_list})
     form = AddPostForm()
     return render(request, 'add_post.html', { 'form': form,
                                              'cat_list': cat_list})
