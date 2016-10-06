@@ -47,10 +47,14 @@ def add_post(request):
         form = AddPostForm(request.POST, request.FILES)
         if form.is_valid():
             data = form.save(commit=False)
+            if request.user.moderated == False:
+                data.status = "P"
+
             data.author = request.user
             data.url = slugify(data.title)
             url = data.get_absolute_url
             title = data.title
+
             data.save()
             return render(request, 'added-post.html',
                           {'url': url, 'title': title,

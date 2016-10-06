@@ -64,6 +64,7 @@ class myUser(AbstractBaseUser):
     is_active = models.BooleanField("Is active", default=True)
     is_it_staff = models.BooleanField("Is stuff", default=False)
     is_it_superuser = models.BooleanField("Is admin", default=False)
+    moderated = models.BooleanField("Moderated", default=True)
     last_login = models.DateTimeField(auto_now=True)
     date_joined = models.DateTimeField(auto_now_add=True)
     REQUIRED_FIELDS = ['email',]
