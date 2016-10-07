@@ -50,7 +50,7 @@ class MyUserManager(BaseUserManager):
 
 class myUser(AbstractBaseUser):
     index_together = [
-    ["id", "username"],
+    ["id", "username", "avatar"],
     ]
     username = models.CharField("Username", max_length=30,
                                 blank=False,
@@ -232,7 +232,7 @@ class Category(models.Model):
         return "/%s/" % (cat_url)
     @classmethod
     def list(self):
-        cat_list = cat = self.objects.all().only("name","order")\
+        cat_list = self.objects.all().only("name","order")\
             .order_by('order','name')
         #cat = self.objects.all().order_by('order','name')
         #cat_list = list()

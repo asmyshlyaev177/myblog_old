@@ -87,39 +87,26 @@ def single_post(request, category, title, id):
                    'category': category,
                   'cat_list': Category.list()})
 
-def category(request, category):
+def category(request, category=None, tag=None):
     template = 'category.html'
     page_template = 'list_page.html'
-    description = Category.objects.only("description")\
-        .get(slug=category).description
-    context = {
-        'posts': Post.objects.select_related("author", "category")\
-            .filter(status="P",category__name=category)\
-            .order_by('-published'),
-        'category': category,
-        'description': description,
-        'page_template': page_template,
-        #'cat_list': Category.list()
-        'cat_list': cat_list
-        }
+    if category:
+        cat= Category.objects.get(slug=category)
+        posts= Post.objects.select_related("author", "category")\
+            .filter(category__name=category)
+    else:
+        posts= Post.objects.select_related("author", "category")\
+            .filter(tags__name=tag)
+        cat = Tag.objects.get(name=tag)
+
+    posts = posts.filter(status="P").order_by('-published')
     if request.is_ajax():
         template = page_template
 
-    return render(request, template, context)
-
-def tag(request, tag):
-    template = 'category.html'
-    page_template = 'list_page.html'
     context = {
-        'posts': Post.objects.select_related("author", "category")\
-            .filter(status="P",tags__name=tag)\
-            .order_by('-published'),
-        'category': tag,
+        'posts': posts,
+        'category': cat,
         'page_template': page_template,
-        #'cat_list': Category.list()
         'cat_list': cat_list
         }
-    if request.is_ajax():
-        template = page_template
-
     return render(request, template, context)

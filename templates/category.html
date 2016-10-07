@@ -1,12 +1,14 @@
 {% extends "index.html" %}
 
-{% block title %}{{ category }}{% endblock %}
+{% block title %}{{ category.name }}{% endblock %}
 
 {% block content %}
-<h1>List Posts from {{ category }}</h1>
+<h1>List Posts from {{ category.name }}</h1>
+{% if category.description %}
 <p class="lead">
-  Category description: {{ description }}
+  Category description: {{ category.description }}
 </p>
+{% endif %}
 {% include page_template %}
 
 {% block js %}
