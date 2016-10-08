@@ -1,9 +1,10 @@
-{% load el_pagination_tags %}
 
-{% paginate 3 posts %}
 {% autoescape off %}
 
 {% for post in posts %}
+
+{% if request.is_ajax %}<h1>AJAX!</h1>{% endif %}
+{% if not posts.has_next %}<h2> Last page!</h2>{% endif %}
 
   <div class="post">
     <a href="{{ post.get_absolute_url }}"><h2 class="text-center">
@@ -59,12 +60,5 @@
 </div>
 
 {% endfor %}
-
-
-
-<div class="more-loader text-center">
-  {% show_more %}
-</div>
-
 
 {% endautoescape %}

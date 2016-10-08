@@ -1,59 +1,9 @@
 {% extends "index.html" %}
 
-{% block title2 %}My blog!{% endblock %}
+{% block title %}My blog!{% endblock %}
 
 {% block content %}
-{% for post in posts %}
-
-  <div class="post">
-    <a href="{{ post.get_absolute_url }}"><h2 class="text-center">
-      {{ post.title }}</h2></a>
-    <div class="post_category pull-right">
-      <p>
-        Category: <a href="{{ request.scheme }}://{{ request.get_host }}/{{ post.get_category }}"
-          class="post-category">
-           {{ post.category }}</a>
-      </p>
-      {% if post.get_tags_list %}<p>
-        Tags:
-        {% for tag in post.get_tags_list %}
-        <a href="/tag/{{ tag }}">{{ tag}}</a>
-        {% if not forloop.last %},{% endif %}
-        {% endfor %}
-      </p>
-      {% endif %}
-    </div>
-
-    <div class="post-author pull-left">
-      <div class="author-name">
-        {{ post.author }}
-      </div>
-      <div class="author-avatar">
-        {% if post.author.avatar %}
-        {{ post.author.get_avatar }}
-        {% else %}
-        <img src="/static/img/avatar.jpg" class ="img-avatar"/>
-        {% endif %}
-      </div>
-    </div>
-
-    <div class="clearfix">
-
-    </div>
-
-    {% if post.post_image %}
-    <div class="post-thumbnail">
-        {{ post.get_image }}
-    </div>
-    {% endif %}
-    {% if post.description %}
-    <p class="post-description">
-      {{ post.description }}
-    </p>
-    {% endif %}
-  </div>
-
-{% endfor %}
+{% include "list_page.html" %}
 
 
 <div class="pagination">
@@ -72,4 +22,41 @@
     </span>
 </div>
 
+<div id="more-loader" class="text-center">
+          <img src="static/img/loader.gif" >
+</div>
+
+
 {% endblock %}
+
+{% block javascript %}
+<script>
+var processing = false;
+page = 1;
+function loadMore(){
+     $.ajax({
+          cache: false,
+          type:"GET",
+          url:"?page="+page,
+          success:function(data){
+               //$('#text-loading').toggleClass('hidden',true); //hides the loading animation when ajax call returns tickets
+               $('.content').append(data); //adds data to the end of the table
+               processing = false; // the processing variable prevents multiple ajax calls when scrolling
+          }
+     });
+}
+$(document).ready(function(){
+     $(document).scroll( function() {
+          if (processing){
+              return false;
+          }
+          if ( $(document).scrollTop() > ( ($(document).height() - $(window).height())-300  )) {
+              processing = true; //prevent multiple scrolls once first is hit
+              //$('#text-loading').toggleClass('hidden', false); //show the loading animation
+              page += 1;
+              loadMore();
+          }
+     });
+});
+</script>
+{% endblock javascript %}

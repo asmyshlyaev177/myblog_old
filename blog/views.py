@@ -65,8 +65,13 @@ def add_post(request):
                                              'cat_list': cat_list})
 
 def Index(request):
-    template = 'list.html'
-    #page_template = 'list_page.html'
+
+    if request.is_ajax() == True :
+        template = 'list_page.html'
+    else:
+        template = 'list.html'
+
+
     post_list = Post.objects.select_related("author", "category")\
         .filter(status="P").order_by('-published')
     paginator = Paginator(post_list, 3)
@@ -76,12 +81,13 @@ def Index(request):
     except PageNotAnInteger:
         posts = paginator.page(1)
     except EmptyPage:
-        posts = paginator.page(paginator.num_pages)
+        #posts = paginator.page(paginator.num_pages)
+        return HttpResponse('')
 
     context = {
         'posts': posts,
         #'page_template': page_template,
-        'cat_list': cat_list
+        'cat_list': cat_list,
     }
 
     return render(request, template, context )
