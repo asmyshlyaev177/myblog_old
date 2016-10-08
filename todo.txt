@@ -24,9 +24,13 @@ jQuery.noConflict();
 });
 
 
- $.ajax({
-	type:"GET",
-	url:"?page="+2+"/"+,
- success:function(data){
- $('.content').append(data);} 
- });
+Загрузка категории через ajax
+$.ajax({
+          cache: false,
+          type:"GET",
+          url:"test2",  
+          success:function(data){
+             data2 = ('<div class="content">' + data + '"</div>"');
+               $(data2).replaceAll('.content');
+          }
+     });

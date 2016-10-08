@@ -92,15 +92,6 @@ def Index(request):
 
     return render(request, template, context )
 
-
-
-def single_post(request, category, title, id):
-    post = Post.objects.select_related("author").get(pk=id)
-    return render(request, 'single.html',
-                  {'post': post,
-                   'category': category,
-                  'cat_list': Category.list()})
-
 def category(request, category=None, tag=None):
     template = 'category.html'
     page_template = 'list_page.html'
@@ -124,3 +115,10 @@ def category(request, category=None, tag=None):
         'cat_list': cat_list
         }
     return render(request, template, context)
+
+def single_post(request, category, title, id):
+    post = Post.objects.select_related("author").get(pk=id)
+    return render(request, 'single.html',
+                  {'post': post,
+                   'category': category,
+                  'cat_list': Category.list()})
