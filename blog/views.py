@@ -2,7 +2,7 @@ from django.shortcuts import render
 from blog.models import Post, myUser, Category, Tag
 from django.utils.text import slugify
 from blog.forms import SignupForm, MyUserChangeForm, AddPostForm
-from django.http import HttpResponseRedirect
+from django.http import HttpResponseRedirect, HttpResponse
 from django.views.decorators.csrf import csrf_protect
 from django.contrib.auth.decorators import login_required
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger

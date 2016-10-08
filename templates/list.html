@@ -22,11 +22,12 @@
     </span>
 </div>
 
-<div id="more-loader" class="text-center">
+{% endblock %}
+
+{% block loader %}
+<div id="more-loader" class="text-center" style="display: none">
           <img src="static/img/loader.gif" >
 </div>
-
-
 {% endblock %}
 
 {% block javascript %}
@@ -39,8 +40,8 @@ function loadMore(){
           type:"GET",
           url:"?page="+page,
           success:function(data){
-               //$('#text-loading').toggleClass('hidden',true); //hides the loading animation when ajax call returns tickets
                $('.content').append(data); //adds data to the end of the table
+               $('#more-loader').toggle()
                processing = false; // the processing variable prevents multiple ajax calls when scrolling
           }
      });
@@ -52,9 +53,11 @@ $(document).ready(function(){
           }
           if ( $(document).scrollTop() > ( ($(document).height() - $(window).height())-300  )) {
               processing = true; //prevent multiple scrolls once first is hit
-              //$('#text-loading').toggleClass('hidden', false); //show the loading animation
-              page += 1;
-              loadMore();
+              if ( $( "#last_page" ).length == 0 ) {
+                $('#more-loader').toggle()
+                page += 1;
+                loadMore();
+                }
           }
      });
 });

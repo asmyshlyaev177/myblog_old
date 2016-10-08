@@ -4,7 +4,6 @@
 {% for post in posts %}
 
 {% if request.is_ajax %}<h1>AJAX!</h1>{% endif %}
-{% if not posts.has_next %}<h2> Last page!</h2>{% endif %}
 
   <div class="post">
     <a href="{{ post.get_absolute_url }}"><h2 class="text-center">
@@ -52,6 +51,11 @@
       {{ post.description }}
     </p>
     {% endif %}
+
+    {% if not posts.has_next %}
+    <p id="last_page"></p>
+    {% endif %}
+
   </div>
 
 {% empty %}
