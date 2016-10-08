@@ -3,12 +3,73 @@
 {% block title2 %}My blog!{% endblock %}
 
 {% block content %}
-{% include page_template %}
+{% for post in posts %}
 
-{% block js %}
-    {{ block.super }}
-    <script src="{{ request.scheme }}://{{ request.get_host }}/{{ STATIC_URL }}static/js/el-pagination.js"></script>
-    <script>$.endlessPaginate({paginateOnScroll: true});</script>
-{% endblock %}
+  <div class="post">
+    <a href="{{ post.get_absolute_url }}"><h2 class="text-center">
+      {{ post.title }}</h2></a>
+    <div class="post_category pull-right">
+      <p>
+        Category: <a href="{{ request.scheme }}://{{ request.get_host }}/{{ post.get_category }}"
+          class="post-category">
+           {{ post.category }}</a>
+      </p>
+      {% if post.get_tags_list %}<p>
+        Tags:
+        {% for tag in post.get_tags_list %}
+        <a href="/tag/{{ tag }}">{{ tag}}</a>
+        {% if not forloop.last %},{% endif %}
+        {% endfor %}
+      </p>
+      {% endif %}
+    </div>
+
+    <div class="post-author pull-left">
+      <div class="author-name">
+        {{ post.author }}
+      </div>
+      <div class="author-avatar">
+        {% if post.author.avatar %}
+        {{ post.author.get_avatar }}
+        {% else %}
+        <img src="/static/img/avatar.jpg" class ="img-avatar"/>
+        {% endif %}
+      </div>
+    </div>
+
+    <div class="clearfix">
+
+    </div>
+
+    {% if post.post_image %}
+    <div class="post-thumbnail">
+        {{ post.get_image }}
+    </div>
+    {% endif %}
+    {% if post.description %}
+    <p class="post-description">
+      {{ post.description }}
+    </p>
+    {% endif %}
+  </div>
+
+{% endfor %}
+
+
+<div class="pagination">
+    <span class="step-links">
+        {% if posts.has_previous %}
+            <a href="?page={{ posts.previous_page_number }}">previous</a>
+        {% endif %}
+
+        <span class="current">
+            Page {{ posts.number }} of {{ posts.paginator.num_pages }}.
+        </span>
+
+        {% if posts.has_next %}
+            <a href="?page={{ posts.next_page_number }}">next</a>
+        {% endif %}
+    </span>
+</div>
 
 {% endblock %}

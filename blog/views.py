@@ -5,6 +5,7 @@ from blog.forms import SignupForm, MyUserChangeForm, AddPostForm
 from django.http import HttpResponseRedirect
 from django.views.decorators.csrf import csrf_protect
 from django.contrib.auth.decorators import login_required
+from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 
 cat_list= Category.list()
 
@@ -65,17 +66,24 @@ def add_post(request):
 
 def Index(request):
     template = 'list.html'
-    page_template = 'list_page.html'
+    #page_template = 'list_page.html'
+    post_list = Post.objects.select_related("author", "category")\
+        .filter(status="P").order_by('-published')
+    paginator = Paginator(post_list, 3)
+    page = request.GET.get('page')
+    try:
+        posts = paginator.page(page)
+    except PageNotAnInteger:
+        posts = paginator.page(1)
+    except EmptyPage:
+        posts = paginator.page(paginator.num_pages)
+
     context = {
-        'posts': Post.objects.select_related("author", "category")\
-            .filter(status="P").order_by('-published'),
-        'page_template': page_template,
-        #'cat_list': Category.list()
+        'posts': posts,
+        #'page_template': page_template,
         'cat_list': cat_list
     }
 
-    if request.is_ajax():
-        template = page_template
     return render(request, template, context )
 
 
