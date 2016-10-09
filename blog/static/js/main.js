@@ -29,6 +29,7 @@ $(document).on('click', '.ajax-menu', function() {
 	if ( $(this).parent().is('[role]') ){
 		$(this).parent().addClass('active')
 	}
+	$('html, body').scrollTop( 0 );
 	console.log('change to '+category)
 	ChangePage();
 });	
