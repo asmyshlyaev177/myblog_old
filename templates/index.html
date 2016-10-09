@@ -18,7 +18,8 @@
   <div class="navbar navbar-default">
     <div class="container-fluid">
       <div class="navbar-header">
-        <a class="navbar-brand" href="{{ request.scheme }}://{{ request.get_host }}">
+        <a class="navbar-brand ajax-menu" url="{{ request.scheme }}://{{ request.get_host }}/"
+        href="/">
           <img alt="logo" src="#" /></a>
         <p class="navbar-text">
           My blog title
@@ -29,11 +30,13 @@
         {% for cat in cat_list %}
           {% if category and cat|slugify == category %}
             <li role="presentation" class="active">
-            <a href="{{ request.scheme }}://{{ request.get_host }}/{{ cat|slugify }}">
+            <a href="{{ request.scheme }}://{{ request.get_host }}/{{ cat|slugify }}"
+             url = "/{{cat|slugify}}" class="ajax-menu">
               {{ cat }}</a></li>
           {% else %}
             <li role="presentation">
-            <a href="{{ request.scheme }}://{{ request.get_host }}/{{ cat|slugify }}">
+            <a href="{{ request.scheme }}://{{ request.get_host }}/{{ cat|slugify }}"
+            url = "/{{cat|slugify}}"  class="ajax-menu">
               {{ cat }}</a></li>
           {% endif %}
 
@@ -51,11 +54,14 @@
       <p>
         Sidebar 1<br />
       {% if user.is_authenticated %}
-        <p><a href="{% url 'dashboard' %}">{{ user.username }}
+        <p><a href="{% url 'dashboard' %}" single_page
+          url = "{% url 'dashboard' %}" class="ajax-menu">
+          {{ user.username }}
                               {% if user.avatar %}
                               {{ user.get_avatar}}
                               {% endif %}</a></p>
-        <p><a href="{% url 'add_post' %}">Add Post</a></p>
+        <p><a href="{% url 'add_post' %}" single_page
+          url = "{% url 'add_post' %}" class="ajax-menu">Add Post</a></p>
         <p><a href="{% url 'logout' %}">Logout</a></p>
       {% else %}
         <p><a href="{% url 'signup' %}">Register</a></p>
@@ -63,7 +69,13 @@
       {% endif %}
       </p>
     </div>
-    {% block sidebar %}{% endblock %}
+    <div class="sidebar2">
+      <p>
+        Sidebar 2<br />
+        <p><a href="{% url 'password_change' %}">Change password</a></p>
+        <p><a href="{% url 'my_posts' %}">My Posts</a></p>
+      </p>
+    </div>
   </div>
 
 
@@ -80,19 +92,19 @@
 
 {% block loader %}{% endblock %}
 
-<a href="#" class="back-to-top">up</a>
 </div>
+
+<a href="#" class="back-to-top">up</a>
 
 {% block js %}
 <script src="/static/js/jquery-latest.js"></script>
-<script src="/static/js/backtotop.js"></script>
+<!-- <script src="/static/js/backtotop.js"></script> -->
+<script src="/static/js/main.js"></script>
 {% endblock %}
 </div>
 
 </div>
 </div>
 
-{% block javascript %}
-{% endblock javascript %}
 </body>
 </html>

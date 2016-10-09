@@ -1,6 +1,18 @@
 
 {% autoescape off %}
 
+{% if category %}
+<h1>List Posts from {{ category.name }}</h1>
+{% if category.description %}
+<p class="lead">
+  Category description: {{ category.description }}
+</p>
+{% endif %}
+{% elif tag %}
+<h1>List Posts from Tag {{ tag.name }}</h1>
+{% else %}
+{% endif %}
+
 {% for post in posts %}
 
   <div class="post">
@@ -8,14 +20,16 @@
       {{ post.title }}</h2></a>
     <div class="post_category pull-right">
       <p>
-        Category: <a href="{{ request.scheme }}://{{ request.get_host }}/{{ post.get_category }}"
-          class="post-category">
+        Category: <a href="/{{ post.get_category }}/"
+          class="post-category ajax-menu"
+          url = "/{{ post.get_category }}/">
            {{ post.category }}</a>
       </p>
       {% if post.get_tags_list %}<p>
         Tags:
         {% for tag in post.get_tags_list %}
-        <a href="/tag/{{ tag }}">{{ tag}}</a>
+        <a href="/tag/{{ tag }}/" class="ajax-menu"
+        url = "/tag/{{ tag }}/">{{ tag}}</a>
         {% if not forloop.last %},{% endif %}
         {% endfor %}
       </p>

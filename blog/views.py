@@ -24,6 +24,11 @@ def signup_success(request):
 
 @login_required
 def dashboard(request):
+    if request.is_ajax() == True :
+        template = 'dashboard-ajax.html'
+    else:
+        template = 'dashboard.html'
+
     if request.method == 'POST':
         form = MyUserChangeForm(request.POST, request.FILES,
                                 instance=request.user)
@@ -32,7 +37,7 @@ def dashboard(request):
     else:
         form = MyUserChangeForm(instance=request.user)
 
-    return render(request, 'dashboard.html', {'cat_list': cat_list,
+    return render(request, template, {'cat_list': cat_list,
                                               'form': form},
                                 )
 
@@ -44,6 +49,11 @@ def my_posts(request):
 
 @login_required
 def add_post(request):
+    if request.is_ajax() == True :
+        template = 'add_post-ajax.html'
+    else:
+        template = 'add_post.html.html'
+
     if request.method == 'POST':
         form = AddPostForm(request.POST, request.FILES)
         if form.is_valid():
@@ -61,7 +71,7 @@ def add_post(request):
                           {'url': url, 'title': title,
                            'cat_list':cat_list})
     form = AddPostForm()
-    return render(request, 'add_post.html', { 'form': form,
+    return render(request, template, { 'form': form,
                                              'cat_list': cat_list})
 
 def list(request, category=None, tag=None):

@@ -4,60 +4,12 @@
 
 {% block content %}
 
-{% if category %}
-<h1>List Posts from {{ category.name }}</h1>
-{% if category.description %}
-<p class="lead">
-  Category description: {{ category.description }}
-</p>
-{% endif %}
-{% elif tag %}
-<h1>List Posts from Tag {{ tag.name }}</h1>
-{% else %}
-{% endif %}
-
 {% include "list_ajax.html" %}
 
 {% endblock %}
-
-
 
 {% block loader %}
 <div id="more-loader" class="text-center" style="display: none">
   <img src="{{ request.scheme }}://{{ request.get_host }}/static/img/loader.gif" >
 </div>
 {% endblock %}
-
-{% block javascript %}
-<script>
-var processing = false;
-page = 1;
-function loadMore(){
-     $.ajax({
-          cache: false,
-          type:"GET",
-          url:"?page="+page,
-          success:function(data){
-               $('.content').append(data); //adds data to the end of the table
-               $('#more-loader').toggle()
-               processing = false; // the processing variable prevents multiple ajax calls when scrolling
-          }
-     });
-}
-$(document).ready(function(){
-     $(document).scroll( function() {
-          if (processing){
-              return false;
-          }
-          if ( $(document).scrollTop() > ( ($(document).height() - $(window).height())-300  )) {
-              processing = true; //prevent multiple scrolls once first is hit
-              if ( $( "#last_page" ).length == 0 ) {
-                $('#more-loader').toggle()
-                page += 1;
-                loadMore();
-                }
-          }
-     });
-});
-</script>
-{% endblock javascript %}
