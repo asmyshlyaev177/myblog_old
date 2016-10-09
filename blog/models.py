@@ -219,7 +219,7 @@ def delete_old_image_and_thumb(sender, instance, **kwargs):
 
 class Category(models.Model):
     index_together = [
-    ["id","name", "order"],
+    ["id","name", "order", "slug"],
     ]
     name = models.CharField(max_length=30, unique=True)
     description = models.TextField(max_length=250)

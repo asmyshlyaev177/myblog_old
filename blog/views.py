@@ -86,18 +86,21 @@ def list(request, category=None, tag=None):
     if category:
         cat= Category.objects.get(slug=category)
         post_list= Post.objects.select_related("author", "category")\
-            .filter(category__slug=category)
+            .prefetch_related('tags').filter(category__slug=category)\
+                .filter(status="P").order_by('-published')
         context['category'] = cat
     elif tag:
         post_list= Post.objects.select_related("author", "category")\
-            .filter(tags__name=tag)
+            .prefetch_related('tags').filter(tags__name=tag)\
+            .filter(status="P").order_by('-published')
         cat = Tag.objects.get(name=tag)
         context['tag'] = cat
     else:
-        post_list = Post.objects.select_related("author", "category")
+        post_list = Post.objects.select_related("author", "category")\
+            .prefetch_related('tags').filter(status="P").order_by('-published')
 
-    post_list = post_list.filter(status="P").order_by('-published')
-    paginator = Paginator(post_list, 3)
+    #post_list = post_list.filter(status="P").order_by('-published')
+    paginator = Paginator(post_list, 5)
     page = request.GET.get('page')
 
     try:
