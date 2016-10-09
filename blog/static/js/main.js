@@ -1,7 +1,7 @@
 var processing = false;
 var amountScrolled = 100;
-page = 1;
-category = ""
+var page = 1;
+var category = ""
 
 $(document).ready(function(){
 	BackToTop()
@@ -25,13 +25,14 @@ $(document).on('click', '.ajax-menu', function() {
 		else { // if it is list page load on scroll
 			processing = false;
 		}
-	$('.ajax-menu').parent().removeClass('active')
-	if ( $(this).parent().is('[role]') ){
-		$(this).parent().addClass('active')
-	}
+		
+	$('.menu').parent().removeClass('active');
+	if ( category != "" && category.search("/") == -1 ) {
+	$('.menu').filter( $('#'+category ) ).parent().addClass('active');}
+
 	$('html, body').scrollTop( 0 );
-	console.log('change to '+category)
 	ChangePage();
+	
 });	
 
 }
@@ -40,14 +41,20 @@ function ChangePage() {
 	$.ajax({
           type:"GET",
 		  cache : false,
-          url:category,  
+          url:'/'+category,  
           success:function(data){
              data2 = ('<div class="content">' + data + '</div>');
                $(data2).replaceAll('.content');
           }
      });
 	 // change browser url string ;)
-	 window.history.pushState("object or string", category, category );
+	 if ( category == "" ) {
+		 window.history.pushState("object or string", category, "/" ); 
+	 }
+	 else {
+		window.history.pushState("object or string", category, category ); 
+	 }
+	 
 page = 1;
 }
 
