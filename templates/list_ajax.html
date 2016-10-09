@@ -20,16 +20,16 @@
       {{ post.title }}</h2></a>
     <div class="post_category pull-right">
       <p>
-        Category: <a href="/{{ post.get_category }}/"
+        Category: <a href="/{{ post.get_category }}"
           class="post-category ajax-menu"
-          url = "/{{ post.get_category }}/">
+          url = "/{{ post.get_category }}">
            {{ post.category }}</a>
       </p>
       {% if post.get_tags_list %}<p>
         Tags:
         {% for tag in post.get_tags_list %}
-        <a href="/tag/{{ tag }}/" class="ajax-menu"
-        url = "/tag/{{ tag }}/">{{ tag}}</a>
+        <a href="/tag/{{ tag }}" class="ajax-menu"
+        url = "/tag/{{ tag }}">{{ tag}}</a>
         {% if not forloop.last %},{% endif %}
         {% endfor %}
       </p>

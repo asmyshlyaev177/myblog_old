@@ -5,17 +5,18 @@ category = ""
 
 $(document).ready(function(){
 	BackToTop()
-	
+	ClickAjaxMenu()
 });
 
-$('a.back-to-top').click(function() {
+$(document).on('click', 'a.back-to-top', function() {
 	$('html, body').animate({
 		scrollTop: 0
 	}, 900);
 	return false;
 });
 
-$('.ajax-menu').click( function() {
+function ClickAjaxMenu() {
+$(document).on('click', '.ajax-menu', function() {
 	event.preventDefault();
 	category = $( this ).attr('url')
 		if ( $(this).is('[single_page]' ) ) { // if it is menu don't load on scroll
@@ -28,9 +29,11 @@ $('.ajax-menu').click( function() {
 	if ( $(this).parent().is('[role]') ){
 		$(this).parent().addClass('active')
 	}
-	
+	console.log('change to '+category)
 	ChangePage();
-});
+});	
+
+}
 
 function ChangePage() {
 	$.ajax({
@@ -44,14 +47,14 @@ function ChangePage() {
      });
 	 // change browser url string ;)
 	 window.history.pushState("object or string", category, category );
-page = 1
+page = 1;
 }
 
 function loadMore(){
      $.ajax({
           type:"GET",
 		  cache : false,
-          url:"?page="+page,
+          url:category+"?page="+page,
           success:function(data){
                $('.content').append(data); //adds data to the end of the table
                $('#more-loader').toggle()
