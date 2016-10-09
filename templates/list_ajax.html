@@ -1,16 +1,22 @@
 
 {% autoescape off %}
 
+{% if page == None %}
+
 {% if category %}
 <h1>List Posts from {{ category.name }}</h1>
-{% if category.description %}
-<p class="lead">
-  Category description: {{ category.description }}
-</p>
-{% endif %}
-{% elif tag %}
-<h1>List Posts from Tag {{ tag.name }}</h1>
-{% else %}
+
+  {% if category.description %}
+  <p class="lead">
+    Category description: {{ category.description }}
+  </p>
+  {% endif %}
+  {% endif %}
+
+  {% if tag %}
+  <h1>List Posts from Tag: {{ tag.name }}</h1>
+  {% endif %}
+
 {% endif %}
 
 {% for post in posts %}

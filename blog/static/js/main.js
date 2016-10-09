@@ -31,16 +31,19 @@ $(document).on('click', '.ajax-menu', function() {
 	$('.menu').filter( $('#'+category ) ).parent().addClass('active');}
 
 	$('html, body').scrollTop( 0 );
-	ChangePage();
 	
+	if ( $(this).text().replace(/\s/g, '') != "" ) {
+		document.title = $(this).text();}
+	else {
+		document.title = "My blog!";}
+	ChangePage();
 });	
-
 }
 
 function ChangePage() {
 	$.ajax({
           type:"GET",
-		  cache : false,
+		  //cache : false,
           url:'/'+category,  
           success:function(data){
              data2 = ('<div class="content">' + data + '</div>');
@@ -49,19 +52,16 @@ function ChangePage() {
      });
 	 // change browser url string ;)
 	 if ( category == "" ) {
-		 window.history.pushState("object or string", category, "/" ); 
-	 }
+		 window.history.pushState("object or string", category, "/" ); }
 	 else {
-		window.history.pushState("object or string", category, category ); 
-	 }
-	 
+		window.history.pushState("object or string", category, "/"+category ); }
 page = 1;
 }
 
 function loadMore(){
      $.ajax({
           type:"GET",
-		  cache : false,
+		  //cache : false,
           url:category+"?page="+page,
           success:function(data){
                $('.content').append(data); //adds data to the end of the table

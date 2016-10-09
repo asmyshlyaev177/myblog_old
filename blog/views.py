@@ -86,7 +86,7 @@ def list(request, category=None, tag=None):
     if category:
         cat= Category.objects.get(slug=category)
         post_list= Post.objects.select_related("author", "category")\
-            .filter(category__name=category)
+            .filter(category__slug=category)
         context['category'] = cat
     elif tag:
         post_list= Post.objects.select_related("author", "category")\
@@ -109,6 +109,7 @@ def list(request, category=None, tag=None):
         return HttpResponse('')
     context['posts'] = posts
     context['cat_list'] = cat_list
+    context['page'] = page
 
     return render(request, template, context )
 
