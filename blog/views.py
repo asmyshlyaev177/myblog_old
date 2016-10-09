@@ -118,8 +118,8 @@ def list(request, category=None, tag=None):
 
 
 def single_post(request, category, title, id):
-    post = Post.objects.select_related("author").get(pk=id)
+    post = Post.objects.select_related("author", "category")\
+        .prefetch_related('tags').get(pk=id)
     return render(request, 'single.html',
                   {'post': post,
-                   'category': category,
                   'cat_list': Category.list()})
