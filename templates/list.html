@@ -3,13 +3,28 @@
 {% block title %}My blog!{% endblock %}
 
 {% block content %}
-{% include "list_page.html" %}
+
+{% if category %}
+<h1>List Posts from {{ category.name }}</h1>
+{% if category.description %}
+<p class="lead">
+  Category description: {{ category.description }}
+</p>
+{% endif %}
+{% elif tag %}
+<h1>List Posts from Tag {{ tag.name }}</h1>
+{% else %}
+{% endif %}
+
+{% include "list_ajax.html" %}
 
 {% endblock %}
 
+
+
 {% block loader %}
 <div id="more-loader" class="text-center" style="display: none">
-          <img src="static/img/loader.gif" >
+  <img src="{{ request.scheme }}://{{ request.get_host }}/static/img/loader.gif" >
 </div>
 {% endblock %}
 

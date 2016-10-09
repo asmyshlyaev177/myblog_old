@@ -64,18 +64,32 @@ def add_post(request):
     return render(request, 'add_post.html', { 'form': form,
                                              'cat_list': cat_list})
 
-def Index(request):
+def list(request, category=None, tag=None):
+
+    context = {}
 
     if request.is_ajax() == True :
-        template = 'list_page.html'
+        template = 'list_ajax.html'
     else:
         template = 'list.html'
 
+    if category:
+        cat= Category.objects.get(slug=category)
+        post_list= Post.objects.select_related("author", "category")\
+            .filter(category__name=category)
+        context['category'] = cat
+    elif tag:
+        post_list= Post.objects.select_related("author", "category")\
+            .filter(tags__name=tag)
+        cat = Tag.objects.get(name=tag)
+        context['tag'] = cat
+    else:
+        post_list = Post.objects.select_related("author", "category")
 
-    post_list = Post.objects.select_related("author", "category")\
-        .filter(status="P").order_by('-published')
+    post_list = post_list.filter(status="P").order_by('-published')
     paginator = Paginator(post_list, 3)
     page = request.GET.get('page')
+
     try:
         posts = paginator.page(page)
     except PageNotAnInteger:
@@ -83,38 +97,11 @@ def Index(request):
     except EmptyPage:
         #posts = paginator.page(paginator.num_pages)
         return HttpResponse('')
-
-    context = {
-        'posts': posts,
-        #'page_template': page_template,
-        'cat_list': cat_list,
-    }
+    context['posts'] = posts
+    context['cat_list'] = cat_list
 
     return render(request, template, context )
 
-def category(request, category=None, tag=None):
-    template = 'category.html'
-    page_template = 'list_page.html'
-    if category:
-        cat= Category.objects.get(slug=category)
-        posts= Post.objects.select_related("author", "category")\
-            .filter(category__name=category)
-    else:
-        posts= Post.objects.select_related("author", "category")\
-            .filter(tags__name=tag)
-        cat = Tag.objects.get(name=tag)
-
-    posts = posts.filter(status="P").order_by('-published')
-    if request.is_ajax():
-        template = page_template
-
-    context = {
-        'posts': posts,
-        'category': cat,
-        'page_template': page_template,
-        'cat_list': cat_list
-        }
-    return render(request, template, context)
 
 def single_post(request, category, title, id):
     post = Post.objects.select_related("author").get(pk=id)

@@ -27,7 +27,7 @@ urlpatterns = [
     #url(r'^$', cache_page(60 * 15)(views.Index), name='Index'),
     url(r'^__debug__/', include(debug_toolbar.urls)),
     url(r'^admin/', admin.site.urls, name='myadmin'),
-    url(r'^$', views.Index, name='Index'),
+    url(r'^$', views.list, name='list'),
     url(r'^ckeditor/', include('ckeditor_uploader.urls')),
     url(r'^add-post/$', views.add_post, name='add_post'),
 
@@ -49,8 +49,8 @@ urlpatterns = [
         auth_views.password_reset_confirm, name='password_reset_confirm'),
     url(r'^reset/done/$', auth_views.password_reset_done, name='password_reset_complete'),
 
-    url(r'^tag/(?P<tag>[-\w]+)/$', views.category, name='tag'),
-    url(r'^(?P<category>[-\w]+)/$', views.category, name='category'),
+    url(r'^tag/(?P<tag>[-\w]+)/$', views.list, name='tag'),
+    url(r'^(?P<category>[-\w]+)/$', views.list, name='category'),
     url(r'^(?P<category>[-\w]+)/(?P<title>[-\w]+)-(?P<id>[-vi\d]+)/',
             views.single_post, name='single_post'),
     url(r'^media/(?P<path>.*)$', serve,

@@ -3,8 +3,6 @@
 
 {% for post in posts %}
 
-{% if request.is_ajax %}<h1>AJAX!</h1>{% endif %}
-
   <div class="post">
     <a href="{{ post.get_absolute_url }}"><h2 class="text-center">
       {{ post.title }}</h2></a>
