@@ -52,7 +52,7 @@ def add_post(request):
     if request.is_ajax() == True :
         template = 'add_post-ajax.html'
     else:
-        template = 'add_post.html.html'
+        template = 'add_post.html'
 
     if request.method == 'POST':
         form = AddPostForm(request.POST, request.FILES)
