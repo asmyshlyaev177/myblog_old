@@ -8,6 +8,14 @@ from django.contrib.auth.decorators import login_required
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.conf import settings
 
+from django.http import (
+    HttpResponseBadRequest,
+    HttpResponseServerError,
+    HttpResponseForbidden,
+)
+from django.shortcuts import render
+from django_summernote.settings import summernote_config, get_attachment_model
+
 cat_list= Category.list()
 
 @csrf_protect
@@ -124,3 +132,45 @@ def single_post(request, category, title, id):
     return render(request, 'single.html',
                   {'post': post,
                   'cat_list': Category.list()})
+
+def upload_attachment(request):
+    if request.method != 'POST':
+        return HttpResponseBadRequest('Only POST method is allowed')
+
+    if summernote_config['attachment_require_authentication']:
+        if not request.user.is_authenticated():
+            return HttpResponseForbidden('Only authenticated users are allowed')
+
+    if not request.FILES.getlist('files'):
+        return HttpResponseBadRequest('No files were requested')
+
+    try:
+        attachments = []
+
+        for file in request.FILES.getlist('files'):
+
+            # create instance of appropriate attachment class
+            klass = get_attachment_model()
+            attachment = klass()
+
+            attachment.file = file
+            attachment.name = file.name
+
+            if file.size > summernote_config['attachment_filesize_limit']:
+                return HttpResponseBadRequest(
+                    'File size exceeds the limit allowed and cannot be saved'
+                )
+
+            # remove unnecessary CSRF token, if found
+            request.POST.pop("csrfmiddlewaretoken", None)
+            kwargs = request.POST
+            # calling save method with attachment parameters as kwargs
+            attachment.save(**kwargs)
+
+            attachments.append(attachment)
+
+        return render(request, 'upload_attachment.json', {
+            'attachments': attachments,
+        })
+    except IOError:
+        return HttpResponseServerError('Failed to save attachment')

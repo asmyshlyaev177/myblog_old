@@ -183,13 +183,33 @@ class Post(models.Model):
 
 @receiver(models.signals.post_delete, sender=Post)
 def delete_image_and_thumb(sender, instance, **kwargs):
+    # удаляем файлы картинок при удалении поста
+
+    img_links = re.findall\
+        (r"/(?P<year>\d{4})/(?P<month>\d{2})/(?P<day>\d{2})/(?P<file>\S*.jpg)", instance.text)
+    for img in img_links:
+        img_path = 'c:\\django\\python3\\myblog\\blog\\static\\media\\{}\\{}\\{}\\{}'.format(img[0], img[1],img[2],img[3])
+        if os.path.isfile(img_path):
+            os.remove(img_path)
+
+
     """delete image when post deleted"""
     if instance.post_image:
         if os.path.isfile(instance.post_image.path):
-            os.remove(instance.post_image.path)
+            try:
+                os.remove(instance.post_image.path)
+            except FileNotFoundError:
+                return False
     if instance.post_thumbnail:
         if os.path.isfile(instance.post_thumbnail.path):
-            os.remove(instance.post_thumbnail.path)
+            try:
+                os.remove(instance.post_thumbnail.path)
+            except FileNotFoundError:
+                return False ##подозрительная хрень
+
+
+
+
 
 @receiver(models.signals.pre_save, sender=Post)
 def delete_old_image_and_thumb(sender, instance, **kwargs):
