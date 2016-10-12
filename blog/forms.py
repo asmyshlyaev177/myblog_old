@@ -4,7 +4,7 @@ from django.contrib.auth.forms import (UserCreationForm,
 from django import forms
 from blog.models import myUser, Post
 from django.conf import settings
-
+from django_summernote.widgets import SummernoteWidget, SummernoteInplaceWidget
 
 #forms for users
 class SignupForm(forms.ModelForm):
@@ -41,3 +41,6 @@ class AddPostForm(forms.ModelForm):
     class Meta:
         model = Post
         fields = ('title', 'post_image', 'category', 'description','text','tags')
+        widgets = {
+            'text': SummernoteWidget(),
+        }

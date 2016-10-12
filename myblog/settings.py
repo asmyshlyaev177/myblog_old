@@ -11,11 +11,13 @@ https://docs.djangoproject.com/en/1.10/ref/settings/
 """
 
 import os
+import datetime
+from django.utils import timezone
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
-EL_PAGINATION_LOADING = """<img src="/static/img/loader.gif" alt="loading" />"""
+#EL_PAGINATION_LOADING = """<img src="/static/img/loader.gif" alt="loading" />"""
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/1.10/howto/deployment/checklist/
 
@@ -24,6 +26,42 @@ SECRET_KEY = '*er@wzdwuga0)0u%j22+pthd0)wzgl%oka)+a^na37()xgr%f9'
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
+
+#today = datetime.date.today()
+summernote_filepath = str(datetime.date.today().year)+'/'\
++str(datetime.date.today().month)\
++'/'+str(datetime.date.today().day)+'/'
+SUMMERNOTE_CONFIG = {
+    'lang': 'ru-RU',
+    'lang_matches': {
+        'ru': 'ru-RU',},
+    'toolbar': [
+        ['style', ['style']],
+        ['style', ['bold', 'italic', 'underline', 'clear']],
+        ['para', ['ul', 'ol']],
+        ['table', ['table']],
+        ['insert', ['link', 'picture', 'video', 'hr']],
+        ['view', ['fullscreen']],
+
+    ],
+    'attachment_require_authentication': True,
+    'disable_upload': False,
+    'attachment_upload_to': summernote_filepath,
+    'internal_js': (
+        ('/static/django_summernote/jquery.ui.widget.js'),
+        ('/static/django_summernote/jquery.iframe-transport.js'),
+        ('/static/django_summernote/jquery.fileupload.js'),
+        ('/static/django_summernote/summernote.min.js'),
+    ),
+
+    # You can add custom css/js for SummernoteWidget.
+    'css': (
+    ),
+    'js': (
+        ('/static/django_summernote/lang/summernote-ru-RU.min.js'),
+    ),
+    }
+
 
 ALLOWED_HOSTS = ['*']
 DEBUG_TOOLBAR_PATCH_SETTINGS = False
@@ -72,9 +110,9 @@ INSTALLED_APPS = [
     'ckeditor',
     'ckeditor_uploader',
     'imagekit',
-    'el_pagination',
 ]
 
+INSTALLED_APPS += ('django_summernote', )
 #IMAGEKIT_DEFAULT_CACHEFILE_STRATEGY = 'imagekit.cachefiles.strategies.Optimistic'
 
 CKEDITOR_JQUERY_URL = '///static/js/jquery-latest.js"'

@@ -126,7 +126,8 @@ class Post(models.Model):
     title = models.CharField(max_length=150)
     description = RichTextField(max_length = 500, config_name = "description",
                                 blank=True)
-    text = RichTextUploadingField(config_name = "post")
+    #text = RichTextUploadingField(config_name = "post")
+    text = models.TextField()
     today = datetime.date.today()
     post_image = models.ImageField(upload_to =
                         str(today.year)+'/'
