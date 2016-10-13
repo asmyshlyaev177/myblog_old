@@ -15,6 +15,10 @@ $(document).on('click', 'a.back-to-top', function() {
 	return false;
 });
 
+$(document).on('click', 'input', function() {
+	$('img').addClass('img-responsive');
+});
+
 function ClickAjaxMenu() {
 $(document).on('click', '.ajax-menu', function() {
 	event.preventDefault();

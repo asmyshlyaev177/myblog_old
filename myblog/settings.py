@@ -32,9 +32,9 @@ summernote_filepath = str(datetime.date.today().year)+'/'\
 +str(datetime.date.today().month)\
 +'/'+str(datetime.date.today().day)+'/'
 SUMMERNOTE_CONFIG = {
+    'iframe': False,
     'lang': 'ru-RU',
-    'lang_matches': {
-        'ru': 'ru-RU',},
+    'width': '100%',
     'toolbar': [
         ['style', ['style']],
         ['style', ['bold', 'italic', 'underline', 'clear']],
