@@ -4,8 +4,8 @@ from django.contrib.auth.models import (AbstractBaseUser,
 from django.utils.text import slugify
 from django.utils import timezone
 import datetime
-from ckeditor.fields import RichTextField
-from ckeditor_uploader.fields import RichTextUploadingField
+#from ckeditor.fields import RichTextField
+#from ckeditor_uploader.fields import RichTextUploadingField
 from imagekit.models import ImageSpecField, ProcessedImageField
 from imagekit.processors import ResizeToFit
 from django.utils.safestring import mark_safe
@@ -124,8 +124,9 @@ class Post(models.Model):
      "url", "published", "status"],
     ]
     title = models.CharField(max_length=150)
-    description = RichTextField(max_length = 500, config_name = "description",
-                                blank=True)
+    #description = RichTextField(max_length = 500, config_name = "description",
+    #                            blank=True)
+    description = models.CharField(max_length=150)
     #text = RichTextUploadingField(config_name = "post")
     text = models.TextField()
     today = datetime.date.today()

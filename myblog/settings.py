@@ -107,12 +107,12 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'blog',
-    'ckeditor',
-    'ckeditor_uploader',
+    #'ckeditor',
+    #'ckeditor_uploader',
     'imagekit',
+    'django_summernote',
 ]
 
-INSTALLED_APPS += ('django_summernote', )
 #IMAGEKIT_DEFAULT_CACHEFILE_STRATEGY = 'imagekit.cachefiles.strategies.Optimistic'
 
 CKEDITOR_JQUERY_URL = '///static/js/jquery-latest.js"'

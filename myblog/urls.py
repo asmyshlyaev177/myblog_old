@@ -23,14 +23,14 @@ import debug_toolbar
 from django.contrib.auth import views as auth_views
 
 urlpatterns = [
-    url(r'^summernote/', include('django_summernote.urls')),
+    #url(r'^summernote/', include('django_summernote.urls')),
     url(r'^upload_attachment/$', views.upload_attachment,
         name='django_summernote-upload_attachment'),
     #url(r'^$', cache_page(60 * 15)(views.Index), name='Index'),
     url(r'^__debug__/', include(debug_toolbar.urls)),
     url(r'^admin/', admin.site.urls, name='myadmin'),
     url(r'^$', views.list, name='list'),
-    url(r'^ckeditor/', include('ckeditor_uploader.urls')),
+    #url(r'^ckeditor/', include('ckeditor_uploader.urls')),
     url(r'^add-post/$', views.add_post, name='add_post'),
 
     url(r'^signup/', views.signup, name='signup'),

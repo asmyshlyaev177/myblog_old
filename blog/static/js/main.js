@@ -4,8 +4,16 @@ var page = 1;
 var category = ""
 
 $(document).ready(function(){
-	BackToTop()
-	ClickAjaxMenu()
+	BackToTop();
+	ClickAjaxMenu();
+	
+	$(document).on('mouseover', "input[value='Add Post']", function(event) {
+		ImgResponsive()
+	});
+
+	$(document).on('focusout', ".note-editable", function() {
+		ImgResponsive();
+	});
 });
 
 $(document).on('click', 'a.back-to-top', function() {
@@ -15,9 +23,11 @@ $(document).on('click', 'a.back-to-top', function() {
 	return false;
 });
 
-$(document).on('click', 'input', function() {
-	$('img').addClass('img-responsive');
-});
+
+
+function ImgResponsive() {
+	$('img').addClass('img-responsive').css("width", "auto");
+}
 
 function ClickAjaxMenu() {
 $(document).on('click', '.ajax-menu', function() {
