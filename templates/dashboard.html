@@ -3,45 +3,9 @@
 
 {% block title %}Dashboard{% endblock %}
 
-<h2 class="text-center">Welcome {{ request.user.username }}!</h2>
-
-{% block sidebar %}
-<div class="sidebar2">
-  <p>
-    Sidebar 2<br />
-    <p><a href="{% url 'password_change' %}">Change password</a></p>
-    <p><a href="{% url 'my_posts' %}">My Posts</a></p>
-  </p>
-</div>
-{% endblock %}
 
 {% block content %}
 <script>processing = true;</script>
-
-<div>
-  <form action="{% url 'dashboard' %}" method="post"
-   enctype="multipart/form-data">
-    <!-- label[for="id_username"] { color: red } -->
-
-    <div>
-      <label for="username">Username</label>{{ form.username }}
-    </div>
-    <div>
-    <label for="email">Email</label>{{ form.email }}
-    </div>
-    <div>
-      <label for="avatar">Avatar </label>
-      <img src="{{ request.scheme }}://{{ request.get_host }}/media/{{ request.user.avatar }}" />
-    </div>
-    <div>
-      {{ form.avatar }}
-    </div>
-
-    {% csrf_token %}<br />
-    <p>
-      <input type="submit" value="Save" />
-    </p>
-  </form>
-</div>
+{% include "dashboard-ajax.html" %}
 
 {% endblock %}

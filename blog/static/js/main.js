@@ -32,8 +32,10 @@ function ImgResponsive() {
 function ClickAjaxMenu() {
 $(document).on('click', '.ajax-menu', function() {
 	event.preventDefault();
-	category = $( this ).attr('url')
-		if ( $(this).is('[single_page]' ) ) { // if it is menu don't load on scroll
+	menu = $(this);
+	url = menu.attr('url');
+	category = url;
+		if ( menu.is('[single_page]' ) ) { // if it is menu don't load on scroll
 			processing = true;
 		}
 		else { // if it is list page load on scroll
@@ -46,8 +48,8 @@ $(document).on('click', '.ajax-menu', function() {
 
 	$('html, body').scrollTop( 0 );
 	
-	if ( $(this).text().replace(/\s/g, '') != "" ) {
-		document.title = $(this).text();}
+	if ( menu.text().replace(/\s/g, '') != "" ) {
+		document.title = menu.text();}
 	else {
 		document.title = "My blog!";}
 	ChangePage();
@@ -61,7 +63,7 @@ function ChangePage() {
           url:'/'+category,  
           success:function(data){
              data2 = ('<div class="content">' + data + '</div>');
-               $(data2).replaceAll('.content');
+             $(data2).replaceAll('.content');
           }
      });
 	 // change browser url string ;)
@@ -79,7 +81,7 @@ function loadMore(){
           url:category+"?page="+page,
           success:function(data){
                $('.content').append(data); //adds data to the end of the table
-               $('#more-loader').toggle()
+               $('#more-loader').toggle();
                processing = false; // the processing variable prevents multiple ajax calls when scrolling
           }
      });
@@ -92,7 +94,7 @@ function loadMore(){
           if ( $(document).scrollTop() > ( ($(document).height() - $(window).height())-300  )) {
               processing = true; //prevent multiple scrolls once first is hit
               if ( $( "#last_page" ).length == 0 ) {
-                $('#more-loader').toggle()
+                $('#more-loader').toggle();
                 page += 1;
                 loadMore();
                 }
@@ -110,18 +112,3 @@ function BackToTop(){
 	});
 }
 
-function getCookie(name) {
-    var cookieValue = null;
-    if (document.cookie && document.cookie !== '') {
-        var cookies = document.cookie.split(';');
-        for (var i = 0; i < cookies.length; i++) {
-            var cookie = jQuery.trim(cookies[i]);
-            // Does this cookie string begin with the name we want?
-            if (cookie.substring(0, name.length + 1) === (name + '=')) {
-                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
-                break;
-            }
-        }
-    }
-    return cookieValue;
-}

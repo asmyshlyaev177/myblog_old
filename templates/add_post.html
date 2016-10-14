@@ -4,46 +4,6 @@
 
 {% block content %}
 <script>processing = true;</script>
-<h1>Add post</h1>
-
-<form action="{% url 'add_post' %}" method="post" enctype="multipart/form-data">
-{% csrf_token %}
-
-<div class="form-row">
-  <p>
-    {{ form.title.label_tag }} {{ form.title }}
-  </p>
-</div>
-<div class="form-row">
-  <p>
-    {{ form.post_image.label_tag }} {{ form.post_image }}
-  </p>
-</div>
-<div class="form-row">
-  <p>
-    {{ form.category.label_tag }} {{ form.category }}
-  </p>
-</div>
-<div class="form-row">
-  <p>
-    {{ form.description.label_tag }}
-  </p> {{ form.description }}
-</div>
-<div class="form-row">
-  <p>
-    {{ form.text.label_tag }}
-  </p> {{ form.text|safe }}
-</div>
-<div class="form-row">
-  <p>
-    {{ form.tags.label_tag }}
-  </p> {{ form.tags }}
-</div>
-
-
-
-
-<input type="submit" value="Add Post" />
-</form>
+{% include "add_post-ajax.html" %}
 
 {% endblock %}
