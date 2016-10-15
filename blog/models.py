@@ -220,9 +220,9 @@ class Post(models.Model):
         ifr_class = []
         for i in ifr_links:
             for j in i['class']:
-                ifr_class.append(j) #находим классы картинки
+                ifr_class.append(j)
             ifr_class = [item for item in ifr_class if not item.startswith('center-block')]
-            ifr_class.append('center-block') #добавляем нужный класс
+            ifr_class.append('center-block') 
             i['class'] = ifr_class
 
         self.text = str(soup.body.next)
@@ -300,10 +300,6 @@ class Category(models.Model):
     def list(self):
         cat_list = self.objects.all().only("name","order")\
             .order_by('order','name')
-        #cat = self.objects.all().order_by('order','name')
-        #cat_list = list()
-        #for c in cat:
-            #cat_list.append(c.name)
         return cat_list
     def save(self, *args, **kwargs):
         if not self.slug:
