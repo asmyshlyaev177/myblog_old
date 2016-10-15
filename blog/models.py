@@ -4,8 +4,6 @@ from django.contrib.auth.models import (AbstractBaseUser,
 from django.utils.text import slugify
 from django.utils import timezone
 import datetime
-#from ckeditor.fields import RichTextField
-#from ckeditor_uploader.fields import RichTextUploadingField
 from imagekit.models import ImageSpecField, ProcessedImageField
 from imagekit.processors import ResizeToFit
 from django.utils.safestring import mark_safe
@@ -13,8 +11,10 @@ import re
 import os
 from django.dispatch import receiver
 from django.conf import settings
+from bs4 import BeautifulSoup
+from PIL import Image
 
-
+thumb_img_size = 640, 480
 
 class MyUserManager(BaseUserManager):
     def create_user(self, username, email, password=None):
@@ -208,8 +208,43 @@ def delete_image_and_thumb(sender, instance, **kwargs):
             except FileNotFoundError:
                 return False ##подозрительная хрень
 
+def thumbnail(instance, **kwargs):
+    """Resize img if it is bigger than thumb"""
+    soup = BeautifulSoup(instance.text) #текст поста
+    img_links = soup.find_all("img") #ищем все картинки
 
+    for i in img_links: # для каждой
+    	# находим ссылку и файл и вых. файл
+    	link = re.search(r"/(?P<year>\d{4})/(?P<month>\d{2})/(?P<day>\d{2})/(?P<file>\S*)\.(?P<ext>\w*)", str(i))
+    	file = 'c:\\django\\python3\\myblog\\blog\\static\\media\\{}\\{}\\{}\\{}.{}'\
+    	.format(link.group("year"), link.group("month"),link.group("day"),link.group("file"),link.group("ext"))
+    	file_out = 'c:\\django\\python3\\myblog\\blog\\static\\media\\{}\\{}\\{}\\{}-thumbnail.{}'\
+    	.format(link.group("year"), link.group("month"),link.group("day"),link.group("file"),link.group("ext"))
+    	if os.path.isfile(file):
+    		# если файл существует
+    		img_class = []
+    		for j in i['class']:
+    			img_class.append(j) #находим классы картинки
+    		#всё кроме того что надо добавить или заменить
+    		img_class = [item for item in img_class if not item.startswith('img-responsive')]
+    		img_class.append('img-responsive') #добавляем нужный класс
+    		i['class'] = img_class # присваиваем
+    		# если картинка больше нужного размера создаём миниатюру
+    		w,h = Image.open(file).size
+    		if w > thumb_img_size[0] or h > thumb_img_size[1]:
+    			img = Image.open(file)
+    			img.thumbnail(thumb_img_size)
+    			img.save(file_out) # сохраняем
+    			i['src'] = '/media/{}/{}/{}/{}-thumbnail.{}'.format(link.group("year"), link.group("month"),link.group("day"),link.group("file"),link.group("ext"))
+    			a_tag = soup.new_tag("a")
+    			# оборачиваем в ссылку на оригинал
+    			a_tag['href'] = '/media/{}/{}/{}/{}.{}'.format(link.group("year"), link.group("month"),link.group("day"),link.group("file"),link.group("ext"))
+    			a_tag['data-gallery'] = ""
+    			i = i.wrap(a_tag)
 
+    instance.text = str(soup.body.next)
+
+models.signals.pre_save.connect(thumbnail, sender=Post, dispatch_uid="instance.id")
 
 
 @receiver(models.signals.pre_save, sender=Post)

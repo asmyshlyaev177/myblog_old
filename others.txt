@@ -10,7 +10,6 @@ post = Post.objects.get(id = 37)
 
 soup = BeautifulSoup(post.text) #текст поста
 img_links = soup.find_all("img") #ищем все картинки
-//soup.body.next
 
 for i in img_links: # для каждой
 	# находим ссылку и файл и вых. файл
@@ -30,10 +29,9 @@ for i in img_links: # для каждой
 		i['class'] = img_class # присваиваем
 		# если картинка больше нужного размера создаём миниатюру
 		w,h = Image.open(file).size
-		if w > 300 or h > 400:
+		if w > thumb_img_size[0] or h > thumb_img_size[1]:
 			img = Image.open(file)
-			size = 128,128
-			img.thumbnail(size)
+			img.thumbnail(thumb_img_size)
 			img.save(file_out) # сохраняем
 			i['src'] = '/media/{}/{}/{}/{}-thumbnail.{}'.format(link.group("year"), link.group("month"),link.group("day"),link.group("file"),link.group("ext"))
 			a_tag = soup.new_tag("a")

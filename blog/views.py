@@ -18,6 +18,7 @@ from django_summernote.settings import summernote_config, get_attachment_model
 
 cat_list= Category.list()
 
+
 @csrf_protect
 def signup(request):
     if request.method == 'POST':
