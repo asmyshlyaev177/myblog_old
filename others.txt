@@ -1,0 +1,49 @@
+
+from blog.models import Post
+from bs4 import BeautifulSoup
+import re
+import os
+from PIL import Image
+
+post = Post.objects.get(id = 37)
+
+
+soup = BeautifulSoup(post.text) #текст поста
+img_links = soup.find_all("img") #ищем все картинки
+//soup.body.next
+
+for i in img_links: # для каждой
+	# находим ссылку и файл и вых. файл
+	link = re.search(r"/(?P<year>\d{4})/(?P<month>\d{2})/(?P<day>\d{2})/(?P<file>\S*)\.(?P<ext>\w*)", str(i))
+	file = 'c:\\django\\python3\\myblog\\blog\\static\\media\\{}\\{}\\{}\\{}.{}'\
+	.format(link.group("year"), link.group("month"),link.group("day"),link.group("file"),link.group("ext"))
+	file_out = 'c:\\django\\python3\\myblog\\blog\\static\\media\\{}\\{}\\{}\\{}-thumbnail.{}'\
+	.format(link.group("year"), link.group("month"),link.group("day"),link.group("file"),link.group("ext"))
+	if os.path.isfile(file): 
+		# если файл существует
+		img_class = []
+		for j in i['class']:
+			img_class.append(j) #находим классы картинки
+		#всё кроме того что надо добавить или заменить
+		img_class = [item for item in img_class if not item.startswith('img-responsive')] 
+		img_class.append('img-responsive') #добавляем нужный класс
+		i['class'] = img_class # присваиваем
+		# если картинка больше нужного размера создаём миниатюру
+		w,h = Image.open(file).size
+		if w > 300 or h > 400:
+			img = Image.open(file)
+			size = 128,128
+			img.thumbnail(size)
+			img.save(file_out) # сохраняем
+			i['src'] = '/media/{}/{}/{}/{}-thumbnail.{}'.format(link.group("year"), link.group("month"),link.group("day"),link.group("file"),link.group("ext"))
+			a_tag = soup.new_tag("a")
+			# оборачиваем в ссылку на оригинал
+			a_tag['href'] = '/media/{}/{}/{}/{}.{}'.format(link.group("year"), link.group("month"),link.group("day"),link.group("file"),link.group("ext"))
+			i.wrap(a_tag)
+
+post.text = str(soup.body.next)
+post.save()
+
+
+post.text = '<p><img class="img-responsive" src="/media/2016/10/15/design-banner.jpg" style="width: auto;"/><img class="img-responsive" src="/media/2016/10/15/gudkov1.jpg" style="width: auto;"/><br/></p>'
+post.save()
