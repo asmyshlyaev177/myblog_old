@@ -46,3 +46,5 @@ post.save()
 
 post.text = '<p><a href="/media/2016/10/15/design-banner.jpg"  data-gallery=""><img class="img-responsive" src="/media/2016/10/15/design-banner-thumbnail.jpg" style="width: auto;"/></a><a href="/media/2016/10/15/gudkov1.jpg"  data-gallery=""><img class="img-responsive" src="/media/2016/10/15/gudkov1-thumbnail.jpg" style="width: auto;"/></a><br/></p>'
 post.save()
+
+'<p><iframe class="note-video-clip" frameborder="0" height="360" mytubeactivetubeid="mytube1" mytubeid="mytube1" src="//www.youtube.com/embed/Qzw6A2WC5Qo" width="640"></iframe><br/></p>'
