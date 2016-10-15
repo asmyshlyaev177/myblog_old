@@ -39,11 +39,12 @@ for i in img_links: # для каждой
 			a_tag = soup.new_tag("a")
 			# оборачиваем в ссылку на оригинал
 			a_tag['href'] = '/media/{}/{}/{}/{}.{}'.format(link.group("year"), link.group("month"),link.group("day"),link.group("file"),link.group("ext"))
-			i.wrap(a_tag)
+			a_tag['data-gallery'] = ""
+			i = i.wrap(a_tag)
 
 post.text = str(soup.body.next)
 post.save()
 
 
-post.text = '<p><img class="img-responsive" src="/media/2016/10/15/design-banner.jpg" style="width: auto;"/><img class="img-responsive" src="/media/2016/10/15/gudkov1.jpg" style="width: auto;"/><br/></p>'
+post.text = '<p><a href="/media/2016/10/15/design-banner.jpg"  data-gallery=""><img class="img-responsive" src="/media/2016/10/15/design-banner-thumbnail.jpg" style="width: auto;"/></a><a href="/media/2016/10/15/gudkov1.jpg"  data-gallery=""><img class="img-responsive" src="/media/2016/10/15/gudkov1-thumbnail.jpg" style="width: auto;"/></a><br/></p>'
 post.save()
