@@ -1,1 +1,32 @@
 
+ок, через jquery копировать тэги из скрытого поля от тэг менеджера в скрытое поле от джанго
+При отправке формы брать значения тэгов из скрытого поля и создавать новые тэги если нужно.
+
+Сначала делаем вьюшку для отдачи всех тэгов
+
+var countries = new Bloodhound({
+      datumTokenizer: Bloodhound.tokenizers.obj.whitespace('name'),
+      queryTokenizer: Bloodhound.tokenizers.whitespace,
+      limit: 10,
+      prefetch: {
+        url: 'http://192.168.1.68/static/tag-list.json',
+        filter: function (list) {
+          return $.map(list, function (country) {
+            return { name: country };
+          });
+        }
+      }
+    });
+ 
+    countries.initialize();
+ 
+    var tagApi = jQuery(".tm-input.tm-input-typeahead").tagsManager({
+      
+    });
+    jQuery(".tm-input").typeahead(null, {
+      name: 'countries',
+      displayKey: 'name',
+      source: countries.ttAdapter()
+    }).on('typeahead:selected', function (e, d) {
+        tagApi.tagsManager("pushTag", d.name);
+    });

@@ -37,7 +37,15 @@ class MyUserChangeForm(forms.ModelForm):
         fields = ('username', 'email','avatar')
 
 class AddPostForm(forms.ModelForm):
-    tags_new = forms.CharField(label='new tags',strip=True)
+    tags_new = forms.CharField(label="new tags",required=False,
+                               widget= forms.TextInput(
+                                   attrs={'class': 'tm-input tm-input-typeahead tt-input'})
+                               )
+    hidden_tags_new = forms.CharField(required=False,
+                                      widget= forms.HiddenInput(
+                                          attrs={}
+                                      ))
+
     class Meta:
         model = Post
         fields = ('title', 'post_image', 'category', 'description','text','tags')

@@ -2,11 +2,13 @@ from django.shortcuts import render
 from blog.models import Post, myUser, Category, Tag
 from django.utils.text import slugify
 from blog.forms import SignupForm, MyUserChangeForm, AddPostForm
-from django.http import HttpResponseRedirect, HttpResponse
+from django.http import HttpResponseRedirect, HttpResponse,JsonResponse
 from django.views.decorators.csrf import csrf_protect
 from django.contrib.auth.decorators import login_required
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.conf import settings
+from django.core import serializers
+import json
 
 from django.http import (
     HttpResponseBadRequest,
@@ -18,6 +20,17 @@ from django_summernote.settings import summernote_config, get_attachment_model
 
 cat_list= Category.list()
 
+def tag_list(request):
+    tags = Tag.objects.all().values()
+    data = []
+    for i in tags:
+        tag = {}
+        tag['id'] = i['id']
+        tag['name'] = i['name']
+        data.append(tag)
+    with open('c:\\django\\python3\\myblog\\blog\\static\\tag-list.json', 'w') as out:
+        out.write(json.dumps(data))
+    return JsonResponse(data, safe=False)
 
 @csrf_protect
 def signup(request):
