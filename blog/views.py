@@ -76,6 +76,7 @@ def add_post(request):
             data.url = slugify(data.title)
             url = data.get_absolute_url
             title = data.title
+            #data.text = request.POST['hidden-tags_new'] # tags list
             data.save()
             return render(request, 'added-post.html',
                           {'url': url, 'title': title,

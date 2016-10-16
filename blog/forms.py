@@ -41,19 +41,18 @@ class AddPostForm(forms.ModelForm):
                                widget= forms.TextInput(
                                    attrs={'class': 'tm-input tm-input-typeahead tt-input'})
                                )
-    hidden_tags_new = forms.CharField(required=False,
+    """hidden_tags_new = forms.CharField(required=False,
                                       widget= forms.HiddenInput(
                                           attrs={}
-                                      ))
+                                      ))"""
 
     class Meta:
         model = Post
-        fields = ('title', 'post_image', 'category', 'description','text','tags',
-                  'hidden_tags_new')
+        fields = ('title', 'post_image', 'category',
+                  'description','text','tags')
         widgets = {
             'text': SummernoteInplaceWidget(),
         }
     def save(self, commit=True):
-        #self.instance.hidden_tags_new = self.cleaned_data['hidden_tags_new']
         # do something with self.cleaned_data['temp_id']
         return super(AddPostForm, self).save(commit=commit)
