@@ -152,7 +152,7 @@
 
         html = '<span class="' + privateMethods.tagClasses.call($self) + '" id="' + newTagId + '">';
         html += '<span>' + escaped + '</span>';
-        html += '<a href="#" class="tm-tag-remove" id="' + newTagRemoveId + '" TagIdToRemove="' + tagId + '">';
+        html += '<a href="#" class="tm-tag-remove pull-right" id="' + newTagRemoveId + '" TagIdToRemove="' + tagId + '">';
         html += opts.tagCloseIcon + '</a></span> ';
         $el = $(html);
 

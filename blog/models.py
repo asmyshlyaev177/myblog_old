@@ -186,44 +186,46 @@ class Post(models.Model):
         soup = BeautifulSoup(self.text) #текст поста
         img_links = soup.find_all("img") #ищем все картинки
 
-        for i in img_links: # для каждой
-        	# находим ссылку и файл и вых. файл
-        	link = re.search(r"/(?P<year>\d{4})/(?P<month>\d{2})/(?P<day>\d{2})/(?P<file>\S*)\.(?P<ext>\w*)", str(i))
-        	file = 'c:\\django\\python3\\myblog\\blog\\static\\media\\{}\\{}\\{}\\{}.{}'\
-        	.format(link.group("year"), link.group("month"),link.group("day"),link.group("file"),link.group("ext"))
-        	file_out = 'c:\\django\\python3\\myblog\\blog\\static\\media\\{}\\{}\\{}\\{}-thumbnail.{}'\
-        	.format(link.group("year"), link.group("month"),link.group("day"),link.group("file"),link.group("ext"))
-        	if os.path.isfile(file):
-        		# если файл существует
-        		img_class = []
-        		for j in i['class']:
-        			img_class.append(j) #находим классы картинки
-        		#всё кроме того что надо добавить или заменить
-        		img_class = [item for item in img_class if not item.startswith('img-responsive')]
-        		img_class.append('img-responsive') #добавляем нужный класс
-        		i['class'] = img_class # присваиваем
-        		# если картинка больше нужного размера создаём миниатюру
-        		w,h = Image.open(file).size
-        		if w > thumb_img_size[0]:
-        			img = Image.open(file)
-        			img.thumbnail(thumb_img_size)
-        			img.save(file_out) # сохраняем
-        			i['src'] = '/media/{}/{}/{}/{}-thumbnail.{}'.format(link.group("year"), link.group("month"),link.group("day"),link.group("file"),link.group("ext"))
-        			a_tag = soup.new_tag("a")
-        			# оборачиваем в ссылку на оригинал
-        			a_tag['href'] = '/media/{}/{}/{}/{}.{}'.format(link.group("year"), link.group("month"),link.group("day"),link.group("file"),link.group("ext"))
-        			a_tag['data-gallery'] = ""
-        			i = i.wrap(a_tag)
+        if len(img_links) != 0:
+            for i in img_links: # для каждой
+            	# находим ссылку и файл и вых. файл
+            	link = re.search(r"/(?P<year>\d{4})/(?P<month>\d{2})/(?P<day>\d{2})/(?P<file>\S*)\.(?P<ext>\w*)", str(i))
+            	file = 'c:\\django\\python3\\myblog\\blog\\static\\media\\{}\\{}\\{}\\{}.{}'\
+            	.format(link.group("year"), link.group("month"),link.group("day"),link.group("file"),link.group("ext"))
+            	file_out = 'c:\\django\\python3\\myblog\\blog\\static\\media\\{}\\{}\\{}\\{}-thumbnail.{}'\
+            	.format(link.group("year"), link.group("month"),link.group("day"),link.group("file"),link.group("ext"))
+            	if os.path.isfile(file):
+            		# если файл существует
+            		img_class = []
+            		for j in i['class']:
+            			img_class.append(j) #находим классы картинки
+            		#всё кроме того что надо добавить или заменить
+            		img_class = [item for item in img_class if not item.startswith('img-responsive')]
+            		img_class.append('img-responsive') #добавляем нужный класс
+            		i['class'] = img_class # присваиваем
+            		# если картинка больше нужного размера создаём миниатюру
+            		w,h = Image.open(file).size
+            		if w > thumb_img_size[0]:
+            			img = Image.open(file)
+            			img.thumbnail(thumb_img_size)
+            			img.save(file_out) # сохраняем
+            			i['src'] = '/media/{}/{}/{}/{}-thumbnail.{}'.format(link.group("year"), link.group("month"),link.group("day"),link.group("file"),link.group("ext"))
+            			a_tag = soup.new_tag("a")
+            			# оборачиваем в ссылку на оригинал
+            			a_tag['href'] = '/media/{}/{}/{}/{}.{}'.format(link.group("year"), link.group("month"),link.group("day"),link.group("file"),link.group("ext"))
+            			a_tag['data-gallery'] = ""
+            			i = i.wrap(a_tag)
 
         # выравниваем видео по центру
         ifr_links = soup.find_all("iframe")
         ifr_class = []
-        for i in ifr_links:
-            for j in i['class']:
-                ifr_class.append(j)
-            ifr_class = [item for item in ifr_class if not item.startswith('center-block')]
-            ifr_class.append('center-block') 
-            i['class'] = ifr_class
+        if len(img_links) != 0:
+            for i in ifr_links:
+                for j in i['class']:
+                    ifr_class.append(j)
+                ifr_class = [item for item in ifr_class if not item.startswith('center-block')]
+                ifr_class.append('center-block')
+                i['class'] = ifr_class
 
         self.text = str(soup.body.next)
 

@@ -48,10 +48,12 @@ class AddPostForm(forms.ModelForm):
 
     class Meta:
         model = Post
-        fields = ('title', 'post_image', 'category', 'description','text','tags')
+        fields = ('title', 'post_image', 'category', 'description','text','tags',
+                  'hidden_tags_new')
         widgets = {
             'text': SummernoteInplaceWidget(),
         }
     def save(self, commit=True):
+        #self.instance.hidden_tags_new = self.cleaned_data['hidden_tags_new']
         # do something with self.cleaned_data['temp_id']
         return super(AddPostForm, self).save(commit=commit)

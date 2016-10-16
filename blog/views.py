@@ -76,7 +76,6 @@ def add_post(request):
             data.url = slugify(data.title)
             url = data.get_absolute_url
             title = data.title
-
             data.save()
             return render(request, 'added-post.html',
                           {'url': url, 'title': title,
