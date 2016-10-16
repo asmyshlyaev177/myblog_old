@@ -1,8 +1,9 @@
+http://twitter.github.io/typeahead.js/examples/
 
 ок, через jquery копировать тэги из скрытого поля от тэг менеджера в скрытое поле от джанго
 При отправке формы брать значения тэгов из скрытого поля и создавать новые тэги если нужно.
 
-Сначала делаем вьюшку для отдачи всех тэгов
+Далее при нажатии сенд должны копироваться тэги в скрытое поле
 
 var countries = new Bloodhound({
       datumTokenizer: Bloodhound.tokenizers.obj.whitespace('name'),
@@ -21,7 +22,7 @@ var countries = new Bloodhound({
     countries.initialize();
  
     var tagApi = jQuery(".tm-input.tm-input-typeahead").tagsManager({
-      
+	  tagCloseIcon: 'X',
     });
     jQuery(".tm-input").typeahead(null, {
       name: 'countries',
@@ -30,3 +31,10 @@ var countries = new Bloodhound({
     }).on('typeahead:selected', function (e, d) {
         tagApi.tagsManager("pushTag", d.name);
     });
+	
+
+	
+	
+	$(document).on('click', '.tt-suggestion', function() {
+		$('.tm-input').val("");
+	});

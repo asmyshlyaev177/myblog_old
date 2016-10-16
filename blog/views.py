@@ -20,18 +20,6 @@ from django_summernote.settings import summernote_config, get_attachment_model
 
 cat_list= Category.list()
 
-def tag_list(request):
-    tags = Tag.objects.all().values()
-    data = []
-    for i in tags:
-        tag = {}
-        tag['id'] = i['id']
-        tag['name'] = i['name']
-        data.append(tag)
-    with open('c:\\django\\python3\\myblog\\blog\\static\\tag-list.json', 'w') as out:
-        out.write(json.dumps(data))
-    return JsonResponse(data, safe=False)
-
 @csrf_protect
 def signup(request):
     if request.method == 'POST':
@@ -94,6 +82,18 @@ def add_post(request):
                           {'url': url, 'title': title,
                            'cat_list':cat_list})
     form = AddPostForm()
+
+    #создаём файл со списком тэгов для выбора
+    tags = Tag.objects.all().values()
+    data = []
+    for i in tags:
+        tag = {}
+        tag['id'] = i['id']
+        tag['name'] = i['name']
+        data.append(tag)
+    with open('c:\\django\\python3\\myblog\\blog\\static\\tag-list.json', 'w') as out:
+        out.write(json.dumps(data))
+
     return render(request, template, { 'form': form,
                                              'cat_list': cat_list})
 

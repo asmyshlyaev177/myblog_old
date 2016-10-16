@@ -24,7 +24,6 @@ from django.contrib.auth import views as auth_views
 
 urlpatterns = [
     #url(r'^summernote/', include('django_summernote.urls')),
-    url(r'^tag-list', views.tag_list, name="tag_list"),
     url(r'^upload_attachment/$', views.upload_attachment,
         name='django_summernote-upload_attachment'),
     #url(r'^$', cache_page(60 * 15)(views.Index), name='Index'),
