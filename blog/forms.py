@@ -37,10 +37,13 @@ class MyUserChangeForm(forms.ModelForm):
         fields = ('username', 'email','avatar')
 
 class AddPostForm(forms.ModelForm):
-
+    tags_new = forms.CharField(label='new tags',strip=True)
     class Meta:
         model = Post
         fields = ('title', 'post_image', 'category', 'description','text','tags')
         widgets = {
             'text': SummernoteInplaceWidget(),
         }
+    def save(self, commit=True):
+        # do something with self.cleaned_data['temp_id']
+        return super(AddPostForm, self).save(commit=commit)
