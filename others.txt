@@ -43,7 +43,8 @@ var tags = new Bloodhound({
 	
 
 	jQuery(".tm-input").on('tm:refresh', function(e, taglist) {
-      $(":input[id='id_hidden_tags_new']").val($(":input[name='hidden-tags_new']").val())
+		tag = $(":input[name='hidden-tags_new']").val()
+      $(":input[id='id_hidden_tags_new']").val(tag)
     });
 	
 	
