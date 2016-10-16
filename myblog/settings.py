@@ -86,11 +86,6 @@ AUTHENTICATION_BACKENDS = (
 
 AUTH_USER_MODEL = 'blog.myUser'
 
-STATIC_URL = '/static/'
-STATIC_ROOT = '/django/python3/myblog/blog/static/'
-MEDIA_ROOT = '/django/python3/myblog/blog/static/media/'
-MEDIA_URL = '/media/'
-
 CACHES = {
     'default': {
         'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
@@ -112,17 +107,33 @@ INSTALLED_APPS = [
     #'ckeditor_uploader',
     'imagekit',
     'django_summernote',
+    'compressor',
 ]
 
+STATIC_URL = '/static/'
+STATIC_ROOT = '/django/python3/myblog/blog/static/'
+MEDIA_ROOT = '/django/python3/myblog/blog/static/media/'
+MEDIA_URL = '/media/'
+
+STATICFILES_FINDERS = (
+    'django.contrib.staticfiles.finders.FileSystemFinder',
+    'django.contrib.staticfiles.finders.AppDirectoriesFinder',
+    # other finders..
+    'compressor.finders.CompressorFinder',
+)
+
+COMPRESS_ENABLED = False  # удобней выключить потом включу
+COMPRESS_CSS_FILTERS = ['compressor.filters.css_default.CssAbsoluteFilter',
+                        'compressor.filters.cssmin.rCSSMinFilter']
 #IMAGEKIT_DEFAULT_CACHEFILE_STRATEGY = 'imagekit.cachefiles.strategies.Optimistic'
 
-CKEDITOR_JQUERY_URL = '///static/js/jquery-latest.js"'
-CKEDITOR_UPLOAD_PATH = 'uploads/'
-CKEDITOR_IMAGE_BACKEND = 'pillow'
-CKEDITOR_RESTRICT_BY_USER = True
-CKEDITOR_BROWSE_SHOW_DIRS = True
+#CKEDITOR_JQUERY_URL = '///static/js/jquery-latest.js"'
+#CKEDITOR_UPLOAD_PATH = 'uploads/'
+#CKEDITOR_IMAGE_BACKEND = 'pillow'
+#CKEDITOR_RESTRICT_BY_USER = True
+#CKEDITOR_BROWSE_SHOW_DIRS = True
 
-CKEDITOR_CONFIGS = {
+'''CKEDITOR_CONFIGS = {
     "post": {
         "toolbar": [
             { 'name': 'undo_redo', 'items': ["Undo", "Redo", "-", "Preview"]},
@@ -152,7 +163,7 @@ CKEDITOR_CONFIGS = {
                         "youtube", "preview"])
 
     }
-}
+}'''
 
 MIDDLEWARE = [
     'debug_toolbar.middleware.DebugToolbarMiddleware',
@@ -233,5 +244,3 @@ USE_TZ = True
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/1.10/howto/static-files/
-
-STATIC_URL = '/static/'
