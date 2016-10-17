@@ -62,7 +62,7 @@
 
 <div style="height: 100px"></div>
 
-<script>
+<!--<script>
 var tags = new Bloodhound({
       datumTokenizer: Bloodhound.tokenizers.obj.whitespace('name'),
       queryTokenizer: Bloodhound.tokenizers.whitespace,
@@ -79,7 +79,7 @@ var tags = new Bloodhound({
 
     tags.initialize();
 
-    var tagApi = jQuery(".tm-input.tm-input-typeahead").tagsManager({
+    var tagApi = jQuery(".tm-input-typeahead").tagsManager({
 	  tagCloseIcon: 'X',
     });
     jQuery(".tm-input").typeahead(null, {
@@ -104,5 +104,5 @@ var tags = new Bloodhound({
 		tag = $(":input[name='hidden-tags_new']").val()
       $(":input[id='id_hidden_tags_new']").val(tag)
     });
-</script>
+</script> -->
 {% endblock %}

@@ -8,8 +8,8 @@ var tags = new Bloodhound({
       prefetch: {
         url: 'http://192.168.1.68/static/tag-list.json',
         filter: function (list) {
-          return $.map(list, function (country) {
-            return { name: country };
+          return $.map(list, function (mytag) {
+            return { name: mytag };
           });
         }
       }
@@ -17,10 +17,10 @@ var tags = new Bloodhound({
  
     tags.initialize();
  
-    var tagApi = jQuery(".tm-input.tm-input-typeahead").tagsManager({
+    var tagApi = jQuery(".tm-input-typeahead").tagsManager({
 	  tagCloseIcon: 'X',
     });
-    jQuery(".tm-input").typeahead(null, {
+    jQuery(".tm-input-typeahead").typeahead(null, {
       name: 'tags',
       displayKey: 'name',
       source: tags.ttAdapter()

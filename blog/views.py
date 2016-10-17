@@ -94,7 +94,7 @@ def add_post(request):
     data = []
     for i in tags:
         tag = {}
-        tag['id'] = i['id']
+        #tag['id'] = i['id']
         tag['name'] = i['name']
         data.append(tag)
     with open('c:\\django\\python3\\myblog\\blog\\static\\tag-list.json', 'w') as out:
