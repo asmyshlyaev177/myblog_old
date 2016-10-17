@@ -43,3 +43,19 @@ var tags = new Bloodhound({
       $(":input[id='id_hidden_tags_new']").val(tag)
     });
 	
+	
+	
+var countries = new Bloodhound({
+  datumTokenizer: Bloodhound.tokenizers.whitespace,
+  queryTokenizer: Bloodhound.tokenizers.whitespace,
+  // url points to a json file that contains an array of country names, see
+  // https://github.com/twitter/typeahead.js/blob/gh-pages/data/countries.json
+  prefetch: 'http://192.168.1.68/static/tag-list.json'
+});
+
+// passing in `null` for the `options` arguments will result in the default
+// options being used
+$('.tm-input-typeahead').typeahead(null, {
+  name: 'countries',
+  source: countries
+});
