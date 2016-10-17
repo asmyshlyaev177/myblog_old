@@ -153,7 +153,7 @@ class Post(models.Model):
     tags = models.ManyToManyField('Tag',
                                         related_name='posts',
                                         related_query_name='tag',
-                                        blank=True)
+                                        blank=True, null= True)
     url = models.SlugField(blank=True)
     STATUS = (
                 ("D", "Draft"),

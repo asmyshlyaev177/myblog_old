@@ -53,6 +53,6 @@ class AddPostForm(forms.ModelForm):
         widgets = {
             'text': SummernoteInplaceWidget(),
         }
-    def save(self, commit=True):
+    #def save(self, commit=True):
         # do something with self.cleaned_data['temp_id']
-        return super(AddPostForm, self).save(commit=commit)
+        #return super(AddPostForm, self).save(commit=commit)

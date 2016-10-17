@@ -76,8 +76,14 @@ def add_post(request):
             data.url = slugify(data.title)
             url = data.get_absolute_url
             title = data.title
-            #data.text = request.POST['hidden-tags_new'] # tags list
+            tag_list = request.POST['hidden-tags_new'].split(',') # tags list
             data.save()
+            for i in tag_list:
+            	Tag.objects.get_or_create(name=slugify(i))
+            	tag = Tag.objects.get(name=slugify(i))
+            	data.tags.add(tag)
+            data.save()
+            #form.save_m2m()
             return render(request, 'added-post.html',
                           {'url': url, 'title': title,
                            'cat_list':cat_list})

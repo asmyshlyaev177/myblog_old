@@ -62,4 +62,47 @@
 
 <div style="height: 100px"></div>
 
+<script>
+var tags = new Bloodhound({
+      datumTokenizer: Bloodhound.tokenizers.obj.whitespace('name'),
+      queryTokenizer: Bloodhound.tokenizers.whitespace,
+      limit: 10,
+      prefetch: {
+        url: 'http://192.168.1.68/static/tag-list.json',
+        filter: function (list) {
+          return $.map(list, function (country) {
+            return { name: country };
+          });
+        }
+      }
+    });
+
+    tags.initialize();
+
+    var tagApi = jQuery(".tm-input.tm-input-typeahead").tagsManager({
+	  tagCloseIcon: 'X',
+    });
+    jQuery(".tm-input").typeahead(null, {
+      name: 'tags',
+      displayKey: 'name',
+      source: tags.ttAdapter()
+    }).on('typeahead:selected', function (e, d) {
+        tagApi.tagsManager("pushTag", d.name);
+    });
+
+	jQuery(".tm-input").on('tm:pushed', function(e, tag) {
+      $('.tm-input').val("");
+    });
+
+
+	$(document).on('click', '.tt-suggestion', function() {
+		$('.tm-input').val("");
+	});
+
+
+	jQuery(".tm-input").on('tm:refresh', function(e, taglist) {
+		tag = $(":input[name='hidden-tags_new']").val()
+      $(":input[id='id_hidden_tags_new']").val(tag)
+    });
+</script>
 {% endblock %}

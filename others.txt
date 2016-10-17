@@ -1,9 +1,5 @@
-http://twitter.github.io/typeahead.js/examples/
-
-ок, через jquery копировать тэги из скрытого поля от тэг менеджера в скрытое поле от джанго
-При отправке формы брать значения тэгов из скрытого поля и создавать новые тэги если нужно. get_or_create
-
-Далее при нажатии сенд должны копироваться тэги в скрытое поле
+добавить url для тэгов, использовать его в ссылках
+переписать удаление тэгов и постов, чтобы посты при удалении тэга не удалялись
 
 var tags = new Bloodhound({
       datumTokenizer: Bloodhound.tokenizers.obj.whitespace('name'),
@@ -46,6 +42,4 @@ var tags = new Bloodhound({
 		tag = $(":input[name='hidden-tags_new']").val()
       $(":input[id='id_hidden_tags_new']").val(tag)
     });
-	
-	
 	
