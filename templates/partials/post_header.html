@@ -1,0 +1,31 @@
+<div class="post-author pull-left">
+  <div class="author-name">
+    {{ post.author }}
+  </div>
+  <div class="author-avatar">
+    {% if post.author.avatar %}
+    {{ post.author.get_avatar }}
+    {% else %}
+    <img src="/static/img/avatar.jpg" class ="img-avatar"/>
+    {% endif %}
+  </div>
+</div>
+
+<div class="post_category pull-right">
+  <p>
+    Category: <a href="/{{ post.get_category }}"
+      class="post-category ajax-menu"
+      url = "{{ post.get_category }}">
+       {{ post.category }}</a>
+  </p>
+
+  {% if post.get_tags_list %}<p>
+    Tags:
+    {% for tag in post.get_tags_list %}
+    <a href="/tag/{{ tag.id }}" class="ajax-menu"
+    url = "tag/{{ tag.id }}">{{ tag}}</a>
+    {% if not forloop.last %},{% endif %}
+    {% endfor %}
+  </p>
+  {% endif %}
+</div>

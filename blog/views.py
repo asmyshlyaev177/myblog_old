@@ -79,8 +79,8 @@ def add_post(request):
             tag_list = request.POST['hidden-tags_new'].split(',') # tags list
             data.save()
             for i in tag_list:
-            	Tag.objects.get_or_create(name=slugify(i))
-            	tag = Tag.objects.get(name=slugify(i))
+            	Tag.objects.get_or_create(name=i)
+            	tag = Tag.objects.get(name=i)
             	data.tags.add(tag)
             data.save()
             #form.save_m2m()
@@ -120,9 +120,9 @@ def list(request, category=None, tag=None):
         context['category'] = cat
     elif tag:
         post_list= Post.objects.select_related("author", "category")\
-            .prefetch_related('tags').filter(tags__name=tag)\
+            .prefetch_related('tags').filter(tags__id=tag)\
             .filter(status="P").order_by('-published')
-        cat = Tag.objects.get(name=tag)
+        cat = Tag.objects.get(id=tag)
         context['tag'] = cat
     else:
         post_list = Post.objects.select_related("author", "category")\

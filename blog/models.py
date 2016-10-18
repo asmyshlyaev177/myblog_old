@@ -180,7 +180,8 @@ class Post(models.Model):
     def get_category(self):
         return slugify(self.category)
     def get_tags_list(self):
-        return self.tags.values_list('name', flat=True)
+        #return self.tags.values_list('name', flat=True)
+        return self.tags.all()
     def save(self, force_insert=False, force_update=False):
         """Resize img if it is bigger than thumb"""
         soup = BeautifulSoup(self.text) #текст поста
@@ -311,5 +312,6 @@ class Category(models.Model):
 
 class Tag(models.Model):
     name = models.CharField(max_length=30, unique=True)
+    #slug = models.SlugField(blank=True,max_length=40, unique=True)
     def __str__(self):
         return self.name

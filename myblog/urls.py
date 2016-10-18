@@ -51,7 +51,7 @@ urlpatterns = [
         auth_views.password_reset_confirm, name='password_reset_confirm'),
     url(r'^reset/done/$', auth_views.password_reset_done, name='password_reset_complete'),
 
-    url(r'^tag/(?P<tag>[-\w]+)/$', views.list, name='tag'),
+    url(r'^tag/(?P<tag>[-\d]+)/$', views.list, name='tag'),
     url(r'^(?P<category>[-\w]+)/$', views.list, name='category'),
     url(r'^(?P<category>[-\w]+)/(?P<title>[-\w]+)-(?P<id>[-vi\d]+)/',
             views.single_post, name='single_post'),
