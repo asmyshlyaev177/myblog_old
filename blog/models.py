@@ -87,6 +87,8 @@ class myUser(AbstractBaseUser):
 
     def has_module_perms(self, app_label):
         return True
+    class Meta:
+        verbose_name_plural = "users"
 
     @property
     def is_superuser(self):
@@ -153,23 +155,18 @@ class Post(models.Model):
     tags = models.ManyToManyField('Tag',
                                         related_name='posts',
                                         related_query_name='tag',
-                                        blank=True, null= True)
+                                        blank=True)
     url = models.SlugField(blank=True)
     STATUS = (
                 ("D", "Draft"),
                 ("P","Published"),
     )
     status = models.CharField(max_length=1, choices=STATUS, default="D")
-    ordering = ('-published',)
-    #def save(self, *args, **kwargs):
-    #    self.description = re.sub(
-    #        '\<img((\W+)|(\w+))*\ \/>', '', self.description)
-    #    self.description = re.sub(
-    #        '\<script((\W+)|(\w+))*\<\/script\>', '', self.description)
-    #    self.description = re.sub(
-    #        '\<iframe((\W+)|(\w+))*\<\/iframe\>', '', self.description)
-    #    super(Post, self).save(*args, **kwargs) # Call the "real" save() method.
 
+
+    class Meta:
+        ordering = ['-published']
+        verbose_name_plural = "posts"
     def __str__(self):
         return self.title
 
@@ -294,6 +291,9 @@ class Category(models.Model):
     description = models.TextField(max_length=250)
     slug = models.SlugField("URL",blank=True, max_length=150)
     order = models.SmallIntegerField(blank=True, default=1)
+    class Meta:
+        verbose_name_plural = "categories"
+
     def __str__(self):
         return self.name
     def get_url(self):
@@ -312,6 +312,8 @@ class Category(models.Model):
 
 class Tag(models.Model):
     name = models.CharField(max_length=30, unique=True)
-    #slug = models.SlugField(blank=True,max_length=40, unique=True)
+
+    class Meta:
+        verbose_name_plural = "tags"
     def __str__(self):
         return self.name

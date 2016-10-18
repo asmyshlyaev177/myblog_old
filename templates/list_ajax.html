@@ -23,26 +23,29 @@
 {% for post in posts %}
 
   <div class="post">
-    <a href="{{ post.get_absolute_url }}" class="center-block">
+    <a href="{{ post.get_absolute_url }}" class="center-block
+     post-title">
       <h2 class="text-center center-block">
       {{ post.title }}</h2></a>
 
   {% post_header %}
 
-    <div class="clearfix">
-
-    </div>
+    <div class="clearfix"></div>
 
     {% if post.post_image %}
     <div class="post-thumbnail">
-        {{ post.get_image }}
+        <img src="{{ post.post_thumbnail.url }}"
+        class ="img-responsive center-block"/>
     </div>
     {% endif %}
+
+    <div class="row">
+    <div class="post-description col-md-8 col-md-offset-2">
     {% if post.description %}
-    <div class="post-description">
       {{ post.description }}
-    </div>
     {% endif %}
+    </div>
+    </div>
 
     {% if not posts.has_next %}
     <p id="last_page"></p>

@@ -1,3 +1,6 @@
-
+.post-title {
+	display: table;
+	margin: auto;
+}
 
 .main {overflow: hidden;}
