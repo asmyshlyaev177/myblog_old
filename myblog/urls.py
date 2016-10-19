@@ -30,6 +30,7 @@ urlpatterns = [
     url(r'^__debug__/', include(debug_toolbar.urls)),
     url(r'^admin/', admin.site.urls, name='myadmin'),
     url(r'^$', views.list, name='list'),
+    url(r'^\?pop=(?P<pop>[-\w]+)/$', views.list, name='list_pop'),
     #url(r'^ckeditor/', include('ckeditor_uploader.urls')),
     url(r'^add-post/$', views.add_post, name='add_post'),
 
@@ -52,9 +53,25 @@ urlpatterns = [
     url(r'^reset/done/$', auth_views.password_reset_done, name='password_reset_complete'),
 
     url(r'^tag/(?P<tag>[-\d]+)/$', views.list, name='tag'),
+
+    #url(r'^(?P<category>[-\w]+)/$', views.list, name='category'),
     url(r'^(?P<category>[-\w]+)/$', views.list, name='category'),
-    url(r'^(?P<category>[-\w]+)/(?P<title>[-\w]+)-(?P<id>[-vi\d]+)/',
+    url(r'^(?P<category>[-\w]+)\?pop=(?P<pop>[-\w]+)$', views.list, name='category_pop'),
+    url(r'^(?P<tag>[-\w]+)/$', views.list, name='tag'),
+
+    url(r'^(?P<tag>[-\w]+)\?pop=(?P<pop>[-\w]+)/$', views.list, name='tag_pop'),
+
+    url(r'^(?P<tag>[-\w]+)\?type=(?P<category>[-\w]+)/$', views.list,
+                    name='tag_category'),
+
+    url(r'^(?P<tag>[-\w]+)\?type=(?P<category>[-\w]+)\&pop=(?P<pop>[-\w]+)$',
+        views.list, name='tag_category_pop'),
+
+    url(r'^(?P<tag>[-\w]+)/(?P<title>[-\w]+)-(?P<id>[-vi\d]+)/',
             views.single_post, name='single_post'),
+    #url(r'^(?P<category>[-\w]+)/(?P<title>[-\w]+)-(?P<id>[-vi\d]+)/',
+    #        views.single_post, name='single_post'),
+
     url(r'^media/(?P<path>.*)$', serve,
             {'document_root': settings.MEDIA_ROOT}),
 

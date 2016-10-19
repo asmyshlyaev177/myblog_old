@@ -21,7 +21,7 @@ $(document).on('click', '.ajax-menu', function() {
 	event.preventDefault();
 	menu = $(this);
 	url = menu.attr('url');
-	category = url;
+	category = url.toLowerCase();
 		if ( menu.is('[single_page]' ) ) { // if it is menu don't load on scroll
 			processing = true;
 		}

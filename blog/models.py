@@ -123,7 +123,7 @@ def delete_old_avatar(sender, instance, **kwargs):
 class Post(models.Model):
     index_together = [
     ["title", "description", "post_thumbnail", "author", "category",
-     "url", "published", "status"],
+     "url", "published", "status","main_tag"],
     ]
     title = models.CharField(max_length=150)
     #description = RichTextField(max_length = 500, config_name = "description",
@@ -156,6 +156,7 @@ class Post(models.Model):
                                         related_name='posts',
                                         related_query_name='tag',
                                         blank=True)
+    main_tag = models.CharField(max_length=33, blank=True)
     url = models.SlugField(blank=True)
     STATUS = (
                 ("D", "Draft"),
@@ -171,7 +172,7 @@ class Post(models.Model):
         return self.title
 
     def get_absolute_url(self):
-        cat_url = slugify(self.category)
+        cat_url = slugify(self.main_tag)
         post_url = slugify(self.title)
         return "/%s/%s-%i/" % (cat_url, self.url, self.id)
     def get_category(self):
@@ -297,7 +298,7 @@ class Category(models.Model):
     def __str__(self):
         return self.name
     def get_url(self):
-        cat_url = slugify(self.name)
+        cat_url = slugify(self.name.lower())
         return "/%s/" % (cat_url)
     @classmethod
     def list(self):
@@ -305,15 +306,21 @@ class Category(models.Model):
             .order_by('order','name')
         return cat_list
     def save(self, *args, **kwargs):
-        if not self.slug:
-            self.slug = slugify(self.name)
+        #if not self.slug:
+        self.slug = slugify(self.name.lower())
         super(Category,self).save(*args, **kwargs)
 
 
 class Tag(models.Model):
     name = models.CharField(max_length=30, unique=True)
+    url = models.CharField(max_length=30, unique=True, blank=True, null=True)
 
     class Meta:
         verbose_name_plural = "tags"
     def __str__(self):
         return self.name
+
+    def save(self, *args, **kwargs):
+        #if not self.slug:
+        self.url = slugify(self.name.lower())
+        super(Tag,self).save(*args, **kwargs)

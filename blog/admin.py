@@ -42,7 +42,7 @@ class PostAdmin(admin.ModelAdmin):
     empty_value_display = '-empty-'
     fields = ('title', 'get_image', 'post_image', 'description', 'text',
                'author', 'category', 'tags',
-                'published', 'url', 'status')
+                'published', 'url', 'main_tag','status')
     readonly_fields = ('get_image',)
     list_display = ('title', 'author', 'category',
                     'status','published')

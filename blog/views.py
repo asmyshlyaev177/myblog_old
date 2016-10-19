@@ -78,10 +78,15 @@ def add_post(request):
             title = data.title
             tag_list = request.POST['hidden-tags_new'].split(',') # tags list
             data.save()
+            j = True
             for i in tag_list:
-            	Tag.objects.get_or_create(name=i)
+            	Tag.objects.get_or_create(name=i, url=slugify(i.lower()))
             	tag = Tag.objects.get(name=i)
             	data.tags.add(tag)
+            	if j:
+                	data.main_tag = tag.url
+                	j = False
+
             data.save()
             #form.save_m2m()
             return render(request, 'added-post.html',
@@ -103,7 +108,7 @@ def add_post(request):
     return render(request, template, { 'form': form,
                                              'cat_list': cat_list})
 
-def list(request, category=None, tag=None):
+def list(request, category=None, tag=None, pop=None):
 
     context = {}
 
@@ -112,21 +117,27 @@ def list(request, category=None, tag=None):
     else:
         template = 'list.html'
 
-    if category:
-        cat= Category.objects.get(slug=category)
+    if tag:
         post_list= Post.objects.select_related("author", "category")\
-            .prefetch_related('tags').filter(category__slug=category)\
-                .filter(status="P")#.order_by('-published')
-        context['category'] = cat
-    elif tag:
-        post_list= Post.objects.select_related("author", "category")\
-            .prefetch_related('tags').filter(tags__id=tag)\
+            .prefetch_related('tags').filter(tags__url=tag)\
             .filter(status="P")#.order_by('-published')
-        cat = Tag.objects.get(id=tag)
+        cat = Tag.objects.get(url=tag)      # переписать
         context['tag'] = cat
+        if category:
+            post_list = post_list.filter(category__slug=category)
+            context['category'] = category
+
     else:
-        post_list = Post.objects.select_related("author", "category")\
-            .prefetch_related('tags').filter(status="P")#.order_by('-published')
+        if category:
+            post_list= Post.objects.select_related("author", "category")\
+                .prefetch_related('tags').filter(category__slug=category)\
+                .filter(status="P")
+        else:
+            post_list = Post.objects.select_related("author", "category")\
+                .prefetch_related('tags').filter(status="P")#.order_by('-published')
+
+    #if pop:
+    #    pass filter
 
     #post_list = post_list.filter(status="P").order_by('-published')
     paginator = Paginator(post_list, 5)
@@ -146,12 +157,14 @@ def list(request, category=None, tag=None):
     return render(request, template, context )
 
 
-def single_post(request, category, title, id):
+def single_post(request,  tag, title, id):
+
     post = Post.objects.select_related("author", "category")\
         .prefetch_related('tags').get(pk=id)
     return render(request, 'single.html',
                   {'post': post,
                   'cat_list': Category.list()})
+
 
 def upload_attachment(request):
     if request.method != 'POST':
