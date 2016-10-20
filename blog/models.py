@@ -6,6 +6,7 @@ from django.utils import timezone
 import datetime
 from imagekit.models import ImageSpecField, ProcessedImageField
 from imagekit.processors import ResizeToFit
+from imagekit import ImageSpec, register
 from django.utils.safestring import mark_safe
 import re
 import os
@@ -120,6 +121,13 @@ def delete_old_avatar(sender, instance, **kwargs):
         if os.path.isfile(old_file.path):
             os.remove(old_file.path)
 
+class Thumbnail(ImageSpec):
+    processors = [ResizeToFit(640, 480)]
+    format = 'JPEG'
+    options = {'quality': 85}
+
+register.generator('blog:thumbnail', Thumbnail)
+
 class Post(models.Model):
     index_together = [
     ["title", "description", "post_thumbnail", "author", "category",
@@ -136,10 +144,10 @@ class Post(models.Model):
                         str(today.year)+'/'
                         +str(today.month)+'/'+str(today.day)+'/', blank=True)
     post_image.short_description = 'Image'
-    post_thumbnail = ImageSpecField(source='post_image',
+    """post_thumbnail = ImageSpecField(source='post_image',
                                 processors=[ResizeToFit(640, 480)],
                                 format='JPEG',
-                                options={'quality': 85})
+                                options={'quality': 85})"""
     def get_image(self):
         return mark_safe('<img src="%s" class ="img-responsive center-block"/>'\
                          % (self.post_thumbnail.url))
@@ -176,7 +184,7 @@ class Post(models.Model):
         post_url = slugify(self.title)
         return "/%s/%s-%i/" % (cat_url, self.url, self.id)
     def get_category(self):
-        return slugify(self.category)
+        return self.category.get_url
     def get_tags_list(self):
         #return self.tags.values_list('name', flat=True)
         return self.tags.all()
@@ -195,13 +203,15 @@ class Post(models.Model):
             	.format(link.group("year"), link.group("month"),link.group("day"),link.group("file"),link.group("ext"))
             	if os.path.isfile(file):
             		# если файл существует
-            		img_class = []
-            		for j in i['class']:
-            			img_class.append(j) #находим классы картинки
-            		#всё кроме того что надо добавить или заменить
+            		#img_class = []
+            		#for j in i['class']:
+            		'''if i.has_attr('class'):
+            	 		img_class.append(i['class']) #находим классы картинки
+            	    #всё кроме того что надо добавить или заменить
             		img_class = [item for item in img_class if not item.startswith('img-responsive')]
-            		img_class.append('img-responsive') #добавляем нужный класс
-            		i['class'] = img_class # присваиваем
+            		img_class.append('img-responsive') #добавляем нужный класс'''
+            		#i['class'] = img_class # присваиваем
+            		i['class'] = 'img-responsive'
             		# если картинка больше нужного размера создаём миниатюру
             		w,h = Image.open(file).size
             		if w > thumb_img_size[0]:
@@ -274,7 +284,7 @@ def delete_old_image_and_thumb(sender, instance, **kwargs):
         if os.path.isfile(old_file.path):
             os.remove(old_file.path)
 
-    try:
+    """try:
         old_file = Post.objects.get(pk=instance.pk).post_thumbnail
     except Post.DoesNotExist:
         return False
@@ -282,7 +292,7 @@ def delete_old_image_and_thumb(sender, instance, **kwargs):
     new_file = instance.post_thumbnail
     if not old_file == new_file and old_file:
         if os.path.isfile(old_file.path):
-            os.remove(old_file.path)
+            os.remove(old_file.path)"""
 
 class Category(models.Model):
     index_together = [

@@ -125,7 +125,7 @@ STATICFILES_FINDERS = (
 COMPRESS_ENABLED = False  # удобней выключить потом включу
 COMPRESS_CSS_FILTERS = ['compressor.filters.css_default.CssAbsoluteFilter',
                         'compressor.filters.cssmin.rCSSMinFilter']
-#IMAGEKIT_DEFAULT_CACHEFILE_STRATEGY = 'imagekit.cachefiles.strategies.Optimistic'
+IMAGEKIT_DEFAULT_CACHEFILE_STRATEGY = 'imagekit.cachefiles.strategies.JustInTime'
 
 #CKEDITOR_JQUERY_URL = '///static/js/jquery-latest.js"'
 #CKEDITOR_UPLOAD_PATH = 'uploads/'

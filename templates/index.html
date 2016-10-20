@@ -59,12 +59,12 @@
         {% for cat in cat_list %}
           {% if category and cat|slugify == category %}
             <li role="presentation" class="active">
-            <a href="{{ request.scheme }}://{{ request.get_host }}/{{ cat|slugify }}"
+            <a href="{{ request.scheme }}://{{ request.get_host }}?{{ cat|slugify }}"
              url = "{{cat|slugify}}" class="ajax-menu menu" id="{{cat|slugify}}">
               {{ cat }}</a></li>
           {% else %}
             <li role="presentation">
-            <a href="{{ request.scheme }}://{{ request.get_host }}/{{ cat|slugify }}"
+            <a href="{{ request.scheme }}://{{ request.get_host }}?{{ cat|slugify }}"
             url = "{{cat|slugify}}"  class="ajax-menu menu" id="{{cat|slugify}}">
               {{ cat }}</a></li>
           {% endif %}
