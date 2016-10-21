@@ -64,12 +64,14 @@
 
 <script>
 var taglist = new Bloodhound({
-      datumTokenizer: Bloodhound.tokenizers.obj.whitespace('name'),
+      datumTokenizer: Bloodhound.tokenizers.obj.whitespace,
       queryTokenizer: Bloodhound.tokenizers.whitespace,
       limit: 10,
-      prefetch: {
-        url: 'http://192.168.1.68/static/taglist.json',
-      }
+      remote: {
+      url: '../static/taglist.json'}
+      /* prefetch: {
+        url: '../static/taglist.json',
+      } */
     });
 
     taglist.initialize();
@@ -79,7 +81,11 @@ var taglist = new Bloodhound({
     });
     jQuery(".tm-input-typeahead").typeahead(null, {
       name: 'taglist',
-      source: taglist.ttAdapter()
+      source: taglist.ttAdapter(),
+      //source: substringMatcher('../static/taglist.json'),
+      hint: true,
+      highlight: true,
+      minLength: 2
     }).on('typeahead:selected', function (e, d) {
         tagApi.tagsManager("pushTag", d.name);
 		$('.tm-input-typeahead').val("");
