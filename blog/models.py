@@ -56,7 +56,12 @@ class myUser(AbstractBaseUser):
     username = models.CharField("Username", max_length=30,
                                 blank=False,
                                 unique=True)
-    avatar = ProcessedImageField(upload_to='avatars',
+
+    def user_directory_path(instance, filename):
+    # file will be uploaded to MEDIA_ROOT/user_<id>/<filename>
+        return 'avatars/{0}/{1}'.format(instance.username, filename)
+
+    avatar = ProcessedImageField(upload_to=user_directory_path,
                                  processors=[ResizeToFit(50, 50)],
                                  format='JPEG',
                                  options={'quality': 90}, blank=True)
