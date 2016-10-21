@@ -49,6 +49,7 @@ class MyUserManager(BaseUserManager):
         user.save(using.self._db)
         return user
 
+
 class myUser(AbstractBaseUser):
     index_together = [
     ["id", "username", "avatar"],

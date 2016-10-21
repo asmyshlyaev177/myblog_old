@@ -36,8 +36,10 @@
     {% if post.post_image %}
     <div class="post-thumbnail">
         <!--<img src="{{ post.post_thumbnail.url }}"
-        class ="img-responsive center-block"/> -->
-        {{ post.get_image }}
+        class ="img-responsive center-block"/>
+       -->
+        {% generateimage 'blog:thumbnail' source=post.post_image -- class="img-responsive center-block" %}
+
     </div>
     {% endif %}
 
