@@ -144,10 +144,10 @@ class Post(models.Model):
                         str(today.year)+'/'
                         +str(today.month)+'/'+str(today.day)+'/', blank=True)
     post_image.short_description = 'Image'
-    """post_thumbnail = ImageSpecField(source='post_image',
+    post_thumbnail = ImageSpecField(source='post_image',
                                 processors=[ResizeToFit(640, 480)],
                                 format='JPEG',
-                                options={'quality': 85})"""
+                                options={'quality': 85})
     def get_image(self):
         return mark_safe('<img src="%s" class ="img-responsive center-block"/>'\
                          % (self.post_thumbnail.url))
@@ -284,7 +284,7 @@ def delete_old_image_and_thumb(sender, instance, **kwargs):
         if os.path.isfile(old_file.path):
             os.remove(old_file.path)
 
-    """try:
+    try:
         old_file = Post.objects.get(pk=instance.pk).post_thumbnail
     except Post.DoesNotExist:
         return False
@@ -292,7 +292,7 @@ def delete_old_image_and_thumb(sender, instance, **kwargs):
     new_file = instance.post_thumbnail
     if not old_file == new_file and old_file:
         if os.path.isfile(old_file.path):
-            os.remove(old_file.path)"""
+            os.remove(old_file.path)
 
 class Category(models.Model):
     index_together = [
@@ -304,16 +304,15 @@ class Category(models.Model):
     order = models.SmallIntegerField(blank=True, default=1)
     class Meta:
         verbose_name_plural = "categories"
-
+        ordering = ['order']
     def __str__(self):
-        return self.name
+        return self.slug
     def get_url(self):
         cat_url = slugify(self.name.lower())
         return "/%s/" % (cat_url)
     @classmethod
     def list(self):
-        cat_list = self.objects.all().only("name","order")\
-            .order_by('order','name')
+        cat_list = self.objects.all().only("name","order", "slug")
         return cat_list
     def save(self, *args, **kwargs):
         #if not self.slug:

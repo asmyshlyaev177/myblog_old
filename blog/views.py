@@ -18,7 +18,7 @@ from django.http import (
 from django.shortcuts import render
 from django_summernote.settings import summernote_config, get_attachment_model
 
-cat_list= Category.list()
+cat_list= Category.objects.all()
 
 @csrf_protect
 def signup(request):

@@ -19,24 +19,38 @@ $(document).on('click', 'a.back-to-top', function() {
 function ClickAjaxMenu() {
 $(document).on('click', '.ajax-menu', function() {
 	event.preventDefault();
-	menu = $(this);
-	url = menu.attr('url');
-	category = url.toLowerCase();
-		if ( menu.is('[single_page]' ) ) { // if it is menu don't load on scroll
+	ajax_menu = $(this);
+	
+	if ( ajax_menu.attr("url") != undefined &&
+				ajax_menu.attr("url") != ""  ) 
+			{
+			url = ajax_menu.attr('url');
+			category = "/" + url;
+			if ( ajax_menu.is("[cat]") ) {
+				category = "/cat/" + url.toLowerCase();
+			}
+	}
+	else {
+		category = "/";
+		url = ""
+	}
+	
+		if ( ajax_menu.is('[single_page]' ) ) { // if it is menu don't load on scroll
 			processing = true;
 		}
 		else { // if it is list page load on scroll
 			processing = false;
 		}
 		
+	//$('.menu').parent().removeClass('active');
 	$('.menu').parent().removeClass('active');
-	if ( category != "" && category.search("/") == -1 ) {
-	$('.menu').filter( $('#'+category ) ).parent().addClass('active');}
+	if ( category != "" ) {
+	$('.menu').filter( $('#'+url ) ).parent().addClass('active');}
 
 	$('html, body').scrollTop( 0 );
 	
-	if ( menu.text().replace(/\s/g, '') != "" ) {
-		document.title = menu.text();}
+	if ( ajax_menu.text().replace(/\s/g, '') != "" ) {
+		document.title = ajax_menu.text();}
 	else {
 		document.title = "My blog!";}
 	ChangePage();
@@ -46,18 +60,18 @@ $(document).on('click', '.ajax-menu', function() {
 function ChangePage() {
 	$.ajax({
           type:"GET",
-		  //cache : false,
-          url:'/'+category,  
+		  //cache : false,  
+		  url: category,  
           success:function(data){
              data2 = ('<div class="content">' + data + '</div>');
              $(data2).replaceAll('.content');
           }
      });
 	 // change browser url string ;)
-	 if ( category == "" ) {
-		 window.history.pushState("object or string", category, "/" ); }
+	 if ( category == "/" ) {
+		 window.history.pushState("object or string", "",  category); }
 	 else {
-		window.history.pushState("object or string", category, "/"+category ); }
+		window.history.pushState("object or string", "",  category); }
 page = 1;
 }
 
