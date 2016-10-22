@@ -313,7 +313,7 @@ class Category(models.Model):
 		verbose_name_plural = "categories"
 		ordering = ['order']
 	def __str__(self):
-		return self.slug
+		return self.name
 	def get_url(self):
 		cat_url = slugify(self.name.lower())
 		return "/%s/" % (cat_url)

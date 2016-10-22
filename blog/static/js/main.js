@@ -128,3 +128,19 @@ var topOffset = $(".tt-input").offset().top- $(window).scrollTop();
 function CopyTags() {
 	$(".hidden_tags").val($("#tagBox").tagging( "getTags" ).toString());
 }
+
+function SelectHint() {
+$(document).on({
+    mouseenter: function () {
+		$(".tt-suggestion").removeClass("tt-cursor");
+        $(this).addClass("tt-cursor");
+    },
+    mouseleave: function () {
+        $(this).removeClass("tt-cursor");
+    }
+}, ".tt-suggestion");
+}
+
+function HideHint() {
+  $('.tt-menu').hide();
+}
