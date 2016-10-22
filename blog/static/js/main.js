@@ -113,3 +113,18 @@ function BackToTop(){
 	});
 }
 
+function HintPos() {
+var offset = $(".tt-input").offset();	
+var topOffset = $(".tt-input").offset().top- $(window).scrollTop();
+  
+  /* position of hints */
+	 $(".tt-menu").css({
+        position: "fixed",
+        top: (topOffset + 35)+ "px",
+        left: (offset.left) + "px",
+    });
+}
+
+function CopyTags() {
+	$(".hidden_tags").val($("#tagBox").tagging( "getTags" ).toString());
+}

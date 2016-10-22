@@ -8,6 +8,7 @@ from django.contrib.auth.decorators import login_required
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.conf import settings
 from django.core import serializers
+from unidecode import unidecode
 import json
 
 from django.http import (
@@ -73,19 +74,19 @@ def add_post(request):
                 data.status = "P"
 
             data.author = request.user
-            data.url = slugify(data.title)
+            data.url = slugify(unidecode(data.title))
             url = data.get_absolute_url
             title = data.title
-            tag_list = request.POST['hidden-tags_new'].split(',') # tags list
+            tag_list = request.POST['hidden_tags'].split(',') # tags list
             data.save()
             j = True
             for i in tag_list:
-            	Tag.objects.get_or_create(name=i, url=slugify(i.lower()))
-            	tag = Tag.objects.get(name=i)
-            	data.tags.add(tag)
-            	if j:
-                	data.main_tag = tag.url
-                	j = False
+                Tag.objects.get_or_create(name=i, url=slugify(unidecode(i.lower())))
+                tag = Tag.objects.get(name=i)
+                data.tags.add(tag)
+                if j:
+                    data.main_tag = tag.url
+                    j = False
 
             data.save()
             #form.save_m2m()

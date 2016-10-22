@@ -38,20 +38,21 @@
 <div class="form-row">
   <p>
     {{ form.tags_new.label_tag }}
-  </p> {{ form.tags_new }}
+  </p> <div data-tags-input-name="tag" id="tagBox"></div>
 </div>
 <div class="form-row">
-{{ form.hidden_tags_new }}
+<input class="hidden_tags" id="hidden_tags" name="hidden_tags" style=" display: none;">
 </div>
 
 <style>
-.tt-menu {
-    background: greenyellow;
-    font-size: larger;
-    font-weight: 700;
-    cursor: pointer;}
-.tt-suggestion.tt-selectable:hover {
-    color:red;
+.tt-suggestion:hover {
+color:red;
+background: white;
+}
+
+.tt-suggestion {
+color:black;
+background: green;
 }
 </style>
 
@@ -61,40 +62,49 @@
 </form>
 
 <div style="height: 100px"></div>
-
 <script>
+var tagging_options = {
+    "no-duplicate": true,
+    "no-comma": false,
+	"no-duplicate-callback": null,
+    "forbidden-chars-callback": null,
+	"tag-on-blur": false,
+    "no-spacebar": true,
+	"case-sensitive": true,
+    "close-char": "X",
+    "forbidden-chars": [],
+	"forbidden-words": [],
+};
+
+TagBox = $("#tagBox")
+TagBox.tagging( tagging_options);
+
 var taglist = new Bloodhound({
-      datumTokenizer: Bloodhound.tokenizers.obj.whitespace,
-      queryTokenizer: Bloodhound.tokenizers.whitespace,
-      limit: 10,
-      remote: {
-      url: '../static/taglist.json'}
-      /* prefetch: {
-        url: '../static/taglist.json',
-      } */
-    });
+  datumTokenizer: Bloodhound.tokenizers.whitespace,
+  queryTokenizer: Bloodhound.tokenizers.whitespace,
+  prefetch: {
+  url: '../static/taglist.json',
+  cache: false
+   }
+});
 
-    taglist.initialize();
+$('.type-zone').typeahead(null, {
+  name: 'taglist',
+  source: taglist,
+  hint: true,
+  highlight: true,
+  minLength: 2,
+  limit: 10
+});
 
-    var tagApi = jQuery(".tm-input-typeahead").tagsManager({
-	  tagCloseIcon: 'X',
-    });
-    jQuery(".tm-input-typeahead").typeahead(null, {
-      name: 'taglist',
-      source: taglist.ttAdapter(),
-      //source: substringMatcher('../static/taglist.json'),
-      hint: true,
-      highlight: true,
-      minLength: 2
-    }).on('typeahead:selected', function (e, d) {
-        tagApi.tagsManager("pushTag", d.name);
-		$('.tm-input-typeahead').val("");
-    });
+TagBox.on( "add:after", function (el, tagging){
+HintPos();
+CopyTags();
+} );
 
-
-	$(document).on('click', '.tt-suggestion', function() {
-		tagApi.tagsManager("pushTag", $(this).text());
-		$('.tm-input-typeahead').val("");
-	});
+TagBox.on( "remove:after", function (el, tagging){
+HintPos();
+CopyTags();
+} );
 </script>
 {% endblock %}

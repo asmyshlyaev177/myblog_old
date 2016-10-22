@@ -1,32 +1,9 @@
 
 переписать удаление тэгов и постов, чтобы посты при удалении тэга не удалялись
+	
 
-var taglist = new Bloodhound({
-      datumTokenizer: Bloodhound.tokenizers.obj.whitespace('name'),
-      queryTokenizer: Bloodhound.tokenizers.whitespace,
-      limit: 10,
-      prefetch: {
-        url: 'http://192.168.1.68/static/taglist.json',
-      }
-    });
- 
-    taglist.initialize();
- 
-    var tagApi = jQuery(".tm-input-typeahead").tagsManager({
-	  tagCloseIcon: 'X',
-    });
-    jQuery(".tm-input-typeahead").typeahead(null, {
-      name: 'taglist',
-      source: taglist.ttAdapter()
-    }).on('typeahead:selected', function (e, d) {
-        tagApi.tagsManager("pushTag", d.name);
-		$('.tm-input-typeahead').val("");
-    });
-	
-	
-	$(document).on('click', '.tt-suggestion', function() {
-		tagApi.tagsManager("pushTag", $(this).text());
-		$('.tm-input-typeahead').val("");
-	});
-	
-	
+$("#tagBox").tagging( "getTags" ).toString();
+
+
+$(".hidden_tags").val($("#tagBox").tagging( "getTags" ).toString())
+
