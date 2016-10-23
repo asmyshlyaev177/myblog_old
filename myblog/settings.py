@@ -47,6 +47,7 @@ SUMMERNOTE_CONFIG = {
     'attachment_require_authentication': True,
     'disable_upload': False,
     'attachment_upload_to': summernote_filepath,
+    'attachment_filesize_limit': 1024 * 1024 * 19,
     'internal_js': (
         ('/static/django_summernote/jquery.ui.widget.js'),
         ('/static/django_summernote/jquery.iframe-transport.js'),
@@ -95,7 +96,7 @@ CACHES = {
 # Application definition
 
 INSTALLED_APPS = [
-    'debug_toolbar',
+    #'debug_toolbar',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -166,7 +167,7 @@ IMAGEKIT_DEFAULT_CACHEFILE_STRATEGY = 'imagekit.cachefiles.strategies.JustInTime
 }'''
 
 MIDDLEWARE = [
-    'debug_toolbar.middleware.DebugToolbarMiddleware',
+    #'debug_toolbar.middleware.DebugToolbarMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',

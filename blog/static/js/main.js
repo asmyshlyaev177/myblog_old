@@ -1,19 +1,55 @@
 var processing = false;
 var amountScrolled = 100;
 var page = 1;
-var category = ""
+var category = "";
 
 $(document).ready(function(){
-	BackToTop();
+
+	TopButtonScroll();
+	ToTop();
+	Scroll();
+	
 	ClickAjaxMenu();
+
+	
 });
 
+
+function Scroll() {	
+ $(document).scroll( function() {
+  if (processing){
+	  return false;
+  }
+  if ( $(document).scrollTop() > ( ($(document).height() - $(window).height())-300  )) {
+	  processing = true; //prevent multiple scrolls once first is hit
+	  if ( $( "#last_page" ).length == 0 ) {
+		$('#more-loader').toggle();
+		page += 1;
+		loadMore();
+		}
+  }
+});
+}
+
+ 
+function ToTop() {
 $(document).on('click', 'a.back-to-top', function() {
 	$('html, body').animate({
 		scrollTop: 0
 	}, 900);
-	return false;
+	return false;	
 });
+}
+
+function TopButtonScroll(){
+	$(document).scroll(function() {
+		if ( $(document).scrollTop() > amountScrolled ) {
+			$('a.back-to-top').fadeIn('slow');
+		} else {
+			$('a.back-to-top').fadeOut('slow');
+		}
+	});
+}
 
 
 function ClickAjaxMenu() {
@@ -88,31 +124,6 @@ function loadMore(){
      });
 }
 
-     $(document).scroll( function() {
-          if (processing){
-              return false;
-          }
-          if ( $(document).scrollTop() > ( ($(document).height() - $(window).height())-300  )) {
-              processing = true; //prevent multiple scrolls once first is hit
-              if ( $( "#last_page" ).length == 0 ) {
-                $('#more-loader').toggle();
-                page += 1;
-                loadMore();
-                }
-          }
-     });
-
-
-function BackToTop(){
-	$(document).scroll(function() {
-		if ( $(document).scrollTop() > amountScrolled ) {
-			$('a.back-to-top').fadeIn('slow');
-		} else {
-			$('a.back-to-top').fadeOut('slow');
-		}
-	});
-}
-
 function HintPos() {
 var offset = $(".tt-input").offset();	
 var topOffset = $(".tt-input").offset().top- $(window).scrollTop();
@@ -144,3 +155,7 @@ $(document).on({
 function HideHint() {
   $('.tt-menu').hide();
 }
+
+
+
+

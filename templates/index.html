@@ -58,13 +58,9 @@
       <ul class="nav nav-pills pull-right">
 
         {% for cat in cat_list %}
-            {% if forloop.first %}
-              <li role="presentation" class="active">
-            {% else %}
-              <li role="presentation">
-            {% endif %}
-            <a href="{{ request.scheme }}://{{ request.get_host }}/cat/{{ cat.slug }}/"
-             url = "{{ cat.slug }}" class="ajax-menu menu" id="{{ cat.slug }}" cat>
+            <li role="presentation">
+              <a href="{{ request.scheme }}://{{ request.get_host }}/cat/{{ cat.slug }}/"
+              url = "{{ cat.slug }}" class="ajax-menu menu" id="{{ cat.slug }}" cat>
               {{ cat.name }}</a></li>
         {% endfor %}
       </ul>
