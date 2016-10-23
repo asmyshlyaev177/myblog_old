@@ -1,14 +1,19 @@
+{% load thumbnail %}
 
 <div class="row post_header">
 
   <div class="col-md-3 pull-left">
     <div class="post-author">
-      <div class="author-name">
-        {{ post.author }}
-      </div>
-      <div class="author-avatar">
+
+      <div class="author">
+        <p>{{ post.author }}</p>
         {% if post.author.avatar %}
-        {{ post.author.get_avatar }}
+
+      {% thumbnail post.author.avatar "70x70" as im %}
+          <img src="{{ im.url }}" width="{{ im.width }}" height="{{ im.height }}"
+          class="img-responsive">
+      {% endthumbnail %}
+
         {% else %}
         <img src="/static/img/avatar.jpg" class ="img-avatar"/>
         {% endif %}

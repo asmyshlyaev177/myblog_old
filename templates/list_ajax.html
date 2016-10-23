@@ -1,5 +1,5 @@
 {% load post_header %}
-{% load imagekit %}
+{% load thumbnail %}
 
 {% autoescape off %}
 
@@ -35,10 +35,12 @@
 
     {% if post.post_image %}
     <div class="post-thumbnail">
-        <!--<img src="{{ post.post_thumbnail.url }}"
-        class ="img-responsive center-block"/>
-       -->
-        {% generateimage 'blog:thumbnail' source=post.post_image -- class="img-responsive center-block" %}
+
+    {% thumbnail post.post_image "640x480" as im %}
+        <img src="{{ im.url }}" width="{{ im.width }}" height="{{ im.height }}"
+        class="img-responsive center-block">
+    {% endthumbnail %}
+
 
     </div>
     {% endif %}

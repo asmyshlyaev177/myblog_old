@@ -1,3 +1,4 @@
+{% load thumbnail %}
 <h2 class="text-center">Welcome {{ request.user.username }}!</h2>
 
 {% block content %}
@@ -15,7 +16,11 @@
     </div>
     <div>
       <label for="avatar">Avatar </label>
-      <img src="{{ request.scheme }}://{{ request.get_host }}/media/{{ request.user.avatar }}" />
+      {% if request.user.avatar %}
+      {% thumbnail request.user.avatar "70x70" as im %}
+          <img src="{{ im.url }}" width="{{ im.width }}" height="{{ im.height }}">
+      {% endthumbnail %}
+      {% endif %}
     </div>
     <div>
       {{ form.avatar }}

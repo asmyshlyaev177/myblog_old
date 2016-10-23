@@ -10,6 +10,7 @@ from django.conf import settings
 from django.core import serializers
 from unidecode import unidecode
 import json
+from django.db import IntegrityError
 
 from django.http import (
     HttpResponseBadRequest,
@@ -81,11 +82,28 @@ def add_post(request):
             data.save()
             j = True
             for i in tag_list:
-                Tag.objects.get_or_create(name=i, url=slugify(unidecode(i.lower())))
-                tag = Tag.objects.get(name=i)
+                tag_url = i.lower()
+                name = i
+                if tag_url == "" or tag_url == None:
+                    name = "Разное"
+                    tag_url = name.lower()
+
+                try:
+                    Tag.objects.get_or_create(name=name,
+                                    url=slugify(unidecode(tag_url)))
+                except IntegrityError:
+                    tag_url = name.lower() + "-" + str( Tag.objects.latest().id + 1 )
+                    Tag.objects.get_or_create(name=name,
+                                url=slugify(unidecode(tag_url)))
+
+
+                tag = Tag.objects.get(name=name)
                 data.tags.add(tag)
                 if j:
+                    #if tag.url:
                     data.main_tag = tag.url
+                    #else:
+                    #    data.main_tag = "other"
                     j = False
 
             data.save()

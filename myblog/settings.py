@@ -106,10 +106,16 @@ INSTALLED_APPS = [
     'blog',
     #'ckeditor',
     #'ckeditor_uploader',
-    'imagekit',
+    #'imagekit',
     'django_summernote',
     'compressor',
+    'sorl.thumbnail',
+    'django_cleanup',
 ]
+
+TEMPLATE_DEBUG = True
+THUMBNAIL_DEBUG = True
+THUMBNAIL_PRESERVE_FORMAT = True
 
 STATIC_URL = '/static/'
 STATIC_ROOT = '/django/python3/myblog/blog/static/'
@@ -126,45 +132,7 @@ STATICFILES_FINDERS = (
 COMPRESS_ENABLED = True  # удобней выключить потом включу
 COMPRESS_CSS_FILTERS = ['compressor.filters.css_default.CssAbsoluteFilter',
                         'compressor.filters.cssmin.rCSSMinFilter']
-IMAGEKIT_DEFAULT_CACHEFILE_STRATEGY = 'imagekit.cachefiles.strategies.JustInTime'
-
-#CKEDITOR_JQUERY_URL = '///static/js/jquery-latest.js"'
-#CKEDITOR_UPLOAD_PATH = 'uploads/'
-#CKEDITOR_IMAGE_BACKEND = 'pillow'
-#CKEDITOR_RESTRICT_BY_USER = True
-#CKEDITOR_BROWSE_SHOW_DIRS = True
-
-'''CKEDITOR_CONFIGS = {
-    "post": {
-        "toolbar": [
-            { 'name': 'undo_redo', 'items': ["Undo", "Redo", "-", "Preview"]},
-            '/',
-            { 'name': 'style', 'items': ['Format', "Bold", "Italic", "Underline",
-                                     "Strike", "Blockquote"]},
-            ["NumberedList", "BulletedList", "-", "JustifyLeft", "JustifyCenter",
-              "JustifyRight", "JustifyBlock"],
-            '/',
-            ["Link", "Unlink"],["Table", "Image", "Youtube"]
-        ],
-        "removePlugins": "flash",
-        "extraPlugins": ','.join(["autogrow",
-                        "youtube", "preview"])
-    },
-    "description": {
-        "toolbar": [
-            { 'name': 'undo_redo', 'items': ["Undo", "Redo"]},
-            { 'name': 'style', 'items': ["Bold", "Italic", "Underline",
-                                     "Strike", "Blockquote"]},
-            ["NumberedList", "BulletedList", "-", "JustifyLeft", "JustifyCenter",
-              "JustifyRight", "JustifyBlock"],
-            ["Table"]
-        ],
-        "removePlugins": "flash",
-        "extraPlugins": ','.join(["autogrow",
-                        "youtube", "preview"])
-
-    }
-}'''
+#IMAGEKIT_DEFAULT_CACHEFILE_STRATEGY = 'imagekit.cachefiles.strategies.JustInTime'
 
 MIDDLEWARE = [
     #'debug_toolbar.middleware.DebugToolbarMiddleware',

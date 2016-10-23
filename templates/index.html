@@ -1,5 +1,6 @@
 {% load staticfiles %}
 {% load compress %}
+{% load thumbnail %}
 
 <!DOCTYPE html>
 <html>
@@ -80,7 +81,9 @@
           url = "dashboard" class="ajax-menu">
           {{ user.username }}
                               {% if user.avatar %}
-                              {{ user.get_avatar}}
+                              {% thumbnail user..avatar "70x70" as im %}
+                                  <img src="{{ im.url }}" width="{{ im.width }}" height="{{ im.height }}">
+                              {% endthumbnail %}
                               {% endif %}</a></p>
         <p><a href="{% url 'add_post' %}" single_page
           url = "add-post" class="ajax-menu">Add Post</a></p>
