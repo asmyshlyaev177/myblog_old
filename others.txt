@@ -8,3 +8,13 @@ $("#tagBox").tagging( "getTags" ).toString();
 $(".hidden_tags").val($("#tagBox").tagging( "getTags" ).toString())
 
 $(document).off('click.myevent', '.form-template-name');
+
+
+	setUp(scn.inject(
+	atOnceUsers(1),  
+	//nothingFor(2 seconds),
+	rampUsers(10) over(10 seconds)
+	//constantUsersPerSec(1) during(10 seconds)// randomized
+	)).protocols(httpProtocol)
+
+}
