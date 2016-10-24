@@ -5,10 +5,9 @@ defusedxml==0.4.1
 Django==1.10.2
 django-allauth==0.27.0
 django-appconf==1.0.2
-django-ckeditor==5.1.0
+django-cleanup==0.4.2
 django-compressor==2.1
 django-debug-toolbar==1.5
-django-haystack==2.5.0
 django-imagekit==3.3
 django-summernote==0.8.5
 django-taggit==0.21.3
@@ -31,6 +30,8 @@ requests-oauthlib==0.7.0
 rjsmin==1.0.12
 six==1.10.0
 slimit==0.8.1
+sorl-thumbnail==12.3
 sqlparse==0.2.1
+Unidecode==0.4.19
 webencodings==0.5
 Werkzeug==0.11.10
