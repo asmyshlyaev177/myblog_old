@@ -4,6 +4,9 @@ from django.contrib.auth.models import (AbstractBaseUser,
 from django.utils.text import slugify
 from django.utils import timezone
 import datetime
+from imagekit.models import ImageSpecField, ProcessedImageField
+from imagekit.processors import ResizeToFit
+from imagekit import ImageSpec, register
 from django.utils.safestring import mark_safe
 import re
 import os
@@ -12,10 +15,8 @@ from django.conf import settings
 from bs4 import BeautifulSoup
 from PIL import Image
 from unidecode import unidecode
-from sorl.thumbnail import ImageField as solrImageField
-from sorl.thumbnail import delete
 
-thumb_img_size = 640,480
+thumb_img_size = 640, 480
 
 class MyUserManager(BaseUserManager):
 	def create_user(self, username, email, password=None):
@@ -62,11 +63,10 @@ class myUser(AbstractBaseUser):
 	# file will be uploaded to MEDIA_ROOT/user_<id>/<filename>
 		return 'avatars/{0}/{1}'.format(instance.username, filename)
 
-	"""avatar = ProcessedImageField(upload_to=user_directory_path,
+	avatar = ProcessedImageField(upload_to=user_directory_path,
 								 processors=[ResizeToFit(50, 50)],
 								 format='JPEG',
-								 options={'quality': 90}, blank=True)"""
-	avatar = solrImageField(upload_to=user_directory_path)
+								 options={'quality': 90}, blank=True)
 	email = models.EmailField(unique=True, blank=False)
 	#password = models.CharField("Password", max_length=230)
 	is_active = models.BooleanField("Is active", default=True)
@@ -105,17 +105,16 @@ class myUser(AbstractBaseUser):
 	def is_staff(self):
 		return self.is_it_staff
 
-"""@receiver(models.signals.post_delete, sender=myUser)
+@receiver(models.signals.post_delete, sender=myUser)
 def delete_avatar(sender, instance, **kwargs):
-	#delete avatar when delete user
+	"""delete avatar when delete user"""
 	if instance.avatar:
 		if os.path.isfile(instance.avatar.path):
-			delete(instance.avatar.path)
-			#os.remove(instance.avatar.path)"""
+			os.remove(instance.avatar.path)
 
-"""@receiver(models.signals.pre_save, sender=myUser)
+@receiver(models.signals.pre_save, sender=myUser)
 def delete_old_avatar(sender, instance, **kwargs):
-	#delete old file when avatar changed
+	"""delete old file when avatar changed"""
 	if not instance.pk:
 		return False
 
@@ -127,15 +126,14 @@ def delete_old_avatar(sender, instance, **kwargs):
 	new_file = instance.avatar
 	if not old_file == new_file and old_file:
 		if os.path.isfile(old_file.path):
-			#delete(old_file.path)
-			os.remove(old_file.path)"""
+			os.remove(old_file.path)
 
-"""class Thumbnail(ImageSpec):
+class Thumbnail(ImageSpec):
 	processors = [ResizeToFit(640, 480)]
 	format = 'JPEG'
 	options = {'quality': 85}
 
-register.generator('blog:thumbnail', Thumbnail)"""
+register.generator('blog:thumbnail', Thumbnail)
 
 class Post(models.Model):
 	index_together = [
@@ -149,16 +147,14 @@ class Post(models.Model):
 	#text = RichTextUploadingField(config_name = "post")
 	text = models.TextField()
 	today = datetime.date.today()
-	"""post_image = models.ImageField(upload_to =
+	post_image = models.ImageField(upload_to =
 						str(today.year)+'/'
-						+str(today.month)+'/'+str(today.day)+'/', blank=True)"""
-	post_image = solrImageField(upload_to = str(today.year)+'/'
-		+str(today.month)+'/'+str(today.day)+'/', blank=True)
+						+str(today.month)+'/'+str(today.day)+'/', blank=True)
 	post_image.short_description = 'Image'
-	"""post_thumbnail = ImageSpecField(source='post_image',
+	post_thumbnail = ImageSpecField(source='post_image',
 								processors=[ResizeToFit(640, 480)],
 								format='JPEG',
-								options={'quality': 85})"""
+								options={'quality': 85})
 	def get_image(self):
 		return mark_safe('<img src="%s" class ="img-responsive center-block"/>'\
 						 % (self.post_thumbnail.url))
@@ -264,31 +260,46 @@ def delete_image_and_thumb(sender, instance, **kwargs):
 
 
 	"""delete image when post deleted"""
-	"""if instance.post_image:
+	if instance.post_image:
 		if os.path.isfile(instance.post_image.path):
 			try:
 				os.remove(instance.post_image.path)
 			except FileNotFoundError:
-				return False"""
+				return False
+	if instance.post_thumbnail:
+		if os.path.isfile(instance.post_thumbnail.path):
+			try:
+				os.remove(instance.post_thumbnail.path)
+			except FileNotFoundError:
+				return False ##подозрительная хрень
 
 
-
-#@receiver(models.signals.pre_save, sender=Post)
-#def delete_old_image_and_thumb(sender, instance, **kwargs):"""
+@receiver(models.signals.pre_save, sender=Post)
+def delete_old_image_and_thumb(sender, instance, **kwargs):
 	"""delete old file when thumbnail changed"""
-#	if not instance.pk:
-#		return False
+	if not instance.pk:
+		return False
 
-	#try:
-	#	old_file = Post.objects.get(pk=instance.pk).post_image
-	#except Post.DoesNotExist:
-#		return False
+	try:
+		old_file = Post.objects.get(pk=instance.pk).post_image
+	except Post.DoesNotExist:
+		return False
 
-#	new_file = instance.post_image
+	new_file = instance.post_image
 
-#	if not old_file == new_file and old_file:
-#		if os.path.isfile(old_file.path):
-#			os.remove(old_file.path)
+	if not old_file == new_file and old_file:
+		if os.path.isfile(old_file.path):
+			os.remove(old_file.path)
+
+	try:
+		old_file = Post.objects.get(pk=instance.pk).post_thumbnail
+	except Post.DoesNotExist:
+		return False
+
+	new_file = instance.post_thumbnail
+	if not old_file == new_file and old_file:
+		if os.path.isfile(old_file.path):
+			os.remove(old_file.path)
 
 class Category(models.Model):
 	index_together = [
@@ -319,11 +330,9 @@ class Category(models.Model):
 class Tag(models.Model):
 	name = models.CharField(max_length=30, unique=True)
 	url = models.CharField(max_length=40, unique=True)
-	created = models.DateTimeField(auto_now_add=True)
 
 	class Meta:
 		verbose_name_plural = "tags"
-		get_latest_by = "created"
 	def __str__(self):
 		return self.name
 
