@@ -330,6 +330,7 @@ class Category(models.Model):
 class Tag(models.Model):
 	name = models.CharField(max_length=30, unique=True)
 	url = models.CharField(max_length=40, unique=True)
+	created = models.DateTimeField(auto_now_add=True)
 
 	class Meta:
 		verbose_name_plural = "tags"
