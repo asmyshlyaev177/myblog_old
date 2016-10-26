@@ -96,7 +96,7 @@ CACHES = {
 # Application definition
 
 INSTALLED_APPS = [
-    'debug_toolbar',
+    #'debug_toolbar',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -118,8 +118,8 @@ THUMBNAIL_DEBUG = True
 THUMBNAIL_PRESERVE_FORMAT = True
 
 STATIC_URL = '/static/'
-STATIC_ROOT = '/django/python3/myblog/blog/static/'
-MEDIA_ROOT = '/django/python3/myblog/blog/static/media/'
+STATIC_ROOT = '/root/myblog/myblog/blog/static/'
+MEDIA_ROOT = '/root/myblog/myblog/blog/static/media/'
 MEDIA_URL = '/media/'
 
 STATICFILES_FINDERS = (
@@ -135,7 +135,7 @@ COMPRESS_CSS_FILTERS = ['compressor.filters.css_default.CssAbsoluteFilter',
 #IMAGEKIT_DEFAULT_CACHEFILE_STRATEGY = 'imagekit.cachefiles.strategies.JustInTime'
 
 MIDDLEWARE = [
-    'debug_toolbar.middleware.DebugToolbarMiddleware',
+   # 'debug_toolbar.middleware.DebugToolbarMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
