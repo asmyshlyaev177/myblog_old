@@ -204,9 +204,9 @@ class Post(models.Model):
 			for i in img_links: # для каждой
 				# находим ссылку и файл и вых. файл
 				link = re.search(r"/(?P<year>\d{4})/(?P<month>\d{2})/(?P<day>\d{2})/(?P<file>\S*)\.(?P<ext>\w*)", str(i))
-				file = 'c:\\django\\python3\\myblog\\blog\\static\\media\\{}\\{}\\{}\\{}.{}'\
+				file = '/root/myblog/myblog/blog/static/media/{}/{}/{}/{}.{}'\
 				.format(link.group("year"), link.group("month"),link.group("day"),link.group("file"),link.group("ext"))
-				file_out = 'c:\\django\\python3\\myblog\\blog\\static\\media\\{}\\{}\\{}\\{}-thumbnail.{}'\
+				file_out = '/root/myblog/myblog/blog/static/media/{}/{}/{}/{}-thumbnail.{}'\
 				.format(link.group("year"), link.group("month"),link.group("day"),link.group("file"),link.group("ext"))
 				if os.path.isfile(file):
 					# если файл существует
@@ -254,7 +254,7 @@ def delete_image_and_thumb(sender, instance, **kwargs):
 	img_links = re.findall\
 		(r"/(?P<year>\d{4})/(?P<month>\d{2})/(?P<day>\d{2})/(?P<file>\S*.jpg)", instance.text)
 	for img in img_links:
-		img_path = 'c:\\django\\python3\\myblog\\blog\\static\\media\\{}\\{}\\{}\\{}'.format(img[0], img[1],img[2],img[3])
+		img_path = '/root/myblog/myblog/blog/static/media/{}/{}/{}/{}'.format(img[0], img[1],img[2],img[3])
 		if os.path.isfile(img_path):
 			os.remove(img_path)
 
