@@ -85,7 +85,10 @@ def add_post(request):
                 tag = Tag.objects.get(name=i)
                 data.tags.add(tag)
                 if j:
-                    data.main_tag = tag.url
+                    if tag.url != "" and tag.url != None:
+                        data.main_tag = tag.url
+                    else:
+                        data.main_tag = slugify(unidecode("Разное".lower()))
                     j = False
 
             data.save()

@@ -1,6 +1,5 @@
 
 переписать удаление тэгов и постов, чтобы посты при удалении тэга не удалялись
-	
 
 $("#tagBox").tagging( "getTags" ).toString();
 
@@ -11,7 +10,7 @@ $(document).off('click.myevent', '.form-template-name');
 
 
 	setUp(scn.inject(
-	atOnceUsers(1),  
+	atOnceUsers(1),
 	//nothingFor(2 seconds),
 	rampUsers(10) over(10 seconds)
 	//constantUsersPerSec(1) during(10 seconds)// randomized
