@@ -38,9 +38,9 @@ def signup_success(request):
     return render(request, 'registration/signup_success.html')
 
 @login_required(login_url='/login')
-#@cache_page(60 * 5)
-#@vary_on_headers('X-Requested-With','Cookie')
-#@cache_control(max_age=600,private=True)
+@cache_page( 60 )
+@vary_on_headers('X-Requested-With','Cookie')
+@cache_control(max_age=60,private=True)
 def dashboard(request):
     if request.is_ajax() == True :
         template = 'dashboard-ajax.html'
@@ -59,15 +59,21 @@ def dashboard(request):
                                               'form': form},
                                 )
 
+
 @login_required(redirect_field_name='next', login_url='/login')
+@cache_page(60 )
+@cache_control(max_age=60)
+@vary_on_headers('X-Requested-With','Cookie')
 def my_posts(request):
     posts = Post.objects.filter(author=request.user.id)
     return render(request, 'dash-my-posts.html', {'posts':posts,
                                               'cat_list': cat_list})
 
 @login_required(redirect_field_name='next', login_url='/login')
-#@cache_page(60 * 5)
-#@vary_on_headers('X-Requested-With','Cookie')
+
+@cache_page(10)
+@cache_control(max_age=10)
+@vary_on_headers('X-Requested-With')
 def add_post(request):
     if request.is_ajax() == True :
         template = 'add_post-ajax.html'
@@ -120,9 +126,9 @@ def add_post(request):
     return render(request, template, { 'form': form,
                                              'cat_list': cat_list})
 
-#@cache_page(60 * 5)
-#@cache_control(max_age=600)
-#@vary_on_headers('X-Requested-With','Cookie')
+@cache_page(60 )
+@cache_control(max_age=60)
+@vary_on_headers('X-Requested-With','Cookie')
 def list(request, category=None, tag=None, pop=None):
 
     context = {}
@@ -171,9 +177,9 @@ def list(request, category=None, tag=None, pop=None):
 
     return render(request, template, context )
 
-#@cache_page(60 * 5)
-#@cache_control(max_age=600)
-#@vary_on_headers('X-Requested-With','Cookie')
+@cache_page(60 * 5)
+@cache_control(max_age=300)
+@vary_on_headers('X-Requested-With')
 def single_post(request,  tag, title, id):
 
     post = Post.objects.select_related("author", "category")\

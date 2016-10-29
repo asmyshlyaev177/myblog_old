@@ -119,10 +119,10 @@ function BackForwardButtons() {
 
 function loadMore(){
      $.ajax({
-          type:"GET",
+      type:"GET",
 		  //cache : false,
-          url:category+"?page="+page,
-          success:function(data){
+      url:category+"?page="+page,
+      success:function(data){
                $('.content').append(data); //adds data to the end of the table
                $('#more-loader').toggle();
                processing = false; // the processing variable prevents multiple ajax calls when scrolling
