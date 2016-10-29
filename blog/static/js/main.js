@@ -1,21 +1,21 @@
 var processing = false;
 var amountScrolled = 100;
 var page = 1;
-var category = "";
+//var category = "";
 
 $(document).ready(function(){
 
 	TopButtonScroll();
 	ToTop();
 	Scroll();
-	
-	ClickAjaxMenu();
 
-	
+	ClickAjaxMenu();
+  BackForwardButtons()
+
 });
 
 
-function Scroll() {	
+function Scroll() {
  $(document).scroll( function() {
   if (processing){
 	  return false;
@@ -31,13 +31,13 @@ function Scroll() {
 });
 }
 
- 
+
 function ToTop() {
 $(document).on('click', 'a.back-to-top', function() {
 	$('html, body').animate({
 		scrollTop: 0
 	}, 900);
-	return false;	
+	return false;
 });
 }
 
@@ -56,9 +56,8 @@ function ClickAjaxMenu() {
 $(document).on('click', '.ajax-menu', function() {
 	event.preventDefault();
 	ajax_menu = $(this);
-	
 	if ( ajax_menu.attr("url") != undefined &&
-				ajax_menu.attr("url") != ""  ) 
+				ajax_menu.attr("url") != ""  )
 			{
 			url = ajax_menu.attr('url');
 			category = "/" + url;
@@ -70,45 +69,52 @@ $(document).on('click', '.ajax-menu', function() {
 		category = "/";
 		url = ""
 	}
-	
+
 		if ( ajax_menu.is('[single_page]' ) ) { // if it is menu don't load on scroll
 			processing = true;
 		}
 		else { // if it is list page load on scroll
 			processing = false;
 		}
-		
-	//$('.menu').parent().removeClass('active');
-	$('.menu').parent().removeClass('active');
-	if ( category != "" ) {
-	$('.menu').filter( $('#'+url ) ).parent().addClass('active');}
 
 	$('html, body').scrollTop( 0 );
-	
+
 	if ( ajax_menu.text().replace(/\s/g, '') != "" ) {
 		document.title = ajax_menu.text();}
 	else {
 		document.title = "My blog!";}
-	ChangePage();
-});	
+
+	//ChangePage();
+	window.history.pushState({state:'new'}, "",  category);
+	ChangePageNew( category, url );
+});
 }
 
-function ChangePage() {
+
+function ChangePageNew( link, url ) {
 	$.ajax({
-          type:"GET",
-		  //cache : false,  
-		  url: category,  
-          success:function(data){
-             data2 = ('<div class="content">' + data + '</div>');
-             $(data2).replaceAll('.content');
+      type:"GET",
+		  //cache : false,
+		  url: link,
+      success:function(data){
+      data2 = ('<div class="content">' + data + '</div>');
+      $(data2).replaceAll('.content');
           }
      });
-	 // change browser url string ;)
-	 if ( category == "/" ) {
-		 window.history.pushState("object or string", "",  category); }
-	 else {
-		window.history.pushState("object or string", "",  category); }
-page = 1;
+	//window.history.pushState({state:'new'}, "",  link);
+   page = 1
+
+	 $('.menu').parent().removeClass('active');
+ 	if ( link != "" ) {
+ 	$('.menu').filter( $('#'+url ) ).parent().addClass('active');}
+
+};
+
+function BackForwardButtons() {
+	window.onpopstate = function(event) {
+		ChangePageNew(document.location);
+	};
+
 }
 
 function loadMore(){
@@ -125,9 +131,9 @@ function loadMore(){
 }
 
 function HintPos() {
-var offset = $(".tt-input").offset();	
+var offset = $(".tt-input").offset();
 var topOffset = $(".tt-input").offset().top- $(window).scrollTop();
-  
+
   /* position of hints */
 	 $(".tt-menu").css({
         position: "fixed",
@@ -155,7 +161,3 @@ $(document).on({
 function HideHint() {
   $('.tt-menu').hide();
 }
-
-
-
-

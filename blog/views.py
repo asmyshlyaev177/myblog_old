@@ -10,6 +10,9 @@ from django.conf import settings
 from django.core import serializers
 from unidecode import unidecode
 import json
+from django.views.decorators.cache import cache_page
+from django.views.decorators.vary import vary_on_headers
+from django.views.decorators.cache import cache_control
 
 from django.http import (
     HttpResponseBadRequest,
@@ -34,7 +37,10 @@ def signup(request):
 def signup_success(request):
     return render(request, 'registration/signup_success.html')
 
-@login_required
+@login_required(login_url='/login')
+#@cache_page(60 * 5)
+#@vary_on_headers('X-Requested-With','Cookie')
+#@cache_control(max_age=600,private=True)
 def dashboard(request):
     if request.is_ajax() == True :
         template = 'dashboard-ajax.html'
@@ -53,13 +59,15 @@ def dashboard(request):
                                               'form': form},
                                 )
 
-@login_required
+@login_required(redirect_field_name='next', login_url='/login')
 def my_posts(request):
     posts = Post.objects.filter(author=request.user.id)
     return render(request, 'dash-my-posts.html', {'posts':posts,
                                               'cat_list': cat_list})
 
-@login_required
+@login_required(redirect_field_name='next', login_url='/login')
+#@cache_page(60 * 5)
+#@vary_on_headers('X-Requested-With','Cookie')
 def add_post(request):
     if request.is_ajax() == True :
         template = 'add_post-ajax.html'
@@ -112,6 +120,9 @@ def add_post(request):
     return render(request, template, { 'form': form,
                                              'cat_list': cat_list})
 
+#@cache_page(60 * 5)
+#@cache_control(max_age=600)
+#@vary_on_headers('X-Requested-With','Cookie')
 def list(request, category=None, tag=None, pop=None):
 
     context = {}
@@ -160,7 +171,9 @@ def list(request, category=None, tag=None, pop=None):
 
     return render(request, template, context )
 
-
+#@cache_page(60 * 5)
+#@cache_control(max_age=600)
+#@vary_on_headers('X-Requested-With','Cookie')
 def single_post(request,  tag, title, id):
 
     post = Post.objects.select_related("author", "category")\

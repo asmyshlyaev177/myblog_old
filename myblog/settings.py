@@ -27,6 +27,8 @@ SECRET_KEY = '*er@wzdwuga0)0u%j22+pthd0)wzgl%oka)+a^na37()xgr%f9'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
+LOGIN_URL='/login'
+
 #today = datetime.date.today()
 summernote_filepath = str(datetime.date.today().year)+'/'\
 +str(datetime.date.today().month)\
@@ -70,7 +72,8 @@ JQUERY_URL = ""
 SHOW_COLLAPSED = True
 INTERNAL_IPS = ['192.168.1.68', '192.168.1.70', '127.0.0.1']
 
-LOGIN_REDIRECT_URL = '/dashboard'
+#LOGIN_REDIRECT_URL = '/'
+#LOGIN_REDIRECT_URL = request.next
 
 EMAIL_USE_TLS = True
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
@@ -129,7 +132,7 @@ STATICFILES_FINDERS = (
     'compressor.finders.CompressorFinder',
 )
 
-COMPRESS_ENABLED = True  # удобней выключить потом включу
+COMPRESS_ENABLED = False # удобней выключить потом включу
 COMPRESS_CSS_FILTERS = ['compressor.filters.css_default.CssAbsoluteFilter',
                         'compressor.filters.cssmin.rCSSMinFilter']
 #IMAGEKIT_DEFAULT_CACHEFILE_STRATEGY = 'imagekit.cachefiles.strategies.JustInTime'
@@ -155,9 +158,10 @@ TEMPLATES = [
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
-                'django.template.context_processors.debug',
-                'django.template.context_processors.request',
+                #'django.template.context_processors.debug',
                 'django.contrib.auth.context_processors.auth',
+                'django.template.context_processors.request',
+
                 'django.contrib.messages.context_processors.messages',
             ],
         },

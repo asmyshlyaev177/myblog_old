@@ -17,3 +17,26 @@ $(document).off('click.myevent', '.form-template-name');
 	)).protocols(httpProtocol)
 
 }
+
+
+
+$(document).ready(function(){
+    window.onpopstate =  function(event) {
+        alert('popstate fired');
+        $('#ajaxContent').fadeOut(function() {
+            $('.pageLoad').show();
+            $('#ajaxContent').html('')
+                             .load($this.attr('href'), function() {
+                                $('.pageLoad').hide();
+                                $('#ajaxContent').fadeIn();
+                             });
+        });
+    };
+
+    $('.ajax').on('click', function(e) {
+        e.preventDefault();
+        alert('pushstate fired');
+        window.history.pushState({state:'new'},'', $(this).attr('href'));
+    });
+
+ });
