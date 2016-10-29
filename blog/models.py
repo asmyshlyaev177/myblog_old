@@ -150,6 +150,15 @@ class Post(models.Model):
 	post_image = models.ImageField(upload_to =
 						str(today.year)+'/'
 						+str(today.month)+'/'+str(today.day)+'/', blank=True)
+	def post_image_gif(self):
+		if self.post_image.path != "":
+			ext = []
+			ext = self.post_image.path.split('.')
+			if ext[-1] == "gif":
+				return True
+			else:
+				return False
+
 	post_image.short_description = 'Image'
 	post_thumbnail = ImageSpecField(source='post_image',
 								processors=[ResizeToFit(640, 480)],

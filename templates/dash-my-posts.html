@@ -1,5 +1,5 @@
 {% extends "dashboard.html" %}
-{% load imagekit %}
+{% load thumbnail %}
 
 {% block title %}My Posts{% endblock %}
 
@@ -14,7 +14,10 @@
     <div class="row">
     <div class="col-md-4">
       {% if post.post_image %}
-       {% thumbnail '200x200' post.post_image -- class="post-thumb-small" %}
+       {% thumbnail post.post_image '200x200' as im %}
+       <img src="{{ im.url }}" width="{{ im.width }}" height="{{ im.height }}"
+       class="post-thumb-small" >
+       {% endthumbnail %}
        {% endif %}
     </div>
 
@@ -23,7 +26,7 @@
          <h4 class="post-title-dash text-center">{{ post.title }} </h4></a>
          <div class="pull-right">Category:
            <a href="
-           {% url 'category' category=post.category|slugify %}">
+           /cat/{{ post.category.slug }}">
            {{post.category}}</a>
          </div>
 

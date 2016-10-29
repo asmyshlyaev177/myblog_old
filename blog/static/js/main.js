@@ -1,7 +1,8 @@
 var processing = false;
 var amountScrolled = 100;
 var page = 1;
-//var category = "";
+var category = "";
+var myurl = "";
 
 $(document).ready(function(){
 
@@ -10,9 +11,22 @@ $(document).ready(function(){
 	Scroll();
 
 	ClickAjaxMenu();
-  BackForwardButtons()
-
+  BackForwardButtons();
+	GifPlay();
 });
+
+function GifPlay() {
+	$(document).on('click', '.gif', function() {
+		event.preventDefault();
+		img = $(this).parent().children("img");
+		span = $(this).children(".play");
+		src = img.attr('src');
+		dataalt = img.attr('dataalt');
+		img.attr('src', dataalt);
+		img.attr('dataalt', src);
+		span.toggle();
+	});
+}
 
 
 function Scroll() {
@@ -59,15 +73,15 @@ $(document).on('click', '.ajax-menu', function() {
 	if ( ajax_menu.attr("url") != undefined &&
 				ajax_menu.attr("url") != ""  )
 			{
-			url = ajax_menu.attr('url');
-			category = "/" + url;
+			myurl = ajax_menu.attr('url');
+			category = "/" + myurl;
 			if ( ajax_menu.is("[cat]") ) {
-				category = "/cat/" + url.toLowerCase();
+				category = "/cat/" + myurl.toLowerCase();
 			}
 	}
 	else {
 		category = "/";
-		url = ""
+		myurl = ""
 	}
 
 		if ( ajax_menu.is('[single_page]' ) ) { // if it is menu don't load on scroll
@@ -86,12 +100,12 @@ $(document).on('click', '.ajax-menu', function() {
 
 	//ChangePage();
 	window.history.pushState({state:'new'}, "",  category);
-	ChangePageNew( category, url );
+	ChangePageNew( category, myurl );
 });
 }
 
 
-function ChangePageNew( link, url ) {
+function ChangePageNew( link, myurl ) {
 	$.ajax({
       type:"GET",
 		  //cache : false,
@@ -105,14 +119,16 @@ function ChangePageNew( link, url ) {
    page = 1
 
 	 $('.menu').parent().removeClass('active');
- 	if ( link != "" ) {
- 	$('.menu').filter( $('#'+url ) ).parent().addClass('active');}
+ 	if ( myurl != "" ) {
+ 	$('.menu').filter( $('#'+myurl ) ).parent().addClass('active');}
 
 };
 
 function BackForwardButtons() {
 	window.onpopstate = function(event) {
-		ChangePageNew(document.location);
+		category = document.location.pathname;
+		myurl = category.split('/').pop()
+		ChangePageNew(document.location, myurl);
 	};
 
 }

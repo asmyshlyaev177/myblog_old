@@ -71,8 +71,8 @@ def my_posts(request):
 
 @login_required(redirect_field_name='next', login_url='/login')
 
-@cache_page(10)
-@cache_control(max_age=10)
+@cache_page(60)
+@cache_control(max_age=60)
 @vary_on_headers('X-Requested-With')
 def add_post(request):
     if request.is_ajax() == True :
@@ -126,8 +126,8 @@ def add_post(request):
     return render(request, template, { 'form': form,
                                              'cat_list': cat_list})
 
-@cache_page(60 )
-@cache_control(max_age=60)
+@cache_page(3 )
+@cache_control(max_age=3)
 @vary_on_headers('X-Requested-With','Cookie')
 def list(request, category=None, tag=None, pop=None):
 

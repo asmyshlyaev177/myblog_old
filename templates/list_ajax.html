@@ -37,8 +37,20 @@
     <div class="post-thumbnail">
 
     {% thumbnail post.post_image "640x480" as im %}
+        {% if post.post_image_gif %}
+        <a class="gif" href="#">
+          <span class="play">&#9658;</span>
+        </a>
         <img src="{{ im.url }}" width="{{ im.width }}" height="{{ im.height }}"
-        class="img-responsive center-block">
+        dataalt='/media/{{ post.post_image }}'
+        class="img-responsive center-block gif">
+
+        {% else %}
+
+        <img src="{{ im.url }}" width="{{ im.width }}" height="{{ im.height }}"
+        class="img-responsive center-block" >
+
+        {% endif %}
     {% endthumbnail %}
 
 
