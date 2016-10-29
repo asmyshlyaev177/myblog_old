@@ -177,14 +177,19 @@ def list(request, category=None, tag=None, pop=None):
 
     return render(request, template, context )
 
-@cache_page(60 * 5)
-@cache_control(max_age=300)
+@cache_page(5)
+@cache_control(max_age=5)
 @vary_on_headers('X-Requested-With')
 def single_post(request,  tag, title, id):
 
+    if request.is_ajax() == True :
+        template = 'single_ajax.html'
+    else:
+        template = 'single.html'
+
     post = Post.objects.select_related("author", "category")\
         .prefetch_related('tags').get(pk=id)
-    return render(request, 'single.html',
+    return render(request, template,
                   {'post': post,
                   'cat_list': Category.list()})
 
