@@ -1,45 +1,9 @@
 {% extends "dashboard.html" %}
-{% load thumbnail %}
 
 {% block title %}My Posts{% endblock %}
 
 {% block content %}
-<script>processing = true;</script>
-<h3 class="text-center">My posts</h3>
-<div class="container-fluid">
 
-{% if posts %}
-
-    {% for post in posts %}
-    <div class="row">
-    <div class="col-md-4">
-      {% if post.post_image %}
-       {% thumbnail post.post_image '200x200' as im %}
-       <img src="{{ im.url }}" width="{{ im.width }}" height="{{ im.height }}"
-       class="post-thumb-small" >
-       {% endthumbnail %}
-       {% endif %}
-    </div>
-
-      <div class="col-md-8">
-       <a href="{{ post.get_absolute_url }}" >
-         <h4 class="post-title-dash text-center">{{ post.title }} </h4></a>
-         <div class="pull-right">Category:
-           <a href="
-           /cat/{{ post.category.slug }}">
-           {{post.category}}</a>
-         </div>
-
-            <p class="post-description">{% autoescape off %}
-              {{ post.description }}{% endautoescape %}</p>
-         </div>
-         </div>
-    {% endfor %}
-{% else %}
-<p>
-  No posts yet!
-</p>
-{% endif %}
-</div>
+{% include "dash-my-posts-ajax.html" %}
 
 {% endblock %}

@@ -5,11 +5,17 @@ from blog.forms import SignupForm, MyUserChangeForm, AddPostForm
 from django.http import HttpResponseRedirect, HttpResponse,JsonResponse
 from django.views.decorators.csrf import csrf_protect
 from django.contrib.auth.decorators import login_required
+from django.contrib.auth.forms import PasswordChangeForm
+from django.contrib.auth.views import deprecate_current_app
+from django.views.decorators.debug import sensitive_post_parameters
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.conf import settings
 from django.core import serializers
 from unidecode import unidecode
 import json
+from django.urls import reverse
+from django.template.response import TemplateResponse
+from django.utils.translation import ugettext as _
 from django.views.decorators.cache import cache_page
 from django.views.decorators.vary import vary_on_headers
 from django.views.decorators.cache import cache_control
@@ -62,11 +68,15 @@ def dashboard(request):
 
 @login_required(redirect_field_name='next', login_url='/login')
 @cache_page(60 )
-@cache_control(max_age=60)
+@cache_control(max_age=60, private=True)
 @vary_on_headers('X-Requested-With','Cookie')
 def my_posts(request):
+    if request.is_ajax() == True :
+        template = 'dash-my-posts-ajax.html'
+    else:
+        template = 'dash-my-posts.html'
     posts = Post.objects.filter(author=request.user.id)
-    return render(request, 'dash-my-posts.html', {'posts':posts,
+    return render(request, template, {'posts':posts,
                                               'cat_list': cat_list})
 
 @login_required(redirect_field_name='next', login_url='/login')
@@ -235,3 +245,42 @@ def upload_attachment(request):
         })
     except IOError:
         return HttpResponseServerError('Failed to save attachment')
+
+
+@sensitive_post_parameters()
+@csrf_protect
+@login_required
+@deprecate_current_app
+@cache_page(60)
+@cache_control(max_age=60, private=True)
+@vary_on_headers('X-Requested-With','Cookie')
+def password_change(request,
+                    template_name='registration/password_change_form.html',
+                    post_change_redirect=None,
+                    password_change_form=PasswordChangeForm,
+                    extra_context=None):
+    if post_change_redirect is None:
+        post_change_redirect = reverse('password_change_done')
+    else:
+        post_change_redirect = resolve_url(post_change_redirect)
+    if request.is_ajax():
+        template_name = 'registration/password_change_form-ajax.html'
+    if request.method == "POST":
+        form = password_change_form(user=request.user, data=request.POST)
+        if form.is_valid():
+            form.save()
+            # Updating the password logs out all other sessions for the user
+            # except the current one.
+            update_session_auth_hash(request, form.user)
+            return HttpResponseRedirect(post_change_redirect)
+    else:
+        form = password_change_form(user=request.user)
+    context = {
+        'form': form,
+        'title': _('Password change'),
+        'cat_list': cat_list,
+    }
+    if extra_context is not None:
+        context.update(extra_context)
+
+    return TemplateResponse(request, template_name, context)

@@ -1,12 +1,4 @@
 
-переписать удаление тэгов и постов, чтобы посты при удалении тэга не удалялись
-ttt
-$("#tagBox").tagging( "getTags" ).toString();
-
-
-$(".hidden_tags").val($("#tagBox").tagging( "getTags" ).toString())
-
-$(document).off('click.myevent', '.form-template-name');
 
 
 	setUp(scn.inject(

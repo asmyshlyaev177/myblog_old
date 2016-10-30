@@ -90,15 +90,18 @@
         <p><a href="{% url 'logout' %}">Logout</a></p>
       {% else %}
         <p><a href="{% url 'signup' %}">Register</a></p>
-        <p><a href="{% url 'login' %}">Login</a></p>
+        <p><a href="{% url 'login' %}" >Login</a></p>
       {% endif %}
       </p>
     </div>
     <div class="sidebar2">
       <p>
         Sidebar 2<br />
-        <p><a href="{% url 'password_change' %}">Change password</a></p>
-        <p><a href="{% url 'my_posts' %}">My Posts</a></p>
+        <p><a href="{% url 'password_change' %}"
+          url = "password_change" class="ajax-menu"
+          >Change password</a></p>
+        <p><a href="{% url 'my_posts' %}" class="ajax-menu"
+          url = "dashboard/my-posts">My Posts</a></p>
       </p>
     </div>
   </div>

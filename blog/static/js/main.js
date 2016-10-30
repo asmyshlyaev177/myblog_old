@@ -128,7 +128,7 @@ function BackForwardButtons() {
 	window.onpopstate = function(event) {
 		category = document.location.pathname;
 		myurl = category.split('/').pop()
-		ChangePageNew(document.location, myurl);
+	  ChangePageNew(document.location, myurl);
 	};
 
 }

@@ -13,6 +13,7 @@ django-summernote==0.8.5
 django-taggit==0.21.3
 gevent==1.1.1
 greenlet==0.4.10
+gunicorn==19.6.0
 html5lib==0.999999999
 itsdangerous==0.24
 Jinja2==2.8
@@ -23,6 +24,7 @@ oauthlib==2.0.0
 pilkit==1.1.13
 Pillow==3.3.1
 ply==3.9
+python3-openid==3.0.10
 pytz==2016.6.1
 rcssmin==1.0.6
 requests==2.11.1
