@@ -81,8 +81,8 @@ def my_posts(request):
 
 @login_required(redirect_field_name='next', login_url='/login')
 
-@cache_page(60)
-@cache_control(max_age=60)
+@cache_page(2)
+@cache_control(max_age=2)
 @vary_on_headers('X-Requested-With')
 def add_post(request):
     if request.is_ajax() == True :

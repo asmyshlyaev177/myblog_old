@@ -269,7 +269,7 @@ def delete_image_and_thumb(sender, instance, **kwargs):
 
 
 	"""delete image when post deleted"""
-	if instance.post_image:
+	"""if instance.post_image:
 		if os.path.isfile(instance.post_image.path):
 			try:
 				os.remove(instance.post_image.path)
@@ -280,7 +280,7 @@ def delete_image_and_thumb(sender, instance, **kwargs):
 			try:
 				os.remove(instance.post_thumbnail.path)
 			except FileNotFoundError:
-				return False ##подозрительная хрень
+				return False ##подозрительная хрень"""
 
 
 @receiver(models.signals.pre_save, sender=Post)

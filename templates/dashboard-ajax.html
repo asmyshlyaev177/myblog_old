@@ -16,14 +16,19 @@
     </div>
     <div>
       <label for="avatar">Avatar </label>
+      <p>
+
       {% if request.user.avatar %}
       {% thumbnail request.user.avatar "70x70" as im %}
-          <img src="{{ im.url }}" width="{{ im.width }}" height="{{ im.height }}">
+          <img src="{{ im.url }}" height="{{ im.height }}"
+          id = "avatar">
       {% endthumbnail %}
+      </p>
       {% endif %}
     </div>
     <div>
-      {{ form.avatar }}
+      <input id="id_avatar" name="avatar" type="file"
+      onchange="Preview(this.files[0], 'avatar', 70)">
     </div>
 
     {% csrf_token %}<br />

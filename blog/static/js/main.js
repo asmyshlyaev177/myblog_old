@@ -177,3 +177,9 @@ $(document).on({
 function HideHint() {
   $('.tt-menu').hide();
 }
+
+function Preview( files, el_id, height ) {
+	preview = document.getElementById(el_id)
+	preview.src = window.URL.createObjectURL(files);
+	preview.height = height;
+}

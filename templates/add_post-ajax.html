@@ -10,11 +10,20 @@
     {{ form.title.label_tag }} {{ form.title }}
   </p>
 </div>
+
+
 <div class="form-row">
   <p>
-    {{ form.post_image.label_tag }} {{ form.post_image }}
+    {{ form.post_image.label_tag }}
+    <input id="id_post_image" name="post_image" type="file"
+    onchange="Preview(this.files[0], 'preview', 300)">
+    <p>
+      <img id="preview"  />
+    </p>
   </p>
 </div>
+
+
 <div class="form-row">
   <p>
     {{ form.category.label_tag }} {{ form.category }}
