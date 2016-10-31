@@ -2,7 +2,8 @@ from django.shortcuts import render
 from blog.models import Post, myUser, Category, Tag
 from django.utils.text import slugify
 from blog.forms import SignupForm, MyUserChangeForm, AddPostForm
-from django.http import HttpResponseRedirect, HttpResponse,JsonResponse
+from django.http import (HttpResponseRedirect,
+    HttpResponse,JsonResponse,HttpResponseNotFound)
 from django.views.decorators.csrf import csrf_protect
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.forms import PasswordChangeForm
@@ -44,9 +45,9 @@ def signup_success(request):
     return render(request, 'registration/signup_success.html')
 
 @login_required(login_url='/login')
-@cache_page( 60 )
+@cache_page( 3 )
 @vary_on_headers('X-Requested-With','Cookie')
-@cache_control(max_age=60,private=True)
+@cache_control(max_age=3,private=True)
 def dashboard(request):
     if request.is_ajax() == True :
         template = 'dashboard-ajax.html'
@@ -117,9 +118,21 @@ def add_post(request):
             tag_list = request.POST['hidden_tags'].split(',') # tags list
             data.save()
             j = True
+            nsfw = data.private
             for i in tag_list:
-                Tag.objects.get_or_create(name=i, url=slugify(unidecode(i.lower())))
-                tag = Tag.objects.get(name=i)
+                if nsfw == True:
+                    tag_url = slugify(unidecode(i.lower()+"_nsfw"))
+                    Tag.objects.get_or_create(name=i,
+                                          url=tag_url,
+                                          private=nsfw)
+                    #tag = Tag.objects.get(name=i+"_nsfw")
+                else:
+                    tag_url = slugify(unidecode(i.lower()))
+                    Tag.objects.get_or_create(name=i,
+                                          url=tag_url )
+
+                tag = Tag.objects.get(url=tag_url)
+
                 data.tags.add(tag)
                 if j:
                     if tag.url != "" and tag.url != None:
@@ -180,6 +193,8 @@ def list(request, category=None, tag=None, pop=None):
             post_list = Post.objects.select_related("author", "category")\
                 .prefetch_related('tags').filter(status="P")#.order_by('-published')
 
+    if not request.user.is_authenticated:
+        post_list = post_list.filter(private=False)
     #if pop:
     #    pass filter
 
@@ -202,7 +217,7 @@ def list(request, category=None, tag=None, pop=None):
 
 @cache_page(5)
 @cache_control(max_age=5)
-@vary_on_headers('X-Requested-With')
+@vary_on_headers('X-Requested-With', 'Cookie')
 def single_post(request,  tag, title, id):
 
     if request.is_ajax() == True :
@@ -212,9 +227,14 @@ def single_post(request,  tag, title, id):
 
     post = Post.objects.select_related("author", "category")\
         .prefetch_related('tags').get(pk=id)
+
+    if post.private == True and not request.user.is_authenticated:
+        return HttpResponseNotFound()
+
     return render(request, template,
                   {'post': post,
                   'cat_list': Category.list()})
+
 
 
 def upload_attachment(request):

@@ -138,7 +138,7 @@ register.generator('blog:thumbnail', Thumbnail)
 class Post(models.Model):
 	index_together = [
 	["title", "description", "post_thumbnail", "author", "category",
-	 "url", "published", "status","main_tag"],
+	 "url", "published", "private", "status","main_tag"],
 	]
 	title = models.CharField(max_length=150)
 	#description = RichTextField(max_length = 500, config_name = "description",
@@ -180,6 +180,8 @@ class Post(models.Model):
 										related_name='posts',
 										related_query_name='tag',
 										blank=True)
+	private = models.BooleanField(default=False)
+	private.short_description = 'NSFW'
 	main_tag = models.CharField(max_length=33, blank=True)
 	url = models.SlugField(blank=True)
 	STATUS = (
@@ -337,9 +339,10 @@ class Category(models.Model):
 
 
 class Tag(models.Model):
-	name = models.CharField(max_length=30, unique=True)
+	name = models.CharField(max_length=30)
 	url = models.CharField(max_length=40, unique=True)
 	created = models.DateTimeField(auto_now_add=True)
+	private = models.BooleanField(default=False)
 
 	class Meta:
 		verbose_name_plural = "tags"
