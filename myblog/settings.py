@@ -100,13 +100,13 @@ CACHES = {
 # Application definition
 
 INSTALLED_APPS = [
-    #'debug_toolbar',
+    'django.contrib.staticfiles',
+    'debug_toolbar',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
-    'django.contrib.staticfiles',
     'blog',
     #'ckeditor',
     #'ckeditor_uploader',
@@ -138,8 +138,9 @@ COMPRESS_CSS_FILTERS = ['compressor.filters.css_default.CssAbsoluteFilter',
                         'compressor.filters.cssmin.rCSSMinFilter']
 #IMAGEKIT_DEFAULT_CACHEFILE_STRATEGY = 'imagekit.cachefiles.strategies.JustInTime'
 
-MIDDLEWARE = [
-   # 'debug_toolbar.middleware.DebugToolbarMiddleware',
+#MIDDLEWARE = [  #for debug toolbar
+MIDDLEWARE_CLASSES = [
+    'debug_toolbar.middleware.DebugToolbarMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -159,7 +160,7 @@ TEMPLATES = [
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
-                #'django.template.context_processors.debug',
+                'django.template.context_processors.debug',
                 'django.contrib.auth.context_processors.auth',
                 'django.template.context_processors.request',
 

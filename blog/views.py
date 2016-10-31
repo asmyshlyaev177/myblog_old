@@ -61,21 +61,34 @@ def dashboard(request):
     else:
         form = MyUserChangeForm(instance=request.user)
 
+
     return render(request, template, {'cat_list': cat_list,
                                               'form': form},
                                 )
 
 
 @login_required(redirect_field_name='next', login_url='/login')
-@cache_page(60 )
-@cache_control(max_age=60, private=True)
+@cache_page(2 )
+@cache_control(max_age=2, private=True)
 @vary_on_headers('X-Requested-With','Cookie')
 def my_posts(request):
     if request.is_ajax() == True :
         template = 'dash-my-posts-ajax.html'
     else:
         template = 'dash-my-posts.html'
-    posts = Post.objects.filter(author=request.user.id)
+    post_list = Post.objects.filter(author=request.user.id)
+
+    paginator = Paginator(post_list, 5)
+    page = request.GET.get('page')
+
+    try:
+        posts = paginator.page(page)
+    except PageNotAnInteger:
+        posts = paginator.page(1)
+    except EmptyPage:
+        #posts = paginator.page(paginator.num_pages)
+        return HttpResponse('')
+
     return render(request, template, {'posts':posts,
                                               'cat_list': cat_list})
 
