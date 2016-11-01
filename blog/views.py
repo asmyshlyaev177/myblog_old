@@ -17,7 +17,7 @@ import json
 from django.urls import reverse
 from django.template.response import TemplateResponse
 from django.utils.translation import ugettext as _
-from django.views.decorators.cache import cache_page
+from django.views.decorators.cache import cache_page, never_cache
 from django.views.decorators.vary import vary_on_headers
 from django.views.decorators.cache import cache_control
 
@@ -95,9 +95,7 @@ def my_posts(request):
 
 @login_required(redirect_field_name='next', login_url='/login')
 
-@cache_page(2)
-@cache_control(max_age=2)
-@vary_on_headers('X-Requested-With')
+@never_cache
 def add_post(request):
     if request.is_ajax() == True :
         template = 'add_post-ajax.html'
@@ -162,8 +160,8 @@ def add_post(request):
     return render(request, template, { 'form': form,
                                              'cat_list': cat_list})
 
-@cache_page(3 )
-@cache_control(max_age=3)
+@cache_page(30 )
+@cache_control(max_age=30)
 @vary_on_headers('X-Requested-With','Cookie')
 def list(request, category=None, tag=None, pop=None):
 
@@ -199,7 +197,7 @@ def list(request, category=None, tag=None, pop=None):
     #    pass filter
 
     #post_list = post_list.filter(status="P").order_by('-published')
-    paginator = Paginator(post_list, 5)
+    paginator = Paginator(post_list, 3)
     page = request.GET.get('page')
 
     try:
@@ -215,8 +213,8 @@ def list(request, category=None, tag=None, pop=None):
 
     return render(request, template, context )
 
-@cache_page(5)
-@cache_control(max_age=5)
+@cache_page(50)
+@cache_control(max_age=50)
 @vary_on_headers('X-Requested-With', 'Cookie')
 def single_post(request,  tag, title, id):
 
@@ -282,10 +280,10 @@ def upload_attachment(request):
 
 @sensitive_post_parameters()
 @csrf_protect
-@login_required
+@login_required(redirect_field_name='next', login_url='/login')
 @deprecate_current_app
-@cache_page(60)
-@cache_control(max_age=60, private=True)
+@cache_page(2)
+@cache_control(max_age=2, private=True)
 @vary_on_headers('X-Requested-With','Cookie')
 def password_change(request,
                     template_name='registration/password_change_form.html',

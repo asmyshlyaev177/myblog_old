@@ -5,7 +5,6 @@
 
 .main {overflow: hidden;}
 
-
 .post-thumbnail {position: relative; }
 
 .post-thumbnail a {
@@ -33,4 +32,8 @@ transition: opacity .3s ease-in-out;
 .post-thumbnail a:hover .play {
 	transition: opacity .3s ease-in-out;
   opacity: 0.9;
+}
+
+#load_circle {
+	display:none;
 }

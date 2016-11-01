@@ -35,8 +35,8 @@
     <script src="/static/js/summernote-ru-RU.min.js"></script>
     <script src="/static/js/typeahead.bundle.js"></script>
     <script src="/static/js/tagging.js"></script>
-    <script src="/static/js/main.js"></script>
     <script src="/static/js/jquery.blueimp-gallery.min.js"></script>
+    <script src="/static/js/main.js"></script>
 
 
 
@@ -101,7 +101,7 @@
           url = "password_change" class="ajax-menu"
           single_page>Change password</a></p>
         <p><a href="{% url 'my_posts' %}" class="ajax-menu"
-          url = "dashboard/my-posts" single_page>My Posts</a></p>
+          url = "dashboard/my-posts">My Posts</a></p>
       </p>
     </div>
   </div>
@@ -121,6 +121,10 @@
 </div>
 
 <a href="#" class="back-to-top">up</a>
+
+<div id="load_circle">
+  <img src="/static/img/loader.gif" class="center-block">
+</div>
 
 </div>
 

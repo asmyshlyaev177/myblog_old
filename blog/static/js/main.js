@@ -3,8 +3,13 @@ var amountScrolled = 100;
 var page = 1;
 var category = "";
 var myurl = "";
+var loader;
+
 
 $(document).ready(function(){
+	if ( loader == undefined) {
+		loader = $("#load_circle");
+	}
 
 	TopButtonScroll();
 	ToTop();
@@ -17,7 +22,6 @@ $(document).ready(function(){
 
 function GifPlay() {
 	$(document).on('click', '.gif', function() {
-		event.preventDefault();
 		img = $(this).parent().children("img");
 		span = $(this).children(".play");
 		src = img.attr('src');
@@ -25,6 +29,7 @@ function GifPlay() {
 		img.attr('src', dataalt);
 		img.attr('dataalt', src);
 		span.toggle();
+		return false;
 	});
 }
 
@@ -37,7 +42,7 @@ function Scroll() {
   if ( $(document).scrollTop() > ( ($(document).height() - $(window).height())-300  )) {
 	  processing = true; //prevent multiple scrolls once first is hit
 	  if ( $( "#last_page" ).length == 0 ) {
-		$('#more-loader').toggle();
+		loader.css('top', '').css('left', '').css('position', 'static').show();
 		page += 1;
 		loadMore();
 		}
@@ -68,11 +73,12 @@ function TopButtonScroll(){
 
 function ClickAjaxMenu() {
 $(document).on('click', '.ajax-menu', function() {
-	event.preventDefault();
+	//event.preventDefault();
 	ajax_menu = $(this);
 	if ( ajax_menu.attr("url") != undefined &&
 				ajax_menu.attr("url") != ""  )
 			{
+				//debugger;
 			myurl = ajax_menu.attr('url');
 			category = "/" + myurl;
 			if ( ajax_menu.is("[cat]") ) {
@@ -101,18 +107,24 @@ $(document).on('click', '.ajax-menu', function() {
 	//ChangePage();
 	window.history.pushState({state:'new'}, "",  category);
 	ChangePageNew( category, myurl );
+	return false;
 });
 }
 
 
 function ChangePageNew( link, myurl ) {
+	content = $(".content")
+	content.fadeTo(70, 0.3);
+	loader.css('top', '120px').css('left', '50%').css('position', 'absolute').show();
 	$.ajax({
       type:"GET",
 		  //cache : false,
 		  url: link,
       success:function(data){
-      data2 = ('<div class="content">' + data + '</div>');
-      $(data2).replaceAll('.content');
+      data2 = ('<div class="posts">' + data + '</div>');
+      $(data2).replaceAll('.posts');
+			content.fadeTo(130, 1);
+			$('#load_circle').hide();
           }
      });
 	//window.history.pushState({state:'new'}, "",  link);
@@ -140,10 +152,11 @@ function loadMore(){
       url:category+"?page="+page,
       success:function(data){
                $('.content').append(data); //adds data to the end of the table
-               $('#more-loader').toggle();
                processing = false; // the processing variable prevents multiple ajax calls when scrolling
+							 loader.hide();
           }
      });
+
 }
 
 function HintPos() {

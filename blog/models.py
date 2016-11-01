@@ -214,7 +214,7 @@ class Post(models.Model):
 		if len(img_links) != 0:
 			for i in img_links: # для каждой
 				# находим ссылку и файл и вых. файл
-				link = re.search(r"/(?P<year>\d{4})/(?P<month>\d{2})/(?P<day>\d{2})/(?P<file>\S*)\.(?P<ext>\w*)", str(i))
+				link = re.search(r"/(?P<year>\d{4})/(?P<month>\d{1,2})/(?P<day>\d{1,2})/(?P<file>\S*)\.(?P<ext>\w*)", str(i))
 				file = '/root/myblog/myblog/blog/static/media/{}/{}/{}/{}.{}'\
 				.format(link.group("year"), link.group("month"),link.group("day"),link.group("file"),link.group("ext"))
 				file_out = '/root/myblog/myblog/blog/static/media/{}/{}/{}/{}-thumbnail.{}'\
@@ -263,7 +263,7 @@ def delete_image_and_thumb(sender, instance, **kwargs):
 	# удаляем файлы картинок при удалении поста
 
 	img_links = re.findall\
-		(r"/(?P<year>\d{4})/(?P<month>\d{2})/(?P<day>\d{2})/(?P<file>\S*.jpg)", instance.text)
+		(r"/(?P<year>\d{4})/(?P<month>\d{1,2})/(?P<day>\d{1,2})/(?P<file>\S*.jpg)", instance.text)
 	for img in img_links:
 		img_path = '/root/myblog/myblog/blog/static/media/{}/{}/{}/{}'.format(img[0], img[1],img[2],img[3])
 		if os.path.isfile(img_path):
