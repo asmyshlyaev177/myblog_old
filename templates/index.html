@@ -98,8 +98,12 @@
       {% if user.is_authenticated %}
       <p>
         Sidebar 2<br />
-        <p><a href="{% url 'password_change' %}">Change password</a></p>
-        <p><a href="{% url 'my_posts' %}">My Posts</a></p>
+        <p><a href="{% url 'password_change' %}" single_page
+           class="ajax-menu" url = "password_change"
+           >Change password</a></p>
+        <p><a href="{% url 'my_posts' %}"
+          single_page class="ajax-menu" url = "dashboard/my-posts"
+          >My Posts</a></p>
 
       </p>
       {% endif %}
