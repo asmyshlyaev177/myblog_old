@@ -32,6 +32,7 @@ from django_summernote.settings import summernote_config, get_attachment_model
 cat_list= Category.objects.all()
 
 @csrf_protect
+@never_cache
 def signup(request):
     if request.method == 'POST':
         form = SignupForm(request.POST)
@@ -45,9 +46,10 @@ def signup_success(request):
     return render(request, 'registration/signup_success.html')
 
 @login_required(login_url='/login')
-@cache_page( 3 )
-@vary_on_headers('X-Requested-With','Cookie')
-@cache_control(max_age=3,private=True)
+#@cache_page( 3 )
+#@vary_on_headers('X-Requested-With','Cookie')
+#@cache_control(max_age=3,private=True)
+@never_cache
 def dashboard(request):
     if request.is_ajax() == True :
         template = 'dashboard-ajax.html'
@@ -69,9 +71,10 @@ def dashboard(request):
 
 
 @login_required(redirect_field_name='next', login_url='/login')
-@cache_page(2 )
-@cache_control(max_age=2, private=True)
-@vary_on_headers('X-Requested-With','Cookie')
+#@cache_page(2 )
+#@cache_control(max_age=2, private=True)
+#@vary_on_headers('X-Requested-With','Cookie')
+@never_cache
 def my_posts(request):
     if request.is_ajax() == True :
         template = 'dash-my-posts-ajax.html'
@@ -160,9 +163,10 @@ def add_post(request):
     return render(request, template, { 'form': form,
                                              'cat_list': cat_list})
 
-@cache_page(30 )
-@cache_control(max_age=30)
-@vary_on_headers('X-Requested-With','Cookie')
+#@cache_page(30 )
+#@cache_control(max_age=30)
+#@vary_on_headers('X-Requested-With','Cookie')
+@never_cache
 def list(request, category=None, tag=None, pop=None):
 
     context = {}
@@ -213,9 +217,10 @@ def list(request, category=None, tag=None, pop=None):
 
     return render(request, template, context )
 
-@cache_page(50)
-@cache_control(max_age=50)
-@vary_on_headers('X-Requested-With', 'Cookie')
+#@cache_page(50)
+#@cache_control(max_age=50)
+#@vary_on_headers('X-Requested-With', 'Cookie')
+@never_cache
 def single_post(request,  tag, title, id):
 
     if request.is_ajax() == True :
@@ -234,7 +239,7 @@ def single_post(request,  tag, title, id):
                   'cat_list': Category.list()})
 
 
-
+@never_cache
 def upload_attachment(request):
     if request.method != 'POST':
         return HttpResponseBadRequest('Only POST method is allowed')
@@ -282,9 +287,10 @@ def upload_attachment(request):
 @csrf_protect
 @login_required(redirect_field_name='next', login_url='/login')
 @deprecate_current_app
-@cache_page(2)
-@cache_control(max_age=2, private=True)
-@vary_on_headers('X-Requested-With','Cookie')
+#@cache_page(2)
+#@cache_control(max_age=2, private=True)
+#@vary_on_headers('X-Requested-With','Cookie')
+@never_cache
 def password_change(request,
                     template_name='registration/password_change_form.html',
                     post_change_redirect=None,

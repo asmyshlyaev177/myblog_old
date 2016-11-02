@@ -35,8 +35,8 @@
     <script src="/static/js/summernote-ru-RU.min.js"></script>
     <script src="/static/js/typeahead.bundle.js"></script>
     <script src="/static/js/tagging.js"></script>
-    <script src="/static/js/jquery.blueimp-gallery.min.js"></script>
     <script src="/static/js/main.js"></script>
+    <script src="/static/js/jquery.blueimp-gallery.min.js"></script>
 
 
 
@@ -87,22 +87,22 @@
                               {% endif %}</a></p>
         <p><a href="{% url 'add_post' %}" single_page
           url = "add-post" class="ajax-menu">Add Post</a></p>
-        <p><a href="{% url 'logout' %}" single_page>Logout</a></p>
+        <p><a href="{% url 'logout' %}">Logout</a></p>
       {% else %}
-        <p><a href="{% url 'signup' %}" single_page>Register</a></p>
-        <p><a href="{% url 'login' %}" single_page>Login</a></p>
+        <p><a href="{% url 'signup' %}">Register</a></p>
+        <p><a href="{% url 'login' %}">Login</a></p>
       {% endif %}
       </p>
     </div>
     <div class="sidebar2">
+      {% if user.is_authenticated %}
       <p>
         Sidebar 2<br />
-        <p><a href="{% url 'password_change' %}"
-          url = "password_change" class="ajax-menu"
-          single_page>Change password</a></p>
-        <p><a href="{% url 'my_posts' %}" class="ajax-menu"
-          url = "dashboard/my-posts">My Posts</a></p>
+        <p><a href="{% url 'password_change' %}">Change password</a></p>
+        <p><a href="{% url 'my_posts' %}">My Posts</a></p>
+
       </p>
+      {% endif %}
     </div>
   </div>
 
@@ -121,10 +121,6 @@
 </div>
 
 <a href="#" class="back-to-top">up</a>
-
-<div id="load_circle">
-  <img src="/static/img/loader.gif" class="center-block">
-</div>
 
 </div>
 

@@ -151,7 +151,7 @@ function loadMore(){
 		  //cache : false,
       url:category+"?page="+page,
       success:function(data){
-               $('.content').append(data); //adds data to the end of the table
+               $('.posts').append(data); //adds data to the end of the table
                processing = false; // the processing variable prevents multiple ajax calls when scrolling
 							 loader.hide();
           }
