@@ -26,15 +26,15 @@
   <div class="post">
     <a href="{{ post.get_absolute_url }}" class="center-block
      post-title">
-      <h2 class="text-center center-block">
+      <h2 class="center-align">
       {{ post.title }}</h2></a>
 
   {% post_header %}
 
-    <div class="clearfix"></div>
+  
 
     {% if post.post_image %}
-    <div class="post-thumbnail">
+    <div class="post-thumbnail center-align">
 
     {% thumbnail post.post_image "640x480" as im %}
         {% if post.post_image_gif %}
@@ -43,12 +43,12 @@
         </a>
         <img src="{{ im.url }}" width="{{ im.width }}" height="{{ im.height }}"
         dataalt='/media/{{ post.post_image }}'
-        class="img-responsive center-block gif">
+        class="responsive-img center-align gif">
 
         {% else %}
 
         <img src="{{ im.url }}" width="{{ im.width }}" height="{{ im.height }}"
-        class="img-responsive center-block" >
+        class="responsive-img center-align" >
 
         {% endif %}
     {% endthumbnail %}
@@ -58,7 +58,8 @@
     {% endif %}
 
     <div class="row">
-    <div class="post-description col-md-8 col-md-offset-2">
+    <div class="flow-text post-description
+      col s8 m8 l8 offset-s2 offset-m2 offset-l2">
     {% if post.description %}
       {{ post.description }}
     {% endif %}

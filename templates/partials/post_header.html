@@ -1,8 +1,9 @@
 {% load thumbnail %}
 
-<div class="row post_header">
+<div class="container">
+<div class="row post_header valign-wrapper">
 
-  <div class="col-md-3 pull-left">
+  <div class="col s3 m3 l3 center-align">
     <div class="post-author">
 
       <div class="author">
@@ -21,8 +22,8 @@
     </div>
   </div>
 
-  <div class="col-md-3 col-md-offset-6">
-    <div class="post_category pull-right">
+  <div class="col s3 m3 l3 offset-s6 offset-m6 offset-l6 right-align">
+    <div class="post_category right-align">
       <p>
         Category: <a href="/cat/{{ post.category.slug }}/"
           class="post-category ajax-menu"
@@ -42,4 +43,5 @@
     </div>
   </div>
 
+</div>
 </div>

@@ -5,6 +5,10 @@
 
 .main {overflow: hidden;}
 
+.top-menu {
+margin-top: 100px;
+}
+
 .post-thumbnail {position: relative; }
 
 .post-thumbnail a {
@@ -36,4 +40,18 @@ transition: opacity .3s ease-in-out;
 
 #load_circle {
 	display:none;
+}
+
+.back-to-top {
+	display: none;
+	width: 60px;
+	height: 60px;
+	/*text-indent: -9999px;*/
+	position: fixed;
+	z-index: 999;
+	right: 3em;
+	bottom: 3em;
+	-webkit-border-radius: 30px;
+	-moz-border-radius: 30px;
+	border-radius: 30px;
 }

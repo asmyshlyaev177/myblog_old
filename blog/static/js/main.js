@@ -52,10 +52,11 @@ function Scroll() {
 
 
 function ToTop() {
-$(document).on('click', 'a.back-to-top', function() {
-	$('html, body').animate({
+$(document).on('click', '.back-to-top', function() {
+	/*$('html, body').animate({
 		scrollTop: 0
-	}, 900);
+	}, 900); */
+	$(document).scrollTop(0);
 	return false;
 });
 }

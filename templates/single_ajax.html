@@ -2,7 +2,7 @@
 <script>processing = true;</script>
 
 {% autoescape off %}
-<h1 class="text-center post-title">{{ post.title }}</h1>
+<h1 class="center-align post-title">{{ post.title }}</h1>
 
 {% post_header %}
 
@@ -12,7 +12,7 @@
 {% if post.post_image %}
 <p class="post-image">
   <img src="{{ MEDIA_URL }}{{ post.post_image.url }}"
-    class="img-responsive center-block post-image"></a>
+    class="responsive-img center-align post-image"></a>
 </p>
 {% endif %}
 

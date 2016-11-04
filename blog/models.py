@@ -80,7 +80,7 @@ class myUser(AbstractBaseUser):
 	objects = MyUserManager()
 
 	def get_avatar(self):
-		return mark_safe('<img src="%s" class ="img-responsive"/>'\
+		return mark_safe('<img src="%s" class ="responsive-img"/>'\
 						 % (self.avatar.url))
 	get_avatar.short_description = 'Current avatar'
 
@@ -165,7 +165,7 @@ class Post(models.Model):
 								format='JPEG',
 								options={'quality': 85})
 	def get_image(self):
-		return mark_safe('<img src="%s" class ="img-responsive center-block"/>'\
+		return mark_safe('<img src="%s" class ="responsive-img center-align"/>'\
 						 % (self.post_thumbnail.url))
 	get_image.short_description = 'Thumbnail'
 
@@ -229,7 +229,7 @@ class Post(models.Model):
 					img_class = [item for item in img_class if not item.startswith('img-responsive')]
 					img_class.append('img-responsive') #добавляем нужный класс'''
 					#i['class'] = img_class # присваиваем
-					i['class'] = 'img-responsive'
+					i['class'] = 'responsive-img'
 					# если картинка больше нужного размера создаём миниатюру
 					w,h = Image.open(file).size
 					if w > thumb_img_size[0]:
@@ -250,8 +250,8 @@ class Post(models.Model):
 			for i in ifr_links:
 				for j in i['class']:
 					ifr_class.append(j)
-				ifr_class = [item for item in ifr_class if not item.startswith('center-block')]
-				ifr_class.append('center-block')
+				ifr_class = [item for item in ifr_class if not item.startswith('center-align')]
+				ifr_class.append('center-align')
 				i['class'] = ifr_class
 
 		self.text = str(soup.body.next)

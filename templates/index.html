@@ -15,7 +15,6 @@
       <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
     <![endif]-->
     {% compress css %}
-    <link rel="stylesheet" href="/static/css/backtotop.css" type="text/css">
     <link rel="stylesheet" href="/static/css/custom.css" type="text/css" />
     <link rel="stylesheet" href="/static/css/summernote.css" rel="stylesheet">
     <link rel="stylesheet" href="/static/css/django_summernote.css" rel="stylesheet">
@@ -46,37 +45,42 @@
 
 
 </head>
+
+
 <body>
-  <div class="navbar navbar-default">
-    <div class="container-fluid">
-      <div class="navbar-header">
-        <a class="navbar-brand ajax-menu" url=""
-        href="/">
-          <img alt="logo" src="#" /></a>
-        <p class="navbar-text">
-          My blog title
-        </p>
-      </div>
-      <ul class="nav nav-pills pull-right">
+
+<nav class="nav-extended">
+    <div class="nav-wrapper">
+        <div class="row">
+          <div class="col s12 m12 l12">
+            <a class="waves-effect brand-logo center ajax-menu" url=""
+            href="/">
+              <img alt="logo" src="#" /></a>
+          </div>
+
+          <div class="col s12 m12 l12 top-menu">
+      <ul class="tabs tabs-transparent tabs-fixed-width">
 
         {% for cat in cat_list %}
-            <li role="presentation">
+            <li class="tab">
               <a href="{{ request.scheme }}://{{ request.get_host }}/cat/{{ cat.slug }}/"
-              url = "{{ cat.slug }}" class="ajax-menu menu" id="{{ cat.slug }}" cat>
+              url = "{{ cat.slug }}" class="waves-effect ajax-menu menu"
+               id="{{ cat.slug }}" cat>
               {{ cat.name }}</a></li>
         {% endfor %}
       </ul>
+      </div>
+    </div>
 
     </div>
-  </div>
-
+</nav>
 
 <div class="container">
 <div class="row">
-  <div class="col-md-4 pull-right sidebar">
+  <div class="col s4 m4 l4 push-s8 push-m8 push-l8 sidebar">
     <div class="sidebar1">
       <p>
-        Sidebar 1<br />
+        Sidebar 1
       {% if user.is_authenticated %}
         <p><a href="{% url 'dashboard' %}" single_page
           url = "dashboard" class="ajax-menu">
@@ -98,7 +102,7 @@
     <div class="sidebar2">
       {% if user.is_authenticated %}
       <p>
-        Sidebar 2<br />
+        Sidebar 2
         <p><a href="{% url 'password_change' %}" single_page
            class="ajax-menu" url = "password_change"
            >Change password</a></p>
@@ -113,7 +117,7 @@
 
 
 
-<div class="col-md-8 main">
+<div class="col s8 m8 l8 pull-s4 pull-m4 pull-l4 main">
 <h1 class="text-center">{% block title2 %}{% endblock %}</h1>
 
 <div class="content">
@@ -125,7 +129,7 @@
 
 </div>
 
-<a href="#" class="back-to-top">up</a>
+<a href="#" class="back-to-top"><i class="medium material-icons">navigation</i></a>
 
 </div>
 
