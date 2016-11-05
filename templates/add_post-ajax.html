@@ -22,13 +22,9 @@
 
 
 <div class="input-field">
-<select id="id_category">
-  {% for value, key in form.fields.category.choices %}
-   <option value="{{ value }}"{% if form.initial.category == value %} selected {% endif %}>
-       {{ key }}
-   </option>
-  {% endfor %}
-</select>
+
+  {{ form.category }}
+
 {{ form.category.label_tag }}
 </div>
 
@@ -77,6 +73,13 @@
 .type-zone.tt-hint {
   z-index: -1;
 }
+
+.tt-menu {
+position: static!important;
+}
+
+.tt-dataset.tt-dataset-taglist { position: absolute; }
+
 
 .chip > a, .tt-suggestion {
 cursor: pointer;
