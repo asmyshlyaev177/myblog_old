@@ -5,83 +5,107 @@
 <form action="{% url 'add_post' %}" method="post" enctype="multipart/form-data">
 {% csrf_token %}
 
-<div class="form-row">
-  <p>
-    {{ form.title.label_tag }} {{ form.title }}
-  </p>
+<div class="input-field">
+     {{ form.title }}
+     {{ form.title.label_tag }}
 </div>
 
 
-<div class="form-row">
-  <p>
-    {{ form.post_image.label_tag }}
+<div class="input-field">
     <input id="id_post_image" name="post_image" type="file"
     onchange="Preview(this.files[0], 'preview', 300)">
+    {{ form.post_image.label_tag }}
     <p>
       <img id="preview"  />
     </p>
-  </p>
 </div>
 
 
-<div class="form-row">
-  <p>
-    {{ form.category.label_tag }} {{ form.category }}
-  </p>
-</div>
-<div class="form-row">
-  <p>
-    {{ form.private.label_tag }} {{ form.private }}
-  </p>
-</div>
-<div class="form-row">
-  <p>
-    {{ form.description.label_tag }}
-  </p> {{ form.description }}
-</div>
-<div class="form-row">
-  <p>
-    {{ form.text.label_tag }}
-  </p> {{ form.text|safe }}
+<div class="input-field">
+<select id="id_category">
+  {% for value, key in form.fields.category.choices %}
+   <option value="{{ value }}"{% if form.initial.category == value %} selected {% endif %}>
+       {{ key }}
+   </option>
+  {% endfor %}
+</select>
+{{ form.category.label_tag }}
 </div>
 
-<div class="form-row">
-  <p>
-    {{ form.tags_new.label_tag }}
-  </p> <div data-tags-input-name="tag" id="tagBox"></div>
+<div class="input-field">
+<p>
+  <input id="id_private" name="private" type="checkbox">
+   <label for="id_private">not safe for work</label>
+</p>
+
+
 </div>
-<div class="form-row">
+
+
+
+<div class="input-field">
+{{ form.description }}
+{{ form.description.label_tag }}
+</div>
+
+<div class="input-field">
+  {{ form.text|safe }}
+  {{ form.text.label_tag }}
+</div>
+
+
+<div class="input-field">
+  {{ form.tags_new.label_tag }}
+<div>
+  <div data-tags-input-name="tag" id="tagBox"></div>
+</div>
+
+
+</div>
+
+<div class="input-field">
 <input class="hidden_tags" id="hidden_tags" name="hidden_tags" style=" display: none;">
 </div>
-
-<style>
-.tt-cursor  {
-color: blue!important;
-background: rgba(94, 181, 224, 0.96)!important;
-cursor: pointer!important;
-}
-
-.tt-suggestion {
-color: black;
-font-family: serif;
-font-weight: 600;
-font-size: x-large;
-background: rgba(94, 181, 224, 0.64);
-border-radius: 3px;
-text-align: center;
-display: block;
-}
-</style>
 
 <div style="height: 200px"></div>
 
 <input type="submit" value="Add Post" />
 </form>
 
+<style>
+
+.type-zone.tt-hint {
+  z-index: -1;
+}
+
+.chip > a, .tt-suggestion {
+cursor: pointer;
+}
+
+.tt-selectable {
+font-size: 16px;
+color: #26a69a;
+display: block;
+line-height: 22px;
+padding: 14px 16px;
+background-color: white;
+}
+
+.tt-selectable:hover {
+background-color: #eee;
+border-color: #84c7c1;
+    border-width: 1px;
+    border-style: solid;;
+}
+
+</style>
+
 <div style="height: 100px"></div>
 <script>
 $(document).ready(function(){
 	SelectHint();
+
+  $('select').material_select();
 
   froalaBanner = $('a[href="https://froala.com/wysiwyg-editor"');
   froalaBanner.hide();
@@ -101,7 +125,11 @@ var tagging_options = {
 	"tag-on-blur": false,
   "no-spacebar": true,
 	"case-sensitive": true,
-  "close-char": "X",
+  //"close-char": "X",
+  "close-class": "material-icons close",
+  "tag-class": "chip",
+
+  "close-char": "close",
   "forbidden-chars": [],
 	"forbidden-words": [],
 };

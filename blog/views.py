@@ -98,14 +98,11 @@ def my_posts(request):
 
 @login_required(redirect_field_name='next', login_url='/login')
 @never_cache
-def add_post(request, iframe=False):
-    if iframe == "True":
-        template = 'add_post_iframe.html'
+def add_post(request):
+    if request.is_ajax() == True :
+        template = 'add_post-ajax.html'
     else:
-        if request.is_ajax() == True :
-            template = 'add_post-ajax.html'
-        else:
-            template = 'add_post.html'
+        template = 'add_post.html'
 
     if request.method == 'POST':
         form = AddPostForm(request.POST, request.FILES)
