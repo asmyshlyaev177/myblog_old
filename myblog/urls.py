@@ -26,6 +26,7 @@ urlpatterns = [
     #url(r'^summernote/', include('django_summernote.urls')),
     url(r'^upload_attachment/$', views.upload_attachment,
         name='django_summernote-upload_attachment'),
+    url(r'^froala_editor/', include('froala_editor.urls')),
     #url(r'^$', cache_page(60 * 15)(views.Index), name='Index'),
     url(r'^__debug__/', include(debug_toolbar.urls)),
     url(r'^admin/', admin.site.urls, name='myadmin'),

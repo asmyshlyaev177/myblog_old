@@ -29,6 +29,10 @@ DEBUG = True
 
 LOGIN_URL='/login'
 
+FROALA_INCLUDE_JQUERY = False
+FROALA_UPLOAD_PATH = str(datetime.date.today().year)+'/'\
++str(datetime.date.today().month)\
++'/'+str(datetime.date.today().day)+'/'
 #today = datetime.date.today()
 summernote_filepath = str(datetime.date.today().year)+'/'\
 +str(datetime.date.today().month)\
@@ -112,6 +116,7 @@ INSTALLED_APPS = [
     #'ckeditor_uploader',
     #'imagekit',
     'django_summernote',
+    'froala_editor',
     'compressor',
     'sorl.thumbnail',
     'django_cleanup',
@@ -133,7 +138,7 @@ STATICFILES_FINDERS = (
     'compressor.finders.CompressorFinder',
 )
 
-COMPRESS_ENABLED = False # удобней выключить потом включу
+COMPRESS_ENABLED = True # удобней выключить потом включу
 COMPRESS_CSS_FILTERS = ['compressor.filters.css_default.CssAbsoluteFilter',
                         'compressor.filters.cssmin.rCSSMinFilter']
 #IMAGEKIT_DEFAULT_CACHEFILE_STRATEGY = 'imagekit.cachefiles.strategies.JustInTime'

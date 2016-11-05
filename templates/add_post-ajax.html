@@ -82,6 +82,13 @@ display: block;
 <script>
 $(document).ready(function(){
 	SelectHint();
+
+  froalaBanner = $('a[href="https://froala.com/wysiwyg-editor"');
+  froalaBanner.hide();
+  $('body').bind("DOMSubtreeModified",function(){
+  $('a[href="https://froala.com/wysiwyg-editor"').hide();
+  });
+
 });
 
 

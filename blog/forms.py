@@ -5,6 +5,7 @@ from django import forms
 from blog.models import myUser, Post
 from django.conf import settings
 from django_summernote.widgets import SummernoteWidget, SummernoteInplaceWidget
+from froala_editor.widgets import FroalaEditor
 
 #forms for users
 class SignupForm(forms.ModelForm):
@@ -51,7 +52,49 @@ class AddPostForm(forms.ModelForm):
         fields = ('title', 'post_image', 'category', 'private',
                   'description','text')
         widgets = {
-            'text': SummernoteInplaceWidget(),
+            #'text': SummernoteInplaceWidget(),
+            'text':FroalaEditor(
+                                options={'toolbarInline': False,
+                                        'iframe': False,
+                                        'toolbarSticky': False,
+                                        'imageDefaultWidth': 800,
+                                        'language': 'ru',
+                                        'placeholderText': '''Напишите что-нибудь
+                                        или перетащите изображение''',
+                                        'toolbarButtons': [
+                                            'bold', 'italic',
+                                            'underline', 'strikeThrough',
+                                            'fontSize', '|', 'align',
+                                            'quote', '|','-','insertLink',
+                                            'insertImage', 'insertVideo','|',
+                                            'insertTable', '-','undo', 'redo',
+                                            'clearFormatting','fullscreen'
+                                            ],
+                                        'toolbarButtonsMD':[
+                                            'bold', 'italic',
+                                            'underline', 'strikeThrough',
+                                            'fontSize', '|', 'align',
+                                            'quote', '|','-','insertLink',
+                                            'insertImage', 'insertVideo','|',
+                                            'insertTable', '-','undo', 'redo',
+                                            'clearFormatting','fullscreen'
+                                        ],
+                                        'toolbarButtonsSM':[
+                                            'bold', 'italic',
+                                            'underline', 'strikeThrough',
+                                            '|', 'align',
+                                            'quote', 'insertLink',
+                                            'insertImage', 'insertVideo',
+                                            'undo', 'redo',
+                                            'clearFormatting','fullscreen'
+                                        ],
+                                        'toolbarButtonsXS':[
+                                            'align',
+                                            'quote', 'insertLink',
+                                            'insertImage', 'insertVideo',
+                                            'undo', 'redo',
+                                            'clearFormatting','fullscreen'
+                                        ]})
         }
     #def save(self, commit=True):
         # do something with self.cleaned_data['temp_id']
