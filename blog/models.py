@@ -214,6 +214,7 @@ class Post(models.Model):
 		if len(img_links) != 0:
 			for i in img_links: # для каждой
 				# находим ссылку и файл и вых. файл
+				del i['style'] #удаляем стиль
 				link = re.search(r"/(?P<year>\d{4})/(?P<month>\d{1,2})/(?P<day>\d{1,2})/(?P<file>\S*)\.(?P<ext>\w*)", str(i))
 				file = '/root/myblog/myblog/blog/static/media/{}/{}/{}/{}.{}'\
 				.format(link.group("year"), link.group("month"),link.group("day"),link.group("file"),link.group("ext"))
@@ -254,7 +255,14 @@ class Post(models.Model):
 				ifr_class.append('center-align')
 				i['class'] = ifr_class
 
-		self.text = str(soup.body.next)
+		#text = ""
+		#for i in soup.body:
+		#	text += str(i)
+		#self.text = text
+		soup.html.unwrap()
+		soup.head.unwrap()
+		soup.body.unwrap()
+		self.text = soup.prettify()
 
 		super(Post, self).save(force_insert, force_update)
 
