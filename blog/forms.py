@@ -53,7 +53,7 @@ class AddPostForm(forms.ModelForm):
                   'description','text')
         widgets = {
             #'text': SummernoteInplaceWidget(),
-            'text':FroalaEditor(
+            'text' :FroalaEditor(
                                 options={'toolbarInline': False,
                                         'iframe': False,
                                         'toolbarSticky': False,
@@ -85,6 +85,49 @@ class AddPostForm(forms.ModelForm):
                                             '|', 'align',
                                             'quote', 'insertLink',
                                             'insertImage', 'insertVideo',
+                                            'undo', 'redo',
+                                            'clearFormatting','fullscreen'
+                                        ],
+                                        'toolbarButtonsXS':[
+                                            'align',
+                                            'quote', 'insertLink',
+                                            'insertImage', 'insertVideo',
+                                            'undo', 'redo',
+                                            'clearFormatting','fullscreen'
+                                        ]}),
+            'description' :FroalaEditor(
+                                options={'toolbarInline': False,
+                                        'iframe': False,
+                                        'toolbarSticky': False,
+                                        'language': 'ru',
+                                        'placeholderText': '''Короткое описание
+                                         для главной''',
+                                        'charCounterCount': True,
+                                        'charCounterMax': 300,
+                                        'toolbarButtons': [
+                                            'bold', 'italic',
+                                            'underline', 'strikeThrough',
+                                            'fontSize', '|', 'align',
+                                            'quote', '|','-','insertLink',
+                                            'insertVideo','|',
+                                            'insertTable', '-','undo', 'redo',
+                                            'clearFormatting','fullscreen'
+                                            ],
+                                        'toolbarButtonsMD':[
+                                            'bold', 'italic',
+                                            'underline', 'strikeThrough',
+                                            'fontSize', '|', 'align',
+                                            'quote', '|','-','insertLink',
+                                            'insertVideo','|',
+                                            'insertTable', '-','undo', 'redo',
+                                            'clearFormatting','fullscreen'
+                                        ],
+                                        'toolbarButtonsSM':[
+                                            'bold', 'italic',
+                                            'underline', 'strikeThrough',
+                                            '|', 'align',
+                                            'quote', 'insertLink',
+                                            'insertVideo',
                                             'undo', 'redo',
                                             'clearFormatting','fullscreen'
                                         ],
