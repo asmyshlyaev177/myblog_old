@@ -1,5 +1,6 @@
 {% block content %}
-<script>processing = true;</script>
+<script>processing = true;
+</script>
 <h1>Add post</h1>
 
 <form action="{% url 'add_post' %}" method="post" enctype="multipart/form-data">
@@ -10,21 +11,53 @@
      {{ form.title.label_tag }}
 </div>
 
-<div class="input-field file-field">
-  <p>Post image:</p>
-  <div class="btn">
-        <span>File</span>
-    <input id="id_post_image" name="post_image" type="file"
-    onchange="Preview(this.files[0], 'preview', 300)">
-    </div>
-    <div class="file-path-wrapper">
-        <input class="file-path validate" type="text">
-    </div>
+<div class="input-field">
 
-    <p>
-      <img id="preview" />
-    </p>
+  {{ form.category }}
+
+{{ form.category.label_tag }}
 </div>
+
+<p>Post image:</p>
+<div class="row">
+  <ul class="tabs tabs-fixed-width teal" id="file-url">
+          <li class="tab col s3 "><a href="#file" class="waves-effect  white-text">File</a></li>
+          <li class="tab col s3"><a href="#url" class="waves-effect white-text">Url</a></li>
+  </ul>
+</div>
+
+<div id="file">
+  <div class="input-field file-field" >
+
+    <div class="btn">
+          <span>File</span>
+      <input id="id_post_image" name="post_image" type="file"
+      onchange="Preview(this.files[0], 'preview', 300); $('#post_image_url').val(null)">
+    </div>
+    <input class="file-path validate" type="text">
+  </div>
+
+
+</div>
+
+
+
+<div class="input-field" id="url">
+  <div class="btn" id="image_url">
+        <span>URL</span>
+  </div>
+  <input id="post_image_url" maxlength="150" name="post_image_url" type="text"
+  onfocusout="ClearInput('id_post_image')">
+</div>
+
+
+
+<p>
+  <img id="preview" />
+</p>
+
+
+
 
 <div class="input-field">
 {{ form.description }}
@@ -35,12 +68,6 @@
 <br />
 </p>
 
-<div class="input-field">
-
-  {{ form.category }}
-
-{{ form.category.label_tag }}
-</div>
 
 <div class="input-field">
 <p>
@@ -97,6 +124,14 @@ position: static!important;
 
 .tt-dataset.tt-dataset-taglist { position: absolute; }
 
+.tab a.active {
+background-color: rgba(0,0,0,0.1)!important;
+}
+
+.btn {
+height: 3rem;
+line-height: 3rem;
+}
 
 .chip > a, .tt-suggestion {
 cursor: pointer;
@@ -123,6 +158,9 @@ border-color: #84c7c1;
 <div style="height: 100px"></div>
 <script>
 $(document).ready(function(){
+  $post_image_url = $('#post_image_url');
+  $preview = $('#preview');
+
 	SelectHint();
 
   $('select').material_select();
@@ -133,9 +171,29 @@ $(document).ready(function(){
   $('a[href="https://froala.com/wysiwyg-editor"').hide();
   });
 
+  $('#image_url').on('click', function() {
+    ClearInput('id_post_image');
+  });
+
+
+
+  $('ul.tabs').tabs();
+  $('#file-url').children('.indicator').css('background-color', 'white');
+
+
+
 });
 
 
+function ClearInput(id) {
+  $preview.attr( 'src', '' ); 
+  $preview.attr( 'src', $post_image_url.val() );
+   if ( $post_image_url.val().length > 8 ) {
+    $('#' +id).val(null);
+    $('.file-path.validate.valid').val(null);
+  }
+
+}
 
 var tagging_options = {
   "no-duplicate": true,
@@ -192,6 +250,9 @@ $(document).on('click', '.tt-suggestion', function() {
 	TagBox.tagging( "add", $(this).text() );
 	TagBox.tagging( "emptyInput" );
 });
+
+$('html, body').scrollTop( 0 );
+$('#id_title').focus();
 
 </script>
 {% endblock %}

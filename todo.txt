@@ -1,3 +1,6 @@
+Вставка картинки через файл/урл
+https://djangosnippets.org/snippets/2838/
+
 Своя проверка валидности форм <input formnovalidate> <form action="demo_form.asp" novalidate>
 
 картинки больше текста, предзагрузка гифок через promise
