@@ -31,12 +31,14 @@
            {{ post.category }}</a>
       </p>
 
-      {% if post.get_tags_list %}<p>
-        Tags:
+      {% if post.get_tags_list|length > 0  %}<p>
+        Tags
         {% for tag in post.get_tags_list %}
-        <a href="/{{ tag.url }}" class="ajax-menu"
-        url = "{{ tag.url }}">{{ tag}}</a>
-        {% if not forloop.last %},{% endif %}
+          {% if tag.name|length > 1 %}
+          <a href="/{{ tag.url }}" class="ajax-menu chip"
+          url = "{{ tag.url }}">{{ tag }}</a>
+          {% endif %}
+        <!-- {% if not forloop.last %},{% endif %} -->
         {% endfor %}
       </p>
       {% endif %}

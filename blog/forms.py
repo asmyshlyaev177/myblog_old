@@ -53,7 +53,7 @@ class AddPostForm(forms.ModelForm):
                   'description','text')
         widgets = {
             #'text': SummernoteInplaceWidget(),
-            'text' :FroalaEditor(
+            'text': FroalaEditor(
                                 options={'toolbarInline': False,
                                         'iframe': False,
                                         'toolbarSticky': False,
@@ -61,6 +61,15 @@ class AddPostForm(forms.ModelForm):
                                         'language': 'ru',
                                         'placeholderText': '''Напишите что-нибудь
                                         или перетащите изображение''',
+                                        'imageMaxSize': 1024 * 1024 * 19,
+                                        'pasteDeniedTags': ['script'],
+                                        'imageEditButtons': [
+                                            'imageAlign', 'imageRemove',
+                                            '|', 'imageLink','linkOpen',
+                                            'linkEdit', 'linkRemove', '-',
+                                             'imageDisplay', 'imageStyle',
+                                             'imageAlt', 'imageSize'
+                                        ],
                                         'toolbarButtons': [
                                             'bold', 'italic',
                                             'underline', 'strikeThrough',
@@ -104,6 +113,9 @@ class AddPostForm(forms.ModelForm):
                                          для главной''',
                                         'charCounterCount': True,
                                         'charCounterMax': 300,
+                                        'pasteDeniedTags': ['script'],
+                                        'imageMaxSize': 1024 * 1024 * 19,
+
                                         'toolbarButtons': [
                                             'bold', 'italic',
                                             'underline', 'strikeThrough',
@@ -134,7 +146,7 @@ class AddPostForm(forms.ModelForm):
                                         'toolbarButtonsXS':[
                                             'align',
                                             'quote', 'insertLink',
-                                            'insertImage', 'insertVideo',
+                                            'insertVideo',
                                             'undo', 'redo',
                                             'clearFormatting','fullscreen'
                                         ]})

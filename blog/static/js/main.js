@@ -1,5 +1,5 @@
 var processing = false;
-var amountScrolled = 100;
+var amountScrolled = 500;
 var page = 1;
 var category = "";
 var myurl = "";

@@ -162,8 +162,8 @@ def add_post(request):
     return render(request, template, { 'form': form,
                                              'cat_list': cat_list})
 
-@cache_page(30 )
-@cache_control(max_age=30)
+@cache_page(2 )
+@cache_control(max_age=2)
 @vary_on_headers('X-Requested-With','Cookie')
 #@never_cache
 def list(request, category=None, tag=None, pop=None):

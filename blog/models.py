@@ -140,10 +140,10 @@ class Post(models.Model):
 	["title", "description", "post_thumbnail", "author", "category",
 	 "url", "published", "private", "status","main_tag"],
 	]
-	title = models.CharField(max_length=150)
+	title = models.CharField(max_length=100)
 	#description = RichTextField(max_length = 500, config_name = "description",
 	#                            blank=True)
-	description = models.CharField(max_length=150)
+	description = models.CharField(max_length=300)
 	#text = RichTextUploadingField(config_name = "post")
 	text = models.TextField()
 	today = datetime.date.today()
