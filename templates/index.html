@@ -106,49 +106,12 @@
     </div>
 </nav>
 
-<div class="container">
+<div class="">
 <div class="row">
-  <div class="col s4 m4 l4 push-s8 push-m8 push-l8 sidebar">
-    <div class="sidebar1">
-      <p>
-        Sidebar 1
-      {% if user.is_authenticated %}
-        <p><a href="{% url 'dashboard' %}" single_page
-          url = "dashboard" class="ajax-menu">
-          {{ user.username }}
-                              {% if user.avatar %}
-                              {% thumbnail user..avatar "70x70" as im %}
-                                  <img src="{{ im.url }}" width="{{ im.width }}" height="{{ im.height }}">
-                              {% endthumbnail %}
-                              {% endif %}</a></p>
-        <p><a href="{% url 'add_post' %}" single_page
-          url = "add-post" class="ajax-menu">Add Post</a></p>
-        <p><a href="{% url 'logout' %}">Logout</a></p>
-      {% else %}
-        <p><a href="{% url 'signup' %}">Register</a></p>
-        <p><a href="{% url 'login' %}">Login</a></p>
-      {% endif %}
-      </p>
-    </div>
-    <div class="sidebar2">
-      {% if user.is_authenticated %}
-      <p>
-        Sidebar 2
-        <p><a href="{% url 'password_change' %}" single_page
-           class="ajax-menu" url = "password_change"
-           >Change password</a></p>
-        <p><a href="{% url 'my_posts' %}"
-          single_page class="ajax-menu" url = "dashboard/my-posts"
-          >My Posts</a></p>
+  <div class="col s11 m11 l11">
 
-      </p>
-      {% endif %}
-    </div>
-  </div>
-
-
-
-<div class="col s8 m8 l8 pull-s4 pull-m4 pull-l4 main">
+<div class="col s7 m7 l7 offset-s1
+offset-m1 offset-l1 main" style="border: 1px black dotted;">
 <h1 class="text-center">{% block title2 %}{% endblock %}</h1>
 
 <div class="content">
@@ -164,6 +127,47 @@
 
 </div>
 
+<div class="col s3 m3 l3 offset-s1
+offset-m1 offset-l1 sidebar"
+style="border: 1px black dotted;">
+  <div class="sidebar1">
+    <p>
+      Sidebar 1
+    {% if user.is_authenticated %}
+      <p><a href="{% url 'dashboard' %}" single_page
+        url = "dashboard" class="ajax-menu">
+        {{ user.username }}
+                            {% if user.avatar %}
+                            {% thumbnail user..avatar "70x70" as im %}
+                                <img src="{{ im.url }}" width="{{ im.width }}" height="{{ im.height }}">
+                            {% endthumbnail %}
+                            {% endif %}</a></p>
+      <p><a href="{% url 'add_post' %}" single_page
+        url = "add-post" class="ajax-menu">Add Post</a></p>
+      <p><a href="{% url 'logout' %}">Logout</a></p>
+    {% else %}
+      <p><a href="{% url 'signup' %}">Register</a></p>
+      <p><a href="{% url 'login' %}">Login</a></p>
+    {% endif %}
+    </p>
+  </div>
+  <div class="sidebar2">
+    {% if user.is_authenticated %}
+    <p>
+      Sidebar 2
+      <p><a href="{% url 'password_change' %}" single_page
+         class="ajax-menu" url = "password_change"
+         >Change password</a></p>
+      <p><a href="{% url 'my_posts' %}"
+        single_page class="ajax-menu" url = "dashboard/my-posts"
+        >My Posts</a></p>
+
+    </p>
+    {% endif %}
+  </div>
+</div>
+
+</div>
 </div>
 </div>
 

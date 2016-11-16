@@ -128,6 +128,10 @@ position: static!important;
 background-color: rgba(0,0,0,0.1)!important;
 }
 
+ul.tabs {
+  overflow: hidden;
+}
+
 .btn {
 height: 3rem;
 line-height: 3rem;
@@ -178,7 +182,7 @@ $(document).ready(function(){
 
 
   $('ul.tabs').tabs();
-  $('#file-url').children('.indicator').css('background-color', 'white');
+  //$('#file-url').children('.indicator').css('background-color', 'white');
 
 
 
@@ -186,7 +190,7 @@ $(document).ready(function(){
 
 
 function ClearInput(id) {
-  $preview.attr( 'src', '' ); 
+  $preview.attr( 'src', '' );
   $preview.attr( 'src', $post_image_url.val() );
    if ( $post_image_url.val().length > 8 ) {
     $('#' +id).val(null);

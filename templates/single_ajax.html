@@ -9,16 +9,14 @@
 
 <div class="clearfix"></div>
 
-{% comment %}
 {% if post.post_image %}
 <p class="post-image">
   <img src="{{ MEDIA_URL }}{{ post.post_image.url }}"
     class="responsive-img center-align post-image"></a>
 </p>
 {% endif %}
-{% endcomment %}
 
-<div class="post-text">
+<div class="post-text center-align">
   {{ post.description }}
   {{ post.text }}
 </div>
