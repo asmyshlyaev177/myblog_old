@@ -32,7 +32,7 @@
     <div class="btn">
           <span>File</span>
       <input id="id_post_image" name="post_image" type="file"
-      onchange="Preview(this.files[0], 'preview', 300); $('#post_image_url').val(null)">
+      onchange="Preview(this.files[0], 'preview', 300); $('#id_image_url').val(null)">
     </div>
     <input class="file-path validate" type="text">
   </div>
@@ -46,7 +46,7 @@
   <div class="btn" id="image_url">
         <span>URL</span>
   </div>
-  <input id="post_image_url" maxlength="150" name="post_image_url" type="text"
+  <input id="id_image_url" maxlength="490" name="image_url" type="text"
   onfocusout="ClearInput('id_post_image')">
 </div>
 
@@ -162,7 +162,7 @@ border-color: #84c7c1;
 <div style="height: 100px"></div>
 <script>
 $(document).ready(function(){
-  $post_image_url = $('#post_image_url');
+  $post_image_url = $('#id_image_url');
   $preview = $('#preview');
 
 	SelectHint();
@@ -175,7 +175,7 @@ $(document).ready(function(){
   $('a[href="https://froala.com/wysiwyg-editor"').hide();
   });
 
-  $('#image_url').on('click', function() {
+  $('#id_image_url').on('click', function() {
     ClearInput('id_post_image');
   });
 

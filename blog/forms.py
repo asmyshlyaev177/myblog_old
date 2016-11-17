@@ -49,7 +49,7 @@ class AddPostForm(forms.ModelForm):
 
     class Meta:
         model = Post
-        fields = ('title', 'post_image', 'category', 'private',
+        fields = ('title', 'post_image', 'image_url', 'category', 'private',
                   'description','text')
         widgets = {
             #'text': SummernoteInplaceWidget(),

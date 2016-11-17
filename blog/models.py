@@ -15,6 +15,11 @@ from django.conf import settings
 from bs4 import BeautifulSoup
 from PIL import Image
 from unidecode import unidecode
+from urllib.parse import urlparse
+from urllib.request import urlopen, urlretrieve
+from django.conf import settings
+import socket #timeout just for test
+socket.setdefaulttimeout(10)
 
 thumb_img_size = 640, 480
 
@@ -143,13 +148,15 @@ class Post(models.Model):
 	title = models.CharField(max_length=100)
 	#description = RichTextField(max_length = 500, config_name = "description",
 	#                            blank=True)
-	description = models.CharField(max_length=300)
+	description = models.CharField(max_length=500)
 	#text = RichTextUploadingField(config_name = "post")
 	text = models.TextField()
 	today = datetime.date.today()
+	upload_path = str(today.year)+'/' +str(today.month)+'/'+str(today.day)+'/'
 	post_image = models.ImageField(upload_to =
-						str(today.year)+'/'
-						+str(today.month)+'/'+str(today.day)+'/', blank=True)
+						upload_path, blank=True)
+	image_url = models.URLField(null=True, blank=True, max_length=300)
+
 	def post_image_gif(self):
 		if self.post_image.path != "":
 			ext = []
@@ -263,6 +270,20 @@ class Post(models.Model):
 		soup.head.unwrap()
 		soup.body.unwrap()
 		self.text = soup.prettify()
+
+		#image from url
+		if self.image_url:
+			today = datetime.date.today()
+			upload_path1 = '/root/myblog/myblog/blog/static/media/' + \
+			str(today.year)+'/' +str(today.month)+'/'+str(today.day)+'/'
+			upload_path = str(today.year)+'/' +str(today.month)+'/'+str(today.day)+'/'
+			filename = urlparse(self.image_url).path.split('/')[-1]
+			try:
+				urlretrieve(self.image_url, os.path.join(upload_path1, filename))
+				self.post_image = os.path.join(upload_path, filename)
+				self.image_url = ""
+			except:
+				pass
 
 		super(Post, self).save(force_insert, force_update)
 
