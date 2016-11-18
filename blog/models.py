@@ -15,8 +15,9 @@ from django.conf import settings
 from bs4 import BeautifulSoup
 from PIL import Image
 from unidecode import unidecode
-from urllib.parse import urlparse
-from urllib.request import urlopen, urlretrieve
+from urllib.parse import urlparse, urlencode
+from urllib.request import urlopen, urlretrieve, Request
+
 from django.conf import settings
 import socket #timeout just for test
 socket.setdefaulttimeout(10)
@@ -278,8 +279,19 @@ class Post(models.Model):
 			str(today.year)+'/' +str(today.month)+'/'+str(today.day)+'/'
 			upload_path = str(today.year)+'/' +str(today.month)+'/'+str(today.day)+'/'
 			filename = urlparse(self.image_url).path.split('/')[-1]
+			save_path = os.path.join(upload_path1, filename)
+			user_agent = 'Mozilla/5.0 (Windows NT 6.1; Win64; x64)'
+			headers = { 'User-Agent' : user_agent }
+			values = {'name' : 'Alex',
+          				'location' : 'Moscow',}
+			data = urlencode(values)
+			data = data.encode('ascii')
 			try:
-				urlretrieve(self.image_url, os.path.join(upload_path1, filename))
+				req = Request(self.image_url, data, headers)
+				os.makedirs(os.path.dirname(save_path), exist_ok=True)
+				with urlopen(req, timeout=3) as response, open(save_path, 'wb') as out_file:
+					data = response.read()
+					out_file.write(data)
 				self.post_image = os.path.join(upload_path, filename)
 				self.image_url = ""
 			except:
