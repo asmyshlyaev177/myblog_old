@@ -24,7 +24,7 @@
 {% for post in posts %}
 
   <div class="post">
-    <a href="{{ post.get_absolute_url }}" class="center-block
+    <a href="{{ post.get_absolute_url|escape }}" class="center-block
      post-title">
       <h2 class="center-align">
       {{ post.title }}</h2></a>

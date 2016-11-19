@@ -1,7 +1,8 @@
+# -*- coding: utf-8 -*-
 from django.db import models
 from django.contrib.auth.models import (AbstractBaseUser,
 										BaseUserManager)
-from django.utils.text import slugify
+from slugify import slugify, SLUG_OK
 from django.utils import timezone
 import datetime
 from imagekit.models import ImageSpecField, ProcessedImageField
@@ -14,7 +15,7 @@ from django.dispatch import receiver
 from django.conf import settings
 from bs4 import BeautifulSoup
 from PIL import Image
-from unidecode import unidecode
+#from unidecode import unidecode
 from urllib.parse import urlparse, urlencode
 from urllib.request import urlopen, urlretrieve, Request
 
@@ -191,7 +192,7 @@ class Post(models.Model):
 	private = models.BooleanField(default=False)
 	private.short_description = 'NSFW'
 	main_tag = models.CharField(max_length=33, blank=True)
-	url = models.SlugField(blank=True)
+	url = models.CharField(max_length=330,blank=True)
 	STATUS = (
 				("D", "Draft"),
 				("P","Published"),
@@ -206,7 +207,7 @@ class Post(models.Model):
 		return self.title
 
 	def get_absolute_url(self):
-		cat_url = slugify(unidecode(self.main_tag))
+		cat_url = slugify(self.main_tag)
 		#post_url = slugify(unidecode(self.title))
 		return "/%s/%s-%i/" % (cat_url, self.url, self.id)
 	def get_category(self):
@@ -293,9 +294,9 @@ class Post(models.Model):
 					data = response.read()
 					out_file.write(data)
 				self.post_image = os.path.join(upload_path, filename)
-				self.image_url = ""
 			except:
 				pass
+			self.image_url = ""
 
 		super(Post, self).save(force_insert, force_update)
 
@@ -359,7 +360,7 @@ class Category(models.Model):
 	]
 	name = models.CharField(max_length=30, unique=True)
 	description = models.TextField(max_length=250)
-	slug = models.SlugField("URL",blank=True, max_length=150)
+	slug = models.CharField("URL",blank=True, max_length=250)
 	order = models.SmallIntegerField(blank=True, default=1)
 	class Meta:
 		verbose_name_plural = "categories"
@@ -375,13 +376,13 @@ class Category(models.Model):
 		return cat_list
 	def save(self, *args, **kwargs):
 		#if not self.slug:
-		self.slug = slugify(unidecode(self.name.lower()))
+		self.slug = slugify(self.name.lower())
 		super(Category,self).save(*args, **kwargs)
 
 
 class Tag(models.Model):
 	name = models.CharField(max_length=30)
-	url = models.CharField(max_length=40, unique=True)
+	url = models.CharField(max_length=140, unique=True)
 	created = models.DateTimeField(auto_now_add=True)
 	private = models.BooleanField(default=False)
 
@@ -392,5 +393,6 @@ class Tag(models.Model):
 
 	def save(self, *args, **kwargs):
 		if not self.url:
-			self.url = slugify(unidecode(self.name.lower()))
+			self.url = slugify(self.name.lower())
+
 		super(Tag, self).save(*args, **kwargs)

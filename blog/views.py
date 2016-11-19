@@ -1,6 +1,7 @@
+# -*- coding: utf-8 -*-
 from django.shortcuts import render
 from blog.models import Post, myUser, Category, Tag
-from django.utils.text import slugify
+from slugify import slugify, SLUG_OK
 from blog.forms import SignupForm, MyUserChangeForm, AddPostForm
 from django.http import (HttpResponseRedirect,
     HttpResponse,JsonResponse,HttpResponseNotFound)
@@ -12,7 +13,7 @@ from django.views.decorators.debug import sensitive_post_parameters
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.conf import settings
 from django.core import serializers
-from unidecode import unidecode
+#from unidecode import unidecode
 import json
 from django.urls import reverse
 from django.template.response import TemplateResponse
@@ -112,7 +113,7 @@ def add_post(request):
                 data.status = "P"
 
             data.author = request.user
-            data.url = slugify(unidecode(data.title))
+            data.url = slugify(data.title)
             url = data.get_absolute_url
             title = data.title
             tag_list = request.POST['hidden_tags'].split(',') # tags list
@@ -121,13 +122,13 @@ def add_post(request):
             nsfw = data.private
             for i in tag_list:
                 if nsfw == True:
-                    tag_url = slugify(unidecode(i.lower()+"_nsfw"))
+                    tag_url = slugify(i.lower()+"_nsfw")
                     Tag.objects.get_or_create(name=i,
                                           url=tag_url,
                                           private=nsfw)
                     #tag = Tag.objects.get(name=i+"_nsfw")
                 else:
-                    tag_url = slugify(unidecode(i.lower()))
+                    tag_url = slugify(i.lower())
                     Tag.objects.get_or_create(name=i,
                                           url=tag_url )
 
@@ -138,7 +139,7 @@ def add_post(request):
                     if tag.url != "" and tag.url != None:
                         data.main_tag = tag.url
                     else:
-                        data.main_tag = slugify(unidecode("Разное".lower()))
+                        data.main_tag = slugify("Разное".lower())
                     j = False
 
             data.save()

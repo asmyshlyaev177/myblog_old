@@ -34,7 +34,7 @@
       {% if post.get_tags_list|length > 0  %}<p>
         Tags
         {% for tag in post.get_tags_list %}
-          {% if tag.name|length > 1 %}
+          {% if tag.url|length > 1 %}
           <a href="/{{ tag.url }}" class="ajax-menu chip"
           url = "{{ tag.url }}">{{ tag }}</a>
           {% endif %}
