@@ -166,22 +166,36 @@ def add_post(request):
 @login_required(redirect_field_name='next', login_url='/login')
 @never_cache
 def rate_post(request, id, vote):
+    if request.method == 'POST':
 
-    post = Post.objects.get(id=id)
-    user = request.user
-    user_rating, exist = RatingUser.objects.get_or_create(user=user)
-    if exist:
-        user_rating.save()
-    user_votes, exist = UserVotes.objects.get_or_create(user=user)
-    if exist:
-        user_votes.save()
-    v = VotePost(post=post, rate=vote, score= user_votes.weight)
+        user = request.user
+        user_votes, exist = UserVotes.objects.get_or_create(user=user)
+        if user_votes.votes > 0:
+            user_votes.votes -= 1
+            user_votes.save()
+        else:
+            return HttpResponse("no votes")
+        user_rating, exist = RatingUser.objects.get_or_create(user=user)
+        if exist:
+            user_rating.save()
+        post = Post.objects.get(id=id)
+        v = VotePost(post=post, rate=vote, score= user_votes.weight)
+        v.save()
 
-    v.save()
+        post_rating, exist = RatingPost.objects.get_or_create(post=post)
 
-    resp = ""
+        sum = 0.0
+        votes = VotePost.objects.filter(post__id=id)
+        for i in votes:
+        	if i.rate == 0:
+        		sum -= i.score
+        	if i.rate == 1:
+        		sum += i.score
+        post_rating.rating += sum
+        post_rating.save()
+        VotePost.objects.filter(post__id=id).delete()
 
-    return HttpResponse(resp)
+        return HttpResponse("accepted")
 
 @cache_page(2 )
 @cache_control(max_age=2)

@@ -4,6 +4,7 @@ var page = 1;
 var category = "";
 var myurl = "";
 var loader;
+var votes = true;
 
 
 $(document).ready(function(){
@@ -18,7 +19,43 @@ $(document).ready(function(){
 	ClickAjaxMenu();
   BackForwardButtons();
 	GifPlay();
+	ratePost();
 });
+
+function ratePost() {
+	$(document).on('click', '.rate-icon', function() {
+		if (votes == false) {
+			return false;
+		}
+
+	vote_btn = this;
+	id = $(vote_btn).parent().attr('post');
+	rate = $(vote_btn).attr('rate');
+	console.log("id= "+id+" rate= "+rate);
+	csrf = getCookie('csrftoken');
+	$.ajax({
+		  headers: {'X-CSRFToken': csrf},
+	      type:"POST",
+		  //cache : false,
+	      url:"/rate/postid-"+id+"-rate-"+rate,
+				success:function(data){
+					if (data == "no votes") {
+						votes = false;
+						disableRate();
+						console.log(data);
+					}
+
+				}
+	     });
+	return false;
+	})
+}
+
+function disableRate() {
+	if (votes == false) {
+		$('.rate-icon').css('color', 'gray').css('cursor', 'default');
+	}
+}
 
 
 function getCookie(name) {
@@ -144,6 +181,7 @@ function ChangePageNew( link, myurl ) {
       $(data2).replaceAll('.posts');
 			content.fadeTo(130, 1);
 			$('#load_circle').hide();
+			disableRate();
           }
      });
 	//window.history.pushState({state:'new'}, "",  link);
@@ -173,6 +211,7 @@ function loadMore(){
                $('.posts').append(data); //adds data to the end of the table
                processing = false; // the processing variable prevents multiple ajax calls when scrolling
 							 loader.hide();
+							 disableRate();
           }
      });
 

@@ -113,10 +113,10 @@ class myUser(AbstractBaseUser):
 		return self.is_it_staff
 
 	def save(self, *args, **kwargs):
-		user_rating, _ = RatingUser.objects.get_or_create(ratingid=self.id)
+		user_rating, _ = RatingUser.objects.get_or_create(user=self)
 		user_rating.user = self
 		user_rating.rating = 0.0
-		user_votes, _ = UserVotes.objects.get_or_create(userid=self.id)
+		user_votes, _ = UserVotes.objects.get_or_create(user=self)
 		user_votes.user = self
 		user_rating.save()
 		user_votes.save()
@@ -187,7 +187,7 @@ class VotePost(Vote):
 
 class UserVotes(models.Model):
 	#userid = models.IntegerField(blank = True, null = True)
-	votes = models.IntegerField(default = 100)
+	votes = models.IntegerField(default = 10)
 	weight = models.FloatField(default = 0.25)
 	COUNT = (
 				("U", "Unlimited"),
@@ -460,7 +460,7 @@ class Tag(models.Model):
 		if not self.url:
 			self.url = slugify(self.name.lower())
 
-		tag_rating, _ = RatingTag.objects.get_or_create(ratingid=self.id)
+		tag_rating, _ = RatingTag.objects.get_or_create(tag=self)
 		tag_rating.tag = self
 		tag_rating.rating = 0
 		tag_rating.save()
