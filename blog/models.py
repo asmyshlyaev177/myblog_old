@@ -357,7 +357,7 @@ class Post(models.Model):
 				pass
 			self.image_url = ""
 
-		post_rating, _ = RatingPost.objects.get_or_create(ratingid=self.id)
+		post_rating, _ = RatingPost.objects.get_or_create(post=self)
 		post_rating.post = self
 		post_rating.rating = 0.0
 		post_rating.save()
