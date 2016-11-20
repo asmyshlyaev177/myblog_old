@@ -20,8 +20,8 @@ from urllib.parse import urlparse, urlencode
 from urllib.request import urlopen, urlretrieve, Request
 
 from django.conf import settings
-import socket #timeout just for test
-socket.setdefaulttimeout(10)
+#import socket #timeout just for test
+#socket.setdefaulttimeout(10)
 
 thumb_img_size = 640, 480
 
@@ -65,7 +65,7 @@ class myUser(AbstractBaseUser):
 	username = models.CharField("Username", max_length=30,
 								blank=False,
 								unique=True)
-
+	rateable = models.BooleanField(default = True)
 	def user_directory_path(instance, filename):
 	# file will be uploaded to MEDIA_ROOT/user_<id>/<filename>
 		return 'avatars/{0}/{1}'.format(instance.username, filename)
@@ -112,6 +112,17 @@ class myUser(AbstractBaseUser):
 	def is_staff(self):
 		return self.is_it_staff
 
+	def save(self, *args, **kwargs):
+		user_rating, _ = RatingUser.objects.get_or_create(ratingid=self.id)
+		user_rating.user = self
+		user_rating.rating = 0.0
+		user_votes, _ = UserVotes.objects.get_or_create(userid=self.id)
+		user_votes.user = self
+		user_rating.save()
+		user_votes.save()
+
+		super(myUser, self).save(*args, **kwargs)
+
 @receiver(models.signals.post_delete, sender=myUser)
 def delete_avatar(sender, instance, **kwargs):
 	"""delete avatar when delete user"""
@@ -142,6 +153,53 @@ class Thumbnail(ImageSpec):
 
 register.generator('blog:thumbnail', Thumbnail)
 
+class Rating(models.Model):
+	#ratingid = models.IntegerField(unique = True)
+	rating = models.FloatField(default=0.0)
+
+	class Meta:
+		abstract = True
+
+class RatingPost(Rating):
+	post = models.ForeignKey('Post')
+	month = models.FloatField(blank = True, null = True)
+	week = models.FloatField(blank = True, null = True)
+
+class RatingTag(Rating):
+	tag = models.ForeignKey('Tag')
+	month = models.FloatField(blank = True, null = True)
+	week = models.FloatField(blank = True, null = True)
+
+class RatingUser(Rating):
+	user = models.ForeignKey('myUser')
+
+
+class Vote(models.Model):
+	#vote_id = models.IntegerField(blank = True, null = True)
+	rate = models.BooleanField()
+	score = models.FloatField(null = True, blank = True)
+	created = models.DateTimeField(auto_now_add=True) #for celery
+	class Meta:
+		abstract = True
+
+class VotePost(Vote):
+	post = models.ForeignKey('Post')
+
+class UserVotes(models.Model):
+	#userid = models.IntegerField(blank = True, null = True)
+	votes = models.IntegerField(default = 100)
+	weight = models.FloatField(default = 0.25)
+	COUNT = (
+				("U", "Unlimited"),
+				("N","Normal"),
+				("B","Blocked"),
+	)
+	count = models.CharField(max_length=1, choices=COUNT, default="N")
+	block_date = models.DateTimeField(blank=True, null=True)
+	manual = models.BooleanField(default = False)
+	user = models.ForeignKey('myUser')
+
+
 class Post(models.Model):
 	index_together = [
 	["title", "description", "post_thumbnail", "author", "category",
@@ -150,6 +208,7 @@ class Post(models.Model):
 	title = models.CharField(max_length=100)
 	#description = RichTextField(max_length = 500, config_name = "description",
 	#                            blank=True)
+	rateable = models.BooleanField(default = True)
 	description = models.CharField(max_length=500)
 	#text = RichTextUploadingField(config_name = "post")
 	text = models.TextField()
@@ -298,6 +357,11 @@ class Post(models.Model):
 				pass
 			self.image_url = ""
 
+		post_rating, _ = RatingPost.objects.get_or_create(ratingid=self.id)
+		post_rating.post = self
+		post_rating.rating = 0.0
+		post_rating.save()
+
 		super(Post, self).save(force_insert, force_update)
 
 @receiver(models.signals.post_delete, sender=Post)
@@ -385,6 +449,7 @@ class Tag(models.Model):
 	url = models.CharField(max_length=140, unique=True)
 	created = models.DateTimeField(auto_now_add=True)
 	private = models.BooleanField(default=False)
+	rateable = models.BooleanField(default = True)
 
 	class Meta:
 		verbose_name_plural = "tags"
@@ -394,5 +459,10 @@ class Tag(models.Model):
 	def save(self, *args, **kwargs):
 		if not self.url:
 			self.url = slugify(self.name.lower())
+
+		tag_rating, _ = RatingTag.objects.get_or_create(ratingid=self.id)
+		tag_rating.tag = self
+		tag_rating.rating = 0
+		tag_rating.save()
 
 		super(Tag, self).save(*args, **kwargs)

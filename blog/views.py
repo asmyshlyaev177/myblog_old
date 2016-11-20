@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 from django.shortcuts import render
-from blog.models import Post, myUser, Category, Tag
+from blog.models import Post, myUser, Category, Tag, Rating, RatingPost,RatingTag,RatingUser,VotePost,UserVotes
 from slugify import slugify, SLUG_OK
 from blog.forms import SignupForm, MyUserChangeForm, AddPostForm
 from django.http import (HttpResponseRedirect,
@@ -162,6 +162,26 @@ def add_post(request):
 
     return render(request, template, { 'form': form,
                                              'cat_list': cat_list})
+
+@login_required(redirect_field_name='next', login_url='/login')
+@never_cache
+def rate_post(request, id, vote):
+
+    post = Post.objects.get(id=id)
+    user = request.user
+    user_rating, exist = RatingUser.objects.get_or_create(user=user)
+    if exist:
+        user_rating.save()
+    user_votes, exist = UserVotes.objects.get_or_create(user=user)
+    if exist:
+        user_votes.save()
+    v = VotePost(post=post, rate=vote, score= user_votes.weight)
+
+    v.save()
+
+    resp = ""
+
+    return HttpResponse(resp)
 
 @cache_page(2 )
 @cache_control(max_age=2)

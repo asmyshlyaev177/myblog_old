@@ -11,6 +11,10 @@ margin-top: 100px;
 
 .post-thumbnail {position: relative; }
 
+.rating, .rate-score {
+	display: inline-block;
+}
+
 
 .post-thumbnail a {
 position: absolute;
