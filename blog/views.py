@@ -29,6 +29,7 @@ from django.http import (
 )
 from django.shortcuts import render
 from django_summernote.settings import summernote_config, get_attachment_model
+#from blog.tasks import taglist
 
 cat_list= Category.objects.all()
 
@@ -149,6 +150,7 @@ def add_post(request):
                            'cat_list':cat_list})
     form = AddPostForm()
 
+    #taglist.delay()
     #создаём файл со списком тэгов для выбора
     tags = Tag.objects.all().values()
     data = []

@@ -9,10 +9,10 @@ https://docs.djangoproject.com/en/1.10/topics/settings/
 For the full list of settings and their values, see
 https://docs.djangoproject.com/en/1.10/ref/settings/
 """
-
 import os
 import datetime
 from django.utils import timezone
+
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -120,7 +120,11 @@ INSTALLED_APPS = [
     'compressor',
     'sorl.thumbnail',
     'django_cleanup',
+    'django_celery_results',
 ]
+
+CELERY_RESULT_BACKEND = 'django-db'
+CELERY_BROKER_URL = 'amqp://guest:guest@localhost//'
 
 TEMPLATE_DEBUG = True
 THUMBNAIL_DEBUG = True
