@@ -29,7 +29,7 @@ from django.http import (
 )
 from django.shortcuts import render
 from django_summernote.settings import summernote_config, get_attachment_model
-#from blog.tasks import taglist
+from blog.tasks import taglist, addPostTags
 
 cat_list= Category.objects.all()
 
@@ -109,6 +109,7 @@ def add_post(request):
     if request.method == 'POST':
         form = AddPostForm(request.POST, request.FILES)
         if form.is_valid():
+
             data = form.save(commit=False)
             if request.user.moderated == False:
                 data.status = "P"
@@ -118,24 +119,27 @@ def add_post(request):
             url = data.get_absolute_url
             title = data.title
             tag_list = request.POST['hidden_tags'].split(',') # tags list
+
+            have_new_tags = False
             data.save()
-            j = True
-            nsfw = data.private
-            for i in tag_list:
-                if nsfw == True:
-                    tag_url = slugify(i.lower()+"_nsfw")
-                    Tag.objects.get_or_create(name=i,
-                                          url=tag_url,
-                                          private=nsfw)
-                    #tag = Tag.objects.get(name=i+"_nsfw")
-                else:
-                    tag_url = slugify(i.lower())
-                    Tag.objects.get_or_create(name=i,
-                                          url=tag_url )
-
-                tag = Tag.objects.get(url=tag_url)
-
-                data.tags.add(tag)
+            post_id = data.id
+            addPostTags.delay(post_id, tag_list)
+            """for i in tag_list:
+                if len(i) > 2:
+                    if nsfw == True:
+                        tag_url = slugify(i.lower()+"_nsfw")
+                        tag, have_new_tags = Tag.objects.get_or_create(name=i,
+                                              url=tag_url,
+                                              private=nsfw)
+                        #tag = Tag.objects.get(name=i+"_nsfw")
+                    else:
+                        tag_url = slugify(i.lower())
+                        tag, have_new_tags = Tag.objects.get_or_create(name=i,
+                                              url=tag_url )
+                    if have_new_tags:
+                        tag.save()
+                #tag = Tag.objects.get(url=tag_url)
+                    data.tags.add(tag)
                 if j:
                     if tag.url != "" and tag.url != None:
                         data.main_tag = tag.url
@@ -143,24 +147,36 @@ def add_post(request):
                         data.main_tag = slugify("Разное".lower())
                     j = False
 
-            data.save()
+                tag_rating, _ = RatingTag.objects.get_or_create(tag=tag)
+                tag_rating.tag = tag
+                tag_rating.rating = 0
+                tag_rating.save()
+                post_rating, _ = RatingPost.objects.get_or_create(post=data)
+                post_rating.post = data
+                if _:
+                    post_rating.rating = 0.0
+                post_rating.save()"""
+
+
             #form.save_m2m()
+            #return render(request, 'added-post.html',
+            #              {'url': url, 'title': title,
+            #               'cat_list':cat_list})
             return render(request, 'added-post.html',
-                          {'url': url, 'title': title,
+                          {'title': title,
                            'cat_list':cat_list})
+
+
     form = AddPostForm()
 
     #taglist.delay()
     #создаём файл со списком тэгов для выбора
-    tags = Tag.objects.all().values()
+    """tags = Tag.objects.all().values()
     data = []
     for i in tags:
-        #tag = {}
-        #tag['id'] = i['id']
-        #tag['name'] = i['name']
         data.append(i['name'])
     with open('/root/myblog/myblog/blog/static/taglist.json', 'w') as out:
-        out.write(json.dumps(data))
+        out.write(json.dumps(data))"""
 
     return render(request, template, { 'form': form,
                                              'cat_list': cat_list})

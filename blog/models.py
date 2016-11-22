@@ -9,8 +9,7 @@ from imagekit.models import ImageSpecField, ProcessedImageField
 from imagekit.processors import ResizeToFit
 from imagekit import ImageSpec, register
 from django.utils.safestring import mark_safe
-import re
-import os
+import re, os
 from django.dispatch import receiver
 from django.conf import settings
 from bs4 import BeautifulSoup
@@ -357,17 +356,11 @@ class Post(models.Model):
 				pass
 			self.image_url = ""
 
-		post_rating, _ = RatingPost.objects.get_or_create(post=self)
-		post_rating.post = self
-		post_rating.rating = 0.0
-		post_rating.save()
-
 		super(Post, self).save(force_insert, force_update)
 
 @receiver(models.signals.post_delete, sender=Post)
 def delete_image_and_thumb(sender, instance, **kwargs):
 	# удаляем файлы картинок при удалении поста
-
 	img_links = re.findall\
 		(r"/(?P<year>\d{4})/(?P<month>\d{1,2})/(?P<day>\d{1,2})/(?P<file>\S*.jpg)", instance.text)
 	for img in img_links:
@@ -459,10 +452,5 @@ class Tag(models.Model):
 	def save(self, *args, **kwargs):
 		if not self.url:
 			self.url = slugify(self.name.lower())
-
-		tag_rating, _ = RatingTag.objects.get_or_create(tag=self)
-		tag_rating.tag = self
-		tag_rating.rating = 0
-		tag_rating.save()
 
 		super(Tag, self).save(*args, **kwargs)

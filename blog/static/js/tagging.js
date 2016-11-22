@@ -46,7 +46,7 @@
         keys: {
             // Special keys to add a tag
             add: {
-                comma:    ",",
+                //comma:    ",",
                 enter:    "Enter",
                 spacebar: " ",
             },
@@ -213,7 +213,7 @@
 
             // Trigger after event
             self.$elem.trigger("add:after", [text, self]);
-            
+
             return true;
         },
 

@@ -30,7 +30,7 @@ urlpatterns = [
     url(r'^froala_editor\/?', include('froala_editor.urls')),
     #url(r'^$', cache_page(60 * 15)(views.Index), name='Index'),
     url(r'^__debug__/', include(debug_toolbar.urls)),
-    url(r'^admin/', admin.site.urls, name='myadmin'),
+    url(r'^admin\/?', admin.site.urls, name='myadmin'),
     url(r'^$', views.list, name='list'),
     url(r'^pop-(?P<pop>[-\w]+)\/?$', views.list, name='list_pop'),
     #url(r'^ckeditor/', include('ckeditor_uploader.urls')),
