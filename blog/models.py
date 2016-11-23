@@ -249,7 +249,8 @@ class Post(models.Model):
 										blank=True)
 	private = models.BooleanField(default=False)
 	private.short_description = 'NSFW'
-	main_tag = models.CharField(max_length=33, blank=True)
+	#main_tag = models.CharField(max_length=33, blank=True)
+	main_tag = models.ForeignKey('Tag', null=True, blank=True)
 	url = models.CharField(max_length=330,blank=True)
 	STATUS = (
 				("D", "Draft"),
@@ -265,7 +266,7 @@ class Post(models.Model):
 		return self.title
 
 	def get_absolute_url(self):
-		cat_url = slugify(self.main_tag)
+		cat_url = self.main_tag.url
 		#post_url = slugify(unidecode(self.title))
 		return "/%s/%s-%i/" % (cat_url, self.url, self.id)
 	def get_category(self):
@@ -273,90 +274,6 @@ class Post(models.Model):
 	def get_tags_list(self):
 		#return self.tags.values_list('name', flat=True)
 		return self.tags.all()
-	def save(self, force_insert=False, force_update=False):
-		"""Resize img if it is bigger than thumb"""
-		soup = BeautifulSoup(self.text) #текст поста
-		img_links = soup.find_all("img") #ищем все картинки
-
-		if len(img_links) != 0:
-			for i in img_links: # для каждой
-				# находим ссылку и файл и вых. файл
-				del i['style'] #удаляем стиль
-				link = re.search(r"/(?P<year>\d{4})/(?P<month>\d{1,2})/(?P<day>\d{1,2})/(?P<file>\S*)\.(?P<ext>\w*)", str(i))
-				file = '/root/myblog/myblog/blog/static/media/{}/{}/{}/{}.{}'\
-				.format(link.group("year"), link.group("month"),link.group("day"),link.group("file"),link.group("ext"))
-				file_out = '/root/myblog/myblog/blog/static/media/{}/{}/{}/{}-thumbnail.{}'\
-				.format(link.group("year"), link.group("month"),link.group("day"),link.group("file"),link.group("ext"))
-				if os.path.isfile(file):
-					# если файл существует
-					#img_class = []
-					#for j in i['class']:
-					'''if i.has_attr('class'):
-						img_class.append(i['class']) #находим классы картинки
-					#всё кроме того что надо добавить или заменить
-					img_class = [item for item in img_class if not item.startswith('img-responsive')]
-					img_class.append('img-responsive') #добавляем нужный класс'''
-					#i['class'] = img_class # присваиваем
-					i['class'] = 'responsive-img'
-					# если картинка больше нужного размера создаём миниатюру
-					w,h = Image.open(file).size
-					if w > thumb_img_size[0]:
-						img = Image.open(file)
-						img.thumbnail(thumb_img_size)
-						img.save(file_out) # сохраняем
-						i['src'] = '/media/{}/{}/{}/{}-thumbnail.{}'.format(link.group("year"), link.group("month"),link.group("day"),link.group("file"),link.group("ext"))
-						a_tag = soup.new_tag("a")
-						# оборачиваем в ссылку на оригинал
-						a_tag['href'] = '/media/{}/{}/{}/{}.{}'.format(link.group("year"), link.group("month"),link.group("day"),link.group("file"),link.group("ext"))
-						a_tag['data-gallery'] = ""
-						i = i.wrap(a_tag)
-
-		# выравниваем видео по центру
-		ifr_links = soup.find_all("iframe")
-		ifr_class = []
-		if len(img_links) != 0:
-			for i in ifr_links:
-				for j in i['class']:
-					ifr_class.append(j)
-				ifr_class = [item for item in ifr_class if not item.startswith('center-align')]
-				ifr_class.append('center-align')
-				i['class'] = ifr_class
-
-		#text = ""
-		#for i in soup.body:
-		#	text += str(i)
-		#self.text = text
-		soup.html.unwrap()
-		soup.head.unwrap()
-		soup.body.unwrap()
-		self.text = soup.prettify()
-
-		#image from url
-		if self.image_url:
-			today = datetime.date.today()
-			upload_path1 = '/root/myblog/myblog/blog/static/media/' + \
-			str(today.year)+'/' +str(today.month)+'/'+str(today.day)+'/'
-			upload_path = str(today.year)+'/' +str(today.month)+'/'+str(today.day)+'/'
-			filename = urlparse(self.image_url).path.split('/')[-1]
-			save_path = os.path.join(upload_path1, filename)
-			user_agent = 'Mozilla/5.0 (Windows NT 6.1; Win64; x64)'
-			headers = { 'User-Agent' : user_agent }
-			values = {'name' : 'Alex',
-          				'location' : 'Moscow',}
-			data = urlencode(values)
-			data = data.encode('ascii')
-			try:
-				req = Request(self.image_url, data, headers)
-				os.makedirs(os.path.dirname(save_path), exist_ok=True)
-				with urlopen(req, timeout=3) as response, open(save_path, 'wb') as out_file:
-					data = response.read()
-					out_file.write(data)
-				self.post_image = os.path.join(upload_path, filename)
-			except:
-				pass
-			self.image_url = ""
-
-		super(Post, self).save(force_insert, force_update)
 
 @receiver(models.signals.post_delete, sender=Post)
 def delete_image_and_thumb(sender, instance, **kwargs):
@@ -368,20 +285,6 @@ def delete_image_and_thumb(sender, instance, **kwargs):
 		if os.path.isfile(img_path):
 			os.remove(img_path)
 
-
-	"""delete image when post deleted"""
-	"""if instance.post_image:
-		if os.path.isfile(instance.post_image.path):
-			try:
-				os.remove(instance.post_image.path)
-			except FileNotFoundError:
-				return False
-	if instance.post_thumbnail:
-		if os.path.isfile(instance.post_thumbnail.path):
-			try:
-				os.remove(instance.post_thumbnail.path)
-			except FileNotFoundError:
-				return False ##подозрительная хрень"""
 
 
 @receiver(models.signals.pre_save, sender=Post)

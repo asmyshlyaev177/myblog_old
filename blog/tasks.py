@@ -1,10 +1,17 @@
 from celery import Celery
 from celery.task import periodic_task
 from datetime import timedelta
-import os, datetime, json
-from .models import Post
-from .models import RatingPost,RatingTag, Tag, Rating
+import os, datetime, json, re
+from blog.models import Post
+from blog.models import RatingPost,RatingTag, Tag, Rating, Thumbnail
 from slugify import slugify, SLUG_OK
+from bs4 import BeautifulSoup
+from PIL import Image
+from urllib.parse import urlparse, urlencode
+from django.utils import timezone
+import datetime
+#from django.http import (HttpResponse,JsonResponse)
+from urllib.request import urlopen, urlretrieve, Request
 
 from time import gmtime, strftime
 
@@ -25,16 +32,13 @@ def taglist():
     tags = Tag.objects.all().values()
     data = []
     for i in tags:
-        #tag = {}
-        #tag['id'] = i['id']
-        #tag['name'] = i['name']
         data.append(i['name'])
-        filename = "/root/myblog/myblog/blog/static/taglist.json"
-    with open(filename, 'w') as out:
-        out.write(json.dumps(data))
+    filename = "/root/myblog/myblog/blog/static/taglist.json"
+    with open(filename, 'w', encoding='utf8') as out:
+        out.write(json.dumps(data), ensure_ascii=False)
 
-@app.task(name="addPostTags")
-def addPostTags(post_id, tag_list):
+@app.task(name="addPost")
+def addPost(post_id, tag_list):
     data = Post.objects.get(id=post_id)
     j = True
     nsfw = data.private
@@ -45,21 +49,100 @@ def addPostTags(post_id, tag_list):
                 tag, have_new_tags = Tag.objects.get_or_create(name=i,
                                       url=tag_url,
                                       private=nsfw)
-                #tag = Tag.objects.get(name=i+"_nsfw")
             else:
                 tag_url = slugify(i.lower())
                 tag, have_new_tags = Tag.objects.get_or_create(name=i,
                                       url=tag_url )
             if have_new_tags:
                 tag.save()
-        #tag = Tag.objects.get(url=tag_url)
             data.tags.add(tag)
         if j:
             if tag.url != "" and tag.url != None:
-                data.main_tag = tag.url
+                data.main_tag = tag
             else:
-                data.main_tag = slugify("Разное".lower())
+                t = Tag.objects.get(id=8)
+                data.main_tag = t
             j = False
+
+        """Resize img if it is bigger than thumb"""
+        soup = BeautifulSoup(data.text) #текст поста
+        img_links = soup.find_all("img") #ищем все картинки
+
+        thumb_img_size = 640, 480
+
+        if len(img_links) != 0:
+            for i in img_links: # для каждой
+
+				# находим ссылку и файл и вых. файл
+                del i['style'] #удаляем стиль
+                link = re.search(r"/(?P<year>\d{4})/(?P<month>\d{1,2})/(?P<day>\d{1,2})/(?P<file>\S*)\.(?P<ext>\w*)", str(i))
+                file = '/root/myblog/myblog/blog/static/media/{}/{}/{}/{}.{}'\
+                .format(link.group("year"), link.group("month"),link.group("day"),link.group("file"),link.group("ext"))
+                file_out = '/root/myblog/myblog/blog/static/media/{}/{}/{}/{}-thumbnail.{}'\
+                .format(link.group("year"), link.group("month"),link.group("day"),link.group("file"),link.group("ext"))
+                if os.path.isfile(file):
+
+					#i['class'] = img_class # присваиваем
+                    i['class'] = 'responsive-img'
+					# если картинка больше нужного размера создаём миниатюру
+                    w,h = Image.open(file).size
+                    if w > thumb_img_size[0]:
+
+                        img = Image.open(file)
+                        img.thumbnail(thumb_img_size)
+                        img.save(file_out) # сохраняем
+                        i['src'] = '/media/{}/{}/{}/{}-thumbnail.{}'.format(link.group("year"), link.group("month"),link.group("day"),link.group("file"),link.group("ext"))
+                        a_tag = soup.new_tag("a")
+                        # оборачиваем в ссылку на оригинал
+                        a_tag['href'] = '/media/{}/{}/{}/{}.{}'.format(link.group("year"), link.group("month"),link.group("day"),link.group("file"),link.group("ext"))
+                        a_tag['data-gallery'] = ""
+                        i = i.wrap(a_tag)
+
+		# выравниваем видео по центру
+
+        ifr_links = soup.find_all("iframe")
+        ifr_class = []
+        if len(img_links) != 0:
+            for i in ifr_links:
+                for j in i['class']:
+                    ifr_class.append(j)
+                ifr_class = [item for item in ifr_class if not item.startswith('center-align')]
+                ifr_class.append('center-align')
+                i['class'] = ifr_class
+
+        soup.html.unwrap()
+        soup.head.unwrap()
+        soup.body.unwrap()
+        data.text = soup.prettify()
+
+		#image from url
+
+        if data.image_url:
+            today = datetime.date.today()
+            upload_path1 = '/root/myblog/myblog/blog/static/media/' + \
+            str(today.year)+'/' +str(today.month)+'/'+str(today.day)+'/'
+            upload_path = str(today.year)+'/' +str(today.month)+'/'+str(today.day)+'/'
+            filename = urlparse(data.image_url).path.split('/')[-1]
+            save_path = os.path.join(upload_path1, filename)
+            user_agent = 'Mozilla/5.0 (Windows NT 6.1; Win64; x64)'
+            headers = { 'User-Agent' : user_agent }
+            values = {'name' : 'Alex',
+          				'location' : 'Moscow',}
+            data2 = urlencode(values)
+            data2 = data2.encode('ascii')
+
+            try:
+                req = Request(data.image_url, data2, headers, method="GET")
+                os.makedirs(os.path.dirname(upload_path), exist_ok=True)
+                with urlopen(req, timeout=7) as response, open(save_path, 'wb') as out_file:
+                    data2 = response.read()
+                    out_file.write(data2)
+                data.post_image = os.path.join(upload_path, filename)
+                print("data.post_image ",str(data.post_image))
+            except:
+                pass
+            data.image_url = ""
+
         data.save()
         tag_rating, _ = RatingTag.objects.get_or_create(tag=tag)
         tag_rating.tag = tag
