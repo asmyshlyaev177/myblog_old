@@ -29,7 +29,7 @@ from django.http import (
 )
 from django.shortcuts import render
 #from django_summernote.settings import summernote_config, get_attachment_model
-from blog.tasks import taglist, addPost
+from blog.tasks import taglist, addPost, RatePost
 
 cat_list= Category.objects.all()
 
@@ -138,35 +138,14 @@ def add_post(request):
 
 @login_required(redirect_field_name='next', login_url='/login')
 @never_cache
-def rate_post(request, id, vote):
+def rate_post(request, postid, vote):
     if request.method == 'POST':
 
         user = request.user
-        user_votes, exist = UserVotes.objects.get_or_create(user=user)
-        if user_votes.votes > 0:
-            user_votes.votes -= 1
-            user_votes.save()
+        if user.has_votes:
+            RatePost.delay(user.id, postid, vote)
         else:
             return HttpResponse("no votes")
-        user_rating, exist = RatingUser.objects.get_or_create(user=user)
-        if exist:
-            user_rating.save()
-        post = Post.objects.get(id=id)
-        v = VotePost(post=post, rate=vote, score= user_votes.weight)
-        v.save()
-
-        post_rating, exist = RatingPost.objects.get_or_create(post=post)
-
-        sum = 0.0
-        votes = VotePost.objects.filter(post__id=id)
-        for i in votes:
-        	if i.rate == 0:
-        		sum -= i.score
-        	if i.rate == 1:
-        		sum += i.score
-        post_rating.rating += sum
-        post_rating.save()
-        VotePost.objects.filter(post__id=id).delete()
 
         return HttpResponse("accepted")
 
@@ -245,50 +224,6 @@ def single_post(request,  tag, title, id):
                   {'post': post,
                   'cat_list': Category.list()})
 
-"""
-@never_cache
-def upload_attachment(request):
-    if request.method != 'POST':
-        return HttpResponseBadRequest('Only POST method is allowed')
-
-    if summernote_config['attachment_require_authentication']:
-        if not request.user.is_authenticated():
-            return HttpResponseForbidden('Only authenticated users are allowed')
-
-    if not request.FILES.getlist('files'):
-        return HttpResponseBadRequest('No files were requested')
-
-    try:
-        attachments = []
-
-        for file in request.FILES.getlist('files'):
-
-            # create instance of appropriate attachment class
-            klass = get_attachment_model()
-            attachment = klass()
-
-            attachment.file = file
-            attachment.name = file.name
-
-            if file.size > summernote_config['attachment_filesize_limit']:
-                return HttpResponseBadRequest(
-                    'File size exceeds the limit allowed and cannot be saved'
-                )
-
-            # remove unnecessary CSRF token, if found
-            request.POST.pop("csrfmiddlewaretoken", None)
-            kwargs = request.POST
-            # calling save method with attachment parameters as kwargs
-            attachment.save(**kwargs)
-
-            attachments.append(attachment)
-
-        return render(request, 'upload_attachment.json', {
-            'attachments': attachments,
-        })
-    except IOError:
-        return HttpResponseServerError('Failed to save attachment')
-"""
 
 @sensitive_post_parameters()
 @csrf_protect

@@ -33,41 +33,6 @@ FROALA_INCLUDE_JQUERY = False
 FROALA_UPLOAD_PATH = str(datetime.date.today().year)+'/'\
 +str(datetime.date.today().month)\
 +'/'+str(datetime.date.today().day)+'/'
-#today = datetime.date.today()
-summernote_filepath = str(datetime.date.today().year)+'/'\
-+str(datetime.date.today().month)\
-+'/'+str(datetime.date.today().day)+'/'
-SUMMERNOTE_CONFIG = {
-    'iframe': False,
-    'lang': 'ru-RU',
-    'width': '100%',
-    'toolbar': [
-        ['style', ['style']],
-        ['style', ['bold', 'italic', 'underline', 'clear']],
-        ['para', ['ul', 'ol']],
-        ['table', ['table']],
-        ['insert', ['link', 'picture', 'video', 'hr']],
-        ['view', ['fullscreen']],
-
-    ],
-    'attachment_require_authentication': True,
-    'disable_upload': False,
-    'attachment_upload_to': summernote_filepath,
-    'attachment_filesize_limit': 1024 * 1024 * 19,
-    'internal_js': (
-        ('/static/django_summernote/jquery.ui.widget.js'),
-        ('/static/django_summernote/jquery.iframe-transport.js'),
-        ('/static/django_summernote/jquery.fileupload.js'),
-        ('/static/django_summernote/summernote.min.js'),
-    ),
-
-    # You can add custom css/js for SummernoteWidget.
-    'css': (
-    ),
-    'js': (
-        ('/static/django_summernote/lang/summernote-ru-RU.min.js'),
-    ),
-    }
 
 
 ALLOWED_HOSTS = ['*']
@@ -115,7 +80,6 @@ INSTALLED_APPS = [
     #'ckeditor',
     #'ckeditor_uploader',
     #'imagekit',
-    'django_summernote',
     'froala_editor',
     'compressor',
     'sorl.thumbnail',
@@ -172,7 +136,6 @@ TEMPLATES = [
                 'django.template.context_processors.debug',
                 'django.contrib.auth.context_processors.auth',
                 'django.template.context_processors.request',
-
                 'django.contrib.messages.context_processors.messages',
             ],
         },

@@ -81,6 +81,7 @@ class myUser(AbstractBaseUser):
 	moderated = models.BooleanField("Moderated", default=True)
 	last_login = models.DateTimeField(auto_now=True)
 	date_joined = models.DateTimeField(auto_now_add=True)
+	has_votes = models.BooleanField(default=True)
 	REQUIRED_FIELDS = ['email',]
 	USERNAME_FIELD = 'username'
 	objects = MyUserManager()
@@ -155,6 +156,7 @@ register.generator('blog:thumbnail', Thumbnail)
 class Rating(models.Model):
 	#ratingid = models.IntegerField(unique = True)
 	rating = models.FloatField(default=0.0)
+	votes = models.IntegerField(default = 0)
 
 	class Meta:
 		abstract = True

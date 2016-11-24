@@ -1,4 +1,5 @@
 
+
 Своя проверка валидности форм <input formnovalidate> <form action="demo_form.asp" novalidate>
 
 картинки больше текста, предзагрузка гифок через promise

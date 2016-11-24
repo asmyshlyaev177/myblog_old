@@ -3,7 +3,8 @@ from celery.task import periodic_task
 from datetime import timedelta
 import os, datetime, json, re
 from blog.models import Post
-from blog.models import RatingPost,RatingTag, Tag, Rating, Thumbnail
+from blog.models import (RatingPost,RatingTag, Tag, Rating, Thumbnail, myUser,
+                        UserVotes, RatingUser, VotePost)
 from slugify import slugify, SLUG_OK
 from bs4 import BeautifulSoup
 from PIL import Image
@@ -36,6 +37,88 @@ def taglist():
     filename = "/root/myblog/myblog/blog/static/taglist.json"
     with open(filename, 'w', encoding='utf8') as out:
         out.write(json.dumps(data), ensure_ascii=False)
+
+@app.task(name="RatePost")
+def RatePost(userid, postid, vote):
+
+    post = Post.objects.get(id=postid)
+    if post.rateable == False:
+        return ""
+    user = myUser.objects.get(id=userid)
+
+    user_votes, notexist = UserVotes.objects.get_or_create(user=user)
+    user_votes.votes -= 1
+    if user_votes.votes <= 0:
+        user.has_votes = False
+        user.save()
+
+    user_votes.save()
+
+    user_rating, notexist = RatingUser.objects.get_or_create(user=user)
+    if notexist:
+        user_rating.save()
+    v = VotePost(post=post, rate=vote, score= user_votes.weight)
+    v.save()
+
+@app.task(name="CalcPostRating")
+def CalcPostRating():
+    #another task
+    posts = Post.objects.filter(status="P").filter(rateable = True)
+    dt = datetime.datetime.now()
+    day = datetime.timedelta(hours=-24)
+    week = datetime.timedelta(days=-7)
+    month = datetime.timedelta(weeks=-4)
+    two_month = datetime.timedelta(weeks=-8)
+    end = dt
+
+    for post in posts:
+
+        post_rating, notexist = RatingPost.objects.get_or_create(post=post)
+
+        #rating
+        sum = 0.0
+        votes_count = 0
+        start = dt + day
+        votes = VotePost.objects.filter(post=post).filter(created__range=(start, end))
+        for i in votes:
+            if i.rate == 0:
+                sum -= i.score
+            if i.rate == 1:
+                sum += i.score
+            votes_count += 1
+        post_rating.votes += votes_count
+        post_rating.rating += sum
+
+        #rating for last week
+        sum = 0.0
+        start = dt + week
+        votes = VotePost.objects.filter(post=post).filter(created__range=(start, end))
+        for i in votes:
+            if i.rate == 0:
+                sum -= i.score
+            if i.rate == 1:
+                sum += i.score
+        post_rating.week = sum
+
+        #rating for last month
+        sum = 0.0
+        start = dt + month
+        votes = VotePost.objects.filter(post=post).filter(created__range=(start, end))
+        for i in votes:
+            if i.rate == 0:
+                sum -= i.score
+            if i.rate == 1:
+                sum += i.score
+        post_rating.month = sum
+
+        post_rating.save()
+
+    #delete votes older than 2 month
+    start = dt + datetime.timedelta(weeks=-96)
+    end = dt + two_month
+
+
+    VotePost.objects.filter(created__range=(start, end)).delete()
 
 @app.task(name="addPost")
 def addPost(post_id, tag_list):
@@ -138,7 +221,6 @@ def addPost(post_id, tag_list):
                     data2 = response.read()
                     out_file.write(data2)
                 data.post_image = os.path.join(upload_path, filename)
-                print("data.post_image ",str(data.post_image))
             except:
                 pass
             data.image_url = ""

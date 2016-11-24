@@ -54,7 +54,7 @@ urlpatterns = [
         auth_views.password_reset_confirm, name='password_reset_confirm'),
     url(r'^reset/done\/?$', auth_views.password_reset_done, name='password_reset_complete'),
 
-    url(r'^rate/postid-(?P<id>[-vi\d]+)-rate-(?P<vote>[-vi\d])\/?$',
+    url(r'^rate/postid-(?P<postid>[-vi\d]+)-rate-(?P<vote>[-vi\d])\/?$',
             views.rate_post, name='rate_post'),
 
     url(r'^cat/(?P<category>([^\/]+))\/?$', views.list, name='category'),

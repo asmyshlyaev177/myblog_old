@@ -65,9 +65,9 @@
         >thumb_up</i></a>
       <div class="rate-score valign">
         <p>Rating= {{ post.ratingpost_set.get.rating }}</p>
-        <p>Votes= {{ post.votepost_set.all.count }}</p>
+        <p>Votes= {{ post.ratingpost_set.get.votes }}</p>
       </div>
-      <a href="#" class="rate-icon" rate=0><i class="medium material-icons" 
+      <a href="#" class="rate-icon" rate=0><i class="medium material-icons"
         >thumb_down</i></a>
     </div>
     </div>

@@ -1,5 +1,5 @@
  pip install git+https://github.com/mozilla/unicode-slugify.git
-
+celery -A myblog --beat worker -l info -E --workdir=/root/myblog/myblog
 
 	setUp(scn.inject(
 	atOnceUsers(1),
