@@ -21,6 +21,7 @@ from django.utils.translation import ugettext as _
 from django.views.decorators.cache import cache_page, never_cache
 from django.views.decorators.vary import vary_on_headers
 from django.views.decorators.cache import cache_control
+from django.core.cache import cache
 
 from django.http import (
     HttpResponseBadRequest,
@@ -29,9 +30,19 @@ from django.http import (
 )
 from django.shortcuts import render
 #from django_summernote.settings import summernote_config, get_attachment_model
-from blog.tasks import taglist, addPost, RatePost
+from blog.tasks import addPost, RatePost
 
 cat_list= Category.objects.all()
+
+@never_cache
+def tags(request):
+    tags = Tag.objects.all().values()
+    data = []
+    for i in tags:
+        data.append(i['name'])
+
+    return HttpResponse(json.dumps(data), content_type="application/json")
+
 
 @csrf_protect
 @never_cache
@@ -166,8 +177,7 @@ def list(request, category=None, tag=None, pop=None):
         post_list= Post.objects.select_related("author", "category")\
             .prefetch_related('tags').filter(tags__url=tag)\
             .filter(status="P")#.order_by('-published')
-        cat = Tag.objects.get(url=tag)      # переписать
-        context['tag'] = cat
+        #context['tag'] = Tag.objects.get(url=tag)
         if category:
             post_list = post_list.filter(category__slug=category)
             context['category'] = category

@@ -219,7 +219,8 @@ var taglist = new Bloodhound({
   datumTokenizer: Bloodhound.tokenizers.whitespace,
   queryTokenizer: Bloodhound.tokenizers.whitespace,
   prefetch: {
-  url: '../static/taglist.json',
+  url: '/tags.json',
+  //url: '../static/taglist.json',
   cache: false
    }
 });

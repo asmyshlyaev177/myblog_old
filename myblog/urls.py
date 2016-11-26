@@ -36,6 +36,8 @@ urlpatterns = [
     #url(r'^ckeditor/', include('ckeditor_uploader.urls')),
     url(r'^add-post\/?$', views.add_post, name='add_post'),
 
+    url(r'^tags.json\/?$', views.tags, name="tags"),
+
     url(r'^signup\/?$', views.signup, name='signup'),
     url(r'^signup_success\/?$', views.signup_success, name='signup_success'),
     url(r'^login\/?$', auth_views.login, name='login'),

@@ -19,16 +19,12 @@ from time import gmtime, strftime
 app = Celery('tasks', broker='pyamqp://guest@localhost//')
 
 
-@app.task
-def add(x, y):
-    return x + y
-
 #@periodic_task(run_every=timedelta(seconds=10))
 @app.task()
 def test(self):
     os.mknod(str(datetime.datetime.now()))
 
-@app.task(name='taglist')
+"""@app.task(name='taglist')
 def taglist():
     tags = Tag.objects.all().values()
     data = []
@@ -37,13 +33,13 @@ def taglist():
     filename = "/root/myblog/myblog/blog/static/taglist.json"
     with open(filename, 'w', encoding='utf8') as out:
         out.write(json.dumps(data), ensure_ascii=False)
+        """
 
 @app.task(name="RatePost")
 def RatePost(userid, postid, vote):
 
     post = Post.objects.get(id=postid)
-    if post.rateable == False:
-        return ""
+
     user = myUser.objects.get(id=userid)
 
     user_votes, notexist = UserVotes.objects.get_or_create(user=user)
@@ -57,13 +53,13 @@ def RatePost(userid, postid, vote):
     user_rating, notexist = RatingUser.objects.get_or_create(user=user)
     if notexist:
         user_rating.save()
-    v = VotePost(post=post, rate=vote, score= user_votes.weight)
-    v.save()
+    if post.rateable:
+        v = VotePost(post=post, rate=vote, score= user_votes.weight)
+        v.save()
 
 @app.task(name="CalcPostRating")
 def CalcPostRating():
     #another task
-    posts = Post.objects.filter(status="P").filter(rateable = True)
     dt = datetime.datetime.now()
     day = datetime.timedelta(hours=-24)
     week = datetime.timedelta(days=-7)
@@ -71,15 +67,24 @@ def CalcPostRating():
     two_month = datetime.timedelta(weeks=-8)
     end = dt
 
+    vote_list = VotePost.objects.all()
+    v = vote_list.values_list('post', flat=True).distinct()
+    post_ids = set()
+    for i in v:
+        post_ids.add(i)
+
+    posts = Post.objects.filter(id__in=post_ids).filter(status="P").filter(rateable = True)
+    ratings = RatingPost.objects.filter(post__id__in=post_ids)
+
     for post in posts:
 
-        post_rating, notexist = RatingPost.objects.get_or_create(post=post)
+        post_rating, notexist = ratings.get_or_create(post=post)
 
         #rating
         sum = 0.0
         votes_count = 0
         start = dt + day
-        votes = VotePost.objects.filter(post=post).filter(created__range=(start, end))
+        votes = vote_list.filter(post=post).filter(created__range=(start, end))
         for i in votes:
             if i.rate == 0:
                 sum -= i.score
@@ -92,7 +97,7 @@ def CalcPostRating():
         #rating for last week
         sum = 0.0
         start = dt + week
-        votes = VotePost.objects.filter(post=post).filter(created__range=(start, end))
+        votes = vote_list.filter(post=post).filter(created__range=(start, end))
         for i in votes:
             if i.rate == 0:
                 sum -= i.score
@@ -103,7 +108,7 @@ def CalcPostRating():
         #rating for last month
         sum = 0.0
         start = dt + month
-        votes = VotePost.objects.filter(post=post).filter(created__range=(start, end))
+        votes = vote_list.filter(post=post).filter(created__range=(start, end))
         for i in votes:
             if i.rate == 0:
                 sum -= i.score
@@ -118,7 +123,7 @@ def CalcPostRating():
     end = dt + two_month
 
 
-    VotePost.objects.filter(created__range=(start, end)).delete()
+    vote_list.filter(created__range=(start, end)).delete()
 
 @app.task(name="addPost")
 def addPost(post_id, tag_list):
@@ -236,4 +241,5 @@ def addPost(post_id, tag_list):
             post_rating.rating = 0.0
         post_rating.save()
         if have_new_tags:
-            taglist.delay()
+            pass
+            #taglist.delay()
