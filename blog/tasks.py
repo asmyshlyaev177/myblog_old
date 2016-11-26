@@ -9,8 +9,8 @@ from slugify import slugify, SLUG_OK
 from bs4 import BeautifulSoup
 from PIL import Image
 from urllib.parse import urlparse, urlencode
-from django.utils import timezone
 import datetime
+#from django.utils import timezone
 #from django.http import (HttpResponse,JsonResponse)
 from urllib.request import urlopen, urlretrieve, Request
 
@@ -20,9 +20,9 @@ app = Celery('tasks', broker='pyamqp://guest@localhost//')
 
 
 #@periodic_task(run_every=timedelta(seconds=10))
-@app.task()
+"""@app.task()
 def test(self):
-    os.mknod(str(datetime.datetime.now()))
+    os.mknod(str(datetime.datetime.now()))"""
 
 """@app.task(name='taglist')
 def taglist():
@@ -40,27 +40,30 @@ def RatePost(userid, postid, vote):
 
     post = Post.objects.get(id=postid)
 
+
     user = myUser.objects.get(id=userid)
-
     user_votes, notexist = UserVotes.objects.get_or_create(user=user)
-    user_votes.votes -= 1
-    if user_votes.votes <= 0:
-        user.has_votes = False
-        user.save()
+    if user_votes.count != "B":
 
-    user_votes.save()
+        if user_votes.count != "U":
+            user_votes.votes -= 1
+            user_votes.save()
+        if user_votes.votes <= 0 and user_votes.count != "U":
+            user.has_votes = False
+            user.save()
 
-    user_rating, notexist = RatingUser.objects.get_or_create(user=user)
-    if notexist:
-        user_rating.save()
-    if post.rateable:
-        v = VotePost(post=post, rate=vote, score= user_votes.weight)
-        v.save()
+        if post.rateable:
+            v = VotePost(post=post, rate=vote, score= user_votes.weight)
+            v.save()
 
 @app.task(name="CalcPostRating")
 def CalcPostRating():
     #another task
-    dt = datetime.datetime.now()
+    delta = datetime.timedelta(hours=+3)
+    tz = datetime.timezone(delta)
+
+    dt = datetime.datetime.now(tz=tz)
+    rt = datetime.timedelta(hours=-2)
     day = datetime.timedelta(hours=-24)
     week = datetime.timedelta(days=-7)
     month = datetime.timedelta(weeks=-4)
@@ -77,12 +80,45 @@ def CalcPostRating():
     ratings = RatingPost.objects.filter(post__id__in=post_ids)
 
     for post in posts:
+        rt_change = False
+        day_change = False
+        week_change = False
+        month_change = False
 
         post_rating, notexist = ratings.get_or_create(post=post)
+        tag_rating, notexist = RatingTag.objects.get_or_create(tag=post.main_tag)
+        author_rating, notexist = RatingUser.objects.get_or_create(user=post.author)
 
         #rating
         sum = 0.0
         votes_count = 0
+        start = dt + rt
+        votes = vote_list.filter(post=post).filter(counted=False)\
+            .filter(created__range=(start, end))
+        if votes.count() > 0:
+            print("******")
+            print("Counting votes")
+            print("******")
+
+            for i in votes:
+                if i.rate == 0:
+                    sum -= i.score
+                if i.rate == 1:
+                    sum += i.score
+                votes_count += 1
+                i.counted = True
+                i.save()
+            post_rating.votes += votes_count
+            post_rating.rating += sum
+            tag_rating.votes += votes_count
+            tag_rating.rating += sum/50
+            author_rating.rating += sum/50
+            author_rating.votes += votes_count
+            author_rating.save()
+            rt_change = True
+
+        #rating for day
+        sum = 0.0
         start = dt + day
         votes = vote_list.filter(post=post).filter(created__range=(start, end))
         for i in votes:
@@ -90,9 +126,13 @@ def CalcPostRating():
                 sum -= i.score
             if i.rate == 1:
                 sum += i.score
-            votes_count += 1
-        post_rating.votes += votes_count
-        post_rating.rating += sum
+
+        if post_rating.day != sum:
+            print("Counting votes for day")
+            post_rating.day = sum
+            tag_rating.day = sum/50
+            day_change = True
+
 
         #rating for last week
         sum = 0.0
@@ -103,7 +143,11 @@ def CalcPostRating():
                 sum -= i.score
             if i.rate == 1:
                 sum += i.score
-        post_rating.week = sum
+
+        if post_rating.week != sum:
+            post_rating.week = sum
+            tag_rating.week = sum/50
+            week_change = True
 
         #rating for last month
         sum = 0.0
@@ -114,16 +158,52 @@ def CalcPostRating():
                 sum -= i.score
             if i.rate == 1:
                 sum += i.score
-        post_rating.month = sum
 
-        post_rating.save()
+        if post_rating.month != sum:
+            print("Counting votes for month")
+            post_rating.month = sum
+            tag_rating.month = sum/50
+            month_change = True
 
-    #delete votes older than 2 month
+        if rt_change or day_change or week_change or month_change:
+            print("save rating for post - ", str(post))
+            post_rating.save()
+            tag_rating.save()
+
+@app.task(name="userVotes")
+def userVotes():
+    usersVotes = UserVotes.objects.all()
+    delta_tz = datetime.timedelta(hours=+3)
+    tz = datetime.timezone(delta_tz)
+    delta = datetime.timedelta(weeks=4)
+    dt = datetime.datetime.now(tz=tz)
+    for vote in usersVotes:
+        if vote.count == "N" or vote.count == "B":
+            user = vote.user
+            if user.date_joined < dt - delta:
+                coef = 0.25
+                vote.votes = 20
+            else:
+                coef = 0.0
+                vote.votes = 10
+
+            user_rating = RatingUser.objects.get(user=user)
+            vote.weight = 0.25 + coef + user_rating.rating/50
+            user.has_votes = True
+            print("User: " + str(user)+" weight "+str(vote.weight)+ " votes "+ str(vote.votes))
+            user.save()
+            vote.save()
+
+@app.task(name="deleteOldVotes")
+def deleteOldVotes():
+    delta = datetime.timedelta(hours=+3)
+    tz = datetime.timezone(delta)
+    dt = datetime.datetime.now(tz=tz)
+
+    dt = datetime.datetime.now()
     start = dt + datetime.timedelta(weeks=-96)
-    end = dt + two_month
-
-
-    vote_list.filter(created__range=(start, end)).delete()
+    end = dt + datetime.timedelta(weeks=-4, days=-3)
+    VotePost.objects.all().filter(created__range=(start, end)).delete()
 
 @app.task(name="addPost")
 def addPost(post_id, tag_list):

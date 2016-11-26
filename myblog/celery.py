@@ -19,13 +19,25 @@ app.config_from_object('django.conf:settings', namespace='CELERY')
 # Load task modules from all registered Django app configs.
 app.autodiscover_tasks()
 
-"""app.conf.beat_schedule = {
-    'add-every-30-seconds': {
-        'task': 'taglist',
-        'schedule': 10.0,
+app.conf.beat_schedule = {
+    'Post Rating everyhour': {
+        'task': 'CalcPostRating',
+        'schedule': 60.0, #3600
         'args': ()
     },
-}"""
+    'User Votes every day': {
+        'task': 'userVotes',
+        #'schedule': crontab(hour=5, minute=1),
+        'schedule': 300.0, #3600
+        'args': (),
+    },
+    'Delete Old Votes every week': {
+        'task': 'deleteOldVotes',
+        'schedule': crontab(hour=5, minute=1, day_of_week=0),
+        #'schedule': 60.0, #3600
+        'args': (),
+    },
+}
 
 @app.task(bind=True)
 def debug_task(self):

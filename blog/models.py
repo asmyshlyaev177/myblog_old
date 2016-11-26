@@ -163,11 +163,13 @@ class Rating(models.Model):
 
 class RatingPost(Rating):
 	post = models.ForeignKey('Post')
+	day = models.FloatField(blank = True, null = True)
 	month = models.FloatField(blank = True, null = True)
 	week = models.FloatField(blank = True, null = True)
 
 class RatingTag(Rating):
 	tag = models.ForeignKey('Tag')
+	day = models.FloatField(blank = True, null = True)
 	month = models.FloatField(blank = True, null = True)
 	week = models.FloatField(blank = True, null = True)
 
@@ -180,6 +182,7 @@ class Vote(models.Model):
 	rate = models.BooleanField()
 	score = models.FloatField(null = True, blank = True)
 	created = models.DateTimeField(auto_now_add=True) #for celery
+	counted = models.BooleanField(default=False)
 	class Meta:
 		abstract = True
 
