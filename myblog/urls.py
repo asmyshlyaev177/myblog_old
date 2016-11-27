@@ -27,6 +27,7 @@ import debug_toolbar
 from django.contrib.auth import views as auth_views
 
 urlpatterns = [
+    url('', include('social.apps.django_app.urls', namespace='social')),
     url(r'^froala_editor\/?', include('froala_editor.urls')),
     #url(r'^$', cache_page(60 * 15)(views.Index), name='Index'),
     url(r'^__debug__/', include(debug_toolbar.urls)),
@@ -35,8 +36,6 @@ urlpatterns = [
     url(r'^pop-(?P<pop>[-\w]+)\/?$', views.list, name='list_pop'),
     #url(r'^ckeditor/', include('ckeditor_uploader.urls')),
     url(r'^add-post\/?$', views.add_post, name='add_post'),
-
-    url(r'^tags.json\/?$', views.tags, name="tags"),
 
     url(r'^signup\/?$', views.signup, name='signup'),
     url(r'^signup_success\/?$', views.signup_success, name='signup_success'),
@@ -56,7 +55,7 @@ urlpatterns = [
         auth_views.password_reset_confirm, name='password_reset_confirm'),
     url(r'^reset/done\/?$', auth_views.password_reset_done, name='password_reset_complete'),
 
-    url(r'^rate/postid-(?P<postid>[-vi\d]+)-rate-(?P<vote>[-vi\d])\/?$',
+    url(r'^rate/postid-(?P<id>[-vi\d]+)-rate-(?P<vote>[-vi\d])\/?$',
             views.rate_post, name='rate_post'),
 
     url(r'^cat/(?P<category>([^\/]+))\/?$', views.list, name='category'),

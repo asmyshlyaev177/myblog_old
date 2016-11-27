@@ -53,9 +53,32 @@ EMAIL_HOST_USER = 'asmyshlyaev177@gmail.com'
 EMAIL_HOST_PASSWORD = 'mypass'
 DEFAULT_EMAIL_FROM = 'asmyshlyaev177@gmail.com'
 
+
+SOCIAL_AUTH_ADMIN_USER_SEARCH_FIELDS = ['email']
+SOCIAL_AUTH_FACEBOOK_KEY = ''
+SOCIAL_AUTH_FACEBOOK_SECRET = ''
+SOCIAL_AUTH_FACEBOOK_SCOPE = ['email']
+SOCIAL_AUTH_GOOGLE_OAUTH_KEY = ''
+SOCIAL_AUTH_GOOGLE_OAUTH_SECRET = ''
+SOCIAL_AUTH_VK_OAUTH2_KEY = ''
+SOCIAL_AUTH_VK_OAUTH2_SECRET = ''
+#SOCIAL_AUTH_VK_APP_USER_MODE = 2
+SOCIAL_AUTH_USER_MODEL = 'blog.myUser'
+SOCIAL_AUTH_PROTECTED_USER_FIELDS = ['email',]
+
+SOCIAL_AUTH_LOGIN_REDIRECT_URL = '/logged-in/'
+SOCIAL_AUTH_LOGIN_ERROR_URL = '/login-error/'
+SOCIAL_AUTH_NEW_USER_REDIRECT_URL = '/new-users-redirect-url/'
+SOCIAL_AUTH_NEW_ASSOCIATION_REDIRECT_URL = '/new-association-redirect-url/'
+SOCIAL_AUTH_INACTIVE_USER_URL = '/inactive-user/'
+
 AUTHENTICATION_BACKENDS = (
     'blog.authentication.UsernameAuthBackend',
     'blog.authentication.EmailAuthBackend',
+
+	'social.backends.google.GoogleOAuth2',
+	#'social.backends.facebook.FacebookOAuth2',
+	#'social.backends.vk.VKOAuth2',
 )
 
 AUTH_USER_MODEL = 'blog.myUser'
@@ -85,6 +108,7 @@ INSTALLED_APPS = [
     'sorl.thumbnail',
     'django_cleanup',
     'django_celery_results',
+    'social.apps.django_app.default',
 ]
 
 CELERY_RESULT_BACKEND = 'django-db'
@@ -134,6 +158,8 @@ TEMPLATES = [
         'OPTIONS': {
             'context_processors': [
                 'django.template.context_processors.debug',
+                'social.apps.django_app.context_processors.backends',
+                'social.apps.django_app.context_processors.login_redirect',
                 'django.contrib.auth.context_processors.auth',
                 'django.template.context_processors.request',
                 'django.contrib.messages.context_processors.messages',

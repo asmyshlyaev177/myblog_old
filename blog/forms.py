@@ -4,7 +4,6 @@ from django.contrib.auth.forms import (UserCreationForm,
 from django import forms
 from blog.models import myUser, Post
 from django.conf import settings
-from django_summernote.widgets import SummernoteWidget, SummernoteInplaceWidget
 from froala_editor.widgets import FroalaEditor
 
 #forms for users
