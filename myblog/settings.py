@@ -41,10 +41,6 @@ JQUERY_URL = ""
 SHOW_COLLAPSED = True
 INTERNAL_IPS = ['192.168.1.68', '192.168.1.70', '127.0.0.1']
 
-LOGIN_REDIRECT_URL = '/'
-LOGOUT_REDIRECT_URL = '/'
-#LOGIN_REDIRECT_URL = request.next
-
 EMAIL_USE_TLS = True
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_HOST='smtp.gmail.com'
@@ -58,25 +54,46 @@ SOCIAL_AUTH_ADMIN_USER_SEARCH_FIELDS = ['email']
 SOCIAL_AUTH_FACEBOOK_KEY = ''
 SOCIAL_AUTH_FACEBOOK_SECRET = ''
 SOCIAL_AUTH_FACEBOOK_SCOPE = ['email']
-SOCIAL_AUTH_GOOGLE_OAUTH_KEY = ''
-SOCIAL_AUTH_GOOGLE_OAUTH_SECRET = ''
+SOCIAL_AUTH_GOOGLE_OAUTH2_KEY = '1045385512187-plh57bf7ees9u12mg0obgo69lov7dje0.apps.googleusercontent.com'
+SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET = 'HmV6SyeDTrDOirzHkrCNZceK'
 SOCIAL_AUTH_VK_OAUTH2_KEY = ''
 SOCIAL_AUTH_VK_OAUTH2_SECRET = ''
 #SOCIAL_AUTH_VK_APP_USER_MODE = 2
 SOCIAL_AUTH_USER_MODEL = 'blog.myUser'
 SOCIAL_AUTH_PROTECTED_USER_FIELDS = ['email',]
 
-SOCIAL_AUTH_LOGIN_REDIRECT_URL = '/logged-in/'
-SOCIAL_AUTH_LOGIN_ERROR_URL = '/login-error/'
-SOCIAL_AUTH_NEW_USER_REDIRECT_URL = '/new-users-redirect-url/'
-SOCIAL_AUTH_NEW_ASSOCIATION_REDIRECT_URL = '/new-association-redirect-url/'
-SOCIAL_AUTH_INACTIVE_USER_URL = '/inactive-user/'
+#LOGIN_REDIRECT_URL = '/'
+LOGOUT_REDIRECT_URL = '/'
+#LOGIN_REDIRECT_URL = request.next
+
+#SOCIAL_AUTH_LOGIN_REDIRECT_URL = '/'
+#SOCIAL_AUTH_LOGIN_ERROR_URL = '/login-error/'
+#SOCIAL_AUTH_NEW_USER_REDIRECT_URL = '/new-users-redirect-url/'
+#SOCIAL_AUTH_NEW_ASSOCIATION_REDIRECT_URL = '/new-association-redirect-url/'
+#SOCIAL_AUTH_INACTIVE_USER_URL = '/inactive-user/'
+SOCIAL_AUTH_URL_NAMESPACE = 'social'
+
+SOCIAL_AUTH_PIPELINE = (
+    'social.pipeline.social_auth.social_details',
+    'social.pipeline.social_auth.social_uid',
+    'social.pipeline.social_auth.auth_allowed',
+    'social.pipeline.social_auth.social_user',
+    'social.pipeline.user.get_username',
+    'social.pipeline.social_auth.associate_by_email',  # <--- enable this one
+    'social.pipeline.user.create_user',
+    'social.pipeline.social_auth.associate_user',
+    'social.pipeline.social_auth.load_extra_data',
+    'social.pipeline.user.user_details',
+)
 
 AUTHENTICATION_BACKENDS = (
+    'social.backends.google.GoogleOAuth2',
+    #'social.backends.google.GoogleOpenId',
+    #'social.backends.google.GoogleOpenIdConnect',
+
     'blog.authentication.UsernameAuthBackend',
     'blog.authentication.EmailAuthBackend',
 
-	'social.backends.google.GoogleOAuth2',
 	#'social.backends.facebook.FacebookOAuth2',
 	#'social.backends.vk.VKOAuth2',
 )

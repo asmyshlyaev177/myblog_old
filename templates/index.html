@@ -145,6 +145,7 @@ style="border: 1px black dotted;">
     {% else %}
       <p><a href="{% url 'signup' %}">Register</a></p>
       <p><a href="{% url 'login' %}">Login</a></p>
+      <p><a href="{% url 'social:begin' 'google-oauth2' %}?next={{ request.path }}">Login with google</a></p>
     {% endif %}
     </p>
   </div>
