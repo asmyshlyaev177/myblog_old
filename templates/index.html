@@ -146,6 +146,8 @@ style="border: 1px black dotted;">
       <p><a href="{% url 'signup' %}">Register</a></p>
       <p><a href="{% url 'login' %}">Login</a></p>
       <p><a href="{% url 'social:begin' 'google-oauth2' %}?next={{ request.path }}">Login with google</a></p>
+      <p><a href="{% url 'social:begin' 'facebook' %}?next={{ request.path }}">Login with facebook</a></p>
+      <p><a href="{% url 'social:begin' 'vk-oauth2' %}?next={{ request.path }}">Login with VK</a></p>
     {% endif %}
     </p>
   </div>

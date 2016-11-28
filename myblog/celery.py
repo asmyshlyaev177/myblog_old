@@ -22,13 +22,13 @@ app.autodiscover_tasks()
 app.conf.beat_schedule = {
     'Post Rating everyhour': {
         'task': 'CalcPostRating',
-        'schedule': 60.0, #3600
+        'schedule': 120.0, #3600
         'args': ()
     },
     'User Votes every day': {
         'task': 'userVotes',
         #'schedule': crontab(hour=5, minute=1),
-        'schedule': 300.0, #3600
+        'schedule': 120.0, #3600
         'args': (),
     },
     'Delete Old Votes every week': {

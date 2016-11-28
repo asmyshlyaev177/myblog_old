@@ -38,6 +38,14 @@ class MyUserManager(BaseUserManager):
 
 		user.set_password(password)
 		user.save(using=self._db)
+
+		user_rating, _ = RatingUser.objects.get_or_create(user=user)
+		user_rating.user = user
+		user_rating.rating = 0.0
+		user_votes, _ = UserVotes.objects.get_or_create(user=user)
+		user_votes.user = user
+		user_rating.save()
+		user_votes.save()
 		return user
 
 	def create_superuser(self, username, email, password):
@@ -113,13 +121,6 @@ class myUser(AbstractBaseUser):
 		return self.is_it_staff
 
 	def save(self, *args, **kwargs):
-		user_rating, _ = RatingUser.objects.get_or_create(user=self)
-		user_rating.user = self
-		user_rating.rating = 0.0
-		user_votes, _ = UserVotes.objects.get_or_create(user=self)
-		user_votes.user = self
-		user_rating.save()
-		user_votes.save()
 
 		super(myUser, self).save(*args, **kwargs)
 

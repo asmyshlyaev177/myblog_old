@@ -51,20 +51,24 @@ DEFAULT_EMAIL_FROM = 'asmyshlyaev177@gmail.com'
 
 
 SOCIAL_AUTH_ADMIN_USER_SEARCH_FIELDS = ['email']
-SOCIAL_AUTH_FACEBOOK_KEY = ''
-SOCIAL_AUTH_FACEBOOK_SECRET = ''
+SOCIAL_AUTH_FACEBOOK_KEY = '1776776585908599'
+SOCIAL_AUTH_FACEBOOK_SECRET = 'eb2bbc8be836f5f87c0c0c11eec821b0'
 SOCIAL_AUTH_FACEBOOK_SCOPE = ['email']
+SOCIAL_AUTH_FACEBOOK_PROFILE_EXTRA_PARAMS = {
+  'locale': 'ru_RU',
+  'fields': 'name, email'
+}
 SOCIAL_AUTH_GOOGLE_OAUTH2_KEY = '1045385512187-plh57bf7ees9u12mg0obgo69lov7dje0.apps.googleusercontent.com'
 SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET = 'HmV6SyeDTrDOirzHkrCNZceK'
-SOCIAL_AUTH_VK_OAUTH2_KEY = ''
-SOCIAL_AUTH_VK_OAUTH2_SECRET = ''
+SOCIAL_AUTH_VK_OAUTH2_KEY = '5148734'
+SOCIAL_AUTH_VK_OAUTH2_SECRET = 'jb2OnfWL2aCWns1hPSaP'
+SOCIAL_AUTH_VK_OAUTH2_SCOPE = ['email']
 #SOCIAL_AUTH_VK_APP_USER_MODE = 2
 SOCIAL_AUTH_USER_MODEL = 'blog.myUser'
 SOCIAL_AUTH_PROTECTED_USER_FIELDS = ['email',]
 
-#LOGIN_REDIRECT_URL = '/'
+LOGIN_REDIRECT_URL = '/'
 LOGOUT_REDIRECT_URL = '/'
-#LOGIN_REDIRECT_URL = request.next
 
 #SOCIAL_AUTH_LOGIN_REDIRECT_URL = '/'
 #SOCIAL_AUTH_LOGIN_ERROR_URL = '/login-error/'
@@ -72,6 +76,7 @@ LOGOUT_REDIRECT_URL = '/'
 #SOCIAL_AUTH_NEW_ASSOCIATION_REDIRECT_URL = '/new-association-redirect-url/'
 #SOCIAL_AUTH_INACTIVE_USER_URL = '/inactive-user/'
 SOCIAL_AUTH_URL_NAMESPACE = 'social'
+
 
 SOCIAL_AUTH_PIPELINE = (
     'social.pipeline.social_auth.social_details',
@@ -90,12 +95,11 @@ AUTHENTICATION_BACKENDS = (
     'social.backends.google.GoogleOAuth2',
     #'social.backends.google.GoogleOpenId',
     #'social.backends.google.GoogleOpenIdConnect',
-
     'blog.authentication.UsernameAuthBackend',
     'blog.authentication.EmailAuthBackend',
 
-	#'social.backends.facebook.FacebookOAuth2',
-	#'social.backends.vk.VKOAuth2',
+	'social.backends.facebook.FacebookOAuth2',
+	'social.backends.vk.VKOAuth2',
 )
 
 AUTH_USER_MODEL = 'blog.myUser'

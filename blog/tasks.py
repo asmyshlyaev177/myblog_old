@@ -2,8 +2,7 @@ from celery import Celery
 from celery.task import periodic_task
 from datetime import timedelta
 import os, datetime, json, re
-from blog.models import Post
-from blog.models import (RatingPost,RatingTag, Tag, Rating, Thumbnail, myUser,
+from blog.models import (Post, RatingPost,RatingTag, Tag, Rating, Thumbnail, myUser,
                         UserVotes, RatingUser, VotePost)
 from slugify import slugify, SLUG_OK
 from bs4 import BeautifulSoup
@@ -13,6 +12,7 @@ import datetime
 #from django.utils import timezone
 #from django.http import (HttpResponse,JsonResponse)
 from urllib.request import urlopen, urlretrieve, Request
+from django.utils.encoding import uri_to_iri
 
 from time import gmtime, strftime
 
@@ -225,46 +225,80 @@ def addPost(post_id, tag_list):
                 tag.save()
             data.tags.add(tag)
         if j:
-            if tag.url != "" and tag.url != None:
+            try:
                 data.main_tag = tag
-            else:
-                t = Tag.objects.get(id=8)
-                data.main_tag = t
+            except:
+                tag = Tag.objects.get(id=8)
+                data.main_tag = tag
             j = False
 
-        """Resize img if it is bigger than thumb"""
-        soup = BeautifulSoup(data.text) #текст поста
+        """Make few srcsets"""
+        soup = BeautifulSoup(uri_to_iri(data.text)) #текст поста
         img_links = soup.find_all("img") #ищем все картинки
-
-        thumb_img_size = 640, 480
+        src_szs = [480, 800, 1366, 1600, 1920]
+        #thumb_img_size = 640, 480
+        #sz1,sz2,sz3,sz4 = 480,1366,1600,1920
+        #srcset1,srcset2,srcset3,srcset4 = ""
 
         if len(img_links) != 0:
             for i in img_links: # для каждой
+                srcset = {}
 
 				# находим ссылку и файл и вых. файл
                 del i['style'] #удаляем стиль
                 link = re.search(r"/(?P<year>\d{4})/(?P<month>\d{1,2})/(?P<day>\d{1,2})/(?P<file>\S*)\.(?P<ext>\w*)", str(i))
                 file = '/root/myblog/myblog/blog/static/media/{}/{}/{}/{}.{}'\
                 .format(link.group("year"), link.group("month"),link.group("day"),link.group("file"),link.group("ext"))
-                file_out = '/root/myblog/myblog/blog/static/media/{}/{}/{}/{}-thumbnail.{}'\
-                .format(link.group("year"), link.group("month"),link.group("day"),link.group("file"),link.group("ext"))
+
+                #file_out = '/root/myblog/myblog/blog/static/media/{}/{}/{}/{}-thumbnail.{}'\
+                #.format(link.group("year"), link.group("month"),link.group("day"),link.group("file"), link.group("ext"))
+
                 if os.path.isfile(file):
 
-					#i['class'] = img_class # присваиваем
                     i['class'] = 'responsive-img'
 					# если картинка больше нужного размера создаём миниатюру
                     w,h = Image.open(file).size
-                    if w > thumb_img_size[0]:
 
-                        img = Image.open(file)
-                        img.thumbnail(thumb_img_size)
-                        img.save(file_out) # сохраняем
-                        i['src'] = '/media/{}/{}/{}/{}-thumbnail.{}'.format(link.group("year"), link.group("month"),link.group("day"),link.group("file"),link.group("ext"))
-                        a_tag = soup.new_tag("a")
-                        # оборачиваем в ссылку на оригинал
-                        a_tag['href'] = '/media/{}/{}/{}/{}.{}'.format(link.group("year"), link.group("month"),link.group("day"),link.group("file"),link.group("ext"))
-                        a_tag['data-gallery'] = ""
-                        i = i.wrap(a_tag)
+                    for sz in reversed(src_szs):
+                        if w > sz:
+                            file_out = '/root/myblog/myblog/blog/static/media/{}/{}/{}/{}-{}.{}'\
+								.format(link.group("year"), link.group("month"),link.group("day"),link.group("file"),\
+								sz, link.group("ext"))
+                            link_out = '/media/{}/{}/{}/{}-{}.{}'\
+								.format(link.group("year"), link.group("month"),link.group("day"),link.group("file"),\
+								sz, link.group("ext"))
+                            srcset[sz] = link_out
+                            img = Image.open(file)
+                            sz_tuple = (sz, sz*10)
+                            img.thumbnail(sz_tuple)
+                            img.save(file_out) # сохраняем
+
+                            src_str=""
+                            for src_sz in srcset.keys():
+                                src_str +=srcset[src_sz] + " "+str(src_sz)+"w, "
+                            src_str = src_str.rstrip(', ')
+                            i['srcset'] = src_str
+
+                    if 1366 in srcset:
+                        alt = srcset[1366]
+                    elif 800 in srcset:
+                        alt = srcset[800]
+                    else:
+                        alt = srcset[480]
+
+                    i['src'] = '/media/{}/{}/{}/{}-{}.{}'.\
+                        format(link.group("year"), link.group("month"),\
+                               link.group("day"),link.group("file"),alt,\
+                               link.group("ext"))
+
+                    a_tag = soup.new_tag("a")
+                    # оборачиваем в ссылку на оригинал
+                    a_tag['href'] = '/media/{}/{}/{}/{}.{}'.\
+                        format(link.group("year"), link.group("month"),\
+                               link.group("day"),link.group("file"),\
+                               link.group("ext"))
+                    a_tag['data-gallery'] = ""
+                    i = i.wrap(a_tag)
 
 		# выравниваем видео по центру
 
@@ -320,6 +354,9 @@ def addPost(post_id, tag_list):
         if _:
             post_rating.rating = 0.0
         post_rating.save()
-        if have_new_tags:
+        try:
+            if have_new_tags:
+                pass
+                #taglist.delay()
+        except:
             pass
-            #taglist.delay()
