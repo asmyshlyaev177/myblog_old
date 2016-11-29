@@ -234,7 +234,7 @@ class Post(models.Model):
 
 	post_image.short_description = 'Image'
 	post_thumbnail = ImageSpecField(source='post_image',
-								processors=[ResizeToFit(640, 480)],
+								processors=[ResizeToFit(1366, 2000)],
 								format='JPEG',
 								options={'quality': 85})
 	def get_image(self):

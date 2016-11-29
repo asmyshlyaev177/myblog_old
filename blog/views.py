@@ -122,8 +122,10 @@ def add_post(request):
         if form.is_valid():
 
             data = form.save(commit=False)
-            if request.user.moderated == False:
-                data.status = "P"
+            if request.user.moderated:
+                moderated = True
+            else:
+                moderated = False
 
             data.author = request.user
             data.url = slugify(data.title)
@@ -133,7 +135,7 @@ def add_post(request):
             have_new_tags = False
             data.save()
             post_id = data.id
-            addPost.delay(post_id, tag_list)
+            addPost.delay(post_id, tag_list, moderated)
 
 
 
@@ -213,8 +215,8 @@ def list(request, category=None, tag=None, pop=None):
 
     return render(request, template, context )
 
-@cache_page(60)
-@cache_control(max_age=60)
+@cache_page(3)
+@cache_control(max_age=3)
 @vary_on_headers('X-Requested-With', 'Cookie')
 #@never_cache
 def single_post(request,  tag, title, id):
