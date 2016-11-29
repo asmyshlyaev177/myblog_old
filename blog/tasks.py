@@ -13,7 +13,7 @@ import datetime
 #from django.http import (HttpResponse,JsonResponse)
 from urllib.request import urlopen, urlretrieve, Request
 from django.utils.encoding import uri_to_iri
-
+from blog.functions import srcsets, findFile, findLink, srcsetThumb
 from time import gmtime, strftime
 
 app = Celery('tasks', broker='pyamqp://guest@localhost//')
@@ -205,89 +205,6 @@ def deleteOldVotes():
     end = dt + datetime.timedelta(weeks=-4, days=-3)
     VotePost.objects.all().filter(created__range=(start, end)).delete()
 
-def findLink(text):
-    return re.search(r"/(?P<year>\d{4})/(?P<month>\d{1,2})/(?P<day>\d{1,2})/(?P<file>\S*)\.(?P<ext>\w*)", str(text))
-
-def findFile(link):
-    return '/root/myblog/myblog/blog/static/media/{}/{}/{}/{}.{}'\
-    .format(link.group("year"), link.group("month"),link.group("day"),\
-            link.group("file"),link.group("ext"))
-
-def srcsets(text, wrap_a):
-    """Make few srcsets"""
-    soup = BeautifulSoup(uri_to_iri(text)) #текст поста
-    img_links = soup.find_all("img") #ищем все картинки
-    src_szs = [480, 800, 1366, 1600, 1920]
-
-
-    if len(img_links) != 0:
-        for i in img_links: # для каждой
-            srcset = {}
-            notgif = False
-
-            # находим ссылку и файл и вых. файл
-            del i['style'] #удаляем стиль
-            link = findLink(i)
-            file = findFile(link)
-
-            #file_out = '/root/myblog/myblog/blog/static/media/{}/{}/{}/{}-thumbnail.{}'\
-            #.format(link.group("year"), link.group("month"),link.group("day"),link.group("file"), link.group("ext"))
-
-            if os.path.isfile(file):
-
-                i['class'] = 'responsive-img'
-                # если картинка больше нужного размера создаём миниатюру
-                w,h = Image.open(file).size
-                ext = i['src'].split('.')[-1].lower()
-
-                if ext == "jpg" or ext == "jpeg" or ext == "bmp" or ext == "png":
-                    notgif = True
-
-                if notgif:
-                    for sz in reversed(src_szs):
-                        if w > sz:
-                            file_out = '/root/myblog/myblog/blog/static/media/{}/{}/{}/{}-{}.{}'\
-                                .format(link.group("year"), link.group("month"),link.group("day"),link.group("file"),\
-                                sz, link.group("ext"))
-                            link_out = '/media/{}/{}/{}/{}-{}.{}'\
-                                .format(link.group("year"), link.group("month"),link.group("day"),link.group("file"),\
-                                sz, link.group("ext"))
-                            srcset[sz] = link_out
-                            img = Image.open(file)
-                            sz_tuple = (sz, sz*10)
-                            img.thumbnail(sz_tuple)
-                            img.save(file_out) # сохраняем
-
-                            src_str=""
-                            for src_sz in srcset.keys():
-                                src_str +=srcset[src_sz] + " "+str(src_sz)+"w, "
-                            src_str = src_str.rstrip(', ')
-                            i['srcset'] = src_str
-
-                    if 1366 in srcset:
-                        alt = srcset[1366]
-                    elif 800 in srcset:
-                        alt = srcset[800]
-                    elif 480 in srcset:
-                        alt = srcset[480]
-                    else:
-                        alt = ""
-
-                    i['src'] = '/media/{}/{}/{}/{}-{}.{}'.\
-                        format(link.group("year"), link.group("month"),\
-                               link.group("day"),link.group("file"),alt,\
-                               link.group("ext"))
-                if wrap_a and notgif:
-                    a_tag = soup.new_tag("a")
-                    # оборачиваем в ссылку на оригинал
-                    a_tag['href'] = '/media/{}/{}/{}/{}.{}'.\
-                        format(link.group("year"), link.group("month"),\
-                               link.group("day"),link.group("file"),\
-                               link.group("ext"))
-                    a_tag['data-gallery'] = ""
-                    i = i.wrap(a_tag)
-    return soup
-
 @app.task(name="addPost")
 def addPost(post_id, tag_list, moderated):
     data = Post.objects.get(id=post_id)
@@ -363,13 +280,7 @@ def addPost(post_id, tag_list, moderated):
             data.image_url = ""
 
         if data.post_image and data.post_image_gif() == False:
-            thumb = BeautifulSoup().new_tag("img")
-            thumb['src'] = "/"+str(data.post_image)
-            soup = srcsets(thumb, False)
-            soup.html.unwrap()
-            soup.head.unwrap()
-            soup.body.unwrap()
-            data.image_url = soup.prettify()
+            data.image_url = srcsetThumb(data.post_image)
 
         if not moderated:
             data.status = "P"
@@ -383,9 +294,9 @@ def addPost(post_id, tag_list, moderated):
         if _:
             post_rating.rating = 0.0
         post_rating.save()
-        try:
+        """try:
             if have_new_tags:
                 pass
                 #taglist.delay()
         except:
-            pass
+            pass"""

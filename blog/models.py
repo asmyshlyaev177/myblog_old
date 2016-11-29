@@ -17,12 +17,10 @@ from PIL import Image
 #from unidecode import unidecode
 from urllib.parse import urlparse, urlencode
 from urllib.request import urlopen, urlretrieve, Request
-
+from blog.functions import srcsets, findFile, findLink, srcsetThumb,deleteThumb
 from django.conf import settings
 #import socket #timeout just for test
 #socket.setdefaulttimeout(10)
-
-thumb_img_size = 640, 480
 
 class MyUserManager(BaseUserManager):
 	def create_user(self, username, email, password=None):
@@ -283,13 +281,9 @@ class Post(models.Model):
 
 @receiver(models.signals.post_delete, sender=Post)
 def delete_image_and_thumb(sender, instance, **kwargs):
-	# удаляем файлы картинок при удалении поста
-	img_links = re.findall\
-		(r"/(?P<year>\d{4})/(?P<month>\d{1,2})/(?P<day>\d{1,2})/(?P<file>\S*.jpg)", instance.text)
-	for img in img_links:
-		img_path = '/root/myblog/myblog/blog/static/media/{}/{}/{}/{}'.format(img[0], img[1],img[2],img[3])
-		if os.path.isfile(img_path):
-			os.remove(img_path)
+
+	deleteThumb(instance.text)
+	deleteThumb(instance.image_url)
 
 
 
@@ -308,6 +302,12 @@ def delete_old_image_and_thumb(sender, instance, **kwargs):
 
 	if not old_file == new_file and old_file:
 		if os.path.isfile(old_file.path):
+			deleteThumb(instance.post_url)
+
+			thumb = srcsetThumb(instance.post_image)
+
+			instance.post_image = thumb
+
 			os.remove(old_file.path)
 
 	try:
