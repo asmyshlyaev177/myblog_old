@@ -12,7 +12,7 @@ import datetime
 #from django.utils import timezone
 #from django.http import (HttpResponse,JsonResponse)
 from urllib.request import urlopen, urlretrieve, Request
-from django.utils.encoding import uri_to_iri
+from django.utils.encoding import uri_to_iri, iri_to_uri
 from blog.functions import srcsets, findFile, findLink, srcsetThumb
 from time import gmtime, strftime
 
@@ -235,7 +235,6 @@ def addPost(post_id, tag_list, moderated):
 
 		# создаём картинки из текста
         soup = srcsets(data.text, True)
-
         # выравниваем видео по центру
         ifr_links = soup.find_all("iframe")
         ifr_class = []
@@ -248,7 +247,7 @@ def addPost(post_id, tag_list, moderated):
                 i['class'] = ifr_class
 
         soup.html.unwrap()
-        soup.head.unwrap()
+        #soup.head.unwrap()
         soup.body.unwrap()
         data.text = soup.prettify()
 

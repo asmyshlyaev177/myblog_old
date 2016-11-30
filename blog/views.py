@@ -133,7 +133,7 @@ def add_post(request):
             tag_list = request.POST['hidden_tags'].split(',') # tags list
 
             have_new_tags = False
-            data.save()
+            data.save() 
             post_id = data.id
             addPost.delay(post_id, tag_list, moderated)
 

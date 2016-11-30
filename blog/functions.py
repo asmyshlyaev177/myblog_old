@@ -5,7 +5,7 @@ from PIL import Image
 from urllib.parse import urlparse, urlencode
 import datetime
 from urllib.request import urlopen, urlretrieve, Request
-from django.utils.encoding import uri_to_iri
+from django.utils.encoding import uri_to_iri, iri_to_uri
 from time import gmtime, strftime
 
 def deleteThumb(text):
@@ -18,11 +18,11 @@ def deleteThumb(text):
 			os.remove(img_path)
 
 def srcsetThumb(data):
-    thumb = BeautifulSoup().new_tag("img")
+    thumb = BeautifulSoup("lxml").new_tag("img")
     thumb['src'] = "/"+str(data)
     soup = srcsets(thumb, False)
     soup.html.unwrap()
-    soup.head.unwrap()
+    #soup.head.unwrap()
     soup.body.unwrap()
     image_url = soup.prettify()
     return str(image_url)
@@ -40,7 +40,7 @@ def findFile(link):
 
 def srcsets(text, wrap_a):
     """Make few srcsets"""
-    soup = BeautifulSoup(uri_to_iri(text)) #текст поста
+    soup = BeautifulSoup(uri_to_iri(text), "lxml") #текст поста
     img_links = soup.find_all("img") #ищем все картинки
     src_szs = [480, 800, 1366, 1600, 1920]
 
@@ -52,8 +52,8 @@ def srcsets(text, wrap_a):
 
             # находим ссылку и файл и вых. файл
             del i['style'] #удаляем стиль
-            link = findLink(i)
-            file = findFile(link)
+            link = findLink(iri_to_uri(i))
+            file = uri_to_iri(findFile(link))
 
             #file_out = '/root/myblog/myblog/blog/static/media/{}/{}/{}/{}-thumbnail.{}'\
             #.format(link.group("year"), link.group("month"),link.group("day"),link.group("file"), link.group("ext"))
@@ -72,10 +72,12 @@ def srcsets(text, wrap_a):
                     for sz in reversed(src_szs):
                         if w > sz:
                             file_out = '/root/myblog/myblog/blog/static/media/{}/{}/{}/{}-{}.{}'\
-                                .format(link.group("year"), link.group("month"),link.group("day"),link.group("file"),\
+                                .format(link.group("year"), link.group("month"),\
+								link.group("day"),uri_to_iri(link.group("file")),\
                                 sz, link.group("ext"))
                             link_out = '/media/{}/{}/{}/{}-{}.{}'\
-                                .format(link.group("year"), link.group("month"),link.group("day"),link.group("file"),\
+                                .format(link.group("year"), link.group("month")\
+								,link.group("day"),uri_to_iri(link.group("file")),\
                                 sz, link.group("ext"))
                             srcset[sz] = link_out
                             img = Image.open(file)
@@ -83,11 +85,11 @@ def srcsets(text, wrap_a):
                             img.thumbnail(sz_tuple)
                             img.save(file_out) # сохраняем
 
-                            src_str=""
-                            for src_sz in srcset.keys():
-                                src_str +=srcset[src_sz] + " "+str(src_sz)+"w, "
-                            src_str = src_str.rstrip(', ')
-                            i['srcset'] = src_str
+                    src_str=""
+                    for src in srcset.keys():
+                        src_str +=srcset[src] + " "+str(src)+"w, "
+                    src_str = src_str.rstrip(', ')
+                    i['srcset'] = src_str
 
                     if 1366 in srcset:
                         alt = srcset[1366]
@@ -98,10 +100,14 @@ def srcsets(text, wrap_a):
                     else:
                         alt = ""
 
-                    i['src'] = '/media/{}/{}/{}/{}-{}.{}'.\
+                    i['src'] = alt
+                    i['sizes'] =  "60vw"
+					# "(min-width: 40em) 33.3vw, 100vw"
+
+                    """i['src'] = '/media/{}/{}/{}/{}-{}.{}'.\
                         format(link.group("year"), link.group("month"),\
                                link.group("day"),link.group("file"),alt,\
-                               link.group("ext"))
+                               link.group("ext"))"""
                 if wrap_a and notgif:
                     a_tag = soup.new_tag("a")
                     # оборачиваем в ссылку на оригинал
