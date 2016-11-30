@@ -80,7 +80,7 @@ def srcsets(text, wrap_a):
 								,link.group("day"),link.group("file"),\
                                 sz, link.group("ext"))
                             srcset[sz] = link_out
-                            img = Image.open(str(file))
+                            img = Image.open(file)
                             sz_tuple = (sz, sz*10)
                             img.thumbnail(sz_tuple)
                             img.save(file_out) # сохраняем
