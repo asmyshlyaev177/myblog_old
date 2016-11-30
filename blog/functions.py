@@ -77,10 +77,10 @@ def srcsets(text, wrap_a):
                                 sz, link.group("ext"))
                             link_out = '/media/{}/{}/{}/{}-{}.{}'\
                                 .format(link.group("year"), link.group("month")\
-								,link.group("day"),uri_to_iri(link.group("file")),\
+								,link.group("day"),link.group("file"),\
                                 sz, link.group("ext"))
                             srcset[sz] = link_out
-                            img = Image.open(file)
+                            img = Image.open(str(file))
                             sz_tuple = (sz, sz*10)
                             img.thumbnail(sz_tuple)
                             img.save(file_out) # сохраняем
@@ -113,7 +113,7 @@ def srcsets(text, wrap_a):
                     # оборачиваем в ссылку на оригинал
                     a_tag['href'] = '/media/{}/{}/{}/{}.{}'.\
                         format(link.group("year"), link.group("month"),\
-                               link.group("day"),link.group("file"),\
+                               link.group("day"),uri_to_iri(link.group("file")),\
                                link.group("ext"))
                     a_tag['data-gallery'] = ""
                     i = i.wrap(a_tag)
