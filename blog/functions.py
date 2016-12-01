@@ -8,14 +8,22 @@ from urllib.request import urlopen, urlretrieve, Request
 from django.utils.encoding import uri_to_iri, iri_to_uri
 from time import gmtime, strftime
 
+src_szs = [480, 800, 1366, 1600, 1920]
+
 def deleteThumb(text):
 	# удаляем файлы картинок при удалении поста
 	img_links = re.findall\
-		(r"/(?P<year>\d{4})/(?P<month>\d{1,2})/(?P<day>\d{1,2})/(?P<file>\S*.jpg)", str(text))
+        (r"/(?P<year>\d{4})/(?P<month>\d{1,2})/(?P<day>\d{1,2})/(?P<file>\S*)-(?P<res>\d{3,4})\.(?P<ext>\S*)"\
+        ,str(text))
+	img_path = []
 	for img in img_links:
-		img_path = '/root/myblog/myblog/blog/static/media/{}/{}/{}/{}'.format(img[0], img[1],img[2],img[3])
-		if os.path.isfile(img_path):
-			os.remove(img_path)
+		img_path.append(uri_to_iri('/root/myblog/myblog/blog/static/media/{}/{}/{}/{}{}.{}'\
+                                   .format(img[0], img[1],img[2],img[3],"-"+img[4],img[5])))
+		img_path.append(uri_to_iri('/root/myblog/myblog/blog/static/media/{}/{}/{}/{}.{}'\
+                                   .format(img[0], img[1],img[2],img[3],img[5])))
+	for i in img_path:
+		if os.path.isfile(i):
+			os.remove(i)
 
 def srcsetThumb(data):
     thumb = BeautifulSoup("lxml").new_tag("img")
@@ -49,8 +57,9 @@ def saveImage(link, file, sz ):
 		sz, link.group("ext"))
 	img = Image.open(file)
 	sz_tuple = (sz, sz*20)
+
 	img.thumbnail(sz_tuple, Image.ANTIALIAS)
-	img.save(file_out, quality=90) # сохраняем
+	img.save(file_out, subsampling=0, quality='keep') # сохраняем
 	return link_out
 
 
@@ -58,7 +67,6 @@ def srcsets(text, wrap_a):
     """Make few srcsets"""
     soup = BeautifulSoup(uri_to_iri(text), "lxml") #текст поста
     img_links = soup.find_all("img") #ищем все картинки
-    src_szs = [480, 800, 1366, 1600, 1920]
 
 
     if len(img_links) != 0:

@@ -1,3 +1,4 @@
 *.pyc
 **/CACHE/**
 celerybeat-schedule.*
+*.ipnb

@@ -284,8 +284,9 @@ def delete_image_and_thumb(sender, instance, **kwargs):
 
 	deleteThumb(instance.text)
 	deleteThumb(instance.image_url)
-
-
+	file = instance.post_image
+	if os.path.isfile(file.path):
+	    os.remove(file.path)
 
 @receiver(models.signals.pre_save, sender=Post)
 def delete_old_image_and_thumb(sender, instance, **kwargs):

@@ -13,7 +13,18 @@ import os
 import datetime
 from django.utils import timezone
 
+NOTEBOOK_ARGUMENTS = [
+    '--ip', '0.0.0.0',
+    '--port', '8888',
+]
 
+SHELL_PLUS_PRE_IMPORTS = (
+    ('blog.models', ('Post', 'myUser', 'Category', 'Tag', 'Rating',
+                     'RatingPost','RatingTag','RatingUser','VotePost'
+                     ,'UserVotes')),
+    ('blog.functions', ('deleteThumb', 'srcsetThumb', 'findLink',
+                        'findFile', 'saveImage','srcsets',)),
+)
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
@@ -130,6 +141,7 @@ INSTALLED_APPS = [
     'django_cleanup',
     'django_celery_results',
     'social.apps.django_app.default',
+    'django_extensions',
 ]
 
 CELERY_RESULT_BACKEND = 'django-db'
