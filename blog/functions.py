@@ -38,6 +38,22 @@ def findFile(link):
     else:
         return ""
 
+def saveImage(link, file, sz ):
+	file_out = '/root/myblog/myblog/blog/static/media/{}/{}/{}/{}-{}.{}'\
+		.format(link.group("year"), link.group("month"),\
+		link.group("day"),uri_to_iri(link.group("file")),\
+		sz, link.group("ext"))
+	link_out = '/media/{}/{}/{}/{}-{}.{}'\
+		.format(link.group("year"), link.group("month")\
+		,link.group("day"),link.group("file"),\
+		sz, link.group("ext"))
+	img = Image.open(file)
+	sz_tuple = (sz, sz*20)
+	img.thumbnail(sz_tuple, Image.ANTIALIAS)
+	img.save(file_out, quality=90) # сохраняем
+	return link_out
+
+
 def srcsets(text, wrap_a):
     """Make few srcsets"""
     soup = BeautifulSoup(uri_to_iri(text), "lxml") #текст поста
@@ -55,8 +71,11 @@ def srcsets(text, wrap_a):
             link = findLink(iri_to_uri(i))
             file = uri_to_iri(findFile(link))
 
-            #file_out = '/root/myblog/myblog/blog/static/media/{}/{}/{}/{}-thumbnail.{}'\
-            #.format(link.group("year"), link.group("month"),link.group("day"),link.group("file"), link.group("ext"))
+            original_pic = '/media/{}/{}/{}/{}.{}'.\
+				format(link.group("year"), link.group("month"),\
+					   link.group("day"),uri_to_iri(link.group("file")),\
+					   link.group("ext"))
+				# сжимать пикчу! и удалять оригинальный файл
 
             if os.path.isfile(file):
 
@@ -71,34 +90,31 @@ def srcsets(text, wrap_a):
                 if notgif:
                     for sz in reversed(src_szs):
                         if w > sz:
-                            file_out = '/root/myblog/myblog/blog/static/media/{}/{}/{}/{}-{}.{}'\
-                                .format(link.group("year"), link.group("month"),\
-								link.group("day"),uri_to_iri(link.group("file")),\
-                                sz, link.group("ext"))
-                            link_out = '/media/{}/{}/{}/{}-{}.{}'\
-                                .format(link.group("year"), link.group("month")\
-								,link.group("day"),link.group("file"),\
-                                sz, link.group("ext"))
-                            srcset[sz] = link_out
-                            img = Image.open(file)
-                            sz_tuple = (sz, sz*10)
-                            img.thumbnail(sz_tuple)
-                            img.save(file_out) # сохраняем
+                            srcset[sz] = saveImage(link, file, sz )
+
+
+                    if 1600 in srcset:
+                        alt = srcset[1366]   #дефолт
+                        srcset[1920] = saveImage(link, file, 1920 )
+                    elif 1366 in srcset:
+                        srcset[1600] = saveImage(link, file, 1600 )
+                        alt = srcset[1366]
+                    elif 800 in srcset:
+                        srcset[1366] = saveImage(link, file, 1366 )
+                        alt = srcset[1366]
+
+                    elif 480 in srcset:
+                        alt = original_pic
+                        srcset[800] = saveImage(link, file, 800 )
+                    else:
+                        alt = original_pic
+                        srcset[480] = original_pic
 
                     src_str=""
                     for src in srcset.keys():
                         src_str +=srcset[src] + " "+str(src)+"w, "
                     src_str = src_str.rstrip(', ')
                     i['srcset'] = src_str
-
-                    if 1366 in srcset:
-                        alt = srcset[1366]
-                    elif 800 in srcset:
-                        alt = srcset[800]
-                    elif 480 in srcset:
-                        alt = srcset[480]
-                    else:
-                        alt = ""
 
                     i['src'] = alt
                     i['sizes'] =  "60vw"
@@ -111,10 +127,7 @@ def srcsets(text, wrap_a):
                 if wrap_a and notgif:
                     a_tag = soup.new_tag("a")
                     # оборачиваем в ссылку на оригинал
-                    a_tag['href'] = '/media/{}/{}/{}/{}.{}'.\
-                        format(link.group("year"), link.group("month"),\
-                               link.group("day"),uri_to_iri(link.group("file")),\
-                               link.group("ext"))
+                    a_tag['href'] = original_pic
                     a_tag['data-gallery'] = ""
                     i = i.wrap(a_tag)
     return soup

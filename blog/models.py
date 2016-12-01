@@ -146,9 +146,9 @@ def delete_old_avatar(sender, instance, **kwargs):
 			os.remove(old_file.path)
 
 class Thumbnail(ImageSpec):
-	processors = [ResizeToFit(640, 480)]
+	processors = [ResizeToFit(800, 600)]
 	format = 'JPEG'
-	options = {'quality': 85}
+	options = {'quality': 100}
 
 register.generator('blog:thumbnail', Thumbnail)
 
