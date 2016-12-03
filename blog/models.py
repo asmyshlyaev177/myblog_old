@@ -203,6 +203,7 @@ class UserVotes(models.Model):
 	user = models.ForeignKey('myUser')
 
 
+
 class Post(models.Model):
 	index_together = [
 	["title", "description", "post_thumbnail", "author", "category",
@@ -210,7 +211,7 @@ class Post(models.Model):
 	]
 	title = models.CharField(max_length=100)
 	#description = RichTextField(max_length = 500, config_name = "description",
-	#                            blank=True)
+	#							blank=True)
 	rateable = models.BooleanField(default = True)
 	description = models.CharField(max_length=500)
 	#text = RichTextUploadingField(config_name = "post")
@@ -284,9 +285,13 @@ def delete_image_and_thumb(sender, instance, **kwargs):
 
 	deleteThumb(instance.text)
 	deleteThumb(instance.image_url)
-	file = instance.post_image
-	if os.path.isfile(file.path):
-	    os.remove(file.path)
+	try:
+		if instance.post_image:
+			file = instance.post_image
+			if os.path.isfile(file.path):
+				os.remove(file.path)
+	except:
+		pass
 
 @receiver(models.signals.pre_save, sender=Post)
 def delete_old_image_and_thumb(sender, instance, **kwargs):

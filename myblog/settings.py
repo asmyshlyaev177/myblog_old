@@ -141,7 +141,8 @@ INSTALLED_APPS = [
     'django_cleanup',
     'django_celery_results',
     'social.apps.django_app.default',
-    'django_extensions',
+    #'django_extensions',
+    'django_pickling',
 ]
 
 CELERY_RESULT_BACKEND = 'django-db'

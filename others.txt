@@ -1,7 +1,8 @@
  pip install git+https://github.com/mozilla/unicode-slugify.git
  update all
  pip freeze --local | grep -v '^\-e' | cut -d = -f 1  | xargs -n1 pip install -U
-celery -A myblog --beat worker -l info -E --workdir=/root/myblog/myblog
+crontab
+/root/myblog/bin/celery multi start worker1 -A myblog -c 1 --beat worker -l info --workdir=/root/myblog/myblog --pidfile="/var/run/celery/%n.pid" --logfile="/var/log/celery/%n%I.log"
 
 python manage.py shell_plus --notebook
 ipython notebook --no-browser --ip=0.0.0.0
