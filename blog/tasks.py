@@ -39,10 +39,10 @@ def taglist():
 @app.task(name="RatePost")
 def RatePost(userid, postid, vote):
 
-	post = Post.objects.get(id=postid)
+	post = Post.objects.cache().get(id=postid)
 
 
-	user = myUser.objects.get(id=userid)
+	user = myUser.objects.cache().get(id=userid)
 	user_votes, notexist = UserVotes.objects.get_or_create(user=user)
 	if user_votes.count != "B":
 
@@ -71,14 +71,14 @@ def CalcPostRating():
 	two_month = datetime.timedelta(weeks=-8)
 	end = dt
 
-	vote_list = VotePost.objects.all()
+	vote_list = VotePost.objects.all().cache()
 	v = vote_list.values_list('post', flat=True).distinct()
 	post_ids = set()
 	for i in v:
 		post_ids.add(i)
 
-	posts = Post.objects.filter(id__in=post_ids).filter(status="P").filter(rateable = True)
-	ratings = RatingPost.objects.filter(post__id__in=post_ids)
+	posts = Post.objects.filter(id__in=post_ids).filter(status="P").filter(rateable = True).cache()
+	ratings = RatingPost.objects.filter(post__id__in=post_ids).cache()
 
 	for post in posts:
 		rt_change = False
@@ -95,7 +95,7 @@ def CalcPostRating():
 		votes_count = 0
 		start = dt + rt
 		votes = vote_list.filter(post=post).filter(counted=False)\
-			.filter(created__range=(start, end))
+			.filter(created__range=(start, end)).cache()
 		if votes.count() > 0:
 			print("******")
 			print("Counting votes")
@@ -121,7 +121,7 @@ def CalcPostRating():
 		#rating for day
 		sum = 0.0
 		start = dt + day
-		votes = vote_list.filter(post=post).filter(created__range=(start, end))
+		votes = vote_list.filter(post=post).filter(created__range=(start, end)).cache()
 		for i in votes:
 			if i.rate == 0:
 				sum -= i.score
@@ -138,7 +138,7 @@ def CalcPostRating():
 		#rating for last week
 		sum = 0.0
 		start = dt + week
-		votes = vote_list.filter(post=post).filter(created__range=(start, end))
+		votes = vote_list.filter(post=post).filter(created__range=(start, end)).cache()
 		for i in votes:
 			if i.rate == 0:
 				sum -= i.score
@@ -153,7 +153,7 @@ def CalcPostRating():
 		#rating for last month
 		sum = 0.0
 		start = dt + month
-		votes = vote_list.filter(post=post).filter(created__range=(start, end))
+		votes = vote_list.filter(post=post).filter(created__range=(start, end)).cache()
 		for i in votes:
 			if i.rate == 0:
 				sum -= i.score
@@ -188,7 +188,7 @@ def userVotes():
 				coef = 0.0
 				vote.votes = 10
 
-			user_rating = RatingUser.objects.get(user=user)
+			user_rating = RatingUser.objects.cache().get(user=user)
 			vote.weight = 0.25 + coef + user_rating.rating/50
 			user.has_votes = True
 			print("User: " + str(user)+" weight "+str(vote.weight)+ " votes "+ str(vote.votes))

@@ -36,7 +36,7 @@ cat_list= Category.objects.all()
 
 @never_cache
 def tags(request):
-	tags = Tag.objects.all().values()
+	tags = Tag.objects.all().values().cache()
 	data = []
 	for i in tags:
 		data.append(i['name'])
@@ -93,7 +93,7 @@ def my_posts(request):
 		template = 'dash-my-posts-ajax.html'
 	else:
 		template = 'dash-my-posts.html'
-	post_list = Post.objects.filter(author=request.user.id)
+	post_list = Post.objects.filter(author=request.user.id).cache()
 
 	paginator = Paginator(post_list, 5)
 	page = request.GET.get('page')
@@ -162,8 +162,8 @@ def rate_post(request, postid, vote):
 
 		return HttpResponse("accepted")
 
-@cache_page(2 )
-@cache_control(max_age=2)
+@cache_page(60 )
+@cache_control(max_age=60)
 @vary_on_headers('X-Requested-With','Cookie')
 #@never_cache
 def list(request, category=None, tag=None, pop=None):
@@ -178,23 +178,23 @@ def list(request, category=None, tag=None, pop=None):
 	if tag:
 		post_list= Post.objects.select_related("author", "category")\
 			.prefetch_related('tags').filter(tags__url=tag)\
-			.filter(status="P")#.order_by('-published')
+			.filter(status="P").cache()#.order_by('-published')
 		#context['tag'] = Tag.objects.get(url=tag)
 		if category:
-			post_list = post_list.filter(category__slug=category)
+			post_list = post_list.filter(category__slug=category).cache()
 			context['category'] = category
 
 	else:
 		if category:
 			post_list= Post.objects.select_related("author", "category")\
 				.prefetch_related('tags').filter(category__slug=category)\
-				.filter(status="P")
+				.filter(status="P").cache()
 		else:
 			post_list = Post.objects.select_related("author", "category")\
-				.prefetch_related('tags').filter(status="P")#.order_by('-published')
+				.prefetch_related('tags').filter(status="P").cache()#.order_by('-published')
 
 	if not request.user.is_authenticated:
-		post_list = post_list.filter(private=False)
+		post_list = post_list.filter(private=False).cache()
 	#if pop:
 	#	pass filter
 
@@ -215,8 +215,8 @@ def list(request, category=None, tag=None, pop=None):
 
 	return render(request, template, context )
 
-@cache_page(3)
-@cache_control(max_age=3)
+@cache_page(180)
+@cache_control(max_age=180)
 @vary_on_headers('X-Requested-With', 'Cookie')
 #@never_cache
 def single_post(request,  tag, title, id):
@@ -227,7 +227,7 @@ def single_post(request,  tag, title, id):
 		template = 'single.html'
 
 	post = Post.objects.select_related("author", "category")\
-		.prefetch_related('tags').get(pk=id)
+		.prefetch_related('tags').cache().get(pk=id)
 
 	if post.private == True and not request.user.is_authenticated:
 		return HttpResponseNotFound()
