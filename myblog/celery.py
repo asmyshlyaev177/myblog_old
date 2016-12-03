@@ -1,10 +1,14 @@
-import os
+# -*- coding: utf-8 -*-
+import os, json
 from celery import Celery
 from celery.task import periodic_task
 from celery.schedules import crontab
 from django.conf import settings
 from datetime import timedelta
+from kombu.serialization import register
 
+register('json', json.dumps, json.loads, content_type='application/json',
+         content_encoding='utf-8')
 # set the default Django settings module for the 'celery' program.
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'myblog.settings')
 

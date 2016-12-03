@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 import os, datetime, json, re
 from slugify import slugify, SLUG_OK
 from bs4 import BeautifulSoup
@@ -139,4 +140,3 @@ def srcsets(text, wrap_a):
 					a_tag['data-gallery'] = ""
 					i = i.wrap(a_tag)
 	return soup
-	
