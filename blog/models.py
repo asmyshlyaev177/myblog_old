@@ -344,7 +344,7 @@ class Category(models.Model):
 		return "/%s/" % (cat_url)
 	@classmethod
 	def list(self):
-		cat_list = self.objects.all().only("name","order", "slug")
+		cat_list = self.objects.all().only("name","order", "slug").cache()
 		return cat_list
 	def save(self, *args, **kwargs):
 		#if not self.slug:

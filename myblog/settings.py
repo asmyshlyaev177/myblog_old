@@ -61,25 +61,25 @@ CACHEOPS = {
     # Automatically cache any User.objects.get() calls for 15 minutes
     # This includes request.user or post.author access,
     # where Post.author is a foreign key to auth.User
-    'auth.user': {'ops': 'get', 'timeout': 60*60},
+    'auth.user': {'ops': 'get', 'timeout': 60*15},
 
     # Automatically cache all gets and queryset fetches
     # to other django.contrib.auth models for an hour
-    'auth.*': {'ops': ('fetch', 'get'), 'timeout': 60*60},
+    'auth.*': {'ops': ('fetch', 'get'), 'timeout': 60*15},
 
     # Cache gets, fetches, counts and exists to Permission
     # 'all' is just an alias for ('get', 'fetch', 'count', 'exists')
-    'auth.permission': {'ops': 'all', 'timeout': 60*60},
+    'auth.permission': {'ops': 'all', 'timeout': 60*15},
 
     # Enable manual caching on all other models with default timeout of an hour
     # Use Post.objects.cache().get(...)
     #  or Tags.objects.filter(...).order_by(...).cache()
     # to cache particular ORM request.
     # Invalidation is still automatic
-    '*.*': {'ops': (), 'timeout': 60*60},
+    '*.*': {'ops': (), 'timeout': 60*15 },
 
     # And since ops is empty by default you can rewrite last line as:
-    '*.*': {'timeout': 60*60},
+    '*.*': {'timeout': 60*15},
 }
 
 ALLOWED_HOSTS = ['*']
@@ -161,7 +161,7 @@ CACHES = {
 
 INSTALLED_APPS = [
     'django.contrib.staticfiles',
-    'debug_toolbar',
+    #'debug_toolbar',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -208,7 +208,7 @@ COMPRESS_CSS_FILTERS = ['compressor.filters.css_default.CssAbsoluteFilter',
 
 #MIDDLEWARE = [  #for debug toolbar
 MIDDLEWARE_CLASSES = [
-    'debug_toolbar.middleware.DebugToolbarMiddleware',
+    #'debug_toolbar.middleware.DebugToolbarMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',

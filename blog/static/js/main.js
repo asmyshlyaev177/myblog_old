@@ -20,6 +20,7 @@ $(document).ready(function(){
   BackForwardButtons();
 	GifPlay();
 	ratePost();
+    
 });
 
 function ratePost() {
