@@ -17,11 +17,14 @@ $(document).ready(function(){
 	Scroll();
 
 	ClickAjaxMenu();
-  BackForwardButtons();
+    BackForwardButtons();
 	GifPlay();
 	ratePost();
+   
     
 });
+
+
 
 function ratePost() {
 	$(document).on('click', '.rate-icon', function() {
@@ -186,12 +189,13 @@ function ChangePageNew( link, myurl ) {
           }
      });
 	//window.history.pushState({state:'new'}, "",  link);
-   page = 1
+   page = 1;
 
 	 $('.menu').parent().removeClass('active');
  	if ( myurl != "" ) {
- 	$('.menu').filter( $('#'+myurl ) ).parent().addClass('active');}
-
+        $('.menu').filter( $('#'+myurl ) ).parent().addClass('active');
+    }
+    
 };
 
 function BackForwardButtons() {
@@ -213,6 +217,7 @@ function loadMore(){
                processing = false; // the processing variable prevents multiple ajax calls when scrolling
 							 loader.hide();
 							 disableRate();
+                              ImageHeight();
           }
      });
 

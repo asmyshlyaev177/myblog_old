@@ -8,6 +8,7 @@ from .forms import UserCreationForm, UserChangeForm, MyUserChangeForm
 from django.contrib.auth.models import Group
 from django.contrib.auth.models import AbstractBaseUser
 
+
 class UserAdmin(BaseUserAdmin):
     form = MyUserChangeForm
     add_form = UserCreationForm
@@ -64,4 +65,8 @@ class CategoryAdmin(admin.ModelAdmin):
 
 admin.site.register(Category, CategoryAdmin)
 
-admin.site.register(Tag)
+class TagAdmin(admin.ModelAdmin):
+    list_display = ('name', 'url','private', 'rateable', 'category', 'description')
+    orderinng = ['name',]
+    
+admin.site.register(Tag, TagAdmin)

@@ -40,7 +40,7 @@ DEBUG = True
 
 LOGIN_URL='/login'
 
-FROALA_INCLUDE_JQUERY = False
+#FROALA_INCLUDE_JQUERY = False
 FROALA_UPLOAD_PATH = str(datetime.date.today().year)+'/'\
 +str(datetime.date.today().month)\
 +'/'+str(datetime.date.today().day)+'/'
