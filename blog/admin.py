@@ -88,42 +88,17 @@ class TagAdminForm(forms.ModelForm):
                                             '|', 'imageLink','linkOpen',
                                             'linkEdit', 'linkRemove', '-',
                                              'imageDisplay', 'imageStyle',
-                                             'imageAlt', 'imageSize'
-                                        ],
-                                        'toolbarButtons': [
-                                            'bold', 'italic',
-                                            'underline', 'strikeThrough',
-                                            'fontSize', '|', 'align',
-                                            'quote', '|','-','insertLink',
-                                            'insertImage', 'insertVideo','|',
-                                            'insertTable', '-','undo', 'redo',
-                                            'clearFormatting','fullscreen'
-                                            ],
-                                        'toolbarButtonsMD':[
-                                            'bold', 'italic',
-                                            'underline', 'strikeThrough',
-                                            'fontSize', '|', 'align',
-                                            'quote', '|','-','insertLink',
-                                            'insertImage', 'insertVideo','|',
-                                            'insertTable', '-','undo', 'redo',
-                                            'clearFormatting','fullscreen'
-                                        ],
-                                        'toolbarButtonsSM':[
-                                            'bold', 'italic',
-                                            'underline', 'strikeThrough',
-                                            '|', 'align',
-                                            'quote', 'insertLink',
-                                            'insertImage', 'insertVideo',
-                                            'undo', 'redo',
-                                            'clearFormatting','fullscreen'
-                                        ],
-                                        'toolbarButtonsXS':[
-                                            'align',
-                                            'quote', 'insertLink',
-                                            'insertImage', 'insertVideo',
-                                            'undo', 'redo',
-                                            'clearFormatting','fullscreen'
-                                        ]}),
+                                             'imageAlt', 'imageSize', 'html'
+                                        ]},
+                            plugins=('align', 'char_counter', 'code_beautifier', 
+                                     'code_view', 'colors', 'draggable', 'emoticons',
+                                     'entities', 'file', 'font_family', 'font_size', 
+                                     'fullscreen', 'image_manager', 'image', 'inline_style',
+                                     'line_breaker', 'link', 'lists', 'paragraph_format', 
+                                     'paragraph_style', 'quick_insert', 'quote', 'save', 'table',
+                                     'url', 'video'),
+            ),
+                                
         }
 
 class TagAdmin(admin.ModelAdmin):

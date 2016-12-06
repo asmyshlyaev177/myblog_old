@@ -373,10 +373,8 @@ class Tag(models.Model):
     def save(self, *args, **kwargs):
         if not self.url:
             self.url = slugify(self.name.lower())
-        if self.description:
+        #if self.description:
             #pass
-            desc = str(srcsets(self.description, False))
-            self.description = desc
 
         super(Tag, self).save(*args, **kwargs)
         
@@ -393,5 +391,5 @@ def delete_old_image_and_thumb(sender, instance, **kwargs):
         return False
 
     deleteThumb(instance.description)
-    instance.description = str(srcsetThumb(instance.description))
+    instance.description = str(srcsets(instance.description, False))
 

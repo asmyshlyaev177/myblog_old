@@ -28,3 +28,33 @@ var slowLoad = window.setTimeout( function() {
     window.addEventListener( 'load', function() {
         window.clearTimeout( slowLoad );
     }, false );
+
+
+
+
+$('#id_text').on('froalaEditor.image.beforeRemove', function (e, editor, $img)  {
+	deleteImage($img)
+  })
+ 
+ 
+ 
+ function deleteImage(img) {
+	 csrf = getCookie('csrftoken');
+	$.ajax({
+			  headers: {'X-CSRFToken': csrf},
+			  type:"POST",
+			  cache : false,
+			  url:"/delete_image" + img.attr('src'),
+			  src: img.attr('src'),
+				success:function(data){
+							console.log("deleted!");
+						}
+			});
+		console.log(img.attr('src'));
+ }
+ 
+ 
+ 
+$('#id_text').on('froalaEditor.image.beforeRemove', function (e, editor, $img)  {
+	console.log("/delete_image" + $img.attr('src'));
+  })

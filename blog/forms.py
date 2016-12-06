@@ -54,6 +54,7 @@ class AddPostForm(forms.ModelForm):
         widgets = {
             #'text': SummernoteInplaceWidget(),
             'text': FroalaEditor(
+                                
                                 options={'toolbarInline': False,
                                         'iframe': False,
                                         'toolbarSticky': False,

@@ -180,7 +180,7 @@ def list(request, category=None, tag=None, pop=None):
 		post_list= Post.objects.select_related("author", "category")\
 			.prefetch_related('tags').filter(tags__url=tag)\
 			.filter(status="P").cache()#.order_by('-published')
-		#context['tag'] = Tag.objects.get(url=tag)
+		context['tag'] = Tag.objects.get(url=tag)
 		if category:
 			post_list = post_list.filter(category__slug=category).cache()
 			context['category'] = category
@@ -190,6 +190,7 @@ def list(request, category=None, tag=None, pop=None):
 			post_list= Post.objects.select_related("author", "category")\
 				.prefetch_related('tags').filter(category__slug=category)\
 				.filter(status="P").cache()
+			context['category'] = category
 		else:
 			post_list = Post.objects.select_related("author", "category")\
 				.prefetch_related('tags').filter(status="P").cache()#.order_by('-published')
