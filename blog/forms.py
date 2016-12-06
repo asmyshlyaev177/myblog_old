@@ -36,6 +36,7 @@ class MyUserChangeForm(forms.ModelForm):
         model = myUser
         fields = ('username', 'email','avatar')
 
+        
 class AddPostForm(forms.ModelForm):
     tags_new = forms.CharField(label="new tags",required=False,
                                widget= forms.TextInput(

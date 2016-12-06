@@ -7,6 +7,7 @@ from imagekit.admin import AdminThumbnail
 from .forms import UserCreationForm, UserChangeForm, MyUserChangeForm
 from django.contrib.auth.models import Group
 from django.contrib.auth.models import AbstractBaseUser
+from froala_editor.widgets import FroalaEditor
 
 
 class UserAdmin(BaseUserAdmin):
@@ -65,8 +66,73 @@ class CategoryAdmin(admin.ModelAdmin):
 
 admin.site.register(Category, CategoryAdmin)
 
+ 
+class TagAdminForm(forms.ModelForm):
+    class Meta:
+        model = Tag
+        fields = ('name', 'category',
+                  'url', 'private', 'rateable', 'description')
+        widgets = {
+            'description': FroalaEditor(
+                                options={'toolbarInline': False,
+                                        'iframe': False,
+                                        'toolbarSticky': False,
+                                        'imageDefaultWidth': 800,
+                                        'language': 'ru',
+                                        'placeholderText': '''Напишите что-нибудь
+                                        или перетащите изображение''',
+                                        'imageMaxSize': 1024 * 1024 * 19,
+                                        'pasteDeniedTags': ['script'],
+                                        'imageEditButtons': [
+                                            'imageAlign', 'imageRemove',
+                                            '|', 'imageLink','linkOpen',
+                                            'linkEdit', 'linkRemove', '-',
+                                             'imageDisplay', 'imageStyle',
+                                             'imageAlt', 'imageSize'
+                                        ],
+                                        'toolbarButtons': [
+                                            'bold', 'italic',
+                                            'underline', 'strikeThrough',
+                                            'fontSize', '|', 'align',
+                                            'quote', '|','-','insertLink',
+                                            'insertImage', 'insertVideo','|',
+                                            'insertTable', '-','undo', 'redo',
+                                            'clearFormatting','fullscreen'
+                                            ],
+                                        'toolbarButtonsMD':[
+                                            'bold', 'italic',
+                                            'underline', 'strikeThrough',
+                                            'fontSize', '|', 'align',
+                                            'quote', '|','-','insertLink',
+                                            'insertImage', 'insertVideo','|',
+                                            'insertTable', '-','undo', 'redo',
+                                            'clearFormatting','fullscreen'
+                                        ],
+                                        'toolbarButtonsSM':[
+                                            'bold', 'italic',
+                                            'underline', 'strikeThrough',
+                                            '|', 'align',
+                                            'quote', 'insertLink',
+                                            'insertImage', 'insertVideo',
+                                            'undo', 'redo',
+                                            'clearFormatting','fullscreen'
+                                        ],
+                                        'toolbarButtonsXS':[
+                                            'align',
+                                            'quote', 'insertLink',
+                                            'insertImage', 'insertVideo',
+                                            'undo', 'redo',
+                                            'clearFormatting','fullscreen'
+                                        ]}),
+        }
+
 class TagAdmin(admin.ModelAdmin):
-    list_display = ('name', 'url','private', 'rateable', 'category', 'description')
+    form = TagAdminForm
+    list_display = ('name', 'url','private', 'rateable', 'category')
+    search_fields = ['name', 'url','description']
+    readonly_fields = ('created',)
+    list_filter = ['category','private', 'rateable']
     orderinng = ['name',]
+        
     
 admin.site.register(Tag, TagAdmin)

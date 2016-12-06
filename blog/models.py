@@ -4,12 +4,12 @@ from django.contrib.auth.models import (AbstractBaseUser,
                                         BaseUserManager)
 from slugify import slugify, SLUG_OK
 from django.utils import timezone
-import datetime
+import datetime, re, os, datetime
+from time import gmtime, strftime
 from imagekit.models import ImageSpecField, ProcessedImageField
 from imagekit.processors import ResizeToFit
 from imagekit import ImageSpec, register
 from django.utils.safestring import mark_safe
-import re, os
 from django.dispatch import receiver
 from django.conf import settings
 from bs4 import BeautifulSoup
@@ -19,8 +19,9 @@ from urllib.parse import urlparse, urlencode
 from urllib.request import urlopen, urlretrieve, Request
 from blog.functions import srcsets, findFile, findLink, srcsetThumb,deleteThumb
 from django.conf import settings
-from blog.functions import srcsets,saveImage,findFile,findLink
+from blog.functions import findLink,findFile,saveImage,srcsets
 from froala_editor.fields import FroalaField
+from django.utils.encoding import uri_to_iri, iri_to_uri
 #import socket #timeout just for test
 #socket.setdefaulttimeout(10)
 
@@ -360,10 +361,7 @@ class Tag(models.Model):
     created = models.DateTimeField(auto_now_add=True)
     private = models.BooleanField(default=False)
     rateable = models.BooleanField(default = True)
-    description = FroalaField(max_length=700, blank =True, null=True)
-    
-    def tags_directory_path(instance, filename):
-        return 'tags/{0}/{1}'.format(instance.name, filename) # чтобы это удалить нужно удалить миграции
+    description = models.TextField(max_length=700, blank =True, null=True)
     
     category = models.ForeignKey('Category', blank=True, null=True)
 
@@ -376,8 +374,24 @@ class Tag(models.Model):
         if not self.url:
             self.url = slugify(self.name.lower())
         if self.description:
-            self.description = srcsets(self.description, False)
+            #pass
+            desc = str(srcsets(self.description, False))
+            self.description = desc
 
         super(Tag, self).save(*args, **kwargs)
         
+
+@receiver(models.signals.post_delete, sender=Tag)
+def delete_image_and_thumb(sender, instance, **kwargs):
+
+    deleteThumb(instance.description)
+
+@receiver(models.signals.pre_save, sender=Tag)
+def delete_old_image_and_thumb(sender, instance, **kwargs):
+    """delete old file when thumbnail changed"""
+    if not instance.pk:
+        return False
+
+    deleteThumb(instance.description)
+    instance.description = str(srcsetThumb(instance.description))
 
