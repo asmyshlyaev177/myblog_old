@@ -27,6 +27,7 @@ import debug_toolbar
 from django.contrib.auth import views as auth_views
 
 urlpatterns = [
+    #url(r'^silk/', include('silk.urls', namespace='silk')),
     url(r'^tags.json\/?', views.tags, name='tags'),
     url('login-social/', include('social.apps.django_app.urls', namespace='social')),
     url(r'^froala_editor\/?', include('froala_editor.urls')),
@@ -74,6 +75,5 @@ urlpatterns = [
 
     url(r'^media/(?P<path>.*)\/?$', serve,
             {'document_root': settings.MEDIA_ROOT}),
-
 
 ]

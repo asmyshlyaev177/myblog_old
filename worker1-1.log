@@ -1,0 +1,4 @@
+[2016-12-09 21:34:30,614: WARNING/PoolWorker-2] User: admin weight 0.5219225006746949 votes 20
+[2016-12-09 21:34:30,710: WARNING/PoolWorker-2] User: amf201501 weight 0.25 votes 10
+[2016-12-09 21:34:30,780: INFO/PoolWorker-2] Task userVotes[23d6725a-d5a6-4a41-8f9c-7d6ccaa8f4ea] succeeded in 0.396269864984788s: None
+[2016-12-09 21:34:31,410: INFO/PoolWorker-2] Task CalcPostRating[7911c498-7580-420f-bd7c-41f8da8654ec] succeeded in 0.6175650899822358s: None

@@ -16,6 +16,7 @@ from urllib.request import urlopen, urlretrieve, Request
 from django.utils.encoding import uri_to_iri, iri_to_uri
 from blog.functions import srcsets, findFile, findLink, srcsetThumb
 from time import gmtime, strftime
+from django.core.cache import cache
 
 app = Celery('tasks', broker='pyamqp://guest@localhost//')
 
@@ -39,10 +40,11 @@ def taglist():
 @app.task(name="RatePost")
 def RatePost(userid, postid, vote):
 
-	post = Post.objects.cache().get(id=postid)
+	#post = Post.objects.cache().get(id=postid)
+	post = Post.objects.get(id=postid)
 
-
-	user = myUser.objects.cache().get(id=userid)
+	#user = myUser.objects.cache().get(id=userid)
+	user = myUser.objects.get(id=userid)
 	user_votes, notexist = UserVotes.objects.get_or_create(user=user)
 	if user_votes.count != "B":
 
@@ -63,22 +65,26 @@ def CalcPostRating():
 	delta = datetime.timedelta(hours=+3)
 	tz = datetime.timezone(delta)
 
-	dt = datetime.datetime.now(tz=tz)
-	rt = datetime.timedelta(hours=-2)
+	dt = datetime.datetime.now(tz=tz)#.replace(second=0, microsecond=0)
+	rt = datetime.timedelta(hours=-1)
 	day = datetime.timedelta(hours=-24)
 	week = datetime.timedelta(days=-7)
 	month = datetime.timedelta(weeks=-4)
 	two_month = datetime.timedelta(weeks=-8)
 	end = dt
 
-	vote_list = VotePost.objects.all().cache()
+	#vote_list = VotePost.objects.all().cache()
+	#v = vote_list.values_list('post', flat=True).distinct().cache()
+	vote_list = VotePost.objects.all()
 	v = vote_list.values_list('post', flat=True).distinct()
 	post_ids = set()
 	for i in v:
 		post_ids.add(i)
 
-	posts = Post.objects.filter(id__in=post_ids).filter(status="P").filter(rateable = True).cache()
-	ratings = RatingPost.objects.filter(post__id__in=post_ids).cache()
+	#posts = Post.objects.filter(id__in=post_ids).filter(status="P").filter(rateable = True).cache()
+	#ratings = RatingPost.objects.filter(post__id__in=post_ids).cache()
+	posts = Post.objects.filter(id__in=post_ids).filter(status="P").filter(rateable = True)
+	ratings = RatingPost.objects.filter(post__id__in=post_ids)
 
 	for post in posts:
 		rt_change = False
@@ -95,7 +101,7 @@ def CalcPostRating():
 		votes_count = 0
 		start = dt + rt
 		votes = vote_list.filter(post=post).filter(counted=False)\
-			.filter(created__range=(start, end)).cache()
+			.filter(created__range=(start, end))
 		if votes.count() > 0:
 			print("******")
 			print("Counting votes")
@@ -120,8 +126,8 @@ def CalcPostRating():
 
 		#rating for day
 		sum = 0.0
-		start = dt + day
-		votes = vote_list.filter(post=post).filter(created__range=(start, end)).cache()
+		start = dt.replace(second=0, microsecond=0, minute=0) + day
+		votes = vote_list.filter(post=post).filter(created__range=(start, end))
 		for i in votes:
 			if i.rate == 0:
 				sum -= i.score
@@ -137,8 +143,8 @@ def CalcPostRating():
 
 		#rating for last week
 		sum = 0.0
-		start = dt + week
-		votes = vote_list.filter(post=post).filter(created__range=(start, end)).cache()
+		start = dt.replace(second=0, microsecond=0, minute=0, hour=0) + week
+		votes = vote_list.filter(post=post).filter(created__range=(start, end))
 		for i in votes:
 			if i.rate == 0:
 				sum -= i.score
@@ -152,8 +158,8 @@ def CalcPostRating():
 
 		#rating for last month
 		sum = 0.0
-		start = dt + month
-		votes = vote_list.filter(post=post).filter(created__range=(start, end)).cache()
+		start = dt.replace(second=0, microsecond=0, minute=0, hour=0, day=1) + month
+		votes = vote_list.filter(post=post).filter(created__range=(start, end))
 		for i in votes:
 			if i.rate == 0:
 				sum -= i.score
@@ -188,7 +194,8 @@ def userVotes():
 				coef = 0.0
 				vote.votes = 10
 
-			user_rating = RatingUser.objects.cache().get(user=user)
+			#user_rating = RatingUser.objects.cache().get(user=user)
+			user_rating = RatingUser.objects.get(user=user)
 			vote.weight = 0.25 + coef + user_rating.rating/50
 			user.has_votes = True
 			print("User: " + str(user)+" weight "+str(vote.weight)+ " votes "+ str(vote.votes))
@@ -215,11 +222,16 @@ def addPost(post_id, tag_list, moderated):
 		if len(i) > 2:
 			if nsfw == True:
 				tag_url = slugify(i.lower()+"_nsfw")
+				#tag, have_new_tags = Tag.objects.cache().get_or_create(name=i,
+				#					  url=tag_url,
+				#					  private=nsfw)
 				tag, have_new_tags = Tag.objects.get_or_create(name=i,
 									  url=tag_url,
 									  private=nsfw)
 			else:
 				tag_url = slugify(i.lower())
+				#tag, have_new_tags = Tag.objects.cache().get_or_create(name=i,
+				#					  url=tag_url )
 				tag, have_new_tags = Tag.objects.get_or_create(name=i,
 									  url=tag_url )
 			if have_new_tags:
@@ -229,6 +241,7 @@ def addPost(post_id, tag_list, moderated):
 			try:
 				data.main_tag = tag
 			except:
+				#tag = Tag.objects.cache().get(id=8)
 				tag = Tag.objects.get(id=8)
 				data.main_tag = tag
 			j = False
@@ -285,10 +298,13 @@ def addPost(post_id, tag_list, moderated):
 		if not moderated:
 			data.status = "P"
 		data.save()
+		cache.delete_pattern("post_list_*")
+		#tag_rating, _ = RatingTag.objects.cache().get_or_create(tag=tag)
 		tag_rating, _ = RatingTag.objects.get_or_create(tag=tag)
 		tag_rating.tag = tag
 		tag_rating.rating = 0
 		tag_rating.save()
+		#post_rating, _ = RatingPost.objects.cache().get_or_create(post=data)
 		post_rating, _ = RatingPost.objects.get_or_create(post=data)
 		post_rating.post = data
 		if _:

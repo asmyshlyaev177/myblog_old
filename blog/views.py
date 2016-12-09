@@ -36,10 +36,15 @@ cat_list= Category.objects.all()
 
 @never_cache
 def tags(request):
-	tags = Tag.objects.all().values().cache()
-	data = []
-	for i in tags:
-		data.append(i['name'])
+	#tags = Tag.objects.all().values().cache()
+	if cache.ttl("taglist"):
+		data = cache.get("taglist")
+	else:
+		tags = Tag.objects.all().values("name")
+		data = []
+		for i in tags:
+			data.append(i['name'])
+		cache.set("taglist", data, timeout=None)
 
 	return HttpResponse(json.dumps(data), content_type="application/json")
 
@@ -94,7 +99,8 @@ def my_posts(request):
 		template = 'dash-my-posts-ajax.html'
 	else:
 		template = 'dash-my-posts.html'
-	post_list = Post.objects.filter(author=request.user.id).cache()
+	#post_list = Post.objects.filter(author=request.user.id).cache()
+	post_list = Post.objects.filter(author=request.user.id)
 
 	paginator = Paginator(post_list, 5)
 	page = request.GET.get('page')
@@ -163,44 +169,94 @@ def rate_post(request, postid, vote):
 
 		return HttpResponse("accepted")
 
-@cache_page(5 )
-@cache_control(max_age=5)
-@vary_on_headers('X-Requested-With','Cookie')
-#@never_cache
+#@cache_page(50 )
+#@cache_control(max_age=50)
+#@vary_on_headers('X-Requested-With','Cookie')
+@never_cache
 def list(request, category=None, tag=None, pop=None):
 
 	context = {}
 
-	if request.is_ajax() == True :
+	if request.is_ajax() :
 		template = 'list_ajax.html'
 	else:
 		template = 'list.html'
 
+	user_known = False
+	if request.user.is_authenticated:
+		user_known = True
+		#post_list = post_list.filter(private=False)
+
 	if tag:
-		post_list= Post.objects.select_related("author", "category")\
-			.prefetch_related('tags').filter(tags__url=tag)\
-			.filter(status="P").cache()#.order_by('-published')
-		context['tag'] = Tag.objects.get(url=tag)
-		if category:
-			post_list = post_list.filter(category__slug=category).cache()
-			context['category'] = category
+		cache_str = "post_list_"+str(tag)+"_"+str(user_known)
+		if cache.ttl(cache_str):
+			post_list = cache.get(cache_str)
+		else:
+			if not user_known:
+				post_list = Post.objects.filter(tags__url=tag)\
+							.filter(status="P").filter(private=False)\
+							.select_related("author", "category")\
+							.prefetch_related('tags', 'ratingpost_set')
+			else:
+				post_list = Post.objects.filter(tags__url=tag)\
+							.filter(status="P")\
+							.select_related("author", "category")\
+							.prefetch_related('tags', 'ratingpost_set')
+			cache.set(cache_str, post_list, 604800)
+
+		#post_list= Post.objects.filter(tags__url=tag).filter(status="P")\
+		#	.select_related("author", "category")\
+		#	.prefetch_related('tags')\
+		#	.prefetch_related('ratingpost_set')
+		#context['tag'] = Tag.objects.get(url=tag)
+
+		#if category:
+		#	post_list = post_list.filter(category__slug=category)
+		#	context['category'] = category
+
+	elif category:
+		cache_str = "post_list_"+str(category)+"_"+str(user_known)
+		if cache.ttl(cache_str):
+			post_list = cache.get(cache_str)
+		else:
+			if not user_known:
+				post_list = Post.objects.filter(category__slug=category)\
+							.filter(status="P").filter(private=False)\
+							.select_related("author", "category")\
+							.prefetch_related('tags', 'ratingpost_set')
+			else:
+				post_list = Post.objects.filter(category__slug=category)\
+							.filter(status="P")\
+							.select_related("author", "category")\
+							.prefetch_related('tags', 'ratingpost_set')
+			cache.set(cache_str, post_list, 604800)
+
+		#post_list= Post.objects.filter(status="P")\
+		#	.select_related("author", "category")\
+		#	.prefetch_related('tags').filter(category__slug=category)\
+		#	.prefetch_related('ratingpost_set')
+		#context['category'] = category
 
 	else:
-		if category:
-			post_list= Post.objects.select_related("author", "category")\
-				.prefetch_related('tags').filter(category__slug=category)\
-				.filter(status="P").cache()
-			context['category'] = category
+		cache_str = "post_list_"+str(user_known)
+		if cache.ttl(cache_str):
+			post_list = cache.get(cache_str)
 		else:
-			post_list = Post.objects.select_related("author", "category")\
-				.prefetch_related('tags').filter(status="P").cache()#.order_by('-published')
+			if not user_known:
+				post_list = Post.objects\
+							.filter(status="P").filter(private=False)\
+							.select_related("author", "category")\
+							.prefetch_related('tags', 'ratingpost_set')
+			else:
+				post_list = Post.objects\
+							.filter(status="P")\
+							.select_related("author", "category")\
+							.prefetch_related('tags', 'ratingpost_set')
+			cache.set(cache_str, post_list, 604800)
 
-	if not request.user.is_authenticated:
-		post_list = post_list.filter(private=False).cache()
 	#if pop:
 	#	pass filter
 
-	#post_list = post_list.filter(status="P").order_by('-published')
 	paginator = Paginator(post_list, 3)
 	page = request.GET.get('page')
 
@@ -228,8 +284,17 @@ def single_post(request,  tag, title, id):
 	else:
 		template = 'single.html'
 
-	post = Post.objects.select_related("author", "category")\
-		.prefetch_related('tags').cache().get(pk=id)
+	#post = Post.objects.select_related("author", "category")\
+	#	.prefetch_related('tags').cache().get(pk=id)
+
+
+	cache_str = "post_single_" + str(id)
+	if cache.ttl(cache_str):
+		post = cache.get(cache_str)
+	else:
+		post = Post.objects.select_related("author", "category")\
+			.prefetch_related('tags', 'ratingpost_set').get(pk=id)
+		cache.set(cache_str, post, 604800)
 
 	if post.private == True and not request.user.is_authenticated:
 		return HttpResponseNotFound()

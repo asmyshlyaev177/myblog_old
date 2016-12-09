@@ -37,6 +37,7 @@ SECRET_KEY = '*er@wzdwuga0)0u%j22+pthd0)wzgl%oka)+a^na37()xgr%f9'
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
+#SILKY_PYTHON_PROFILER = True
 
 LOGIN_URL='/login'
 
@@ -44,43 +45,6 @@ LOGIN_URL='/login'
 FROALA_UPLOAD_PATH = str(datetime.date.today().year)+'/'\
 +str(datetime.date.today().month)\
 +'/'+str(datetime.date.today().day)+'/'
-
-CACHEOPS_REDIS = {
-    'host': '127.0.0.1', # redis-server is on same machine
-    'port': 6379,        # default redis port
-    'db': 1,             # SELECT non-default redis database
-                         # using separate redis db or redis instance
-                         # is highly recommended
-
-    'socket_timeout': 3,   # connection timeout in seconds, optional
-    #'password': '...',     # optional
-    'unix_socket_path': '/tmp/redis.sock' # replaces host and port
-}
-
-CACHEOPS = {
-    # Automatically cache any User.objects.get() calls for 15 minutes
-    # This includes request.user or post.author access,
-    # where Post.author is a foreign key to auth.User
-    'auth.user': {'ops': 'get', 'timeout': 60*15},
-
-    # Automatically cache all gets and queryset fetches
-    # to other django.contrib.auth models for an hour
-    'auth.*': {'ops': ('fetch', 'get'), 'timeout': 60*15},
-
-    # Cache gets, fetches, counts and exists to Permission
-    # 'all' is just an alias for ('get', 'fetch', 'count', 'exists')
-    'auth.permission': {'ops': 'all', 'timeout': 60*15},
-
-    # Enable manual caching on all other models with default timeout of an hour
-    # Use Post.objects.cache().get(...)
-    #  or Tags.objects.filter(...).order_by(...).cache()
-    # to cache particular ORM request.
-    # Invalidation is still automatic
-    '*.*': {'ops': (), 'timeout': 60*15 },
-
-    # And since ops is empty by default you can rewrite last line as:
-    '*.*': {'timeout': 60*15},
-}
 
 ALLOWED_HOSTS = ['*']
 DEBUG_TOOLBAR_PATCH_SETTINGS = False
@@ -151,13 +115,26 @@ AUTHENTICATION_BACKENDS = (
 
 AUTH_USER_MODEL = 'blog.myUser'
 
+#CACHES = {
+#    'default': {
+#        'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
+#        'LOCATION': 'unique-snowflake',
+#    }
+#}
+# Application definition
 CACHES = {
-    'default': {
-        'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
-        'LOCATION': 'unique-snowflake',
+    "default": {
+        "BACKEND": "django_redis.cache.RedisCache",
+        "LOCATION": "unix:///tmp/redis.sock?db=0" ,
+        "OPTIONS": {
+            "CLIENT_CLASS": "django_redis.client.DefaultClient",
+            "CONNECTION_POOL_KWARGS": {"max_connections": 10000},
+        }
     }
 }
-# Application definition
+SESSION_ENGINE = "django.contrib.sessions.backends.cache"
+SESSION_CACHE_ALIAS = "default"
+
 
 INSTALLED_APPS = [
     'django.contrib.staticfiles',
@@ -175,14 +152,15 @@ INSTALLED_APPS = [
     'compressor',
     'sorl.thumbnail',
     'django_cleanup',
-    'django_celery_results',
+    #'django_celery_results',
     'social.apps.django_app.default',
     'django_extensions',
     #'django_pickling',
-    'cacheops',
+    #'cacheops',
+    #'silk',
 ]
 
-CELERY_RESULT_BACKEND = 'django-db'
+#CELERY_RESULT_BACKEND = 'django-db'
 CELERY_BROKER_URL = 'amqp://guest:guest@localhost//'
 
 TEMPLATE_DEBUG = True
@@ -209,6 +187,7 @@ COMPRESS_CSS_FILTERS = ['compressor.filters.css_default.CssAbsoluteFilter',
 #MIDDLEWARE = [  #for debug toolbar
 MIDDLEWARE_CLASSES = [
     #'debug_toolbar.middleware.DebugToolbarMiddleware',
+
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -216,6 +195,7 @@ MIDDLEWARE_CLASSES = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    #'silk.middleware.SilkyMiddleware',
 
 ]
 

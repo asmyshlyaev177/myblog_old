@@ -22,6 +22,7 @@ from django.conf import settings
 from blog.functions import findLink,findFile,saveImage,srcsets
 from froala_editor.fields import FroalaField
 from django.utils.encoding import uri_to_iri, iri_to_uri
+from django.core.cache import cache
 #import socket #timeout just for test
 #socket.setdefaulttimeout(10)
 
@@ -283,11 +284,15 @@ class Post(models.Model):
         #return self.tags.values_list('name', flat=True)
         return self.tags.all()
 
-@receiver(models.signals.post_delete, sender=Post)
+@receiver(models.signals.pre_delete, sender=Post)
 def delete_image_and_thumb(sender, instance, **kwargs):
 
     deleteThumb(instance.text)
     deleteThumb(instance.image_url)
+
+    cache.delete_pattern("post_list_*")
+    cache_str = "post_single_" + str(instance.id)
+    cache.delete(cache_str)
     try:
         if instance.post_image:
             file = instance.post_image
@@ -299,6 +304,10 @@ def delete_image_and_thumb(sender, instance, **kwargs):
 @receiver(models.signals.pre_save, sender=Post)
 def delete_old_image_and_thumb(sender, instance, **kwargs):
     """delete old file when thumbnail changed"""
+
+    cache_str = "post_single_" + str(instance.id)
+    cache.delete(cache_str)
+    cache.delete_pattern("post_list_*")
     if not instance.pk:
         return False
 
@@ -347,14 +356,14 @@ class Category(models.Model):
         return "/%s/" % (cat_url)
     @classmethod
     def list(self):
-        cat_list = self.objects.all().only("name","order", "slug").cache()
+        cat_list = self.objects.all().only("name","order", "slug")
         return cat_list
     def save(self, *args, **kwargs):
         #if not self.slug:
         self.slug = slugify(self.name.lower())
         super(Category,self).save(*args, **kwargs)
 
-    
+
 class Tag(models.Model):
     name = models.CharField(max_length=30)
     url = models.CharField(max_length=140, unique=True)
@@ -362,7 +371,7 @@ class Tag(models.Model):
     private = models.BooleanField(default=False)
     rateable = models.BooleanField(default = True)
     description = models.TextField(max_length=700, blank =True, null=True)
-    
+
     category = models.ForeignKey('Category', blank=True, null=True)
 
     class Meta:
@@ -377,11 +386,10 @@ class Tag(models.Model):
             #pass
 
         super(Tag, self).save(*args, **kwargs)
-        
 
-@receiver(models.signals.post_delete, sender=Tag)
+@receiver(models.signals.pre_delete, sender=Tag)
 def delete_image_and_thumb(sender, instance, **kwargs):
-
+    cache.delete("taglist")
     deleteThumb(instance.description)
 
 @receiver(models.signals.pre_save, sender=Tag)
@@ -390,6 +398,6 @@ def delete_old_image_and_thumb(sender, instance, **kwargs):
     if not instance.pk:
         return False
 
+    cache.delete("taglist")
     deleteThumb(instance.description)
     instance.description = str(srcsets(instance.description, False))
-
