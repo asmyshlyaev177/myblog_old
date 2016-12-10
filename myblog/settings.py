@@ -179,6 +179,8 @@ STATICFILES_FINDERS = (
     'compressor.finders.CompressorFinder',
 )
 
+#COMPRESS_ROOT = STATIC_URL
+#COMPRESS_OFFLINE = True
 COMPRESS_ENABLED = True # удобней выключить потом включу
 COMPRESS_CSS_FILTERS = ['compressor.filters.css_default.CssAbsoluteFilter',
                         'compressor.filters.cssmin.rCSSMinFilter']

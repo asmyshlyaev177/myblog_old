@@ -42,17 +42,17 @@ admin.site.unregister(Group)
 
 class PostAdmin(admin.ModelAdmin):
     empty_value_display = '-empty-'
-    fields = ('title', 'get_image', 'post_image', 'description', 'text',
-               'author', 'category', 'tags',
+    fields = ('title', 'get_image', 'post_image', 'private',
+              'description', 'text','author', 'category', 'tags',
                 'published', 'url', 'main_tag','status')
     readonly_fields = ('get_image',)
     list_display = ('title', 'author', 'category',
-                    'status','published')
+                    'status','private','published')
     search_fields = ['title', 'description','text', 'tag', 'url']
     ordering = ['-status', '-published','title']
     show_full_result_count = True
     list_filter = ['category', 'status',
-                    'created', 'published', 'edited']
+                    'created', 'published', 'private','edited']
     #url = Post.get_absolute_url()
     prepopulated_fields = {"url": ('title',)}
 
@@ -66,7 +66,7 @@ class CategoryAdmin(admin.ModelAdmin):
 
 admin.site.register(Category, CategoryAdmin)
 
- 
+
 class TagAdminForm(forms.ModelForm):
     class Meta:
         model = Tag
@@ -90,15 +90,15 @@ class TagAdminForm(forms.ModelForm):
                                              'imageDisplay', 'imageStyle',
                                              'imageAlt', 'imageSize', 'html'
                                         ]},
-                            plugins=('align', 'char_counter', 'code_beautifier', 
+                            plugins=('align', 'char_counter', 'code_beautifier',
                                      'code_view', 'colors', 'draggable', 'emoticons',
-                                     'entities', 'file', 'font_family', 'font_size', 
+                                     'entities', 'file', 'font_family', 'font_size',
                                      'fullscreen', 'image_manager', 'image', 'inline_style',
-                                     'line_breaker', 'link', 'lists', 'paragraph_format', 
+                                     'line_breaker', 'link', 'lists', 'paragraph_format',
                                      'paragraph_style', 'quick_insert', 'quote', 'save', 'table',
                                      'url', 'video'),
             ),
-                                
+
         }
 
 class TagAdmin(admin.ModelAdmin):
@@ -108,6 +108,6 @@ class TagAdmin(admin.ModelAdmin):
     readonly_fields = ('created',)
     list_filter = ['category','private', 'rateable']
     orderinng = ['name',]
-        
-    
+
+
 admin.site.register(Tag, TagAdmin)

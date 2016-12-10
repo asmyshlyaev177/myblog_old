@@ -285,12 +285,17 @@ class Post(models.Model):
         return self.tags.all()
 
 @receiver(models.signals.pre_delete, sender=Post)
-def delete_image_and_thumb(sender, instance, **kwargs):
+def _post_delete(sender, instance, **kwargs):
 
     deleteThumb(instance.text)
     deleteThumb(instance.image_url)
 
-    cache.delete_pattern("post_list_*")
+    cache_str = "post_list_" + str(instance.category).lower()+"_"+str(instance.private)
+    cache.delete(cache_str)
+    cache.delete("post_list_True")
+    cache.delete("post_list_False")
+    print("**********************************************")
+    print("cache str :", str(cache_str))
     cache_str = "post_single_" + str(instance.id)
     cache.delete(cache_str)
     try:
@@ -307,7 +312,10 @@ def delete_old_image_and_thumb(sender, instance, **kwargs):
 
     cache_str = "post_single_" + str(instance.id)
     cache.delete(cache_str)
-    cache.delete_pattern("post_list_*")
+    cache_str = "post_list_" + str(instance.category).lower()+"_"+str(instance.private)
+    cache.delete(cache_str)
+    cache.delete("post_list_True")
+    cache.delete("post_list_False")
     if not instance.pk:
         return False
 
@@ -379,13 +387,11 @@ class Tag(models.Model):
     def __str__(self):
         return self.name
 
-    def save(self, *args, **kwargs):
-        if not self.url:
-            self.url = slugify(self.name.lower())
-        #if self.description:
-            #pass
+    #def save(self, *args, **kwargs):
+    #    if not self.url:
+    #        self.url = slugify(self.name.lower())
 
-        super(Tag, self).save(*args, **kwargs)
+    #    super(Tag, self).save(*args, **kwargs)
 
 @receiver(models.signals.pre_delete, sender=Tag)
 def delete_image_and_thumb(sender, instance, **kwargs):

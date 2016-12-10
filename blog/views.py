@@ -202,7 +202,7 @@ def list(request, category=None, tag=None, pop=None):
 							.filter(status="P")\
 							.select_related("author", "category")\
 							.prefetch_related('tags', 'ratingpost_set')
-			cache.set(cache_str, post_list, 604800)
+			cache.set(cache_str, post_list, 60480)
 
 		#post_list= Post.objects.filter(tags__url=tag).filter(status="P")\
 		#	.select_related("author", "category")\
@@ -215,7 +215,7 @@ def list(request, category=None, tag=None, pop=None):
 		#	context['category'] = category
 
 	elif category:
-		cache_str = "post_list_"+str(category)+"_"+str(user_known)
+		cache_str = "post_list_"+str(category.lower())+"_"+str(user_known)
 		if cache.ttl(cache_str):
 			post_list = cache.get(cache_str)
 		else:
@@ -273,10 +273,9 @@ def list(request, category=None, tag=None, pop=None):
 
 	return render(request, template, context )
 
-@cache_page(5)
-@cache_control(max_age=5)
-@vary_on_headers('X-Requested-With', 'Cookie')
-#@never_cache
+#@cache_page(5)
+#@cache_control(max_age=5)
+#@vary_on_headers('X-Requested-With', 'Cookie')
 def single_post(request,  tag, title, id):
 
 	if request.is_ajax() == True :
@@ -293,15 +292,15 @@ def single_post(request,  tag, title, id):
 		post = cache.get(cache_str)
 	else:
 		post = Post.objects.select_related("author", "category")\
-			.prefetch_related('tags', 'ratingpost_set').get(pk=id)
-		cache.set(cache_str, post, 604800)
+			.prefetch_related('tags').get(pk=id)
+		cache.set(cache_str, post, 60480)
 
 	if post.private == True and not request.user.is_authenticated:
 		return HttpResponseNotFound()
 
 	return render(request, template,
 				  {'post': post,
-				  'cat_list': Category.list()})
+				  'cat_list': cat_list})
 
 
 @sensitive_post_parameters()

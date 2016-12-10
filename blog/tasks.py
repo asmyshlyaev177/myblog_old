@@ -218,22 +218,24 @@ def addPost(post_id, tag_list, moderated):
 	data = Post.objects.get(id=post_id)
 	j = True
 	nsfw = data.private
+	have_new_tags = False
 	for i in tag_list:
 		if len(i) > 2:
 			if nsfw == True:
 				tag_url = slugify(i.lower()+"_nsfw")
-				#tag, have_new_tags = Tag.objects.cache().get_or_create(name=i,
-				#					  url=tag_url,
-				#					  private=nsfw)
-				tag, have_new_tags = Tag.objects.get_or_create(name=i,
-									  url=tag_url,
-									  private=nsfw)
+				try:
+					tag = Tag.objects.get(url__iexact=tag_url)
+				except:
+					have_new_tags = True
+					tag = Tag.objects.create(name=i, url=tag_url)
 			else:
 				tag_url = slugify(i.lower())
-				#tag, have_new_tags = Tag.objects.cache().get_or_create(name=i,
-				#					  url=tag_url )
-				tag, have_new_tags = Tag.objects.get_or_create(name=i,
-									  url=tag_url )
+				try:
+					tag = Tag.objects.get(url__iexact=tag_url)
+				except:
+					have_new_tags = True
+					tag = Tag.objects.create(name=i, url=tag_url)
+
 			if have_new_tags:
 				tag.save()
 			data.tags.add(tag)
