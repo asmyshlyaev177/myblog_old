@@ -134,7 +134,7 @@ CACHES = {
 }
 SESSION_ENGINE = "django.contrib.sessions.backends.cache"
 SESSION_CACHE_ALIAS = "default"
-
+COMPRESS_OFFLINE = True
 
 INSTALLED_APPS = [
     'django.contrib.staticfiles',
@@ -145,9 +145,6 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'blog',
-    #'ckeditor',
-    #'ckeditor_uploader',
-    #'imagekit',
     'froala_editor',
     'compressor',
     'sorl.thumbnail',
@@ -155,8 +152,6 @@ INSTALLED_APPS = [
     #'django_celery_results',
     'social.apps.django_app.default',
     'django_extensions',
-    #'django_pickling',
-    #'cacheops',
     #'silk',
 ]
 

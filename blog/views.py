@@ -169,10 +169,10 @@ def rate_post(request, postid, vote):
 
 		return HttpResponse("accepted")
 
-#@cache_page(50 )
-#@cache_control(max_age=50)
-#@vary_on_headers('X-Requested-With','Cookie')
-@never_cache
+@cache_page(5 )
+@cache_control(max_age=5)
+@vary_on_headers('X-Requested-With','Cookie')
+#@never_cache
 def list(request, category=None, tag=None, pop=None):
 
 	context = {}
@@ -273,9 +273,9 @@ def list(request, category=None, tag=None, pop=None):
 
 	return render(request, template, context )
 
-#@cache_page(5)
-#@cache_control(max_age=5)
-#@vary_on_headers('X-Requested-With', 'Cookie')
+@cache_page(50)
+@cache_control(max_age=50)
+@vary_on_headers('X-Requested-With', 'Cookie')
 def single_post(request,  tag, title, id):
 
 	if request.is_ajax() == True :
