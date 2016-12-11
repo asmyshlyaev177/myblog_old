@@ -159,7 +159,6 @@ register.generator('blog:thumbnail', Thumbnail)
 class Rating(models.Model):
     #ratingid = models.IntegerField(unique = True)
     rating = models.FloatField(default=0.0)
-    votes = models.IntegerField(default = 0)
 
     class Meta:
         abstract = True
@@ -178,6 +177,9 @@ class RatingTag(Rating):
 
 class RatingUser(Rating):
     user = models.ForeignKey('myUser')
+
+class RatingComment(Rating):
+    user = models.ForeignKey('Comment')
 
 
 class Vote(models.Model):

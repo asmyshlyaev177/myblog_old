@@ -6,8 +6,13 @@
 .main {overflow: hidden;}
 
 .top-menu {
-margin-top: 100px;
+	margin-top: 100px;
 }
+
+.comment {
+	display: block!important;
+}
+
 
 .post-thumbnail {position: relative; }
 

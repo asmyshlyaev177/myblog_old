@@ -14,7 +14,6 @@
       <script src="https://oss.maxcdn.com/html5shiv/3.7.3/html5shiv.min.js"></script>
       <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
     <![endif]-->
-
     {% compress css %}
     <link rel="stylesheet" href="/static/css/custom.css" type="text/css" />
     <link rel="stylesheet" href="/static/css/blueimp-gallery.min.css" type="text/css">
@@ -35,7 +34,6 @@
     <link href="/static/froala_editor/css/plugins/char_counter.min.css" type="text/css" media="all" rel="stylesheet" />
     {% endcompress %}
     {% compress js %}
-
     <!--<script src="/static/js/jquery-3.1.1.min.js"></script>
     <script src="/static/js/jquery-migrate-3.0.0.min.js"></script> -->
 
@@ -45,8 +43,6 @@
     <script src="/static/js/jquery.ui.widget.js"></script>
     <script src="/static/js/jquery.iframe-transport.js"></script>
     <script src="/static/js/jquery.fileupload.js"></script>
-    <!-- <script src="/static/js/summernote.min.js"></script>
-    <script src="/static/js/summernote-ru-RU.min.js"></script> -->
     <script src="/static/js/typeahead.bundle.js"></script>
     <script src="/static/js/tagging.js"></script>
     <script src="/static/js/main.js"></script>
@@ -72,6 +68,7 @@
     <script type="text/javascript" src="/static/froala_editor/js/plugins/video.min.js"></script>
     <script type="text/javascript" src="/static/froala_editor/js/plugins/char_counter.min.js"></script>
     {% endcompress %}
+
 
 </head>
 
@@ -104,9 +101,7 @@
     </div>
 </nav>
 
-<div class="">
 <div class="row">
-  <div class="col s11 m11 l11">
 
 <div class="col s7 m7 l7 offset-s1
 offset-m1 offset-l1 main" style="border: 1px black dotted;">
@@ -129,17 +124,17 @@ offset-m1 offset-l1 main" style="border: 1px black dotted;">
 offset-m1 offset-l1 sidebar"
 style="border: 1px black dotted;">
   <div class="sidebar1">
-    <p>
-      Sidebar 1
+
+      <p>Sidebar 1</p>
     {% if user.is_authenticated %}
       <p><a href="{% url 'dashboard' %}" single_page
         url = "dashboard" class="ajax-menu">
         {{ user.username }}
-                            {% if user.avatar %}
                             {% thumbnail user..avatar "70x70" as im %}
                                 <img src="{{ im.url }}" width="{{ im.width }}" height="{{ im.height }}">
                             {% endthumbnail %}
-                            {% endif %}</a></p>
+
+                            </a></p>
       <p><a href="{% url 'add_post' %}" single_page
         url = "add-post" class="ajax-menu">Add Post</a></p>
       <p><a href="{% url 'logout' %}">Logout</a></p>
@@ -150,12 +145,11 @@ style="border: 1px black dotted;">
       <p><a href="{% url 'social:begin' 'facebook' %}?next={{ request.path }}">Login with facebook</a></p>
       <p><a href="{% url 'social:begin' 'vk-oauth2' %}?next={{ request.path }}">Login with VK</a></p>
     {% endif %}
-    </p>
   </div>
+
   <div class="sidebar2">
     {% if user.is_authenticated %}
-    <p>
-      Sidebar 2
+      <p>Sidebar 2</p>
       <p><a href="{% url 'password_change' %}" single_page
          class="ajax-menu" url = "password_change"
          >Change password</a></p>
@@ -163,13 +157,10 @@ style="border: 1px black dotted;">
         single_page class="ajax-menu" url = "dashboard/my-posts"
         >My Posts</a></p>
 
-    </p>
     {% endif %}
   </div>
 </div>
 
-</div>
-</div>
 </div>
 
 </body>

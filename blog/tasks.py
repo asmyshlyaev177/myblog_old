@@ -112,15 +112,15 @@ def CalcPostRating():
 					sum -= i.score
 				if i.rate == 1:
 					sum += i.score
-				votes_count += 1
+				#votes_count += 1
 				i.counted = True
 				i.save()
-			post_rating.votes += votes_count
+			#post_rating.votes += votes_count
 			post_rating.rating += sum
-			tag_rating.votes += votes_count
+			#tag_rating.votes += votes_count
 			tag_rating.rating += sum/50
 			author_rating.rating += sum/50
-			author_rating.votes += votes_count
+			#author_rating.votes += votes_count
 			author_rating.save()
 			rt_change = True
 

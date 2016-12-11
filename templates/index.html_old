@@ -1,0 +1,170 @@
+{% load staticfiles %}
+{% load compress %}
+{% load thumbnail %}
+
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<title>{% block title %}{% endblock %}</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+<!--[if lt IE 9]>
+      <script src="https://oss.maxcdn.com/html5shiv/3.7.3/html5shiv.min.js"></script>
+      <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
+    <![endif]-->
+
+    {% compress css %}
+    <link rel="stylesheet" href="/static/css/custom.css" type="text/css" />
+    <link rel="stylesheet" href="/static/css/blueimp-gallery.min.css" type="text/css">
+    <link rel="stylesheet" href="/static/css/tagging.css" type="text/css">
+
+    <link rel="stylesheet" href="/static/css/materialize.css" type="text/css" />
+    <link rel="stylesheet" href="/static/css/icons.css" type="text/css" />
+
+    <link href="/static/css/font-awesome.min.css" type="text/css" media="all" rel="stylesheet" />
+    <link href="/static/froala_editor/css/froala_editor.min.css" type="text/css" media="all" rel="stylesheet" />
+    <link href="/static/froala_editor/css/froala_style.min.css" type="text/css" media="all" rel="stylesheet" />
+
+    <link href="/static/froala_editor/css/plugins/fullscreen.min.css" type="text/css" media="all" rel="stylesheet" />
+    <link href="/static/froala_editor/css/plugins/image.min.css" type="text/css" media="all" rel="stylesheet" />
+    <link href="/static/froala_editor/css/plugins/line_breaker.min.css" type="text/css" media="all" rel="stylesheet" />
+    <link href="/static/froala_editor/css/plugins/table.min.css" type="text/css" media="all" rel="stylesheet" />
+    <link href="/static/froala_editor/css/plugins/video.min.css" type="text/css" media="all" rel="stylesheet" />
+    <link href="/static/froala_editor/css/plugins/char_counter.min.css" type="text/css" media="all" rel="stylesheet" />
+    {% endcompress %}
+    {% compress js %}
+
+    <!--<script src="/static/js/jquery-3.1.1.min.js"></script>
+    <script src="/static/js/jquery-migrate-3.0.0.min.js"></script> -->
+
+    <script src="/static/js/jquery-2.2.4.min.js"></script>
+
+
+    <script src="/static/js/jquery.ui.widget.js"></script>
+    <script src="/static/js/jquery.iframe-transport.js"></script>
+    <script src="/static/js/jquery.fileupload.js"></script>
+    <!-- <script src="/static/js/summernote.min.js"></script>
+    <script src="/static/js/summernote-ru-RU.min.js"></script> -->
+    <script src="/static/js/typeahead.bundle.js"></script>
+    <script src="/static/js/tagging.js"></script>
+    <script src="/static/js/main.js"></script>
+    <script src="/static/js/jquery.blueimp-gallery.min.js"></script>
+
+    <script src="/static/js/materialize.js"></script>
+    <script type="text/javascript" src="/static/froala_editor/js/froala_editor.min.js"></script>
+    <script type="text/javascript" src="/static/froala_editor/js/languages/ru.js"></script>
+
+    <script type="text/javascript" src="/static/froala_editor/js/plugins/align.min.js"></script>
+    <script type="text/javascript" src="/static/froala_editor/js/plugins/font_size.min.js"></script>
+    <script type="text/javascript" src="/static/froala_editor/js/plugins/fullscreen.min.js"></script>
+    <script type="text/javascript" src="/static/froala_editor/js/plugins/image.min.js"></script>
+    <script type="text/javascript" src="/static/froala_editor/js/plugins/line_breaker.min.js"></script>
+    <script type="text/javascript" src="/static/froala_editor/js/plugins/link.min.js"></script>
+    <script type="text/javascript" src="/static/froala_editor/js/plugins/lists.min.js"></script>
+    <script type="text/javascript" src="/static/froala_editor/js/plugins/paragraph_format.min.js"></script>
+    <script type="text/javascript" src="/static/froala_editor/js/plugins/paragraph_style.min.js"></script>
+    <script type="text/javascript" src="/static/froala_editor/js/plugins/quote.min.js"></script>
+    <script type="text/javascript" src="/static/froala_editor/js/plugins/save.min.js"></script>
+    <script type="text/javascript" src="/static/froala_editor/js/plugins/table.min.js"></script>
+    <script type="text/javascript" src="/static/froala_editor/js/plugins/url.min.js"></script>
+    <script type="text/javascript" src="/static/froala_editor/js/plugins/video.min.js"></script>
+    <script type="text/javascript" src="/static/froala_editor/js/plugins/char_counter.min.js"></script>
+    {% endcompress %}
+
+</head>
+
+
+<body>
+
+<nav class="nav-extended">
+    <div class="nav-wrapper light-blue accent-4">
+        <div class="row">
+          <div class="col s12 m12 l12">
+            <a class="waves-effect brand-logo center ajax-menu" url=""
+            href="/">
+              <img alt="logo" src="#" /></a>
+          </div>
+
+          <div class="col s12 m12 l12 top-menu">
+      <ul class="tabs tabs-transparent tabs-fixed-width">
+
+        {% for cat in cat_list %}
+            <li class="tab">
+              <a href="{{ request.scheme }}://{{ request.get_host }}/cat/{{ cat.slug }}/"
+              url = "{{ cat.slug }}" class="waves-effect ajax-menu menu"
+               id="{{ cat.slug }}" cat>
+              {{ cat.name }}</a></li>
+        {% endfor %}
+      </ul>
+      </div>
+    </div>
+
+    </div>
+</nav>
+
+<div class="row">
+
+    <div class="col s7 m7 l7 offset-s1 offset-m1 offset-l1 main" style="border: 1px black dotted;">
+    <h1 class="text-center">{% block title2 %}{% endblock %}</h1>
+
+    <div class="content">
+      <div class="posts">
+      {% block content %}
+
+      {% endblock %}
+      </div>
+
+    </div>
+
+    <a href="#" class="back-to-top">
+      <i class="medium material-icons">navigation</i></a>
+
+    </div>
+
+<div class="col s3 m3 l3 offset-s1 offset-m1 offset-l1 sidebar" style="border: 1px black dotted;">
+  <div class="sidebar1">
+    <p>
+      Sidebar 1
+    {% if user.is_authenticated %}
+      <p><a href="{% url 'dashboard' %}" single_page
+        url = "dashboard" class="ajax-menu">
+        {{ user.username }}
+                            {% if user.avatar %}
+                            {% thumbnail user..avatar "70x70" as im %}
+                                <img src="{{ im.url }}" width="{{ im.width }}" height="{{ im.height }}">
+                            {% endthumbnail %}
+                            {% endif %}</a></p>
+      <p><a href="{% url 'add_post' %}" single_page
+        url = "add-post" class="ajax-menu">Add Post</a></p>
+      <p><a href="{% url 'logout' %}">Logout</a></p>
+    {% else %}
+      <p><a href="{% url 'signup' %}">Register</a></p>
+      <p><a href="{% url 'login' %}">Login</a></p>
+      <p><a href="{% url 'social:begin' 'google-oauth2' %}?next={{ request.path }}">Login with google</a></p>
+      <p><a href="{% url 'social:begin' 'facebook' %}?next={{ request.path }}">Login with facebook</a></p>
+      <p><a href="{% url 'social:begin' 'vk-oauth2' %}?next={{ request.path }}">Login with VK</a></p>
+    {% endif %}
+    </p>
+  </div>
+  <div class="sidebar2">
+    {% if user.is_authenticated %}
+    <p>
+      Sidebar 2
+      <p><a href="{% url 'password_change' %}" single_page
+         class="ajax-menu" url = "password_change"
+         >Change password</a></p>
+      <p><a href="{% url 'my_posts' %}"
+        single_page class="ajax-menu" url = "dashboard/my-posts"
+        >My Posts</a></p>
+
+    </p>
+    {% endif %}
+  </div>
+</div>
+
+</div>
+
+</body>
+</html>
