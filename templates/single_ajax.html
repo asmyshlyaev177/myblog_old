@@ -25,6 +25,34 @@
   {{ post.description }}
   {{ post.text }}
 </div>
+
+<div class="comments">
+  {% for comment in comments %}
+  <div class="comment">
+      {{ comment.author.username}}
+    <p>
+      <img src='/static/media/{{ comment.author.avatar}}' />
+    </p>
+      <p>
+        <b>text:</b>
+      </p>{{ comment.text}}
+</div>
+
+
+{% endfor %}
+
+<div id="add_comment_title">Add a comment</div>
+<form action="/add-comment/{{ post.id }}/" method='POST' enctype="multipart/form-data">
+{% csrf_token %}
+
+{{ comment_form.as_p }}
+
+<input type="submit" value="Add Comment" class="waves-effect waves-light btn"/>
+</form>
+
+
+
+</div>
 {% endautoescape %}
 
 

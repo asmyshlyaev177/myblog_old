@@ -1,8 +1,9 @@
 # -*- coding: utf-8 -*-
 from django.shortcuts import render
-from blog.models import Post, myUser, Category, Tag, Rating, RatingPost,RatingTag,RatingUser,VotePost,UserVotes
+from blog.models import (Post, myUser, Category, Tag, Rating, RatingPost,
+							RatingTag,RatingUser,VotePost,UserVotes, Comment)
 from slugify import slugify, SLUG_OK
-from blog.forms import SignupForm, MyUserChangeForm, AddPostForm
+from blog.forms import SignupForm, MyUserChangeForm, AddPostForm, CommentForm
 from django.http import (HttpResponseRedirect,
 	HttpResponse,JsonResponse,HttpResponseNotFound)
 from django.views.decorators.csrf import csrf_protect
@@ -32,7 +33,20 @@ from django.shortcuts import render
 #from django_summernote.settings import summernote_config, get_attachment_model
 from blog.tasks import addPost, RatePost
 
-cat_list= Category.objects.all()
+cat_list = Category.objects.all()
+
+@never_cache
+def addComment(request, postid):
+	if request.method == "POST":
+		comment_form = CommentForm(request.POST, request.FILES)
+		if comment_form.is_valid:
+			comment = comment_form.save(commit=False)
+			comment.author = request.user
+			comment.post = Post.objects.get(id=postid)
+			comment.save()
+			return HttpResponse("OK")
+	else:
+		pass
 
 @never_cache
 def tags(request):
@@ -169,8 +183,8 @@ def rate_post(request, postid, vote):
 
 		return HttpResponse("accepted")
 
-@cache_page(5 )
-@cache_control(max_age=5)
+@cache_page(2 )
+@cache_control(max_age=2)
 @vary_on_headers('X-Requested-With','Cookie')
 #@never_cache
 def list(request, category=None, tag=None, pop=None):
@@ -273,8 +287,8 @@ def list(request, category=None, tag=None, pop=None):
 
 	return render(request, template, context )
 
-@cache_page(50)
-@cache_control(max_age=50)
+@cache_page(2)
+@cache_control(max_age=2)
 @vary_on_headers('X-Requested-With', 'Cookie')
 def single_post(request,  tag, title, id):
 
@@ -298,9 +312,13 @@ def single_post(request,  tag, title, id):
 	if post.private == True and not request.user.is_authenticated:
 		return HttpResponseNotFound()
 
+	comment_form = CommentForm()
+
+	comments = Comment.objects.filter(post=post)
 	return render(request, template,
 				  {'post': post,
-				  'cat_list': cat_list})
+				  'cat_list': cat_list, 'comment_form': comment_form,
+				  'comments': comments })
 
 
 @sensitive_post_parameters()

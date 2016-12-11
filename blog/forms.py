@@ -2,7 +2,7 @@ from django.contrib.auth.forms import (UserCreationForm,
                                        UserChangeForm,
                                        ReadOnlyPasswordHashField)
 from django import forms
-from blog.models import myUser, Post
+from blog.models import myUser, Post, Comment
 from django.conf import settings
 from froala_editor.widgets import FroalaEditor
 
@@ -36,7 +36,65 @@ class MyUserChangeForm(forms.ModelForm):
         model = myUser
         fields = ('username', 'email','avatar')
 
-        
+class CommentForm(forms.ModelForm):
+
+    class Meta:
+        model = Comment
+        fields = ('text', )
+        widgets = {'text': FroalaEditor(
+            options={'toolbarInline': False,
+                    'iframe': False,
+                    'toolbarSticky': False,
+                    'imageDefaultWidth': 800,
+                    'language': 'ru',
+                    'placeholderText': '''Напишите что-нибудь
+                    или перетащите изображение''',
+                    'imageMaxSize': 1024 * 1024 * 19,
+                    'pasteDeniedTags': ['script'],
+                    'imageEditButtons': [
+                        'imageAlign', 'imageRemove',
+                        '|', 'imageLink','linkOpen',
+                        'linkEdit', 'linkRemove', '-',
+                         'imageDisplay', 'imageStyle',
+                         'imageAlt', 'imageSize'
+                    ],
+                    'toolbarButtons': [
+                        'bold', 'italic',
+                        'underline', 'strikeThrough',
+                        'fontSize', '|', 'align',
+                        'quote', '|','-','insertLink',
+                        'insertImage', 'insertVideo','|',
+                        'insertTable', '-','undo', 'redo',
+                        'clearFormatting','fullscreen'
+                        ],
+                    'toolbarButtonsMD':[
+                        'bold', 'italic',
+                        'underline', 'strikeThrough',
+                        'fontSize', '|', 'align',
+                        'quote', '|','-','insertLink',
+                        'insertImage', 'insertVideo','|',
+                        'insertTable', '-','undo', 'redo',
+                        'clearFormatting','fullscreen'
+                    ],
+                    'toolbarButtonsSM':[
+                        'bold', 'italic',
+                        'underline', 'strikeThrough',
+                        '|', 'align',
+                        'quote', 'insertLink',
+                        'insertImage', 'insertVideo',
+                        'undo', 'redo',
+                        'clearFormatting','fullscreen'
+                    ],
+                    'toolbarButtonsXS':[
+                        'align',
+                        'quote', 'insertLink',
+                        'insertImage', 'insertVideo',
+                        'undo', 'redo',
+                        'clearFormatting','fullscreen'
+                    ]}
+            )}
+
+
 class AddPostForm(forms.ModelForm):
     tags_new = forms.CharField(label="new tags",required=False,
                                widget= forms.TextInput(
@@ -54,7 +112,7 @@ class AddPostForm(forms.ModelForm):
         widgets = {
             #'text': SummernoteInplaceWidget(),
             'text': FroalaEditor(
-                                
+
                                 options={'toolbarInline': False,
                                         'iframe': False,
                                         'toolbarSticky': False,

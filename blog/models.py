@@ -407,3 +407,16 @@ def delete_old_image_and_thumb(sender, instance, **kwargs):
     cache.delete("taglist")
     deleteThumb(instance.description)
     instance.description = str(srcsets(instance.description, False))
+
+class Comment(models.Model):
+    text = models.TextField(max_length=700)
+    author = models.ForeignKey('myUser', blank=True, null=True)
+    post = models.ForeignKey('Post', blank=True, null=True)
+    removed = models.BooleanField(default=False)
+    created = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return self.text
+    class Meta:
+        ordering = ['-created']
+        verbose_name_plural = "Comments"

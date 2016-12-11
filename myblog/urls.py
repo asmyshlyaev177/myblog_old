@@ -28,6 +28,8 @@ from django.contrib.auth import views as auth_views
 
 urlpatterns = [
     #url(r'^silk/', include('silk.urls', namespace='silk')),
+    url(r'^add-comment/(?P<postid>[-vi\d]+)\/?',
+        views.addComment, name='add-comment'),
     url(r'^tags.json\/?', views.tags, name='tags'),
     url('login-social/', include('social.apps.django_app.urls', namespace='social')),
     url(r'^froala_editor\/?', include('froala_editor.urls')),

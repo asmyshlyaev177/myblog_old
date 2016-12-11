@@ -1,14 +1,15 @@
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
-from blog.models import Post, Category, Tag, myUser
+from blog.models import Post, Category, Tag, myUser, Comment
 from django import forms
 from django.utils.text import slugify
 from imagekit.admin import AdminThumbnail
-from .forms import UserCreationForm, UserChangeForm, MyUserChangeForm
+from .forms import (UserCreationForm, UserChangeForm, MyUserChangeForm,
+                    CommentForm)
 from django.contrib.auth.models import Group
 from django.contrib.auth.models import AbstractBaseUser
 from froala_editor.widgets import FroalaEditor
-
+from django.utils.html import format_html
 
 class UserAdmin(BaseUserAdmin):
     form = MyUserChangeForm
@@ -111,3 +112,47 @@ class TagAdmin(admin.ModelAdmin):
 
 
 admin.site.register(Tag, TagAdmin)
+
+class CommentAdminForm(forms.ModelForm):
+    class Meta:
+        model = Comment
+        fields = ("author", "text", "removed", "post")
+        widgets = {
+            'text': FroalaEditor(
+                                options={'toolbarInline': False,
+                                        'iframe': False,
+                                        'toolbarSticky': False,
+                                        'imageDefaultWidth': 800,
+                                        'language': 'ru',
+                                        'placeholderText': '''Напишите что-нибудь
+                                        или перетащите изображение''',
+                                        'imageMaxSize': 1024 * 1024 * 19,
+                                        'pasteDeniedTags': ['script'],
+                                        'imageEditButtons': [
+                                            'imageAlign', 'imageRemove',
+                                            '|', 'imageLink','linkOpen',
+                                            'linkEdit', 'linkRemove', '-',
+                                             'imageDisplay', 'imageStyle',
+                                             'imageAlt', 'imageSize', 'html'
+                                        ]},
+                            plugins=('align', 'char_counter', 'code_beautifier',
+                                     'code_view', 'colors', 'draggable', 'emoticons',
+                                     'entities', 'file', 'font_family', 'font_size',
+                                     'fullscreen', 'image_manager', 'image', 'inline_style',
+                                     'line_breaker', 'link', 'lists', 'paragraph_format',
+                                     'paragraph_style', 'quick_insert', 'quote', 'save', 'table',
+                                     'url', 'video'),
+            ),
+        }
+
+class CommentAdmin(admin.ModelAdmin):
+    form = CommentAdminForm
+    list_display = ( "author", "_text", "removed", "post", "created")
+    def _text(self, obj):
+        return format_html(obj.text)
+    readonly_fields = ("created",)
+    search_fields = ["text", "author"]
+    list_filter = ["created", "removed"]
+    ordering = ["created",]
+
+admin.site.register(Comment, CommentAdmin)
