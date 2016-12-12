@@ -35,6 +35,11 @@ from blog.tasks import addPost, RatePost
 
 cat_list = Category.objects.all()
 
+def comments(request, postid):
+	post = Post.objects.get(id=postid)
+	comments = Comment.objects.filter(post=post)
+	return comments
+
 @never_cache
 def addComment(request, postid):
 	if request.method == "POST":
@@ -287,9 +292,9 @@ def list(request, category=None, tag=None, pop=None):
 
 	return render(request, template, context )
 
-@cache_page(2)
-@cache_control(max_age=2)
-@vary_on_headers('X-Requested-With', 'Cookie')
+#@cache_page(2)
+#@cache_control(max_age=2)
+#@vary_on_headers('X-Requested-With', 'Cookie')
 def single_post(request,  tag, title, id):
 
 	if request.is_ajax() == True :
@@ -314,11 +319,14 @@ def single_post(request,  tag, title, id):
 
 	comment_form = CommentForm()
 
+	#comments = Comment.objects.filter(post=post)
+
 	comments = Comment.objects.filter(post=post)
+
 	return render(request, template,
 				  {'post': post,
 				  'cat_list': cat_list, 'comment_form': comment_form,
-				  'comments': comments })
+				  'comments': comments})
 
 
 @sensitive_post_parameters()

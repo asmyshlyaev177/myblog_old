@@ -152,6 +152,7 @@ INSTALLED_APPS = [
     #'django_celery_results',
     'social.apps.django_app.default',
     'django_extensions',
+    'mptt',
     #'silk',
 ]
 

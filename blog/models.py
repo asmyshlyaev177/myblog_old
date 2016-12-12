@@ -23,6 +23,10 @@ from blog.functions import findLink,findFile,saveImage,srcsets
 from froala_editor.fields import FroalaField
 from django.utils.encoding import uri_to_iri, iri_to_uri
 from django.core.cache import cache
+#import mptt
+#from mptt.fields import TreeForeignKey
+from mptt.models import MPTTModel, TreeForeignKey
+from django.contrib.auth.models import Group
 #import socket #timeout just for test
 #socket.setdefaulttimeout(10)
 
@@ -89,7 +93,7 @@ class myUser(AbstractBaseUser):
     is_it_staff = models.BooleanField("Is stuff", default=False)
     is_it_superuser = models.BooleanField("Is admin", default=False)
     moderated = models.BooleanField("Moderated", default=True)
-    last_login = models.DateTimeField(auto_now=True)
+    user_last_login = models.DateTimeField(auto_now=True)
     date_joined = models.DateTimeField(auto_now_add=True)
     has_votes = models.BooleanField(default=True)
     REQUIRED_FIELDS = ['email',]
@@ -410,15 +414,18 @@ def delete_old_image_and_thumb(sender, instance, **kwargs):
     deleteThumb(instance.description)
     instance.description = str(srcsets(instance.description, False))
 
-class Comment(models.Model):
+class Comment(MPTTModel):
     text = models.TextField(max_length=700)
     author = models.ForeignKey('myUser', blank=True, null=True)
     post = models.ForeignKey('Post', blank=True, null=True)
     removed = models.BooleanField(default=False)
     created = models.DateTimeField(auto_now_add=True)
+    parent = TreeForeignKey('self', null=True, blank=True,
+                            related_name='children', db_index=True)
 
     def __str__(self):
         return self.text
-    class Meta:
-        ordering = ['-created']
+
+    class MPTTMeta:
+        order_insertion_by = ['created']
         verbose_name_plural = "Comments"

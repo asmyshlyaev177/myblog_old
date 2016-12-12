@@ -1,4 +1,5 @@
 {% load post_header %}
+{% load mptt_tags %}
 <script>processing = true;</script>
 
 {% autoescape off %}
@@ -26,12 +27,14 @@
   {{ post.text }}
 </div>
 
-<div class="comments">
-  {% for comment in comments %}
+  <ul class="comments">
 
-      <div class="card horizontal comment z-depth-2">
+    {% for comment, structure  in comments|tree_info %}
+
+          <div class="card horizontal comment z-depth-2"
+          style='
+   margin-left:{% widthratio comment.level 1 25 %}px;'>
           <div class="row">
-
             <div class="col s12 m2 l2 comment_user">
               <p class="comment_username center-align">
                 {{ comment.author.username}}
@@ -47,19 +50,20 @@
               <div class="card-content comment_text z-depth-1">
                 <p>{{ comment.text}}</p>
               </div>
-
               <div class="card-action comment_extra z-depth-1">
                 <hr />
                 test
               </div>
             </div>
-
             </div>
-        </div>
+            </div>
 
+        {% for level in structure.closed_levels %}
 
-{% endfor %}
-</div>
+        {% endfor %}
+    {% endfor %}
+
+</ul>
 
 <div id="add_comment_title">Add a comment</div>
 <form action="/add-comment/{{ post.id }}/" method='POST' enctype="multipart/form-data">
