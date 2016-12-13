@@ -28,7 +28,9 @@ from django.contrib.auth import views as auth_views
 
 urlpatterns = [
     #url(r'^silk/', include('silk.urls', namespace='silk')),
-    url(r'^add-comment/(?P<postid>[-vi\d]+)\/?',
+    #url(r'^add-comment/(?P<postid>[-vi\d]+)/(?P<parent>[-vi/d]+)\/?',
+    #    views.addComment, name='add-comment'),
+    url(r'^add-comment/(?P<postid>[-vi\d]+)/(?P<parent>[-vi\d]+)\/?',
         views.addComment, name='add-comment'),
     url(r'^comments/(?P<postid>[-vi\d]+)\/?', views.comments, name='comments'),
     url(r'^tags.json\/?', views.tags, name='tags'),

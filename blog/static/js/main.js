@@ -20,11 +20,51 @@ $(document).ready(function(){
     BackForwardButtons();
 	GifPlay();
 	ratePost();
-   
-    
+  ReplyBtn();
+	AddCommentBtn();
 });
 
+function AddCommentBtn() {
+$(document).on('click', '.btn.add-comment', function (e) {
+	form = $("#comment-form");
+    btn = $(this);
 
+	if ( $(form).parent().hasClass("comment") ) {
+		parent = parseInt($(form).attr("comment_id"));
+	} else {
+		parent = 0;
+	}
+
+	post_id = parseInt( $(form).attr("postid") );
+	link = "/add-comment/"+post_id+"/"+parent+"/";
+	csrf = getCookie('csrftoken');
+
+	$.ajax({
+		  headers: {'X-CSRFToken': csrf},
+		  type:"POST",
+		  cache : false,
+		  data: $(form).serialize(),
+		  url: link,
+      success:function(data){
+		console.log("success!");
+		  $(".fr-view").html("")
+        }
+     });
+	return false;
+})
+}
+
+function ReplyBtn() {
+$(document).on('click', '.reply-btn', function() {
+	btn = $(this);
+	comment = $(btn).parents("div.comment");
+
+	$("#comment-form").attr("comment_id", $(comment).attr("comment_id")) ;
+  $(".fr-view").html("");
+	$("#comment-form").appendTo(comment);
+	return false;
+	});
+}
 
 function ratePost() {
 	$(document).on('click', '.rate-icon', function() {
@@ -35,7 +75,6 @@ function ratePost() {
 	vote_btn = this;
 	id = $(vote_btn).parent().attr('post');
 	rate = $(vote_btn).attr('rate');
-	console.log("id= "+id+" rate= "+rate);
 	csrf = getCookie('csrftoken');
 	$.ajax({
 		  headers: {'X-CSRFToken': csrf},
@@ -195,7 +234,7 @@ function ChangePageNew( link, myurl ) {
  	if ( myurl != "" ) {
         $('.menu').filter( $('#'+myurl ) ).parent().addClass('active');
     }
-    
+
 };
 
 function BackForwardButtons() {

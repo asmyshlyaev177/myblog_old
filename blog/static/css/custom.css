@@ -12,7 +12,11 @@
 .comment {
 	display: block!important;
 }
-
+.btn-small {
+	height: 28px!important;
+	line-height: 28px!important;
+	padding: 0 0.7rem!important;
+}
 
 .post-thumbnail {position: relative; }
 

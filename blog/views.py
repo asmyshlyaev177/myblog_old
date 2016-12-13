@@ -41,13 +41,18 @@ def comments(request, postid):
 	return comments
 
 @never_cache
-def addComment(request, postid):
+def addComment(request, postid, parent=0):
 	if request.method == "POST":
 		comment_form = CommentForm(request.POST, request.FILES)
 		if comment_form.is_valid:
+			parent_comment = int(parent)
 			comment = comment_form.save(commit=False)
 			comment.author = request.user
+			print("*******************")
+			print(str(parent_comment))
 			comment.post = Post.objects.get(id=postid)
+			if parent_comment != 0:
+				comment.parent = Comment.objects.get(id=parent_comment)
 			comment.save()
 			return HttpResponse("OK")
 	else:
