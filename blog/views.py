@@ -38,7 +38,9 @@ cat_list = Category.objects.all()
 def comments(request, postid):
 	post = Post.objects.get(id=postid)
 	comments = Comment.objects.filter(post=post)
-	return comments
+	template = 'comments-ajax.html'
+	return render(request, template,
+				  {'comments': comments})
 
 @never_cache
 def addComment(request, postid, parent=0):
@@ -82,7 +84,8 @@ def signup(request):
 			form.save()
 			return HttpResponseRedirect('/signup_success/')
 	form = SignupForm()
-	return render(request, 'registration/signup.html', { 'form': form })
+	return render(request, 'registration/signup.html', { 'form': form,
+														'cat_list': cat_list })
 
 def signup_success(request):
 	return render(request, 'registration/signup_success.html')
@@ -193,9 +196,9 @@ def rate_post(request, postid, vote):
 
 		return HttpResponse("accepted")
 
-@cache_page(2 )
-@cache_control(max_age=2)
-@vary_on_headers('X-Requested-With','Cookie')
+#@cache_page(200 )
+#@cache_control(max_age=200)
+#@vary_on_headers('X-Requested-With','Cookie')
 #@never_cache
 def list(request, category=None, tag=None, pop=None):
 
@@ -297,8 +300,8 @@ def list(request, category=None, tag=None, pop=None):
 
 	return render(request, template, context )
 
-#@cache_page(2)
-#@cache_control(max_age=2)
+#@cache_page(200)
+#@cache_control(max_age=200)
 #@vary_on_headers('X-Requested-With', 'Cookie')
 def single_post(request,  tag, title, id):
 

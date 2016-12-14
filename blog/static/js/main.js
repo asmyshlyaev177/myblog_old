@@ -24,6 +24,21 @@ $(document).ready(function(){
 	AddCommentBtn();
 });
 
+function Comments() {
+$(document).ready(function(){
+	postid = parseInt( $(".post_header").attr("postid") );
+	link = "/comments/" + postid + "/"
+	$.ajax({
+		  type: "GET",
+		  cache : false,
+		  url: link,
+      success:function(data){
+		 $(data).appendTo( $("#Comments_title") );
+        }
+     });
+	 });
+}
+
 function AddCommentBtn() {
 $(document).on('click', '.btn.add-comment', function (e) {
 	form = $("#comment-form");

@@ -1,5 +1,5 @@
 {% load post_header %}
-{% load mptt_tags %}
+
 <script>processing = true;</script>
 
 {% autoescape off %}
@@ -27,7 +27,7 @@
   {{ post.text }}
 </div>
 
-<div id="Comments_title">Comments</div>
+<div id="add_comment_placeholder"></div>
 <form action="/add-comment/{{ post.id }}/0/" method='POST' id="comment-form"
 enctype="multipart/form-data" postid="{{ post.id }}">
 {% csrf_token %}
@@ -38,51 +38,11 @@ enctype="multipart/form-data" postid="{{ post.id }}">
  class="waves-effect waves-light btn add-comment"/>
 </form>
 
+<div id="Comments_title">Comments</div>
 
-  <ul class="comments">
-
-    {% for comment, structure  in comments|tree_info %}
-
-        <div class="card horizontal comment z-depth-2"
-          style='
-   margin-left:{% widthratio comment.level 1 25 %}px;'
-   comment_id={{ comment.id }}>
-          <div class="row">
-            <div class="col s12 m2 l2 comment_user">
-              <p class="comment_username center-align">
-                {{ comment.author.username}}
-              </p>
-              {% if comment.author.avatar %}
-              <p class="comment_user_vatar center-align">
-                <img src='/static/media/{{ comment.author.avatar}}'
-                  class="responsive-img"/>
-              </p>
-              {% endif %}
-            </div>
-            <div class="col s12 m10 l10 card-stacked">
-              <div class="card-content comment_text z-depth-1">
-                <p>{{ comment.text}}</p>
-              </div>
-              <div class="card-action comment_extra z-depth-1">
-                <hr />
-                {{ comment.created }}
-                {% if post.author == comment.author %} Author! {% endif %}
-                <a href ="#" class="btn btn-small reply-btn">
-                  <span>Reply</span>
-                </a>
-              </div>
-            </div>
-            </div>
-            </div>
-
-
-        {% for level in structure.closed_levels %}
-            </li>
-        {% endfor %}
-    {% endfor %}
-
-</ul>
-
+<script>
+Comments();
+</script>
 
 
 {% endautoescape %}

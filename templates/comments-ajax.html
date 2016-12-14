@@ -1,0 +1,47 @@
+{% load mptt_tags %}
+{% autoescape off %}
+<ul class="comments">
+
+  {% for comment, structure  in comments|tree_info %}
+
+      <div class="card horizontal comment z-depth-2"
+        style='
+ margin-left:{% widthratio comment.level 1 25 %}px;'
+ comment_id={{ comment.id }}>
+        <div class="row">
+          <div class="col s12 m2 l2 comment_user">
+            <p class="comment_username center-align">
+              {{ comment.author.username}}
+            </p>
+            {% if comment.author.avatar %}
+            <p class="comment_user_vatar center-align">
+              <img src='/static/media/{{ comment.author.avatar}}'
+                class="responsive-img"/>
+            </p>
+            {% endif %}
+          </div>
+          <div class="col s12 m10 l10 card-stacked">
+            <div class="card-content comment_text z-depth-1">
+              <p>{{ comment.text}}</p>
+            </div>
+            <div class="card-action comment_extra z-depth-1">
+              <hr />
+              {{ comment.created }}
+              {% if post.author == comment.author %} Author! {% endif %}
+              <a href ="#" class="btn btn-small reply-btn">
+                <span>Reply</span>
+              </a>
+            </div>
+          </div>
+          </div>
+          </div>
+
+
+      {% for level in structure.closed_levels %}
+          </li>
+      {% endfor %}
+  {% endfor %}
+
+</ul>
+
+{% endautoescape %}
