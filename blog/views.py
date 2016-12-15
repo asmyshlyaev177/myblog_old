@@ -23,7 +23,6 @@ from django.views.decorators.cache import cache_page, never_cache
 from django.views.decorators.vary import vary_on_headers
 from django.views.decorators.cache import cache_control
 from django.core.cache import cache
-import pickle
 
 from django.http import (
 	HttpResponseBadRequest,
@@ -236,7 +235,7 @@ def list(request, category=None, tag=None, pop=None):
 	elif category:
 		cache_str = "post_list_"+str(category.lower())+"_"+str(user_known)
 		if cache.ttl(cache_str):
-			post_list = cache.get(cache_str)
+			post_list =  cache.get(cache_str)
 		else:
 			if not user_known:
 				post_list = Post.objects.filter(category__slug=category)\
@@ -248,13 +247,13 @@ def list(request, category=None, tag=None, pop=None):
 							.filter(status="P")\
 							.select_related("category")\
 							.prefetch_related('tags', 'ratingpost_set')
-			cache.set(cache_str, post_list, 1800)
+			cache.set( cache_str, post_list, 1800)
 
 
 	else:
 		cache_str = "post_list_"+str(user_known)
 		if cache.ttl(cache_str):
-			post_list = cache.get(cache_str)
+			post_list =  cache.get(cache_str)
 		else:
 			if not user_known:
 				post_list = Post.objects\
@@ -266,7 +265,7 @@ def list(request, category=None, tag=None, pop=None):
 							.filter(status="P")\
 							.select_related( "category")\
 							.prefetch_related('tags', 'ratingpost_set')
-			cache.set(cache_str, post_list, 1800)
+			cache.set( cache_str, post_list, 1800)
 
 	#if pop:
 	#	pass filter

@@ -170,22 +170,17 @@ class Rating(models.Model):
         abstract = True
 
 class RatingPost(Rating):
+
     post = models.ForeignKey('Post')
-    day = models.FloatField(blank = True, null = True)
-    month = models.FloatField(blank = True, null = True)
-    week = models.FloatField(blank = True, null = True)
 
 class RatingTag(Rating):
-    tag = models.ForeignKey('Tag')
-    day = models.FloatField(blank = True, null = True)
-    month = models.FloatField(blank = True, null = True)
-    week = models.FloatField(blank = True, null = True)
+    tag = models.ForeignKey('Tag', db_index=True)
 
 class RatingUser(Rating):
-    user = models.ForeignKey('myUser')
+    user = models.ForeignKey('myUser', db_index=True)
 
 class RatingComment(Rating):
-    user = models.ForeignKey('Comment')
+    user = models.ForeignKey('Comment', db_index=True)
 
 
 class Vote(models.Model):
@@ -198,7 +193,7 @@ class Vote(models.Model):
         abstract = True
 
 class VotePost(Vote):
-    post = models.ForeignKey('Post')
+    post = models.ForeignKey('Post', db_index=True)
 
 class UserVotes(models.Model):
     #userid = models.IntegerField(blank = True, null = True)
@@ -212,7 +207,7 @@ class UserVotes(models.Model):
     count = models.CharField(max_length=1, choices=COUNT, default="N")
     block_date = models.DateTimeField(blank=True, null=True)
     manual = models.BooleanField(default = False)
-    user = models.ForeignKey('myUser')
+    user = models.ForeignKey('myUser',db_index=True)
 
 
 

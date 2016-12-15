@@ -39,7 +39,6 @@ def taglist():
 
 @app.task(name="RatePost")
 def RatePost(userid, postid, vote):
-
 	#post = Post.objects.cache().get(id=postid)
 	post = Post.objects.get(id=postid)
 
@@ -124,7 +123,12 @@ def CalcPostRating():
 			author_rating.save()
 			rt_change = True
 
-		#rating for day
+		if rt_change:
+			print("save rating for post - ", str(post))
+			post_rating.save()
+			tag_rating.save()
+
+		"""#rating for day
 		sum = 0.0
 		start = dt.replace(second=0, microsecond=0, minute=0) + day
 		votes = vote_list.filter(post=post).filter(created__range=(start, end))
@@ -175,7 +179,7 @@ def CalcPostRating():
 		if rt_change or day_change or week_change or month_change:
 			print("save rating for post - ", str(post))
 			post_rating.save()
-			tag_rating.save()
+			tag_rating.save() """
 
 @app.task(name="userVotes")
 def userVotes():
