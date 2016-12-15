@@ -1,4 +1,3 @@
-{% load thumbnail %}
 <h2 class="text-center">Welcome {{ request.user.username }}!</h2>
 
 {% block content %}
@@ -18,13 +17,13 @@
     </div>
     <div>
       <label for="avatar">Avatar </label>
-      <p>
+
 
       {% if request.user.avatar %}
-      {% thumbnail request.user.avatar "70x70" as im %}
-          <img src="{{ im.url }}" height="{{ im.height }}"
+      <p>
+          <img src="{{ request.user.avatar.url }}"
+          height="{{ request.user.avatar.height }}"
           id = "avatar">
-      {% endthumbnail %}
       </p>
       {% endif %}
     </div>

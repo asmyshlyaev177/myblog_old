@@ -1,4 +1,3 @@
-{% load thumbnail %}
 
 <div class="container">
 <div class="row post_header valign-wrapper" postid={{ post.id }}>
@@ -10,10 +9,10 @@
         <p>{{ post.author }}</p>
         {% if post.author.avatar %}
 
-      {% thumbnail post.author.avatar "70x70" as im %}
-          <img src="{{ im.url }}" width="{{ im.width }}" height="{{ im.height }}"
+          <img src="{{ post.author.avatar.url }}"
+          width="{{ post.author.avatar.width }}"
+          height="{{ post.author.avatar.height }}"
           class="img-responsive">
-      {% endthumbnail %}
 
         {% else %}
         <img src="/static/img/avatar.jpg" class ="img-avatar"/>

@@ -23,6 +23,7 @@ from django.views.decorators.cache import cache_page, never_cache
 from django.views.decorators.vary import vary_on_headers
 from django.views.decorators.cache import cache_control
 from django.core.cache import cache
+import pickle
 
 from django.http import (
 	HttpResponseBadRequest,
@@ -222,24 +223,15 @@ def list(request, category=None, tag=None, pop=None):
 			if not user_known:
 				post_list = Post.objects.filter(tags__url=tag)\
 							.filter(status="P").filter(private=False)\
-							.select_related("author", "category")\
+							.select_related("category")\
 							.prefetch_related('tags', 'ratingpost_set')
 			else:
 				post_list = Post.objects.filter(tags__url=tag)\
 							.filter(status="P")\
-							.select_related("author", "category")\
+							.select_related("category")\
 							.prefetch_related('tags', 'ratingpost_set')
-			cache.set(cache_str, post_list, 60480)
+			cache.set(cache_str, post_list, 1800)
 
-		#post_list= Post.objects.filter(tags__url=tag).filter(status="P")\
-		#	.select_related("author", "category")\
-		#	.prefetch_related('tags')\
-		#	.prefetch_related('ratingpost_set')
-		#context['tag'] = Tag.objects.get(url=tag)
-
-		#if category:
-		#	post_list = post_list.filter(category__slug=category)
-		#	context['category'] = category
 
 	elif category:
 		cache_str = "post_list_"+str(category.lower())+"_"+str(user_known)
@@ -249,20 +241,15 @@ def list(request, category=None, tag=None, pop=None):
 			if not user_known:
 				post_list = Post.objects.filter(category__slug=category)\
 							.filter(status="P").filter(private=False)\
-							.select_related("author", "category")\
+							.select_related("category")\
 							.prefetch_related('tags', 'ratingpost_set')
 			else:
 				post_list = Post.objects.filter(category__slug=category)\
 							.filter(status="P")\
-							.select_related("author", "category")\
+							.select_related("category")\
 							.prefetch_related('tags', 'ratingpost_set')
-			cache.set(cache_str, post_list, 604800)
+			cache.set(cache_str, post_list, 1800)
 
-		#post_list= Post.objects.filter(status="P")\
-		#	.select_related("author", "category")\
-		#	.prefetch_related('tags').filter(category__slug=category)\
-		#	.prefetch_related('ratingpost_set')
-		#context['category'] = category
 
 	else:
 		cache_str = "post_list_"+str(user_known)
@@ -272,14 +259,14 @@ def list(request, category=None, tag=None, pop=None):
 			if not user_known:
 				post_list = Post.objects\
 							.filter(status="P").filter(private=False)\
-							.select_related("author", "category")\
+							.select_related( "category")\
 							.prefetch_related('tags', 'ratingpost_set')
 			else:
 				post_list = Post.objects\
 							.filter(status="P")\
-							.select_related("author", "category")\
+							.select_related( "category")\
 							.prefetch_related('tags', 'ratingpost_set')
-			cache.set(cache_str, post_list, 604800)
+			cache.set(cache_str, post_list, 1800)
 
 	#if pop:
 	#	pass filter
@@ -318,9 +305,9 @@ def single_post(request,  tag, title, id):
 	if cache.ttl(cache_str):
 		post = cache.get(cache_str)
 	else:
-		post = Post.objects.select_related("author", "category")\
-			.prefetch_related('tags').get(pk=id)
-		cache.set(cache_str, post, 60480)
+		post = Post.objects.select_related("category")\
+			.prefetch_related('tags', 'ratingpost_set').get(pk=id)
+		cache.set(cache_str, post, 1800)
 
 	if post.private == True and not request.user.is_authenticated:
 		return HttpResponseNotFound()

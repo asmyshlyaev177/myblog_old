@@ -1,6 +1,5 @@
 {% load staticfiles %}
 {% load compress %}
-{% load thumbnail %}
 
 <!DOCTYPE html>
 <html>
@@ -130,10 +129,13 @@ style="border: 1px black dotted;">
       <p><a href="{% url 'dashboard' %}" single_page
         url = "dashboard" class="ajax-menu">
         {{ user.username }}
-                            {% thumbnail user..avatar "70x70" as im %}
-                                <img src="{{ im.url }}" width="{{ im.width }}" height="{{ im.height }}">
-                            {% endthumbnail %}
-
+                      {% if user.avatar %}
+                                <p><img src="{{ user.avatar.url }}"
+                                width="{{ user.avatar.width }}"
+                                height="{{ user.avatar.height }}"></p>
+                      {% else %}
+                      <p><img src="/static/img/avatar.jpg" class ="img-avatar"/></p>
+                      {% endif %}
                             </a></p>
       <p><a href="{% url 'add_post' %}" single_page
         url = "add-post" class="ajax-menu">Add Post</a></p>

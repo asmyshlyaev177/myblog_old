@@ -84,7 +84,7 @@ class myUser(AbstractBaseUser):
         return 'avatars/{0}/{1}'.format(instance.username, filename)
 
     avatar = ProcessedImageField(upload_to=user_directory_path,
-                                 processors=[ResizeToFit(50, 50)],
+                                 processors=[ResizeToFit(64, 64)],
                                  format='JPEG',
                                  options={'quality': 90}, blank=True)
     email = models.EmailField(unique=True, blank=False)
@@ -133,6 +133,7 @@ class myUser(AbstractBaseUser):
 @receiver(models.signals.post_delete, sender=myUser)
 def delete_avatar(sender, instance, **kwargs):
     """delete avatar when delete user"""
+    cache.delete_pattern("post_list_*")
     if instance.avatar:
         if os.path.isfile(instance.avatar.path):
             os.remove(instance.avatar.path)
@@ -140,6 +141,7 @@ def delete_avatar(sender, instance, **kwargs):
 @receiver(models.signals.pre_save, sender=myUser)
 def delete_old_avatar(sender, instance, **kwargs):
     """delete old file when avatar changed"""
+    cache.delete_pattern("post_list_*")
     if not instance.pk:
         return False
 

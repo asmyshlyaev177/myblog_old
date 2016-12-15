@@ -206,9 +206,11 @@ $(document).on('click', '.ajax-menu', function() {
 
 		if ( ajax_menu.is('[single_page]' ) ) { // if it is menu don't load on scroll
 			processing = true;
+			single = true;
 		}
 		else { // if it is list page load on scroll
 			processing = false;
+			single = false;
 		}
 
 	$('html, body').scrollTop( 0 );
@@ -220,13 +222,13 @@ $(document).on('click', '.ajax-menu', function() {
 
 	//ChangePage();
 	window.history.pushState({state:'new'}, "",  category);
-	ChangePageNew( category, myurl );
+	ChangePageNew( category, myurl, single );
 	return false;
 });
 }
 
 
-function ChangePageNew( link, myurl ) {
+function ChangePageNew( link, myurl, single ) {
 	content = $(".content")
 	content.fadeTo(70, 0.3);
 	loader.css('top', '120px').css('left', '50%').css('position', 'absolute').show();
@@ -246,7 +248,7 @@ function ChangePageNew( link, myurl ) {
    page = 1;
 
 	 $('.menu').parent().removeClass('active');
- 	if ( myurl != "" ) {
+ 	if ( myurl != "" && single == false) {
         $('.menu').filter( $('#'+myurl ) ).parent().addClass('active');
     }
 
@@ -271,7 +273,7 @@ function loadMore(){
                processing = false; // the processing variable prevents multiple ajax calls when scrolling
 							 loader.hide();
 							 disableRate();
-                              ImageHeight();
+              	//ImageHeight();
           }
      });
 

@@ -1,5 +1,4 @@
 {% load post_header %}
-{% load thumbnail %}
 
 {% autoescape off %}
 
@@ -37,12 +36,13 @@
     {% if post.post_image %}
     <div class="post-thumbnail center-align">
 
-    {% thumbnail post.post_image "640x480" as im %}
         {% if post.post_image_gif %}
         <a class="gif" href="#">
           <span class="play">&#9658;</span>
         </a>
-        <img src="{{ im.url }}" width="{{ im.width }}" height="{{ im.height }}"
+        <img src="{{ post.post_thumbnail.url }}"
+        width="{{ post.post_thumbnail.width }}"
+        height="{{ post.post_thumbnail.height }}"
         dataalt='/media/{{ post.post_image }}'
         class="responsive-img center-align gif">
 
@@ -51,7 +51,8 @@
         {{ post.image_url }}
 
         {% endif %}
-    {% endthumbnail %}
+
+
     </div>
     {% endif %}
 
