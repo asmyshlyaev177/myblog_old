@@ -3,7 +3,7 @@ from celery import Celery
 from celery.task import periodic_task
 from datetime import timedelta
 import os, datetime, json, re
-from blog.models import (Post, RatingPost,RatingTag, Tag, Rating, Thumbnail, myUser,
+from blog.models import (Post, RatingPost,RatingTag, Tag, Rating, myUser,
 						UserVotes, RatingUser, VotePost)
 from slugify import slugify, SLUG_OK
 from bs4 import BeautifulSoup
@@ -36,6 +36,7 @@ def taglist():
 	with open(filename, 'w', encoding='utf8') as out:
 		out.write(json.dumps(data), ensure_ascii=False)
 		"""
+
 
 @app.task(name="RatePost")
 def RatePost(userid, postid, vote):

@@ -22,14 +22,17 @@
 
     <div class="col-md-4">
       {% if post.post_image %}
-       <img src="{{ post.post_thumbnail.url }}"
-       width="{{ post.post_thumbnail.width }}"
-       height="{{ post.post_thumbnail.height }}"
-       class="post-thumb-small responsive-img" >
-       {% endif %}
-       <p class="post-description">{% autoescape off %}
-         {{ post.description }}{% endautoescape %}</p>
-    </div>
+
+        <img src="{{ post.post_image.url }}"
+        class="post-thumb-small responsive-img" >
+
+      {% endif %}
+
+      <p class="post-description">{% autoescape off %}
+        {{ post.description }}{% endautoescape %}</p>
+   </div>
+
+
 
          </div>
     {% endfor %}

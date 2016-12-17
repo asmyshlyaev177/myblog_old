@@ -8,7 +8,7 @@ import datetime, re, os, datetime
 from time import gmtime, strftime
 from imagekit.models import ImageSpecField, ProcessedImageField
 from imagekit.processors import ResizeToFit
-from imagekit import ImageSpec, register
+#from imagekit import ImageSpec, register
 from django.utils.safestring import mark_safe
 from django.dispatch import receiver
 from django.conf import settings
@@ -29,6 +29,8 @@ from mptt.models import MPTTModel, TreeForeignKey
 from django.contrib.auth.models import Group
 #import socket #timeout just for test
 #socket.setdefaulttimeout(10)
+from celery import Celery
+app = Celery('tasks', broker='pyamqp://guest@localhost//')
 
 class MyUserManager(BaseUserManager):
     def create_user(self, username, email, password=None):
@@ -131,15 +133,19 @@ class myUser(AbstractBaseUser):
         super(myUser, self).save(*args, **kwargs)
 
 @receiver(models.signals.post_delete, sender=myUser)
-def delete_avatar(sender, instance, **kwargs):
+def _post_delete(sender, instance, **kwargs):
     """delete avatar when delete user"""
     cache.delete_pattern("post_list_*")
     if instance.avatar:
         if os.path.isfile(instance.avatar.path):
             os.remove(instance.avatar.path)
 
+@app.task(name="deleteFile")
+def deleteFile(file):
+	os.remove(file)
+
 @receiver(models.signals.pre_save, sender=myUser)
-def delete_old_avatar(sender, instance, **kwargs):
+def _pre_save(sender, instance, **kwargs):
     """delete old file when avatar changed"""
     cache.delete_pattern("post_list_*")
     if not instance.pk:
@@ -151,16 +157,16 @@ def delete_old_avatar(sender, instance, **kwargs):
         return False
 
     new_file = instance.avatar
-    if not old_file == new_file and old_file:
+    #print("***********************")
+    #print('old_file: ', old_file)
+    #print('new_file: ', new_file)
+    #print('old_file.path: ', old_file.path)
+    if not str(old_file).split('/')[-1] == new_file and old_file:
         if os.path.isfile(old_file.path):
-            os.remove(old_file.path)
+            #os.remove(old_file.path)
+            deleteFile.apply_async((old_file.path,), countdown=3600)
 
-class Thumbnail(ImageSpec):
-    processors = [ResizeToFit(800, 600)]
-    format = 'JPEG'
-    options = {'quality': 100}
 
-register.generator('blog:thumbnail', Thumbnail)
 
 class Rating(models.Model):
     #ratingid = models.IntegerField(unique = True)
@@ -209,7 +215,12 @@ class UserVotes(models.Model):
     manual = models.BooleanField(default = False)
     user = models.ForeignKey('myUser',db_index=True)
 
+"""class Thumbnail(ImageSpec):
+    processors = [ResizeToFit(800, 600)]
+    format = 'JPEG'
+    options = {'quality': 100}
 
+register.generator('blog:thumbnail', Thumbnail) """
 
 class Post(models.Model):
     index_together = [
@@ -230,19 +241,23 @@ class Post(models.Model):
     image_url = models.URLField(null=True, blank=True, max_length=500)
 
     def post_image_gif(self):
-        if self.post_image.path != "":
+        if self.post_image:
             ext = []
             ext = self.post_image.path.split('.')
             if ext[-1] == "gif":
                 return True
             else:
                 return False
+        else:
+            return False
 
     post_image.short_description = 'Image'
-    post_thumbnail = ImageSpecField(source='post_image',
-                                processors=[ResizeToFit(1366, 2000)],
-                                format='JPEG',
-                                options={'quality': 85})
+    #post_thumbnail = ImageSpecField(source='post_image',
+    #                            processors=[ResizeToFit(1366, 2000)],
+    #                            format='JPEG',
+    #                            options={'quality': 85})
+    post_thumbnail = models.ImageField(upload_to =
+                        upload_path, blank=True)
     def get_image(self):
         return mark_safe('<img src="%s" class ="responsive-img center-align"/>'\
                          % (self.post_thumbnail.url))
@@ -287,6 +302,9 @@ class Post(models.Model):
         #return self.tags.values_list('name', flat=True)
         return self.tags.all()
 
+    def save(self, *args, **kwargs):
+        super(Post, self).save(*args, **kwargs)
+
 @receiver(models.signals.pre_delete, sender=Post)
 def _post_delete(sender, instance, **kwargs):
 
@@ -310,7 +328,7 @@ def _post_delete(sender, instance, **kwargs):
         pass
 
 @receiver(models.signals.pre_save, sender=Post)
-def delete_old_image_and_thumb(sender, instance, **kwargs):
+def _post_save(sender, instance, **kwargs):
     """delete old file when thumbnail changed"""
 
     cache_str = "post_single_" + str(instance.id)
@@ -332,11 +350,8 @@ def delete_old_image_and_thumb(sender, instance, **kwargs):
     if not old_file == new_file and old_file:
         if os.path.isfile(old_file.path):
             deleteThumb(instance.post_url)
-
             thumb = srcsetThumb(instance.post_image)
-
             instance.post_image = thumb
-
             os.remove(old_file.path)
 
     try:
@@ -348,6 +363,25 @@ def delete_old_image_and_thumb(sender, instance, **kwargs):
     if not old_file == new_file and old_file:
         if os.path.isfile(old_file.path):
             os.remove(old_file.path)
+
+@receiver(models.signals.post_save, sender=Post)
+def _post_save(sender, instance, **kwargs):
+    #thumb for gifs
+    if instance.post_image_gif():
+        file= instance.post_image.path.split('.gif')[0]
+        im = Image.open(instance.post_image.path).convert('RGB')
+        size = ( im.width, im.height)
+        im.thumbnail(size)
+        im.save(file + "-thumbnail.jpeg", "JPEG")
+        file_new = file.split(settings.MEDIA_ROOT)[1]+"-thumbnail"
+        try:
+            file_orig =  instance.post_thumbnail.path.split('.')[0].split(settings.MEDIA_ROOT)[1]
+        except:
+            file_orig = ""
+        instance.post_thumbnail = file_new +".jpeg"
+
+        if file_orig != file_new:
+            instance.save()
 
 class Category(models.Model):
     index_together = [

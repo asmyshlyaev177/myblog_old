@@ -222,12 +222,12 @@ def list(request, category=None, tag=None, pop=None):
 			if not user_known:
 				post_list = Post.objects.filter(tags__url=tag)\
 							.filter(status="P").filter(private=False)\
-							.select_related("category")\
+							.select_related("category", "author")\
 							.prefetch_related('tags', 'ratingpost_set')
 			else:
 				post_list = Post.objects.filter(tags__url=tag)\
 							.filter(status="P")\
-							.select_related("category")\
+							.select_related("category", "author")\
 							.prefetch_related('tags', 'ratingpost_set')
 			cache.set(cache_str, post_list, 1800)
 
@@ -240,12 +240,12 @@ def list(request, category=None, tag=None, pop=None):
 			if not user_known:
 				post_list = Post.objects.filter(category__slug=category)\
 							.filter(status="P").filter(private=False)\
-							.select_related("category")\
+							.select_related("category", "author")\
 							.prefetch_related('tags', 'ratingpost_set')
 			else:
 				post_list = Post.objects.filter(category__slug=category)\
 							.filter(status="P")\
-							.select_related("category")\
+							.select_related("category", "author")\
 							.prefetch_related('tags', 'ratingpost_set')
 			cache.set( cache_str, post_list, 1800)
 
@@ -258,12 +258,12 @@ def list(request, category=None, tag=None, pop=None):
 			if not user_known:
 				post_list = Post.objects\
 							.filter(status="P").filter(private=False)\
-							.select_related( "category")\
+							.select_related( "category", "author")\
 							.prefetch_related('tags', 'ratingpost_set')
 			else:
 				post_list = Post.objects\
 							.filter(status="P")\
-							.select_related( "category")\
+							.select_related( "category", "author")\
 							.prefetch_related('tags', 'ratingpost_set')
 			cache.set( cache_str, post_list, 1800)
 
