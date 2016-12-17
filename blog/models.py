@@ -100,6 +100,12 @@ class myUser(AbstractBaseUser):
     has_votes = models.BooleanField(default=True)
     REQUIRED_FIELDS = ['email',]
     USERNAME_FIELD = 'username'
+    VOTES_COUNT = (
+                ("U", "Unlimited"),
+                ("N","Normal"),
+                ("B","Blocked"),
+    )
+    votes_count = models.CharField(max_length=1, choices=VOTES_COUNT, default="N")
     objects = MyUserManager()
 
     def get_avatar(self):

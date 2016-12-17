@@ -22,10 +22,6 @@ app = Celery('tasks', broker='pyamqp://guest@localhost//')
 
 
 #@periodic_task(run_every=timedelta(seconds=10))
-"""@app.task()
-def test(self):
-	os.mknod(str(datetime.datetime.now()))"""
-
 """@app.task(name='taglist')
 def taglist():
 	tags = Tag.objects.all().values()
@@ -37,33 +33,56 @@ def taglist():
 		out.write(json.dumps(data), ensure_ascii=False)
 		"""
 
+delta_tz = datetime.timedelta(hours=+3)
+tz = datetime.timezone(delta_tz)
 
 @app.task(name="RatePost")
 def RatePost(userid, postid, vote):
-	#post = Post.objects.cache().get(id=postid)
 	post = Post.objects.get(id=postid)
-
-	#user = myUser.objects.cache().get(id=userid)
 	user = myUser.objects.get(id=userid)
-	user_votes, notexist = UserVotes.objects.get_or_create(user=user)
-	if user_votes.count != "B":
+	delta = datetime.timedelta(weeks=4)
+	dt = datetime.datetime.now(tz=tz)
 
-		if user_votes.count != "U":
-			user_votes.votes -= 1
-			user_votes.save()
-		if user_votes.votes <= 0 and user_votes.count != "U":
-			user.has_votes = False
-			user.save()
+	uv = cache.get('user_votes_' + str(user.id))
 
-		if post.rateable:
-			v = VotePost(post=post, rate=vote, score= user_votes.weight)
-			v.save()
+	if uv == None and user.votes_count != "B":
+		votes = {}
+		if user.date_joined < dt - delta:
+			coef = 0.25
+			if user.votes_count == "N":
+				votes['votes'] = 20
+		else:
+			coef = 0.0
+			if user.votes_count == "N":
+				votes['votes'] = 10
+
+		votes['weight'] = 0.25 + coef # + user_rating.rating/50
+		print("REDIS User: " + str(user)+" weight "+str(votes['weight'])\
+			+ " votes "+ str(votes['votes']))
+
+		cache.set('user_votes_' + str(userid), votes, timeout=600) #86400 -1 day
+		uv = cache.get('user_votes_' + str(user.id))
+
+	uv_ttl = cache.ttl('user_votes_' + str(userid))
+
+
+	if post.rateable and uv['votes'] > 0 and user.votes_count != "B" :
+		# example   vote_post_248_2016_12_17_20:14:49:915851
+		today = datetime.datetime.today().strftime('%Y_%m_%d_%H:%M:%S:%f')
+		r_key = 'vote_post_' + str(postid)+'_' + today
+		if vote == str(1):
+			score = uv['weight']
+		else:
+			score = -uv['weight']
+		if user.votes_count == "N":
+			uv['votes'] -= 1
+		cache.set(r_key, score, timeout=3024000)
+		cache.set('user_votes_' + str(userid), uv, timeout=uv_ttl)
+
 
 @app.task(name="CalcPostRating")
 def CalcPostRating():
 	#another task
-	delta = datetime.timedelta(hours=+3)
-	tz = datetime.timezone(delta)
 
 	dt = datetime.datetime.now(tz=tz)#.replace(second=0, microsecond=0)
 	rt = datetime.timedelta(hours=-1)
@@ -182,35 +201,10 @@ def CalcPostRating():
 			post_rating.save()
 			tag_rating.save() """
 
-@app.task(name="userVotes")
-def userVotes():
-	usersVotes = UserVotes.objects.all()
-	delta_tz = datetime.timedelta(hours=+3)
-	tz = datetime.timezone(delta_tz)
-	delta = datetime.timedelta(weeks=4)
-	dt = datetime.datetime.now(tz=tz)
-	for vote in usersVotes:
-		if vote.count == "N" or vote.count == "B":
-			user = vote.user
-			if user.date_joined < dt - delta:
-				coef = 0.25
-				vote.votes = 20
-			else:
-				coef = 0.0
-				vote.votes = 10
-
-			#user_rating = RatingUser.objects.cache().get(user=user)
-			user_rating = RatingUser.objects.get(user=user)
-			vote.weight = 0.25 + coef + user_rating.rating/50
-			user.has_votes = True
-			print("User: " + str(user)+" weight "+str(vote.weight)+ " votes "+ str(vote.votes))
-			user.save()
-			vote.save()
-
 @app.task(name="deleteOldVotes")
 def deleteOldVotes():
-	delta = datetime.timedelta(hours=+3)
-	tz = datetime.timezone(delta)
+	delta_tz = datetime.timedelta(hours=+3)
+	tz = datetime.timezone(delta_tz)
 	dt = datetime.datetime.now(tz=tz)
 
 	dt = datetime.datetime.now()

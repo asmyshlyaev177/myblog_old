@@ -24,7 +24,7 @@ app.config_from_object('django.conf:settings', namespace='CELERY')
 app.autodiscover_tasks()
 
 app.conf.beat_schedule = {
-    'Post Rating everyhour': {
+    """'Post Rating everyhour': {
         'task': 'CalcPostRating',
         'schedule': 60.0, #3600
         'args': ()
@@ -34,7 +34,7 @@ app.conf.beat_schedule = {
         #'schedule': crontab(hour=5, minute=1),
         'schedule': 60.0, #3600
         'args': (),
-    },
+    },"""
     'Delete Old Votes every week': {
         'task': 'deleteOldVotes',
         'schedule': crontab(hour=5, minute=1, day_of_week=0),
