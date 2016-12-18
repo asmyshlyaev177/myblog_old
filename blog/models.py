@@ -97,7 +97,6 @@ class myUser(AbstractBaseUser):
     moderated = models.BooleanField("Moderated", default=True)
     user_last_login = models.DateTimeField(auto_now=True)
     date_joined = models.DateTimeField(auto_now_add=True)
-    has_votes = models.BooleanField(default=True)
     REQUIRED_FIELDS = ['email',]
     USERNAME_FIELD = 'username'
     VOTES_COUNT = (
@@ -148,7 +147,10 @@ def _post_delete(sender, instance, **kwargs):
 
 @app.task(name="deleteFile")
 def deleteFile(file):
-	os.remove(file)
+    try:
+        os.remove(file)
+    except:
+        pass
 
 @receiver(models.signals.pre_save, sender=myUser)
 def _pre_save(sender, instance, **kwargs):
@@ -170,7 +172,7 @@ def _pre_save(sender, instance, **kwargs):
     if not str(old_file).split('/')[-1] == new_file and old_file:
         if os.path.isfile(old_file.path):
             #os.remove(old_file.path)
-            deleteFile.apply_async((old_file.path,), countdown=3600)
+            deleteFile.apply_async((old_file.path,), countdown=1800)
 
 
 

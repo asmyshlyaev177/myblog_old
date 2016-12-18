@@ -15,7 +15,7 @@ from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.conf import settings
 from django.core import serializers
 #from unidecode import unidecode
-import json
+import json, pickle
 from django.urls import reverse
 from django.template.response import TemplateResponse
 from django.utils.translation import ugettext as _
@@ -189,8 +189,13 @@ def rate_post(request, postid, vote):
 	if request.method == 'POST':
 
 		user = request.user
-		if user.has_votes:
-			RatePost.delay(user.id, postid, vote)
+		uv = cache.get('user_votes_' + str(user.id))
+		votes_count = user.votes_count
+		
+		if ((uv == None and votes_count != "B") or
+			( uv['votes'] > 0 and votes_count != "B")) :
+			date_joined = str(user.date_joined.strftime('%Y_%m_%d'))
+			RatePost.delay(user.id, date_joined, votes_count, postid, vote)
 		else:
 			return HttpResponse("no votes")
 

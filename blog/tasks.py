@@ -4,12 +4,12 @@ from celery.task import periodic_task
 from datetime import timedelta
 import os, datetime, json, re
 from blog.models import (Post, RatingPost,RatingTag, Tag, Rating, myUser,
-						UserVotes, RatingUser, VotePost)
+						UserVotes, RatingUser, VotePost, Category)
 from slugify import slugify, SLUG_OK
 from bs4 import BeautifulSoup
 from PIL import Image
 from urllib.parse import urlparse, urlencode
-import datetime
+import datetime, pickle, pytz
 #from django.utils import timezone
 #from django.http import (HttpResponse,JsonResponse)
 from urllib.request import urlopen, urlretrieve, Request
@@ -37,180 +37,112 @@ delta_tz = datetime.timedelta(hours=+3)
 tz = datetime.timezone(delta_tz)
 
 @app.task(name="RatePost")
-def RatePost(userid, postid, vote):
+def RatePost(userid, date_joined, votes_count, postid, vote):
 	post = Post.objects.get(id=postid)
-	user = myUser.objects.get(id=userid)
+	#user = myUser.objects.get(id=userid)
 	delta = datetime.timedelta(weeks=4)
 	dt = datetime.datetime.now(tz=tz)
+	uv = cache.get('user_votes_' + str(userid))
 
-	uv = cache.get('user_votes_' + str(user.id))
+	if uv == None:  #user votes кол-во голосов у юзеров
+		date_joined = pytz.utc.localize\
+			(datetime.datetime.strptime(date_joined, '%Y_%m_%d'))
 
-	if uv == None and user.votes_count != "B":
 		votes = {}
-		if user.date_joined < dt - delta:
+		if date_joined < dt - delta:
 			coef = 0.25
-			if user.votes_count == "N":
-				votes['votes'] = 20
+			votes['votes'] = 20
 		else:
 			coef = 0.0
-			if user.votes_count == "N":
-				votes['votes'] = 10
+			votes['votes'] = 10
 
 		votes['weight'] = 0.25 + coef # + user_rating.rating/50
-		print("REDIS User: " + str(user)+" weight "+str(votes['weight'])\
+		print("REDIS User: " + str(userid)+" weight "+str(votes['weight'])\
 			+ " votes "+ str(votes['votes']))
 
-		cache.set('user_votes_' + str(userid), votes, timeout=600) #86400 -1 day
-		uv = cache.get('user_votes_' + str(user.id))
+		cache.set('user_votes_' + str(userid), votes, timeout=150) #86400 -1 day
+
+		uv = cache.get('user_votes_' + str(userid))
 
 	uv_ttl = cache.ttl('user_votes_' + str(userid))
 
+	if post.rateable:
+		if uv['votes'] > 0 :
+			p_data = {}
 
-	if post.rateable and uv['votes'] > 0 and user.votes_count != "B" :
-		# example   vote_post_248_2016_12_17_20:14:49:915851
-		today = datetime.datetime.today().strftime('%Y_%m_%d_%H:%M:%S:%f')
-		r_key = 'vote_post_' + str(postid)+'_' + today
-		if vote == str(1):
-			score = uv['weight']
-		else:
-			score = -uv['weight']
-		if user.votes_count == "N":
-			uv['votes'] -= 1
-		cache.set(r_key, score, timeout=3024000)
-		cache.set('user_votes_' + str(userid), uv, timeout=uv_ttl)
+			# example   vote_post_2016_12_17_20_14_49_915851
+			today = datetime.datetime.today().strftime('%Y_%m_%d_%H_%M_%S_%f')
+			r_key = 'vote_post_' + today
+			if vote == str(1):
+				p_data['rate'] = uv['weight']
+			else:
+				p_data['rate'] = -uv['weight']
+			if votes_count == "N":
+				uv['votes'] -= 1
+			p_data['category'] = post.category.id
+			p_data['postid'] = post.id
+
+			cache.set(r_key, p_data, timeout=3024000)
+			#уменьшаем кол-во голосов у пользователя
+			cache.set('user_votes_' + str(userid), uv, timeout=uv_ttl)
 
 
 @app.task(name="CalcPostRating")
 def CalcPostRating():
-	#another task
+	hot_rating = 1.0
+	cat_list = Category.objects.all()
 
-	dt = datetime.datetime.now(tz=tz)#.replace(second=0, microsecond=0)
-	rt = datetime.timedelta(hours=-1)
-	day = datetime.timedelta(hours=-24)
-	week = datetime.timedelta(days=-7)
-	month = datetime.timedelta(weeks=-4)
-	two_month = datetime.timedelta(weeks=-8)
-	end = dt
+	votes = cache.iter_keys('vote_post_*')
+	posts = {}
+	for i in votes:
+		vote = cache.get(i)
+		cache.delete(i)
+		if not vote['postid'] in posts:
+			posts[ vote['postid'] ] = {}
+			posts[ vote['postid'] ]['category'] = vote['category']
+			posts[ vote['postid'] ]['rate'] = vote['rate']
+			posts[ vote['postid'] ]['id'] = vote['postid']
+		else:
+			posts[ vote['postid'] ]['rate'] += vote['rate']
+	today = datetime.datetime.today().strftime('%H')
+	cache.set('rating_post_day_'+today, posts, timeout=88000)
+	del votes
+	for post in posts: #update rating on posts
+		post_rate = RatingPost.objects.get(post=post)
+		post_rate.rating += posts[post]['rate']
+		post_rate.save()
 
-	#vote_list = VotePost.objects.all().cache()
-	#v = vote_list.values_list('post', flat=True).distinct().cache()
-	vote_list = VotePost.objects.all()
-	v = vote_list.values_list('post', flat=True).distinct()
-	post_ids = set()
-	for i in v:
-		post_ids.add(i)
-
-	#posts = Post.objects.filter(id__in=post_ids).filter(status="P").filter(rateable = True).cache()
-	#ratings = RatingPost.objects.filter(post__id__in=post_ids).cache()
-	posts = Post.objects.filter(id__in=post_ids).filter(status="P").filter(rateable = True)
-	ratings = RatingPost.objects.filter(post__id__in=post_ids)
-
-	for post in posts:
-		rt_change = False
-		day_change = False
-		week_change = False
-		month_change = False
-
-		post_rating, notexist = ratings.get_or_create(post=post)
-		tag_rating, notexist = RatingTag.objects.get_or_create(tag=post.main_tag)
-		author_rating, notexist = RatingUser.objects.get_or_create(user=post.author)
-
-		#rating
-		sum = 0.0
-		votes_count = 0
-		start = dt + rt
-		votes = vote_list.filter(post=post).filter(counted=False)\
-			.filter(created__range=(start, end))
-		if votes.count() > 0:
-			print("******")
-			print("Counting votes")
-			print("******")
-
-			for i in votes:
-				if i.rate == 0:
-					sum -= i.score
-				if i.rate == 1:
-					sum += i.score
-				#votes_count += 1
-				i.counted = True
-				i.save()
-			#post_rating.votes += votes_count
-			post_rating.rating += sum
-			#tag_rating.votes += votes_count
-			tag_rating.rating += sum/50
-			author_rating.rating += sum/50
-			#author_rating.votes += votes_count
-			author_rating.save()
-			rt_change = True
-
-		if rt_change:
-			print("save rating for post - ", str(post))
-			post_rating.save()
-			tag_rating.save()
-
-		"""#rating for day
-		sum = 0.0
-		start = dt.replace(second=0, microsecond=0, minute=0) + day
-		votes = vote_list.filter(post=post).filter(created__range=(start, end))
-		for i in votes:
-			if i.rate == 0:
-				sum -= i.score
-			if i.rate == 1:
-				sum += i.score
-
-		if post_rating.day != sum:
-			print("Counting votes for day")
-			post_rating.day = sum
-			tag_rating.day = sum/50
-			day_change = True
+	#rating for main page
+	best_posts = {}
+	keys = cache.keys('rating_post_day_*')
+	for k in keys:
+		posts = cache.get(k)
+		posts = [ posts[post] for post in posts]
+		for post in posts:
+			if not post['id'] in best_posts:
+				best_posts[ post['id'] ] = post['rate']
+			else:
+				best_posts[ post['id'] ] += post['rate']
+		#filtr by rating
+	best_posts = [ post for post in best_posts if best_posts[post] > hot_rating ]
+	cache.set('best_post_day_all', best_posts, timeout=88000)
 
 
-		#rating for last week
-		sum = 0.0
-		start = dt.replace(second=0, microsecond=0, minute=0, hour=0) + week
-		votes = vote_list.filter(post=post).filter(created__range=(start, end))
-		for i in votes:
-			if i.rate == 0:
-				sum -= i.score
-			if i.rate == 1:
-				sum += i.score
+	for i in cat_list: #make ratings for categories
+		best_posts = {}
+		keys = cache.keys('rating_post_day_*')
+		for k in keys:
+			posts = cache.get(k)
+			posts = [ posts[post] for post in posts if posts[post]['category'] == i.id ]
+			for post in posts:
+				if not post['id'] in best_posts:
+					best_posts[ post['id'] ] = post['rate']
+				else:
+					best_posts[ post['id'] ] += post['rate']
+			#filtr by rating
+		best_posts = [ post for post in best_posts if best_posts[post] > hot_rating ]
+		cache.set('best_post_day_catid_' + str(i.id), best_posts, timeout=88000)
 
-		if post_rating.week != sum:
-			post_rating.week = sum
-			tag_rating.week = sum/50
-			week_change = True
-
-		#rating for last month
-		sum = 0.0
-		start = dt.replace(second=0, microsecond=0, minute=0, hour=0, day=1) + month
-		votes = vote_list.filter(post=post).filter(created__range=(start, end))
-		for i in votes:
-			if i.rate == 0:
-				sum -= i.score
-			if i.rate == 1:
-				sum += i.score
-
-		if post_rating.month != sum:
-			print("Counting votes for month")
-			post_rating.month = sum
-			tag_rating.month = sum/50
-			month_change = True
-
-		if rt_change or day_change or week_change or month_change:
-			print("save rating for post - ", str(post))
-			post_rating.save()
-			tag_rating.save() """
-
-@app.task(name="deleteOldVotes")
-def deleteOldVotes():
-	delta_tz = datetime.timedelta(hours=+3)
-	tz = datetime.timezone(delta_tz)
-	dt = datetime.datetime.now(tz=tz)
-
-	dt = datetime.datetime.now()
-	start = dt + datetime.timedelta(weeks=-96)
-	end = dt + datetime.timedelta(weeks=-4, days=-3)
-	VotePost.objects.all().filter(created__range=(start, end)).delete()
 
 @app.task(name="addPost")
 def addPost(post_id, tag_list, moderated):
