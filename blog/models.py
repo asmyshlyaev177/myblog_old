@@ -156,7 +156,7 @@ def deleteFile(file):
 def _pre_save(sender, instance, **kwargs):
     """delete old file when avatar changed"""
     cache.delete_pattern("post_list_*")
-    if not instance.pk:
+    """if not instance.pk:
         return False
 
     try:
@@ -165,14 +165,11 @@ def _pre_save(sender, instance, **kwargs):
         return False
 
     new_file = instance.avatar
-    #print("***********************")
-    #print('old_file: ', old_file)
-    #print('new_file: ', new_file)
-    #print('old_file.path: ', old_file.path)
     if not str(old_file).split('/')[-1] == new_file and old_file:
         if os.path.isfile(old_file.path):
-            #os.remove(old_file.path)
-            deleteFile.apply_async((old_file.path,), countdown=1800)
+            os.remove(old_file.path)
+            #pass
+            #deleteFile.apply_async((old_file.path,), countdown=1800)"""
 
 
 
@@ -304,6 +301,10 @@ class Post(models.Model):
         cat_url = self.main_tag.url
         #post_url = slugify(unidecode(self.title))
         return "/%s/%s-%i/" % (cat_url, self.url, self.id)
+    def get_url(self):
+        cat_url = self.main_tag.url
+        #post_url = slugify(unidecode(self.title))
+        return "%s/%s-%i/" % (cat_url, self.url, self.id)
     def get_category(self):
         return self.category.get_url
     def get_tags_list(self):

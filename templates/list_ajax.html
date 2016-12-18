@@ -25,8 +25,8 @@
 {% for post in posts %}
 
   <div class="post">
-    <a href="{{ post.get_absolute_url|escape }}" class="center-block
-     post-title">
+    <a href="{{ post.get_absolute_url|escape }}" class="ajax-menu center-block
+     post-title" single_page="" url="{{ post.get_url }}">
       <h2 class="center-align">
       {{ post.title }}</h2></a>
 

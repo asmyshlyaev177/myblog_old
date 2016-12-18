@@ -230,7 +230,7 @@ $(document).on('click', '.ajax-menu', function() {
 
 function ChangePageNew( link, myurl, single ) {
 	content = $(".content")
-	content.fadeTo(70, 0.3);
+	content.fadeTo(0, 0.3);
 	loader.css('top', '120px').css('left', '50%').css('position', 'absolute').show();
 	$.ajax({
       type:"GET",
@@ -239,7 +239,7 @@ function ChangePageNew( link, myurl, single ) {
       success:function(data){
       data2 = ('<div class="posts">' + data + '</div>');
       $(data2).replaceAll('.posts');
-			content.fadeTo(130, 1);
+			content.fadeTo(0, 1);
 			$('#load_circle').hide();
 			disableRate();
           }

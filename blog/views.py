@@ -191,7 +191,7 @@ def rate_post(request, postid, vote):
 		user = request.user
 		uv = cache.get('user_votes_' + str(user.id))
 		votes_count = user.votes_count
-		
+
 		if ((uv == None and votes_count != "B") or
 			( uv['votes'] > 0 and votes_count != "B")) :
 			date_joined = str(user.date_joined.strftime('%Y_%m_%d'))
@@ -238,7 +238,8 @@ def list(request, category=None, tag=None, pop=None):
 
 
 	elif category:
-		cache_str = "post_list_"+str(category.lower())+"_"+str(user_known)
+		cache_str = "post_list_"+str(category.lower())\
+			+"_"+str(user_known)+"_"+str(pop)
 		if cache.ttl(cache_str):
 			post_list =  cache.get(cache_str)
 		else:
@@ -256,7 +257,7 @@ def list(request, category=None, tag=None, pop=None):
 
 
 	else:
-		cache_str = "post_list_"+str(user_known)
+		cache_str = "post_list_"+str(user_known)+"_"+str(pop)
 		if cache.ttl(cache_str):
 			post_list =  cache.get(cache_str)
 		else:

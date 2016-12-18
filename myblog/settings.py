@@ -147,7 +147,7 @@ INSTALLED_APPS = [
     'blog',
     'froala_editor',
     'compressor',
-    #'django_cleanup',
+    'django_cleanup',
     #'django_celery_results',
     'social.apps.django_app.default',
     'django_extensions',

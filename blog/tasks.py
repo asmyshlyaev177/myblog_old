@@ -108,7 +108,7 @@ def CalcPostRating():
 	cache.set('rating_post_day_'+today, posts, timeout=88000)
 	del votes
 	for post in posts: #update rating on posts
-		post_rate = RatingPost.objects.get(post=post)
+		post_rate, _ = RatingPost.objects.get_or_create(post=post)
 		post_rate.rating += posts[post]['rate']
 		post_rate.save()
 
