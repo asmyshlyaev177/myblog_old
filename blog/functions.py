@@ -47,20 +47,34 @@ def findFile(link):
     else:
         return ""
 
-def saveImage(link, file, sz):
-    file_out = '/root/myblog/myblog/blog/static/media/{}/{}/{}/{}-{}.{}'\
-    .format(link.group("year"), link.group("month"),\
-            link.group("day"),uri_to_iri(link.group("file")),\
-            sz, link.group("ext"))
-    link_out = '/media/{}/{}/{}/{}-{}.{}'\
-    .format(link.group("year"), link.group("month")\
-            ,link.group("day"),link.group("file"),\
-            sz, link.group("ext"))
+def saveImage(link, file, sz, blank=False):
+    if blank:
+        file_out = '/root/myblog/myblog/blog/static/media/{}/{}/{}/{}-blank-{}.{}'\
+        .format(link.group("year"), link.group("month"),\
+                link.group("day"),uri_to_iri(link.group("file")),\
+                sz, link.group("ext"))
+        link_out = '/media/{}/{}/{}/{}-blank-{}.{}'\
+        .format(link.group("year"), link.group("month")\
+                ,link.group("day"),link.group("file"),\
+                sz, link.group("ext"))
+    else:
+        file_out = '/root/myblog/myblog/blog/static/media/{}/{}/{}/{}-{}.{}'\
+        .format(link.group("year"), link.group("month"),\
+                link.group("day"),uri_to_iri(link.group("file")),\
+                sz, link.group("ext"))
+        link_out = '/media/{}/{}/{}/{}-{}.{}'\
+        .format(link.group("year"), link.group("month")\
+                ,link.group("day"),link.group("file"),\
+                sz, link.group("ext"))
     img = Image.open(file)
     sz_tuple = (sz, sz*20)
 
-    img.thumbnail(sz_tuple, Image.ANTIALIAS)
-    img.save(file_out, subsampling=0, quality='keep') # сохраняем
+    if blank:
+        img.paste('#03a9f4', None)
+        img.save(file_out, optimize=True, quality=1)
+    else:
+        img.thumbnail(sz_tuple, Image.ANTIALIAS)
+        img.save(file_out, subsampling=0, quality='keep') # сохраняем
     return link_out
 
 
@@ -82,6 +96,7 @@ def srcsets(text, wrap_a):
     if len(img_links) != 0:
         for i in img_links: # для каждой
             srcset = {}
+            srcset_blank = {}
             notgif = False
 
             # находим ссылку и файл и вых. файл
@@ -97,6 +112,7 @@ def srcsets(text, wrap_a):
             format(link.group("year"), link.group("month"),\
                    link.group("day"),uri_to_iri(link.group("file")),\
                    link.group("ext"))
+
             print("***************************")
             print('original_pic ', str(original_pic))
             # сжимать пикчу! и удалять оригинальный файл
@@ -106,11 +122,11 @@ def srcsets(text, wrap_a):
                 i['class'] = 'responsive-img'
                 # если картинка больше нужного размера создаём миниатюру
                 w,h = Image.open(file).size
+                original_pic_blank = saveImage(link, file,
+                                             w, blank=True )
                 print("***************************")
-                print('w ', str(w))
+                print('original_pic_blank ', str(original_pic_blank))
                 ext = i['src'].split('.')[-1].lower()
-                print("***************************")
-                print('ext ', str(ext))
 
                 if ext == "jpg" or ext == "jpeg" or ext == "bmp" or ext == "png":
                     notgif = True
@@ -119,34 +135,62 @@ def srcsets(text, wrap_a):
                     for sz in reversed(src_szs):
                         if w > sz:
                             srcset[sz] = saveImage(link, file, sz )
+                            srcset_blank[sz] = saveImage(link, file,
+                                                         sz, blank=True )
 
 
                     if 1600 in srcset:
                         alt = srcset[1366]   #дефолт
-                        srcset[1920] = saveImage(link, file, 1920  )
+                        alt_blank = srcset_blank[1366]   #дефолт
+                        if 1920 not in srcset :
+                            srcset[1920] = saveImage(link, file, 1920  ) #проверка пуст ли элемент
+                            srcset_blank[1920] = saveImage(link, file,
+                                                         1920, blank=True )
                     elif 1366 in srcset:
-                        srcset[1600] = saveImage(link, file, 1600 )
+                        if 1600 not in srcset :
+                            srcset[1600] = saveImage(link, file, 1600 )
+                            srcset_blank[1600] = saveImage(link, file,
+                                                         1600, blank=True )
                         alt = srcset[1366]
+                        alt_blank = srcset_blank[1366]   #дефолт
                     elif 800 in srcset:
-                        srcset[1366] = saveImage(link, file, 1366)
+                        if 1366 not in srcset :
+                            srcset[1366] = saveImage(link, file, 1366)
+                            srcset_blank[1366] = saveImage(link, file,
+                                                         1366, blank=True )
                         alt = srcset[1366]
-
+                        alt_blank = srcset_blank[1366]   #дефолт
                     elif 480 in srcset:
                         alt = original_pic
-                        srcset[800] = saveImage(link, file, 800)
+                        alt_blank = original_pic_blank
+                        if 800 not in srcset :
+                            srcset[800] = saveImage(link, file, 800)
+                            srcset_blank[800] = saveImage(link, file,
+                                                         800, blank=True )
                     else:
                         alt = original_pic
-                        srcset[480] = original_pic
+                        alt_blank = original_pic_blank
+                        if 480 not in srcset :
+                            srcset[480] = original_pic
+                            srcset_blank[480] = original_pic_blank
 
                     src_str=""
+                    src_str_blank=""
                     for src in srcset.keys():
                         src_str +=srcset[src] + " "+str(src)+"w, "
+                        src_str_blank +=srcset_blank[src] + " "+str(src)+"w, "
+
                     print("***************************")
                     print('src_str ', str(src_str))
+                    print("***************************")
+                    print('src_str_blank ', str(src_str_blank))
                     src_str = src_str.rstrip(', ')
+                    src_str_blank = src_str_blank.rstrip(', ')
                     i['srcset'] = src_str
+                    i['srcset_blank'] = src_str_blank
 
                     i['src'] = alt
+                    i['src_blank'] = alt_blank
                     i['sizes'] =  "60vw"
                     # "(min-width: 40em) 33.3vw, 100vw"
 
