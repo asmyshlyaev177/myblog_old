@@ -7,7 +7,7 @@ var loader;
 var votes = true;
 
 
-$(document).ready(function(){
+$(window).load(function(){
 	if ( loader == undefined) {
 		loader = $("#load_circle");
 	}
@@ -17,12 +17,27 @@ $(document).ready(function(){
 	Scroll();
 
 	ClickAjaxMenu();
-    BackForwardButtons();
+  BackForwardButtons();
 	GifPlay();
 	ratePost();
   ReplyBtn();
 	AddCommentBtn();
+	setTimeout( stubImgs(), 0 );
 });
+
+function stubImgs() {
+imgs = $('img[src_real');
+imgs.each(function() {
+	//srcset = $(this).attr('srcset');
+	srcset_real = $(this).attr('srcset_real');
+	//alt = $(this).attr('alt');
+	alt_real = $(this).attr('alt_real');
+	$(this).attr('srcset', srcset_real);
+	$(this).removeAttr('srcset_real');
+	$(this).attr('alt', alt_real);
+	$(this).removeAttr('alt_real');
+});
+}
 
 function Comments() {
 $(document).ready(function(){
@@ -230,7 +245,7 @@ $(document).on('click', '.ajax-menu', function() {
 
 function ChangePageNew( link, myurl, single ) {
 	content = $(".content")
-	content.fadeTo(0, 0.3);
+	content.fadeTo(0, 0.1);
 	loader.css('top', '120px').css('left', '50%').css('position', 'absolute').show();
 	$.ajax({
       type:"GET",
@@ -242,6 +257,7 @@ function ChangePageNew( link, myurl, single ) {
 			content.fadeTo(0, 1);
 			$('#load_circle').hide();
 			disableRate();
+			setTimeout( stubImgs(), 0 );
           }
      });
 	//window.history.pushState({state:'new'}, "",  link);
@@ -273,6 +289,7 @@ function loadMore(){
                processing = false; // the processing variable prevents multiple ajax calls when scrolling
 							 loader.hide();
 							 disableRate();
+							 setTimeout( stubImgs(), 0 );
               	//ImageHeight();
           }
      });

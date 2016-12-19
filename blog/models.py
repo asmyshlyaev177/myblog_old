@@ -324,8 +324,6 @@ def _post_delete(sender, instance, **kwargs):
     cache.delete(cache_str)
     cache.delete("post_list_True")
     cache.delete("post_list_False")
-    print("**********************************************")
-    print("cache str :", str(cache_str))
     cache_str = "post_single_" + str(instance.id)
     cache.delete(cache_str)
     try:

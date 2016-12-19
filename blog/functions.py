@@ -186,11 +186,11 @@ def srcsets(text, wrap_a):
                     print('src_str_blank ', str(src_str_blank))
                     src_str = src_str.rstrip(', ')
                     src_str_blank = src_str_blank.rstrip(', ')
-                    i['srcset'] = src_str
-                    i['srcset_blank'] = src_str_blank
+                    i['srcset'] = src_str_blank
+                    i['srcset_real'] = src_str
 
-                    i['src'] = alt
-                    i['src_blank'] = alt_blank
+                    i['src'] = alt_blank
+                    i['src_real'] = alt
                     i['sizes'] =  "60vw"
                     # "(min-width: 40em) 33.3vw, 100vw"
 
