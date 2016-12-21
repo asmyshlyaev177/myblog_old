@@ -119,9 +119,13 @@ offset-m1 offset-l1 main" style="border: 1px black dotted;">
 
 </div>
 
+
+
+
 <div class="col s3 m3 l3 offset-s1
 offset-m1 offset-l1 sidebar"
 style="border: 1px black dotted;">
+
   <div class="sidebar1">
 
       <p>Sidebar 1</p>
@@ -142,7 +146,7 @@ style="border: 1px black dotted;">
       <p><a href="{% url 'logout' %}">Logout</a></p>
     {% else %}
       <p><a href="{% url 'signup' %}">Register</a></p>
-      <p><a href="{% url 'login' %}">Login</a></p>
+      <p><a href="{% url 'login' %}">Log-in</a></p>
       <p><a href="{% url 'social:begin' 'google-oauth2' %}?next={{ request.path }}">Login with google</a></p>
       <p><a href="{% url 'social:begin' 'facebook' %}?next={{ request.path }}">Login with facebook</a></p>
       <p><a href="{% url 'social:begin' 'vk-oauth2' %}?next={{ request.path }}">Login with VK</a></p>
@@ -150,6 +154,7 @@ style="border: 1px black dotted;">
   </div>
 
   <div class="sidebar2">
+
     {% if user.is_authenticated %}
       <p>Sidebar 2</p>
       <p><a href="{% url 'password_change' %}" single_page
@@ -161,7 +166,6 @@ style="border: 1px black dotted;">
 
     {% endif %}
   </div>
-</div>
 
 </div>
 

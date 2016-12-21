@@ -165,24 +165,15 @@ $(document).ready(function(){
 
   $('select').material_select();
 
-  froalaBanner = $('a[href="https://froala.com/wysiwyg-editor"');
-  froalaBanner.hide();
-  $('body').bind("DOMSubtreeModified",function(){
-      $('a[href="https://froala.com/wysiwyg-editor"').hide();
-  });
-
   $('#id_image_url').on('click', function() {
     ClearInput('id_post_image');
   });
-
-
-
   $('ul.tabs').tabs();
   //$('#file-url').children('.indicator').css('background-color', 'white');
-
-
-
 });
+
+
+
 
 
 function ClearInput(id) {

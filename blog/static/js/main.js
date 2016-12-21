@@ -23,19 +23,27 @@ $(window).load(function(){
   ReplyBtn();
 	AddCommentBtn();
 	setTimeout( stubImgs(), 0 );
+	hideBanner();
 });
+
+function hideBanner() {
+  froalaBanner = $('a[href="https://froala.com/wysiwyg-editor"');
+  froalaBanner.hide();
+  $('body').bind("DOMSubtreeModified",function(){
+      $('a[href="https://froala.com/wysiwyg-editor"').hide();
+  });
+}
+
 
 function stubImgs() {
 imgs = $('img[src_real');
 imgs.each(function() {
-	//srcset = $(this).attr('srcset');
-	srcset_real = $(this).attr('srcset_real');
-	//alt = $(this).attr('alt');
-	alt_real = $(this).attr('alt_real');
-	$(this).attr('srcset', srcset_real);
+	srcset = $(this).attr('srcset_real');
+	src = $(this).attr('src');
+	$(this).attr('srcset', srcset);
 	$(this).removeAttr('srcset_real');
-	$(this).attr('alt', alt_real);
-	$(this).removeAttr('alt_real');
+	$(this).attr('src', src);
+	$(this).removeAttr('src_real');
 });
 }
 
