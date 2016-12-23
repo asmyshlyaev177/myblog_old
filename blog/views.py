@@ -8,9 +8,6 @@ from django.http import (HttpResponseRedirect,
 	HttpResponse,JsonResponse,HttpResponseNotFound)
 from django.views.decorators.csrf import csrf_protect
 from django.contrib.auth.decorators import login_required
-from django.contrib.auth.forms import PasswordChangeForm
-from django.contrib.auth.views import deprecate_current_app
-from django.views.decorators.debug import sensitive_post_parameters
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.conf import settings
 from django.core import serializers
@@ -33,7 +30,21 @@ from django.shortcuts import render
 #from django_summernote.settings import summernote_config, get_attachment_model
 from blog.tasks import addPost, RatePost
 
+#For Log-In
+from django.contrib.auth.views import (login as def_login,
+				password_change as def_password_change)
+
 cat_list = Category.objects.all()
+
+def login(request, *args, **kwargs):
+    if request.is_ajax():
+        template = 'registration/login_ajax.html'
+    else:
+        template='registration/login.html'
+
+    return def_login(request, *args, **kwargs, template_name = template,
+						extra_context= {'cat_list': cat_list} )
+
 
 def comments(request, postid):
 	post = Post.objects.get(id=postid)
@@ -50,8 +61,6 @@ def addComment(request, postid, parent=0):
 			parent_comment = int(parent)
 			comment = comment_form.save(commit=False)
 			comment.author = request.user
-			print("*******************")
-			print(str(parent_comment))
 			comment.post = Post.objects.get(id=postid)
 			if parent_comment != 0:
 				comment.parent = Comment.objects.get(id=parent_comment)
@@ -328,42 +337,12 @@ def single_post(request,  tag, title, id):
 				  'cat_list': cat_list, 'comment_form': comment_form,
 				  'comments': comments})
 
-
-@sensitive_post_parameters()
-@csrf_protect
-@login_required(redirect_field_name='next', login_url='/login')
-@deprecate_current_app
-#@cache_page(2)
-#@cache_control(max_age=2, private=True)
-#@vary_on_headers('X-Requested-With','Cookie')
-@never_cache
-def password_change(request,
-					template_name='registration/password_change_form.html',
-					post_change_redirect=None,
-					password_change_form=PasswordChangeForm,
-					extra_context=None):
-	if post_change_redirect is None:
-		post_change_redirect = reverse('password_change_done')
-	else:
-		post_change_redirect = resolve_url(post_change_redirect)
+def password_change(request, *args, **kwargs):
 	if request.is_ajax():
-		template_name = 'registration/password_change_form-ajax.html'
-	if request.method == "POST":
-		form = password_change_form(user=request.user, data=request.POST)
-		if form.is_valid():
-			form.save()
-			# Updating the password logs out all other sessions for the user
-			# except the current one.
-			update_session_auth_hash(request, form.user)
-			return HttpResponseRedirect(post_change_redirect)
+		template = 'registration/password_change_form-ajax.html'
 	else:
-		form = password_change_form(user=request.user)
-	context = {
-		'form': form,
-		'title': _('Password change'),
-		'cat_list': cat_list,
-	}
-	if extra_context is not None:
-		context.update(extra_context)
+		template = 'registration/password_change_form.html'
 
-	return TemplateResponse(request, template_name, context)
+	return def_password_change(request, *args, **kwargs,
+							template_name = template,
+							extra_context = {'cat_list': cat_list})

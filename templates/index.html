@@ -31,6 +31,8 @@
     <link href="/static/froala_editor/css/plugins/table.min.css" type="text/css" media="all" rel="stylesheet" />
     <link href="/static/froala_editor/css/plugins/video.min.css" type="text/css" media="all" rel="stylesheet" />
     <link href="/static/froala_editor/css/plugins/char_counter.min.css" type="text/css" media="all" rel="stylesheet" />
+
+    <link href="/static/css/jquery.modal.css" type="text/css" media="all" rel="stylesheet" />
     {% endcompress %}
     {% compress js %}
     <!--<script src="/static/js/jquery-3.1.1.min.js"></script>
@@ -66,6 +68,8 @@
     <script type="text/javascript" src="/static/froala_editor/js/plugins/url.min.js"></script>
     <script type="text/javascript" src="/static/froala_editor/js/plugins/video.min.js"></script>
     <script type="text/javascript" src="/static/froala_editor/js/plugins/char_counter.min.js"></script>
+
+    <script type="text/javascript" src="/static/js/jquery.modal.js"></script>
     {% endcompress %}
 
 
@@ -146,7 +150,12 @@ style="border: 1px black dotted;">
       <p><a href="{% url 'logout' %}">Logout</a></p>
     {% else %}
       <p><a href="{% url 'signup' %}">Register</a></p>
-      <p><a href="{% url 'login' %}">Log-in</a></p>
+      <p><a href="{% url 'login' %}" single_page
+        url = "login" class="ajax-menu">Log-in</a></p>
+
+      <p><a href="{% url 'login' %}" rel="modal:open">log-in modal</a></p>
+
+
       <p><a href="{% url 'social:begin' 'google-oauth2' %}?next={{ request.path }}">Login with google</a></p>
       <p><a href="{% url 'social:begin' 'facebook' %}?next={{ request.path }}">Login with facebook</a></p>
       <p><a href="{% url 'social:begin' 'vk-oauth2' %}?next={{ request.path }}">Login with VK</a></p>
@@ -160,6 +169,10 @@ style="border: 1px black dotted;">
       <p><a href="{% url 'password_change' %}" single_page
          class="ajax-menu" url = "password_change"
          >Change password</a></p>
+
+      <p><a href="{% url 'password_change' %}"
+        rel="modal:open">Change password modal</a></p>
+
       <p><a href="{% url 'my_posts' %}"
         single_page class="ajax-menu" url = "dashboard/my-posts"
         >My Posts</a></p>

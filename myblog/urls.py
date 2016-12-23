@@ -46,7 +46,8 @@ urlpatterns = [
 
     url(r'^signup\/?$', views.signup, name='signup'),
     url(r'^signup_success\/?$', views.signup_success, name='signup_success'),
-    url(r'^login\/?$', auth_views.login, name='login'),
+    #url(r'^login\/?$', auth_views.login, name='login'),
+    url(r'^login\/?$', views.login, name='login'),
     url(r'^dashboard\/?$', views.dashboard, name='dashboard'),
     url(r'^dashboard/my-posts\/?$', views.my_posts, name='my_posts'),
     url(r'^logout\/?$', auth_views.logout, name='logout'),

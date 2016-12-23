@@ -4,38 +4,6 @@
 
 {% block content %}
 
-{% if user.is_authenticated %}
-  <h1>You are logged in already</h1>
-  <p>
-    can <a href="{% url 'logout' %}">Logout</a>
-  </p>
-
-{% else %}
-
-<h1>Log-In</h1>
-<p>
-  enter email and password for login
-</p>
-
-<div>
-  <form action="{% url 'login' %}" method="post">
-    <!-- label[for="id_username"] { color: red } -->
-
-    <div>
-      <label for="username">Email or Username</label>{{ form.username }}
-    </div>
-    <div>
-    <label for="email">Password</label>{{ form.password }}
-    </div>
-
-    {% csrf_token %}
-    <p>
-      <input type="submit" value="Login" />
-    </p>
-  </form>
-  <p>If you forget password you can
-    <a href="{% url 'password_reset' %}">reset it</a></p>
-</div>
-{% endif %}
+{% include 'registration/login_ajax.html' %}
 
 {% endblock %}
