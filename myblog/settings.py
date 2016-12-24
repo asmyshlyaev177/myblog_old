@@ -13,6 +13,17 @@ import os
 import datetime
 from django.utils import timezone
 
+CHANNEL_LAYERS = {
+    "default": {
+        "BACKEND": "asgi_redis.RedisChannelLayer",
+        "ROUTING": "blog.routing.channel_routing",
+        "CONFIG": {
+            "hosts": [("127.0.0.1", 6379)],
+        },
+    },
+}
+
+
 NOTEBOOK_ARGUMENTS = [
     '--ip', '0.0.0.0',
     '--port', '8888',
@@ -25,6 +36,7 @@ SHELL_PLUS_PRE_IMPORTS = (
     ('blog.functions', ('deleteThumb', 'srcsetThumb', 'findLink',
                         'findFile', 'saveImage','srcsets',)),
 )
+
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
@@ -152,6 +164,7 @@ INSTALLED_APPS = [
     'social.apps.django_app.default',
     'django_extensions',
     'mptt',
+    'channels',
     #'silk',
 ]
 
@@ -211,6 +224,7 @@ TEMPLATES = [
                 'django.contrib.auth.context_processors.auth',
                 'django.template.context_processors.request',
                 'django.contrib.messages.context_processors.messages',
+
             ],
         },
     },

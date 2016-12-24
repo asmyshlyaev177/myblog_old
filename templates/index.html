@@ -92,7 +92,7 @@
 
         {% for cat in cat_list %}
             <li class="tab">
-              <a href="{{ request.scheme }}://{{ request.get_host }}/cat/{{ cat.slug }}/"
+              <a href="/cat/{{ cat.slug }}/"
               url = "{{ cat.slug }}" class="waves-effect ajax-menu menu"
                id="{{ cat.slug }}" cat>
               {{ cat.name }}</a></li>

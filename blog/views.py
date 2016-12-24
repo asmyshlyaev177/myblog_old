@@ -33,6 +33,7 @@ from blog.tasks import addPost, RatePost
 #For Log-In
 from django.contrib.auth.views import (login as def_login,
 				password_change as def_password_change)
+from channels import Group
 
 cat_list = Category.objects.all()
 
@@ -54,6 +55,7 @@ def comments(request, postid):
 				  {'comments': comments})
 
 @never_cache
+@login_required(login_url='/login')
 def addComment(request, postid, parent=0):
 	if request.method == "POST":
 		comment_form = CommentForm(request.POST, request.FILES)
@@ -65,6 +67,20 @@ def addComment(request, postid, parent=0):
 			if parent_comment != 0:
 				comment.parent = Comment.objects.get(id=parent_comment)
 			comment.save()
+
+			c = {}
+			c['id'] = comment.id
+			c['author'] = comment.author.username
+			c['avatar'] = comment.author.avatar.url
+			c['parent'] = parent_comment
+			c['text'] = comment.text
+			c['level'] = comment.level
+			group = comment.post.get_absolute_url().strip('/').split('/')[-1]
+			Group(group).send({
+		        #"text": "[user] %s" % message.content['text'],
+		        "text":  json.dumps(c),
+		    })
+			
 			return HttpResponse("OK")
 	else:
 		pass

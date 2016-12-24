@@ -5,7 +5,7 @@ var category = "";
 var myurl = "";
 var loader;
 var votes = true;
-
+var sockets = {};
 
 $(window).load(function(){
 	if ( loader == undefined) {
@@ -24,6 +24,7 @@ $(window).load(function(){
 	AddCommentBtn();
 	setTimeout( stubImgs(), 0 );
 	hideBanner();
+	setTimeout( wsConnect(), 0 );
 });
 
 function hideBanner() {
@@ -243,6 +244,13 @@ $(document).on('click', '.ajax-menu', function() {
 	else {
 		document.title = "My blog!";}
 
+	try {
+		sockets[window.location.pathname].close();
+		console.log("socket "+ sockets[window.location.pathname].url + " CLOSED");
+		delete sockets[window.location.pathname];
+	}
+	catch(err) {}
+
 	//ChangePage();
 	window.history.pushState({state:'new'}, "",  category);
 	ChangePageNew( category, myurl, single );
@@ -250,6 +258,23 @@ $(document).on('click', '.ajax-menu', function() {
 });
 }
 
+function wsConnect() {
+if ( $("#Comments_title").length > 0 ) {
+
+	socket = new WebSocket("ws://" + window.location.host + window.location.pathname);
+	socket.onmessage = function(e) {
+		sockets[window.location.pathname] = socket;
+		console.log(e.data);
+		message = JSON.parse(e.data);
+	}
+	socket.onopen = function() {
+		socket.send("hello world");
+		console.log("socket "+ socket.url + " opened");
+	}
+	// Call onopen directly if socket is already open
+	if (socket.readyState == WebSocket.OPEN) socket.onopen();
+	}
+}
 
 function ChangePageNew( link, myurl, single ) {
 	content = $(".content")
@@ -266,6 +291,7 @@ function ChangePageNew( link, myurl, single ) {
 			$('#load_circle').hide();
 			disableRate();
 			setTimeout( stubImgs(), 0 );
+			wsConnect();
           }
      });
 	//window.history.pushState({state:'new'}, "",  link);
