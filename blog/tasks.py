@@ -3,8 +3,9 @@ from celery import Celery
 from celery.task import periodic_task
 from datetime import timedelta
 import os, datetime, json, re
-from blog.models import (Post, RatingPost,RatingTag, Tag, Rating, myUser,
-						UserVotes, RatingUser, VotePost, Category)
+from blog.models import (Post, RatingPost,RatingTag, RatingComment,Tag,
+						Rating, myUser, UserVotes, RatingUser, VotePost,
+						Category, Comment)
 from slugify import slugify, SLUG_OK
 from bs4 import BeautifulSoup
 from PIL import Image
@@ -17,6 +18,7 @@ from django.utils.encoding import uri_to_iri, iri_to_uri
 from blog.functions import srcsets, findFile, findLink, srcsetThumb
 from time import gmtime, strftime
 from django.core.cache import cache
+from channels import Group
 
 app = Celery('tasks', broker='pyamqp://guest@localhost//')
 
@@ -36,9 +38,14 @@ def taglist():
 delta_tz = datetime.timedelta(hours=+3)
 tz = datetime.timezone(delta_tz)
 
-@app.task(name="RatePost")
-def RatePost(userid, date_joined, votes_count, postid, vote):
-	post = Post.objects.get(id=postid)
+@app.task(name="Rate")
+def Rate(userid, date_joined, votes_count, type, elem_id, vote):
+
+	if type == "post":
+		element = Post.objects.get(id=elem_id)
+	elif type == "comment":
+		element = Comment.objects.get(id=elem_id)
+
 	#user = myUser.objects.get(id=userid)
 	delta = datetime.timedelta(weeks=4)
 	dt = datetime.datetime.now(tz=tz)
@@ -47,7 +54,7 @@ def RatePost(userid, date_joined, votes_count, postid, vote):
 	if uv == None:  #user votes кол-во голосов у юзеров
 		date_joined = pytz.utc.localize\
 			(datetime.datetime.strptime(date_joined, '%Y_%m_%d'))
-
+		user_rating = RatingUser.objects.get(user=userid)
 		votes = {}
 		if date_joined < dt - delta:
 			coef = 0.25
@@ -56,7 +63,7 @@ def RatePost(userid, date_joined, votes_count, postid, vote):
 			coef = 0.0
 			votes['votes'] = 10
 
-		votes['weight'] = 0.25 + coef # + user_rating.rating/50
+		votes['weight'] = 0.25 + coef + user_rating.rating/50
 		print("REDIS User: " + str(userid)+" weight "+str(votes['weight'])\
 			+ " votes "+ str(votes['votes']))
 
@@ -66,51 +73,79 @@ def RatePost(userid, date_joined, votes_count, postid, vote):
 
 	uv_ttl = cache.ttl('user_votes_' + str(userid))
 
-	if post.rateable:
-		if uv['votes'] > 0 :
-			p_data = {}
-
-			# example   vote_post_2016_12_17_20_14_49_915851
-			today = datetime.datetime.today().strftime('%Y_%m_%d_%H_%M_%S_%f')
-			r_key = 'vote_post_' + today
-			if vote == str(1):
-				p_data['rate'] = uv['weight']
-			else:
-				p_data['rate'] = -uv['weight']
-			if votes_count == "N":
-				uv['votes'] -= 1
-			p_data['category'] = post.category.id
-			p_data['postid'] = post.id
-
-			cache.set(r_key, p_data, timeout=3024000)
+	if uv['votes'] > 0:
+		p_data = {}
+		today = datetime.datetime.today().strftime('%Y_%m_%d_%H_%M_%S_%f')
+		if vote == str(1):
+			p_data['rate'] = uv['weight']
+		else:
+			p_data['rate'] = -uv['weight']
+		p_data['elem_id'] = element.id
+		if votes_count == "N":
 			#уменьшаем кол-во голосов у пользователя
-			cache.set('user_votes_' + str(userid), uv, timeout=uv_ttl)
+			uv['votes'] -= 1
+		r_key = 'vote_' + type + '_' + today
 
+		if type == "post":
+			if element.rateable:
+				# example   vote_post_2016_12_17_20_14_49_915851
+				p_data['category'] = element.category.id
+				cache.set(r_key, p_data, timeout=3024000)
+		elif type == "comment":
+				#example vote_comment_2016_12_24_23_16_35_968626
+				#{'elem_id': 55, 'rate': -0.5}
+			cache.set(r_key, p_data, timeout=3024000)
 
-@app.task(name="CalcPostRating")
-def CalcPostRating():
+		cache.set('user_votes_' + str(userid), uv, timeout=uv_ttl)
+
+@app.task(name="CalcRating")
+def CalcRating():
 	hot_rating = 1.0
 	cat_list = Category.objects.all()
+	today = datetime.datetime.today().strftime('%H')
 
-	votes = cache.iter_keys('vote_post_*')
-	posts = {}
-	for i in votes:
+	# рэйтинг для комментов
+	votes_comment = cache.iter_keys('vote_comment_*')
+	comments = {}
+	for i in votes_comment:
 		vote = cache.get(i)
 		cache.delete(i)
-		if not vote['postid'] in posts:
-			posts[ vote['postid'] ] = {}
-			posts[ vote['postid'] ]['category'] = vote['category']
-			posts[ vote['postid'] ]['rate'] = vote['rate']
-			posts[ vote['postid'] ]['id'] = vote['postid']
+		if not vote['elem_id'] in comments:
+			comments[ vote['elem_id'] ] = {}
+			comments[ vote['elem_id'] ]['rate'] = vote['rate']
+			comments[ vote['elem_id'] ]['id'] = vote['elem_id']
 		else:
-			posts[ vote['postid'] ]['rate'] += vote['rate']
-	today = datetime.datetime.today().strftime('%H')
+			comments[ vote['elem_id'] ]['rate'] += vote['rate']
+	del votes_comment
+	for comment in comments: #update rating on comments
+		com = Comment.objects.get(id=comment)
+		comment_rate, _ = RatingComment.objects.get_or_create(comment=com)
+		comment_rate.rating += comments[comment]['rate']
+		comment_rate.save()
+
+	votes_post = cache.iter_keys('vote_post_*')
+	posts = {}
+	for i in votes_post:
+		vote = cache.get(i)
+		cache.delete(i)
+		if not vote['elem_id'] in posts:
+			posts[ vote['elem_id'] ] = {}
+			posts[ vote['elem_id'] ]['category'] = vote['category']
+			posts[ vote['elem_id'] ]['rate'] = vote['rate']
+			posts[ vote['elem_id'] ]['id'] = vote['elem_id']
+		else:
+			posts[ vote['elem_id'] ]['rate'] += vote['rate']
+
 	cache.set('rating_post_day_'+today, posts, timeout=88000)
-	del votes
+	del votes_post
 	for post in posts: #update rating on posts
-		post_rate, _ = RatingPost.objects.get_or_create(post=post)
+		p = Post.objects.get(id=post)
+		post_rate, _ = RatingPost.objects.get_or_create(post=p)
+		user_rating = RatingUser.objects.get(user=p.author.id)
 		post_rate.rating += posts[post]['rate']
+		user_rating.rating += posts[post]['rate']/30
 		post_rate.save()
+		user_rating.save()
 
 	#rating for main page
 	best_posts = {}
@@ -142,6 +177,45 @@ def CalcPostRating():
 			#filtr by rating
 		best_posts = [ post for post in best_posts if best_posts[post] > hot_rating ]
 		cache.set('best_post_day_catid_' + str(i.id), best_posts, timeout=88000)
+
+@app.task(name="commentImage")
+def commentImage(comment_id):
+	data = Comment.objects.get(id=comment_id)
+
+	# создаём картинки из текста
+	soup = srcsets(data.text, True)
+	# выравниваем видео по центру
+	ifr_links = soup.find_all("iframe")
+	ifr_class = []
+	if len(ifr_links) != 0:
+		for i in ifr_links:
+			for j in i['class']:
+				ifr_class.append(j)
+			ifr_class = [item for item in ifr_class if not item.startswith('center-align')]
+			ifr_class.append('center-align')
+			i['class'] = ifr_class
+
+	soup.html.unwrap()
+	#soup.head.unwrap()
+	soup.body.unwrap()
+	data.text = soup.prettify()
+	data.save()
+
+	cache_str = "comment_" + str(data.post.id)
+	cache.delete(cache_str)
+
+	c = {}
+	c['id'] = data.id
+	c['author'] = data.author.username
+	c['avatar'] = data.author.avatar.url
+	c['parent'] = data.parent.id
+	c['text'] = data.text
+	c['level'] = data.level
+	group = data.post.get_absolute_url().strip('/').split('/')[-1]
+	Group(group).send({
+        #"text": "[user] %s" % message.content['text'],
+        "text":  json.dumps(c),
+    })
 
 
 @app.task(name="addPost")
@@ -180,72 +254,72 @@ def addPost(post_id, tag_list, moderated):
 			j = False
 
 
-		# создаём картинки из текста
-		soup = srcsets(data.text, True)
-		# выравниваем видео по центру
-		ifr_links = soup.find_all("iframe")
-		ifr_class = []
-		if len(ifr_links) != 0:
-			for i in ifr_links:
-				for j in i['class']:
-					ifr_class.append(j)
-				ifr_class = [item for item in ifr_class if not item.startswith('center-align')]
-				ifr_class.append('center-align')
-				i['class'] = ifr_class
+	# создаём картинки из текста
+	soup = srcsets(data.text, True)
+	# выравниваем видео по центру
+	ifr_links = soup.find_all("iframe")
+	ifr_class = []
+	if len(ifr_links) != 0:
+		for i in ifr_links:
+			for j in i['class']:
+				ifr_class.append(j)
+			ifr_class = [item for item in ifr_class if not item.startswith('center-align')]
+			ifr_class.append('center-align')
+			i['class'] = ifr_class
 
-		soup.html.unwrap()
-		#soup.head.unwrap()
-		soup.body.unwrap()
-		data.text = soup.prettify()
+	soup.html.unwrap()
+	#soup.head.unwrap()
+	soup.body.unwrap()
+	data.text = soup.prettify()
 
-		#image from url
+	#image from url
 
-		if data.image_url:
-			today = datetime.date.today()
-			upload_path1 = '/root/myblog/myblog/blog/static/media/' + \
-			str(today.year)+'/' +str(today.month)+'/'+str(today.day)+'/'
-			upload_path = str(today.year)+'/' +str(today.month)+'/'+str(today.day)+'/'
-			filename = urlparse(data.image_url).path.split('/')[-1]
-			save_path = os.path.join(upload_path1, filename)
-			user_agent = 'Mozilla/5.0 (Windows NT 6.1; Win64; x64)'
-			headers = { 'User-Agent' : user_agent }
-			values = {'name' : 'Alex',
-		  				'location' : 'Moscow',}
-			data2 = urlencode(values)
-			data2 = data2.encode('ascii')
+	if data.image_url:
+		today = datetime.date.today()
+		upload_path1 = '/root/myblog/myblog/blog/static/media/' + \
+		str(today.year)+'/' +str(today.month)+'/'+str(today.day)+'/'
+		upload_path = str(today.year)+'/' +str(today.month)+'/'+str(today.day)+'/'
+		filename = urlparse(data.image_url).path.split('/')[-1]
+		save_path = os.path.join(upload_path1, filename)
+		user_agent = 'Mozilla/5.0 (Windows NT 6.1; Win64; x64)'
+		headers = { 'User-Agent' : user_agent }
+		values = {'name' : 'Alex',
+	  				'location' : 'Moscow',}
+		data2 = urlencode(values)
+		data2 = data2.encode('ascii')
 
-			try:
-				req = Request(data.image_url, data2, headers, method="GET")
-				os.makedirs(os.path.dirname(upload_path), exist_ok=True)
-				with urlopen(req, timeout=7) as response, open(save_path, 'wb') as out_file:
-					data2 = response.read()
-					out_file.write(data2)
-				data.post_image = os.path.join(upload_path, filename)
-			except:
-				pass
-			data.image_url = ""
-
-		if data.post_image and data.post_image_gif() == False:
-			data.image_url = srcsetThumb(data.post_image)
-
-		if not moderated:
-			data.status = "P"
-		data.save()
-		cache.delete_pattern("post_list_*")
-		#tag_rating, _ = RatingTag.objects.cache().get_or_create(tag=tag)
-		tag_rating, _ = RatingTag.objects.get_or_create(tag=tag)
-		tag_rating.tag = tag
-		tag_rating.rating = 0
-		tag_rating.save()
-		#post_rating, _ = RatingPost.objects.cache().get_or_create(post=data)
-		post_rating, _ = RatingPost.objects.get_or_create(post=data)
-		post_rating.post = data
-		if _:
-			post_rating.rating = 0.0
-		post_rating.save()
-		"""try:
-			if have_new_tags:
-				pass
-				#taglist.delay()
+		try:
+			req = Request(data.image_url, data2, headers, method="GET")
+			os.makedirs(os.path.dirname(upload_path), exist_ok=True)
+			with urlopen(req, timeout=7) as response, open(save_path, 'wb') as out_file:
+				data2 = response.read()
+				out_file.write(data2)
+			data.post_image = os.path.join(upload_path, filename)
 		except:
-			pass"""
+			pass
+		data.image_url = ""
+
+	if data.post_image and data.post_image_gif() == False:
+		data.image_url = srcsetThumb(data.post_image)
+
+	if not moderated:
+		data.status = "P"
+	data.save()
+	cache.delete_pattern("post_list_*")
+	#tag_rating, _ = RatingTag.objects.cache().get_or_create(tag=tag)
+	tag_rating, _ = RatingTag.objects.get_or_create(tag=tag)
+	tag_rating.tag = tag
+	tag_rating.rating = 0
+	tag_rating.save()
+	#post_rating, _ = RatingPost.objects.cache().get_or_create(post=data)
+	post_rating, _ = RatingPost.objects.get_or_create(post=data)
+	post_rating.post = data
+	if _:
+		post_rating.rating = 0.0
+	post_rating.save()
+	"""try:
+		if have_new_tags:
+			pass
+			#taglist.delay()
+	except:
+		pass"""

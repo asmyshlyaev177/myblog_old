@@ -181,7 +181,6 @@ class Rating(models.Model):
         abstract = True
 
 class RatingPost(Rating):
-
     post = models.ForeignKey('Post')
 
 class RatingTag(Rating):
@@ -191,7 +190,7 @@ class RatingUser(Rating):
     user = models.ForeignKey('myUser', db_index=True)
 
 class RatingComment(Rating):
-    user = models.ForeignKey('Comment', db_index=True)
+    comment = models.ForeignKey('Comment', db_index=True)
 
 
 class Vote(models.Model):

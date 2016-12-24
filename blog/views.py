@@ -28,7 +28,7 @@ from django.http import (
 )
 from django.shortcuts import render
 #from django_summernote.settings import summernote_config, get_attachment_model
-from blog.tasks import addPost, RatePost
+from blog.tasks import addPost, Rate, commentImage
 
 #For Log-In
 from django.contrib.auth.views import (login as def_login,
@@ -49,7 +49,16 @@ def login(request, *args, **kwargs):
 
 def comments(request, postid):
 	post = Post.objects.get(id=postid)
-	comments = Comment.objects.filter(post=post)
+
+	cache_str = "comment_" + str(postid)
+	if cache.ttl(cache_str):
+		comments = cache.get(cache_str)
+	else:
+		comments = Comment.objects.filter(post=post)\
+			.select_related("author")\
+			.prefetch_related('ratingcomment_set')
+		cache.set(cache_str, comments, timeout=300)
+
 	template = 'comments-ajax.html'
 	return render(request, template,
 				  {'comments': comments})
@@ -67,20 +76,8 @@ def addComment(request, postid, parent=0):
 			if parent_comment != 0:
 				comment.parent = Comment.objects.get(id=parent_comment)
 			comment.save()
+			commentImage.delay(comment.id)
 
-			c = {}
-			c['id'] = comment.id
-			c['author'] = comment.author.username
-			c['avatar'] = comment.author.avatar.url
-			c['parent'] = parent_comment
-			c['text'] = comment.text
-			c['level'] = comment.level
-			group = comment.post.get_absolute_url().strip('/').split('/')[-1]
-			Group(group).send({
-		        #"text": "[user] %s" % message.content['text'],
-		        "text":  json.dumps(c),
-		    })
-			
 			return HttpResponse("OK")
 	else:
 		pass
@@ -210,7 +207,7 @@ def add_post(request):
 
 @login_required(redirect_field_name='next', login_url='/login')
 @never_cache
-def rate_post(request, postid, vote):
+def rate_elem(request, type, id, vote):
 	if request.method == 'POST':
 
 		user = request.user
@@ -220,7 +217,7 @@ def rate_post(request, postid, vote):
 		if ((uv == None and votes_count != "B") or
 			( uv['votes'] > 0 and votes_count != "B")) :
 			date_joined = str(user.date_joined.strftime('%Y_%m_%d'))
-			RatePost.delay(user.id, date_joined, votes_count, postid, vote)
+			Rate.delay(user.id, date_joined, votes_count, type, id, vote)
 		else:
 			return HttpResponse("no votes")
 

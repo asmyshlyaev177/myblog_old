@@ -25,7 +25,7 @@ app.autodiscover_tasks()
 
 app.conf.beat_schedule = {
     'Post Rating everyhour': {
-        'task': 'CalcPostRating',
+        'task': 'CalcRating',
         #'schedule': 60.0, #3600
         'schedule': crontab(minute=30),
         'args': (),

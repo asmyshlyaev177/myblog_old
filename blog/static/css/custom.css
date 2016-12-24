@@ -12,6 +12,13 @@
 .comment {
 	display: block!important;
 }
+
+.rating-comment, .comment-date, .comment-rpl-btn {
+	display: inline-flex!important;
+	margin-left: 5px;
+	margin-right: 5px;
+}
+
 .btn-small {
 	height: 28px!important;
 	line-height: 28px!important;
@@ -53,6 +60,24 @@ transition: opacity .3s ease-in-out;
 .post-thumbnail a:hover .play {
 	transition: opacity .3s ease-in-out;
   opacity: 0.9;
+}
+
+.rate-icon.rate-up {
+  color:#039be5;
+	transition:.3s;
+}
+
+.rate-icon.rate-up:hover {
+  color:green;
+}
+
+.rate-icon.rate-down {
+  color:#039be5;
+	transition:.3s;
+}
+
+.rate-icon.rate-down:hover {
+  color:red;
 }
 
 #load_circle {

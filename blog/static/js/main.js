@@ -58,6 +58,7 @@ $(document).ready(function(){
 		  url: link,
       success:function(data){
 		 $(data).appendTo( $("#Comments_title") );
+		 stubImgs();
         }
      });
 	 });
@@ -112,21 +113,29 @@ function ratePost() {
 		}
 
 	vote_btn = this;
-	id = $(vote_btn).parent().attr('post');
+	var el_type = "";
+	if ( $(vote_btn).parent().is("[comment]") ) {
+		el_type = "comment";
+		id = $(vote_btn).parent().attr('comment');
+	} else {
+		el_type = "post";
+		id = $(vote_btn).parent().attr('post');
+	}
+
 	rate = $(vote_btn).attr('rate');
+	r_url = "/rate/" + el_type +"/"+id+"-rate-"+rate;
 	csrf = getCookie('csrftoken');
 	$.ajax({
 		  headers: {'X-CSRFToken': csrf},
 	      type:"POST",
 		  //cache : false,
-	      url:"/rate/postid-"+id+"-rate-"+rate,
+	      url: r_url,
 				success:function(data){
 					if (data == "no votes") {
 						votes = false;
 						disableRate();
 						console.log(data);
 					}
-
 				}
 	     });
 	return false;
@@ -229,11 +238,9 @@ $(document).on('click', '.ajax-menu', function() {
 	}
 
 		if ( ajax_menu.is('[single_page]' ) ) { // if it is menu don't load on scroll
-			processing = true;
 			single = true;
 		}
 		else { // if it is list page load on scroll
-			processing = false;
 			single = false;
 		}
 
@@ -265,7 +272,7 @@ if ( $("#Comments_title").length > 0 ) {
 	socket.onmessage = function(e) {
 		sockets[window.location.pathname] = socket;
 		console.log(e.data);
-		message = JSON.parse(e.data);
+		//message = JSON.parse(e.data);
 	}
 	socket.onopen = function() {
 		socket.send("hello world");

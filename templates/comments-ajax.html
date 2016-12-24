@@ -24,13 +24,34 @@
             <div class="card-content comment_text z-depth-1">
               <p>{{ comment.text}}</p>
             </div>
-            <div class="card-action comment_extra z-depth-1">
+            <div class="comment_extra z-depth-1">
               <hr />
-              {{ comment.created }}
-              {% if post.author == comment.author %} Author! {% endif %}
-              <a href ="#" class="btn btn-small reply-btn">
-                <span>Reply</span>
-              </a>
+
+              <div class="comment-bottom valign-wrapper">
+                <div class="valign rating-comment valign-wrapper" comment="{{ comment.id }}">
+                  <a href="#" class="rate-icon rate-up" rate="1">
+                    <i class="small material-icons">
+                      thumb_up</i></a>
+                  <div class="rate-score valign">
+                    <p>Rating= {{ comment.ratingcomment_set.get.rating|floatformat:2 }}</p>
+                  </div>
+                  <a href="#" class="rate-icon rate-down" rate="0">
+                    <i class="small material-icons">thumb_down
+                    </i></a>
+                </div>
+
+                  <div class="valign comment-date">
+                    {{ comment.created }}
+                  </div>
+
+                {% if post.author == comment.author %} Author! {% endif %}
+                <div class="valign comment-rpl-btn">
+                  <a href ="#" class="btn btn-small reply-btn">
+                    <span>Reply</span>
+                  </a>
+                </div>
+              </div>
+
             </div>
           </div>
           </div>

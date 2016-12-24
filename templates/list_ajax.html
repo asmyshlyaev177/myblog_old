@@ -4,9 +4,11 @@
 
 {% if page == None %}
 
+<script>processing = false;
+</script>
+
 {% if category %}
 <h1>List Posts from {{ category }}</h1>
-
   {% if category.description %}
   <p class="lead">
     Category description: {{ category.description }}
@@ -63,12 +65,12 @@
       {{ post.description }}
     {% endif %}
     <div class="rating valign-wrapper" post={{ post.id }}>
-      <a href="#" class="rate-icon" rate=1><i class="medium material-icons"
+      <a href="#" class="rate-icon rate-up" rate=1><i class="medium material-icons"
         >thumb_up</i></a>
       <div class="rate-score valign">
         <p>Rating= {{ post.ratingpost_set.get.rating|floatformat:2 }}</p>
       </div>
-      <a href="#" class="rate-icon" rate=0><i class="medium material-icons"
+      <a href="#" class="rate-icon rate-down" rate=0><i class="medium material-icons"
         >thumb_down</i></a>
     </div>
     </div>
