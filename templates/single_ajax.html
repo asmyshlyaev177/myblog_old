@@ -28,8 +28,9 @@
 </div>
 
 <div id="add_comment_placeholder"></div>
-<form action="/add-comment/{{ post.id }}/0/" method='POST' id="comment-form"
-enctype="multipart/form-data" postid="{{ post.id }}">
+<form action="/add-comment/{{ post.id }}/0/" method='POST' id="comment-form-sample"
+enctype="multipart/form-data" postid="{{ post.id }}"
+style="display:none;">
 {% csrf_token %}
 
 {{ comment_form.text }}
@@ -37,6 +38,9 @@ enctype="multipart/form-data" postid="{{ post.id }}">
 <input type="submit" value="Add Comment"
  class="waves-effect waves-light btn add-comment"/>
 </form>
+
+<a href="#" class="btn btn-small reply-btn">
+<span>Reply</span></a>
 
 <div id="Comments_title">Comments</div>
 

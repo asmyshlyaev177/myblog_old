@@ -88,7 +88,7 @@ $(document).on('click', '.btn.add-comment', function (e) {
 		  data: $(form).serialize(),
 		  url: link,
       success:function(data){
-		  $(".fr-view").html("")
+		  $(".fr-view").html("");
         }
      });
 	return false;
@@ -99,10 +99,13 @@ function ReplyBtn() {
 $(document).on('click', '.reply-btn', function() {
 	btn = $(this);
 	comment = $(btn).parents("div.comment");
-
-	$("#comment-form").attr("comment_id", $(comment).attr("comment_id")) ;
+  $("#comment-form-sample").attr("id", "comment-form");
+	form = $("#comment-form").detach();
+	form.attr("comment_id", $(comment).attr("comment_id")) ;
   $(".fr-view").html("");
-	$("#comment-form").appendTo(comment);
+	//form.appendTo(comment);
+	$(comment).after(form);
+	form.show();
 	return false;
 	});
 }
