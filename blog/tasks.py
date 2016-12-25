@@ -206,6 +206,7 @@ def commentImage(comment_id):
 
 	c = {}
 	c['id'] = data.id
+	c['parent'] = data.parent.id
 	c['author'] = data.author.username
 	if data.author.avatar:
 		c['avatar'] = data.author.avatar.url

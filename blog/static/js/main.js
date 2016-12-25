@@ -81,6 +81,7 @@ $(document).on('click', '.btn.add-comment', function (e) {
 	var link = "/add-comment/"+post_id+"/"+parent+"/";
 	var csrf = getCookie('csrftoken');
 
+	$("#def_form_place").after(form);
 	$.ajax({
 		  headers: {'X-CSRFToken': csrf},
 		  type:"POST",
@@ -90,8 +91,6 @@ $(document).on('click', '.btn.add-comment', function (e) {
       success:function(data){
 		  $(".fr-view").html("");
 			form.hide();
-			$("#def_form_place").after(form);
-
         }
      });
 	return false;
@@ -283,6 +282,7 @@ function cloneComment( data ) {
 	com.css('margin-left', comment['level']*25 + 'px')
 	com.attr('comment_id', comment['id']);
 	com.attr('level', comment['level']);
+	com.attr('parent', comment['parent']);
 	com.find('.comment_text').html(comment['text']);
 	com.find('.comment_user_avatar').children().attr('src', '/static' + comment['avatar']);
 	com.find('.comment_username').html( comment['author'] );
@@ -292,8 +292,7 @@ function cloneComment( data ) {
 	if ( parseInt(comment['level']) > 0 ) {
 		var p_str = "[comment_id="+parseInt(comment['parent']) +"]" ;
 		var parent = $( p_str );
-		var level = "[level=" + (parseInt( $(parent).attr('level') )+1)+ "]";
-		var last_child = $(parent).nextAll( level ).last();
+		var last_child = $("[parent="+parseInt(comment['parent']) +"]").last();
 	} else {
 		$(".comments").append(com);
 	}

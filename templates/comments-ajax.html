@@ -3,7 +3,7 @@
 <ul class="comments">
 
   <div id="sample_comment" class="card horizontal comment z-depth-2" style="
-   margin-left:0px; display:none!important;" level="" comment_id="0">
+   margin-left:0px; display:none!important;" parent="" level="" comment_id="0">
           <div class="row">
             <div class="col s12 m2 l2 comment_user">
               <p class="comment_username center-align">
@@ -50,12 +50,16 @@
             </div>
             </div>
 
+
   {% for comment, structure  in comments|tree_info %}
+
+  {% if structure.new_level %} <ul><li>{% else %}</li><li> {% endif %}
 
       <div class="card horizontal comment z-depth-2"
         style='
  margin-left:{% widthratio comment.level 1 25 %}px;'
- comment_id={{ comment.id }} level="{{ comment.level }}">
+ comment_id={{ comment.id }} level="{{ comment.level }}"
+ parent={{ comment.parent.id }}>
         <div class="row">
           <div class="col s12 m2 l2 comment_user">
             <p class="comment_username center-align">
@@ -110,8 +114,9 @@
           </div>
 
 
+
       {% for level in structure.closed_levels %}
-          </li>
+    </li></ul>
       {% endfor %}
   {% endfor %}
 
