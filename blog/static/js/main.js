@@ -68,18 +68,18 @@ $(document).ready(function(){
 
 function AddCommentBtn() {
 $(document).on('click', '.btn.add-comment', function (e) {
-	form = $("#comment-form");
-    btn = $(this);
+	var form = $("#comment-form");
+  var btn = $(this);
 
-	if ( $(form).parent().hasClass("comment") ) {
-		parent = parseInt($(form).attr("comment_id"));
+	if ( $(form).prev().hasClass("comment") ) {
+		var parent = parseInt($(form).attr("comment_id"));
 	} else {
-		parent = 0;
+		var parent = 0;
 	}
 
-	post_id = parseInt( $(form).attr("postid") );
-	link = "/add-comment/"+post_id+"/"+parent+"/";
-	csrf = getCookie('csrftoken');
+	var post_id = parseInt( $(form).attr("postid") );
+	var link = "/add-comment/"+post_id+"/"+parent+"/";
+	var csrf = getCookie('csrftoken');
 
 	$.ajax({
 		  headers: {'X-CSRFToken': csrf},
@@ -89,22 +89,30 @@ $(document).on('click', '.btn.add-comment', function (e) {
 		  url: link,
       success:function(data){
 		  $(".fr-view").html("");
+			form.hide();
+			$("#def_form_place").after(form);
+
         }
      });
 	return false;
-})
+});
 }
 
 function ReplyBtn() {
 $(document).on('click', '.reply-btn', function() {
-	btn = $(this);
-	comment = $(btn).parents("div.comment");
+	var btn = $(this);
+	var comment = $(btn).parents("div.comment");
   $("#comment-form-sample").attr("id", "comment-form");
 	form = $("#comment-form").detach();
 	form.attr("comment_id", $(comment).attr("comment_id")) ;
   $(".fr-view").html("");
 	//form.appendTo(comment);
-	$(comment).after(form);
+	if ( comment.length > 0 ) {
+		  $(comment).after(form);
+	 } else {
+		 $(this).after(form);
+	 }
+
 	form.show();
 	return false;
 	});
@@ -269,37 +277,49 @@ $(document).on('click', '.ajax-menu', function() {
 });
 }
 
-function cloneComment(comment) {
-	com = $("#sample_comment").clone().removeAttr('id');
-	com.css('margin-left', comment['level']*15 + 'px')
+function cloneComment( data ) {
+	var comment = data;
+	var com = $("#sample_comment").clone().removeAttr('id');
+	com.css('margin-left', comment['level']*25 + 'px')
 	com.attr('comment_id', comment['id']);
+	com.attr('level', comment['level']);
 	com.find('.comment_text').html(comment['text']);
 	com.find('.comment_user_avatar').children().attr('src', '/static' + comment['avatar']);
 	com.find('.comment_username').html( comment['author'] );
 	com.find('.comment-date').html( comment['created'] );
+	com.css('display', 'block');
 
-	if (comment['level'] > 0 ) {
-		p_str = "[comment_id="+comment['parent'] +"]" ;
-		parent = $( p_str );
-		$( parent ).after(com);
+	if ( parseInt(comment['level']) > 0 ) {
+		var p_str = "[comment_id="+parseInt(comment['parent']) +"]" ;
+		var parent = $( p_str );
+		var level = "[level=" + (parseInt( $(parent).attr('level') )+1)+ "]";
+		var last_child = $(parent).nextAll( level ).last();
 	} else {
 		$(".comments").append(com);
 	}
 
-	com.css('display', 'block');
+	if (last_child.length > 0) {
+		console.log("append after last child");
+		$( last_child ).after(com);
+	} else {
+		console.log("append after parent");
+		if ( parent.length > 0 ) {
+			$( parent ).after(com);
+		}
+	}
 	stubImgs();
 }
 
 function wsConnect() {
 if ( $("#Comments_title").length > 0 ) {
 
-	socket = new WebSocket("ws://" + window.location.host + window.location.pathname);
+	var socket = new WebSocket("ws://" + window.location.host + window.location.pathname);
 	socket.onmessage = function(e) {
 		sockets[window.location.pathname] = socket;
 		try {
-			elem = JSON.parse(e.data);
+			console.log(e.data);
+			var elem = JSON.parse(e.data);
 			if ( elem['comment'] ) {
-				console.log("cloning...");
 				cloneComment(elem);
 			}
 		} catch(err) {};
