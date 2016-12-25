@@ -284,6 +284,7 @@ function cloneComment(comment) {
 	}
 
 	com.css('display', 'block');
+	stubImgs();
 }
 
 function wsConnect() {

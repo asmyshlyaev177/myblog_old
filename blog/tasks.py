@@ -207,7 +207,11 @@ def commentImage(comment_id):
 	c = {}
 	c['id'] = data.id
 	c['author'] = data.author.username
-	c['avatar'] = data.author.avatar.url
+	if data.author.avatar:
+		c['avatar'] = data.author.avatar.url
+	else:
+		c['avatar'] = "/media/avatars/admin/avatar.jpg"
+
 	if data.level != 0:
 		c['parent'] = data.parent.id
 	else:
