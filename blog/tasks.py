@@ -208,9 +208,14 @@ def commentImage(comment_id):
 	c['id'] = data.id
 	c['author'] = data.author.username
 	c['avatar'] = data.author.avatar.url
-	c['parent'] = data.parent.id
+	if data.level != 0:
+		c['parent'] = data.parent.id
+	else:
+		c['parent'] = 0
 	c['text'] = data.text
 	c['level'] = data.level
+	c['comment'] = 1
+	c['created'] = (data.created + delta_tz).strftime('%Y.%m.%d %H:%M')
 	group = data.post.get_absolute_url().strip('/').split('/')[-1]
 	Group(group).send({
         #"text": "[user] %s" % message.content['text'],

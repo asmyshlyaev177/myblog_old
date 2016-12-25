@@ -2,6 +2,56 @@
 {% autoescape off %}
 <ul class="comments">
 
+  <div id="sample_comment" class="card horizontal comment z-depth-2" style="
+   margin-left:0px; display:none!important;" comment_id="0">
+          <div class="row">
+            <div class="col s12 m2 l2 comment_user">
+              <p class="comment_username center-align">
+                admin
+              </p>
+
+              <p class="comment_user_avatar center-align">
+                <img src="" class="responsive-img">
+              </p>
+
+            </div>
+            <div class="col s12 m10 l10 card-stacked">
+              <div class="card-content comment_text z-depth-1">
+
+              </div>
+              <div class="comment_extra z-depth-1">
+                <hr>
+
+                <div class="comment-bottom valign-wrapper">
+                  <div class="valign rating-comment valign-wrapper" comment="69">
+                    <a href="#" class="rate-icon rate-up" rate="1">
+                      <i class="small material-icons">
+                        thumb_up</i></a>
+                    <div class="rate-score valign">
+                      <p>Rating= </p>
+                    </div>
+                    <a href="#" class="rate-icon rate-down" rate="0">
+                      <i class="small material-icons">thumb_down
+                      </i></a>
+                  </div>
+
+                    <div class="valign comment-date">
+
+                    </div>
+
+
+                  <div class="valign comment-rpl-btn">
+                    <a href="#" class="btn btn-small reply-btn">
+                      <span>Reply</span>
+                    </a>
+                  </div>
+                </div>
+
+              </div>
+            </div>
+            </div>
+            </div>
+
   {% for comment, structure  in comments|tree_info %}
 
       <div class="card horizontal comment z-depth-2"
@@ -14,7 +64,7 @@
               {{ comment.author.username}}
             </p>
             {% if comment.author.avatar %}
-            <p class="comment_user_vatar center-align">
+            <p class="comment_user_avatar center-align">
               <img src='/static/media/{{ comment.author.avatar}}'
                 class="responsive-img"/>
             </p>
@@ -33,7 +83,11 @@
                     <i class="small material-icons">
                       thumb_up</i></a>
                   <div class="rate-score valign">
-                    <p>Rating= {{ comment.ratingcomment_set.get.rating|floatformat:2 }}</p>
+                    <p>{% if comment.ratingcomment_set.get.rating %}
+                      {{ comment.ratingcomment_set.get.rating|floatformat:2 }}
+                    {% else %}
+                      0
+                    {% endif %}</p>
                   </div>
                   <a href="#" class="rate-icon rate-down" rate="0">
                     <i class="small material-icons">thumb_down
@@ -41,7 +95,7 @@
                 </div>
 
                   <div class="valign comment-date">
-                    {{ comment.created }}
+                    {{ comment.created|date:"Y.m.j H:i" }}
                   </div>
 
                 {% if post.author == comment.author %} Author! {% endif %}

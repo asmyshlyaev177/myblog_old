@@ -441,7 +441,7 @@ def delete_image_and_thumb(sender, instance, **kwargs):
     cache.delete("taglist")
     deleteThumb(instance.description)
 
-@receiver(models.signals.pre_save, sender=Tag)
+@receiver(models.signals.post_save, sender=Tag)
 def delete_old_image_and_thumb(sender, instance, **kwargs):
     """delete old file when thumbnail changed"""
     if not instance.pk:
@@ -449,10 +449,11 @@ def delete_old_image_and_thumb(sender, instance, **kwargs):
 
     cache.delete("taglist")
     deleteThumb(instance.description)
-    instance.description = str(srcsets(instance.description, False))
+    if instance.description != None:
+        instance.description = str(srcsets(instance.description, False))
 
 class Comment(MPTTModel):
-    text = models.TextField(max_length=700)
+    text = models.TextField(max_length=3700)
     author = models.ForeignKey('myUser', blank=True, null=True)
     post = models.ForeignKey('Post', blank=True, null=True)
     removed = models.BooleanField(default=False)
@@ -466,3 +467,14 @@ class Comment(MPTTModel):
     class MPTTMeta:
         order_insertion_by = ['created']
         verbose_name_plural = "Comments"
+
+@receiver(models.signals.pre_delete, sender=Comment)
+def _post_delete(sender, instance, **kwargs):
+    cache_str = "comment_" + str(instance.post.id)
+    cache.delete(cache_str)
+    deleteThumb(instance.text)
+
+@receiver(models.signals.post_save, sender=Comment)
+def _post_save(sender, instance, **kwargs):
+    cache_str = "comment_" + str(instance.post.id)
+    cache.delete(cache_str)

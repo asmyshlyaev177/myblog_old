@@ -14,7 +14,6 @@
     Category description: {{ category.description }}
   </p>
   {% endif %}
-
 {% endif %}
 
     {% if tag %}
@@ -24,6 +23,7 @@
 
 {% endif %}
 
+{% if not posts == None %}
 {% for post in posts %}
 
   <div class="post">
@@ -33,7 +33,6 @@
       {{ post.title }}</h2></a>
 
   {% post_header %}
-
 
     {% if post.post_image %}
     <div class="post-thumbnail center-align">
@@ -64,15 +63,22 @@
     {% if post.description %}
       {{ post.description }}
     {% endif %}
+
     <div class="rating valign-wrapper" post={{ post.id }}>
       <a href="#" class="rate-icon rate-up" rate=1><i class="medium material-icons"
         >thumb_up</i></a>
       <div class="rate-score valign">
-        <p>Rating= {{ post.ratingpost_set.get.rating|floatformat:2 }}</p>
+        <p>{% if post.ratingpost_set.get.rating %}
+          {{ post.ratingpost_set.get.rating|floatformat:2 }}
+        {% else %}
+          0
+        {% endif %}
+        </p>
       </div>
       <a href="#" class="rate-icon rate-down" rate=0><i class="medium material-icons"
         >thumb_down</i></a>
     </div>
+
     </div>
 
     </div>
@@ -89,5 +95,6 @@
 </div>
 
 {% endfor %}
+{% endif %}
 
 {% endautoescape %}

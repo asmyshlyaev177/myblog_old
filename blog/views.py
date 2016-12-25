@@ -68,7 +68,7 @@ def comments(request, postid):
 def addComment(request, postid, parent=0):
 	if request.method == "POST":
 		comment_form = CommentForm(request.POST, request.FILES)
-		if comment_form.is_valid:
+		if comment_form.is_valid():
 			parent_comment = int(parent)
 			comment = comment_form.save(commit=False)
 			comment.author = request.user
@@ -307,7 +307,8 @@ def list(request, category=None, tag=None, pop=None):
 		posts = paginator.page(1)
 	except EmptyPage:
 		#posts = paginator.page(paginator.num_pages)
-		return HttpResponse('')
+		posts = None
+		#return HttpResponse('')
 	context['posts'] = posts
 	context['cat_list'] = cat_list
 	context['page'] = page

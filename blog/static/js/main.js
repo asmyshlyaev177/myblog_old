@@ -41,10 +41,12 @@ imgs = $('img[src_real');
 imgs.each(function() {
 	srcset = $(this).attr('srcset_real');
 	src = $(this).attr('src');
+	$(this).css('min-height', $(this).height()+'px');
 	$(this).attr('srcset', srcset);
 	$(this).removeAttr('srcset_real');
 	$(this).attr('src', src);
 	$(this).removeAttr('src_real');
+	$(this).css('min-height', '');
 });
 }
 
@@ -86,7 +88,6 @@ $(document).on('click', '.btn.add-comment', function (e) {
 		  data: $(form).serialize(),
 		  url: link,
       success:function(data){
-		console.log("success!");
 		  $(".fr-view").html("")
         }
      });
@@ -265,14 +266,40 @@ $(document).on('click', '.ajax-menu', function() {
 });
 }
 
+function cloneComment(comment) {
+	com = $("#sample_comment").clone().removeAttr('id');
+	com.css('margin-left', comment['level']*15 + 'px')
+	com.attr('comment_id', comment['id']);
+	com.find('.comment_text').html(comment['text']);
+	com.find('.comment_user_avatar').children().attr('src', '/static' + comment['avatar']);
+	com.find('.comment_username').html( comment['author'] );
+	com.find('.comment-date').html( comment['created'] );
+
+	if (comment['level'] > 0 ) {
+		p_str = "[comment_id="+comment['parent'] +"]" ;
+		parent = $( p_str );
+		$( parent ).after(com);
+	} else {
+		$(".comments").append(com);
+	}
+
+	com.css('display', 'block');
+}
+
 function wsConnect() {
 if ( $("#Comments_title").length > 0 ) {
 
 	socket = new WebSocket("ws://" + window.location.host + window.location.pathname);
 	socket.onmessage = function(e) {
 		sockets[window.location.pathname] = socket;
-		console.log(e.data);
-		//message = JSON.parse(e.data);
+		try {
+			elem = JSON.parse(e.data);
+			if ( elem['comment'] ) {
+				console.log("cloning...");
+				cloneComment(elem);
+			}
+		} catch(err) {};
+
 	}
 	socket.onopen = function() {
 		socket.send("hello world");
