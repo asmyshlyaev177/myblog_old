@@ -89,10 +89,10 @@ $(document).on('click', '.btn.add-comment', function (e) {
 		  data: $(form).serialize(),
 		  url: link,
       success:function(data){
-		  $(".fr-view").html("");
 			form.hide();
         }
      });
+		$(".fr-view").html("");
 	return false;
 });
 }
@@ -278,45 +278,52 @@ $(document).on('click', '.ajax-menu', function() {
 
 function cloneComment( data ) {
 	var comment = data;
-	var com = $("#sample_comment").clone().removeAttr('id');
-	com.css('margin-left', comment['level']*25 + 'px')
-	com.attr('comment_id', comment['id']);
-	com.attr('level', comment['level']);
-	com.attr('parent', comment['parent']);
-	com.find('.comment_text').html(comment['text']);
-	com.find('.comment_user_avatar').children().attr('src', '/static' + comment['avatar']);
-	com.find('.comment_username').html( comment['author'] );
-	com.find('.comment-date').html( comment['created'] );
-	com.css('display', 'block');
+	var com = $(".sample_comment").clone();
+			com.removeClass('sample_comment');
+			com.attr('comment_id', comment['id']);
+			com.attr('level', comment['level']);
+			console.log('level: ' + comment['level'] +
+			' com level '+ com.attr('level') );
+			com.attr('parent', comment['parent']);
+			console.log('parent: ' + comment['parent'] +
+			' com parent '+ com.attr('parent') );
+			com.css('margin-left', comment['level']*25+'px');
+			com.find('.comment_text').html(comment['text']);
+			com.find('.comment_user_avatar').children().attr('src', '/static' + comment['avatar']);
+			com.find('.comment_username').html( comment['author'] );
+			com.find('.comment-date').html( comment['created'] );
 
 	if ( parseInt(comment['level']) > 0 ) {
 		var p_str = "[comment_id="+parseInt(comment['parent']) +"]" ;
 		var parent = $( p_str );
 		var last_child = $("[parent="+parseInt(comment['parent']) +"]").last();
 	} else {
-		$(".comments").append(com);
+		console.log("root com");
+		$(".comments").append( com );
 		com.wrap('<ul><li></li></ul>');
+		com.css('display', 'block');
 	}
 
 	if (last_child.length > 0) {
-		console.log("append after last child");
+		//console.log("append after last child");
 		last_child = $( last_child ).parent('li');
 		$( last_child ).after(com);
 		com.wrap('<li></li>');
 	} else {
-		console.log("append after parent");
+		//console.log("append after parent");
 		if ( parent.length > 0 ) {
 			$( parent ).after(com);
 			com.wrap('<ul><li></li></ul>');
 		}
 	}
+	com.css('display', 'block');
 	stubImgs();
 }
 
 function wsConnect() {
 if ( $("#Comments_title").length > 0 ) {
 
-	var socket = new WebSocket("ws://" + window.location.host + window.location.pathname);
+	var socket = new ReconnectingWebSocket("ws://" + window.location.host + window.location.pathname);
 	socket.onmessage = function(e) {
 		sockets[window.location.pathname] = socket;
 		try {
@@ -331,6 +338,10 @@ if ( $("#Comments_title").length > 0 ) {
 	socket.onopen = function() {
 		socket.send("hello world");
 		console.log("socket "+ socket.url + " opened");
+	}
+	socket.onclose = function() {
+		socket.send("disconnect");
+		console.log("socket "+ socket.url + " reconnected");
 	}
 	// Call onopen directly if socket is already open
 	if (socket.readyState == WebSocket.OPEN) socket.onopen();
