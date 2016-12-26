@@ -54,6 +54,7 @@ seo оптимизация, мета тэги, заголовки страниц
  наверху по клику иноф о профиле. Логин/логаут через модальные окна
 
 https://github.com/geuis/helium-css
+https://css-tricks.com/prefetching-preloading-prebrowsing/
 
 пост должен помешаться на один экран, сейчас слишком большой
 
