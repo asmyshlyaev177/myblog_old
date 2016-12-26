@@ -295,15 +295,19 @@ function cloneComment( data ) {
 		var last_child = $("[parent="+parseInt(comment['parent']) +"]").last();
 	} else {
 		$(".comments").append(com);
+		com.wrap('<ul><li></li></ul>');
 	}
 
 	if (last_child.length > 0) {
 		console.log("append after last child");
+		last_child = $( last_child ).parent('li');
 		$( last_child ).after(com);
+		com.wrap('<li></li>');
 	} else {
 		console.log("append after parent");
 		if ( parent.length > 0 ) {
 			$( parent ).after(com);
+			com.wrap('<ul><li></li></ul>');
 		}
 	}
 	stubImgs();
