@@ -10,6 +10,7 @@ from django.contrib.auth.models import Group
 from django.contrib.auth.models import AbstractBaseUser
 from froala_editor.widgets import FroalaEditor
 from django.utils.html import format_html
+from mptt.admin import MPTTModelAdmin
 
 class UserAdmin(BaseUserAdmin):
     form = MyUserChangeForm
@@ -49,7 +50,7 @@ class PostAdmin(admin.ModelAdmin):
     readonly_fields = ('get_image',)
     list_display = ('title', 'author', 'category',
                     'status','private','published')
-    search_fields = ['title', 'description','text', 'tag', 'url']
+    search_fields = ['title', 'description','text', 'tags__name', 'url']
     ordering = ['-status', '-published','title']
     show_full_result_count = True
     list_filter = ['category', 'status',
@@ -151,8 +152,9 @@ class CommentAdmin(admin.ModelAdmin):
     def _text(self, obj):
         return format_html(obj.text)
     readonly_fields = ("created",)
-    search_fields = ["text", "author"]
+    search_fields = ["text", "author__username", "post__title"]
     list_filter = ["created", "removed"]
+    raw_id_fields = ("post",)
     ordering = ["created",]
 
 admin.site.register(Comment, CommentAdmin)

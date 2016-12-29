@@ -323,7 +323,9 @@ function cloneComment( data ) {
 function wsConnect() {
 if ( $("#Comments_title").length > 0 ) {
 
-	var socket = new ReconnectingWebSocket("ws://" + window.location.host + window.location.pathname);
+	var socket = new ReconnectingWebSocket(
+		"ws://" + window.location.host + window.location.pathname, null,
+		{maxReconnectInterval: 2000});
 	socket.onmessage = function(e) {
 		sockets[window.location.pathname] = socket;
 		try {
