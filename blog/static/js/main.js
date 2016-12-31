@@ -37,17 +37,34 @@ function hideBanner() {
 
 
 function stubImgs() {
-imgs = $('img[src_real');
-imgs.each(function() {
-	srcset = $(this).attr('srcset_real');
-	src = $(this).attr('src');
-	$(this).css('min-height', $(this).height()+'px');
-	$(this).attr('srcset', srcset);
-	$(this).removeAttr('srcset_real');
-	$(this).attr('src', src);
-	$(this).removeAttr('src_real');
-	$(this).css('min-height', '');
-});
+img_new = [];
+imgs = $('img[src_real]');
+for ( var i = 0; i < imgs.length; i++ ) {
+	srcset = $(imgs[i]).attr('srcset_real');
+	src = $(imgs[i]).attr('src');
+	//$(imgs[i]).css('min-height', $(imgs[i]).height()+'px');
+
+	loader = $("#loader").clone().css('display', 'block').removeAttr('id');
+	img = imgs[i];
+	$(loader).css('width', img.width+'px')
+		.css('top', $(img).offset().top+$(img).height()/2 +'px' );
+	$(img).after(loader);
+
+
+	img_new[i] = new Image();
+	img_new[i].onload = function() {
+		current_img = $(imgs[ img_new.indexOf(this) ])
+		$(current_img).attr('srcset', this.srcset);
+		$(current_img).removeAttr('srcset_real');
+		$(current_img).attr('src', this.src);
+		$(current_img).removeAttr('src_real');
+		$(current_img).next('.loader').remove();
+		//$(current_img).css('min-height', '');
+	}
+	img_new[i].srcset = srcset;
+	img_new[i].src = src;
+
+	}
 }
 
 function Comments() {
