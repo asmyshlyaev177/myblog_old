@@ -35,6 +35,14 @@ function hideBanner() {
   });
 }
 
+/*
+function loader(img) {
+	console.log(img);
+	loader = $("#loader").clone().css('display', 'block').removeAttr('id');
+	$(loader).css('width', img.width+'px')
+		.css('top', $(img).offset().top+$(img).height()/2 - 24 +'px' );
+	$(img).css('opacity', 0.5).after(loader);
+} */
 
 function stubImgs() {
 img_new = [];
@@ -44,25 +52,20 @@ for ( var i = 0; i < imgs.length; i++ ) {
 	src = $(imgs[i]).attr('src');
 	//$(imgs[i]).css('min-height', $(imgs[i]).height()+'px');
 
-	loader = $("#loader").clone().css('display', 'block').removeAttr('id');
-	img = imgs[i];
-	$(loader).css('width', img.width+'px')
-		.css('top', $(img).offset().top+$(img).height()/2 +'px' );
-	$(img).after(loader);
-
-
+	$(imgs[i]).css('opacity', 0.5);
 	img_new[i] = new Image();
 	img_new[i].onload = function() {
 		current_img = $(imgs[ img_new.indexOf(this) ])
-		$(current_img).attr('srcset', this.srcset);
-		$(current_img).removeAttr('srcset_real');
-		$(current_img).attr('src', this.src);
-		$(current_img).removeAttr('src_real');
-		$(current_img).next('.loader').remove();
+		$(current_img).attr('srcset', this.srcset)
+			.removeAttr('srcset_real')
+			.attr('src', this.src)
+		 	.removeAttr('src_real').css('opacity', 1);
+		 	//.next('.loader').remove();
 		//$(current_img).css('min-height', '');
 	}
 	img_new[i].srcset = srcset;
 	img_new[i].src = src;
+
 
 	}
 }
