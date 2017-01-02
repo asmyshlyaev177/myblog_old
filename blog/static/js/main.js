@@ -344,7 +344,7 @@ function wsConnect() {
 if ( $("#Comments_title").length > 0 ) {
 
 	var socket = new ReconnectingWebSocket(
-		"ws://" + window.location.host + window.location.pathname, null,
+		"ws://" + window.location.host + '/ws' + window.location.pathname, null,
 		{maxReconnectInterval: 2000});
 	socket.onmessage = function(e) {
 		sockets[window.location.pathname] = socket;
@@ -358,11 +358,11 @@ if ( $("#Comments_title").length > 0 ) {
 
 	}
 	socket.onopen = function() {
-		socket.send("hello world");
+		//socket.send("hello world");
 		console.log("socket "+ socket.url + " opened");
 	}
 	socket.onclose = function() {
-		socket.send("disconnect");
+		//socket.send("disconnect");
 		console.log("socket "+ socket.url + " reconnected");
 	}
 	// Call onopen directly if socket is already open

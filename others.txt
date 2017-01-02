@@ -19,7 +19,16 @@ django.setup()
 
 }
 
-
+NGINX compile
+./configure --sbin-path=/usr/local/nginx/nginx\
+ --conf-path=/usr/local/nginx/nginx.conf \
+ --pid-path=/usr/local/nginx/nginx.pid \
+ --with-pcre=pcre-8.39 --with-zlib=zlib-1.2.9 \
+ --with-http_ssl_module --with-stream \
+ --with-mail=dynamic  --with-file-aio \
+ --with-threads --with-http_v2_module \
+ --with-http_slice_module --with-http_gzip_static_module \
+ --with-http_gunzip_module
 
 var slowLoad = window.setTimeout( function() {
         alert( "the page is taking its sweet time loading" );
@@ -35,9 +44,9 @@ var slowLoad = window.setTimeout( function() {
 $('#id_text').on('froalaEditor.image.beforeRemove', function (e, editor, $img)  {
 	deleteImage($img)
   })
- 
- 
- 
+
+
+
  function deleteImage(img) {
 	 csrf = getCookie('csrftoken');
 	$.ajax({
@@ -52,9 +61,9 @@ $('#id_text').on('froalaEditor.image.beforeRemove', function (e, editor, $img)  
 			});
 		console.log(img.attr('src'));
  }
- 
- 
- 
+
+
+
 $('#id_text').on('froalaEditor.image.beforeRemove', function (e, editor, $img)  {
 	console.log("/delete_image" + $img.attr('src'));
   })
