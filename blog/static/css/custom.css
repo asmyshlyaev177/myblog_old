@@ -3,6 +3,19 @@
 	margin: auto;
 }
 
+.post:after {
+    clear: both;
+		content: ".";
+		display: block;
+		height: 0;
+}
+
+.post-image {
+	width: 100%;
+}
+
+.post-text { padding: 0!important; }
+
 .main {overflow: hidden;}
 
 .top-menu {

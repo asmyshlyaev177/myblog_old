@@ -1,29 +1,25 @@
 # -*- coding: utf-8 -*-
 from celery import Celery
-from celery.task import periodic_task
 from datetime import timedelta
 import os, datetime, json, re
-from blog.models import (Post, RatingPost,RatingTag, RatingComment,Tag,
-						Rating, myUser, UserVotes, RatingUser, VotePost,
-						Category, Comment)
+from blog.models import (Post, RatingPost, RatingTag, RatingComment, Tag,
+						RatingUser, Category, Comment)
 from slugify import slugify, SLUG_OK
 from bs4 import BeautifulSoup
 from PIL import Image
 from urllib.parse import urlparse, urlencode
-import datetime, pickle, pytz
-#from django.utils import timezone
-#from django.http import (HttpResponse,JsonResponse)
-from urllib.request import urlopen, urlretrieve, Request
-from django.utils.encoding import uri_to_iri, iri_to_uri
-from blog.functions import srcsets, findFile, findLink, srcsetThumb
-from time import gmtime, strftime
+import datetime, pytz
+# from django.utils import timezone
+# from django.http import (HttpResponse,JsonResponse)
+from urllib.request import urlopen, Request
+from blog.functions import srcsets, srcsetThumb
 from django.core.cache import cache
 from channels import Group
 
 app = Celery('tasks', broker='pyamqp://guest@localhost//')
 
 
-#@periodic_task(run_every=timedelta(seconds=10))
+# @periodic_task(run_every=timedelta(seconds=10))
 """@app.task(name='taglist')
 def taglist():
 	tags = Tag.objects.all().values()
@@ -37,6 +33,7 @@ def taglist():
 
 delta_tz = datetime.timedelta(hours=+3)
 tz = datetime.timezone(delta_tz)
+
 
 @app.task(name="Rate")
 def Rate(userid, date_joined, votes_count, type, elem_id, vote):
@@ -97,6 +94,7 @@ def Rate(userid, date_joined, votes_count, type, elem_id, vote):
 			cache.set(r_key, p_data, timeout=3024000)
 
 		cache.set('user_votes_' + str(userid), uv, timeout=uv_ttl)
+
 
 @app.task(name="CalcRating")
 def CalcRating():
@@ -177,6 +175,7 @@ def CalcRating():
 			#filtr by rating
 		best_posts = [ post for post in best_posts if best_posts[post] > hot_rating ]
 		cache.set('best_post_day_catid_' + str(i.id), best_posts, timeout=88000)
+
 
 @app.task(name="commentImage")
 def commentImage(comment_id):
@@ -265,6 +264,7 @@ def addPost(post_id, tag_list, moderated):
 			j = False
 
 
+
 	# создаём картинки из текста
 	soup = srcsets(data.text, True)
 	# выравниваем видео по центру
@@ -310,19 +310,19 @@ def addPost(post_id, tag_list, moderated):
 			pass
 		data.image_url = ""
 
-	if data.post_image and data.post_image_gif() == False:
+	if data.post_image and not data.post_image_gif():
 		data.image_url = srcsetThumb(data.post_image)
 
 	if not moderated:
 		data.status = "P"
 	data.save()
 	cache.delete_pattern("post_list_*")
-	#tag_rating, _ = RatingTag.objects.cache().get_or_create(tag=tag)
+	# tag_rating, _ = RatingTag.objects.cache().get_or_create(tag=tag)
 	tag_rating, _ = RatingTag.objects.get_or_create(tag=tag)
 	tag_rating.tag = tag
 	tag_rating.rating = 0
 	tag_rating.save()
-	#post_rating, _ = RatingPost.objects.cache().get_or_create(post=data)
+	# post_rating, _ = RatingPost.objects.cache().get_or_create(post=data)
 	post_rating, _ = RatingPost.objects.get_or_create(post=data)
 	post_rating.post = data
 	if _:

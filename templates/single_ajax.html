@@ -22,10 +22,12 @@
 </p>
 {% endif %}
 
-<div class="post-text center-align">
-  {{ post.description }}
-  {{ post.text }}
-</div>
+<!-- <div class="row"> -->
+  <div>
+    {{ post.description }}
+    {{ post.text }}
+  </div>
+<!--</div> -->
 
 <div id="add_comment_placeholder"></div>
 <form action="/add-comment/{{ post.id }}/0/" method='POST' id="comment-form-sample"

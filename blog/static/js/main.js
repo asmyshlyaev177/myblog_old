@@ -22,7 +22,7 @@ $(window).load(function(){
 	ratePost();
   ReplyBtn();
 	AddCommentBtn();
-	setTimeout( stubImgs(), 0 );
+	//setTimeout( stubImgs(), 0 );
 	hideBanner();
 	setTimeout( wsConnect(), 0 );
 });
@@ -80,7 +80,7 @@ $(document).ready(function(){
 		  url: link,
       success:function(data){
 		 $(data).appendTo( $("#Comments_title") );
-		 stubImgs();
+		 //stubImgs();
         }
      });
 	 });
@@ -337,7 +337,7 @@ function cloneComment( data ) {
 		}
 	}
 	com.css('display', 'block');
-	stubImgs();
+	//stubImgs();
 }
 
 function wsConnect() {
@@ -384,7 +384,7 @@ function ChangePageNew( link, myurl, single ) {
 			content.fadeTo(0, 1);
 			$('#load_circle').hide();
 			disableRate();
-			setTimeout( stubImgs(), 0 );
+			//setTimeout( stubImgs(), 0 );
 			wsConnect();
           }
      });
@@ -417,7 +417,7 @@ function loadMore(){
                processing = false; // the processing variable prevents multiple ajax calls when scrolling
 							 loader.hide();
 							 disableRate();
-							 setTimeout( stubImgs(), 0 );
+							 //setTimeout( stubImgs(), 0 );
               	//ImageHeight();
           }
      });

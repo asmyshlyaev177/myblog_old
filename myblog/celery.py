@@ -26,16 +26,18 @@ app.autodiscover_tasks()
 app.conf.beat_schedule = {
     'Post Rating everyhour': {
         'task': 'CalcRating',
-        #'schedule': 60.0, #3600
+        # 'schedule': 60.0, #3600
         'schedule': crontab(minute=30),
         'args': (),
     },
 
 }
 
+
 @app.task(bind=True)
 def debug_task(self):
     print('Request: {0!r}'.format(self.request))
+
 
 app.conf.update(
     result_expires=60,

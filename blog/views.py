@@ -1,42 +1,29 @@
 # -*- coding: utf-8 -*-
 from django.shortcuts import render
-from blog.models import (Post, myUser, Category, Tag, Rating, RatingPost,
-							RatingTag,RatingUser,VotePost,UserVotes, Comment)
-from slugify import slugify, SLUG_OK
+from blog.models import (Post, Category, Tag,
+												Comment)
+from slugify import slugify
 from blog.forms import SignupForm, MyUserChangeForm, AddPostForm, CommentForm
 from django.http import (HttpResponseRedirect,
-	HttpResponse,JsonResponse,HttpResponseNotFound)
+						HttpResponse, HttpResponseGone, HttpResponseNotFound)
 from django.views.decorators.csrf import csrf_protect
 from django.contrib.auth.decorators import login_required
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
-from django.conf import settings
-from django.core import serializers
-#from unidecode import unidecode
-import json, pickle
-from django.urls import reverse
-from django.template.response import TemplateResponse
-from django.utils.translation import ugettext as _
+import json
 from django.views.decorators.cache import cache_page, never_cache
 from django.views.decorators.vary import vary_on_headers
 from django.views.decorators.cache import cache_control
 from django.core.cache import cache
-
-from django.http import (
-	HttpResponseBadRequest,
-	HttpResponseServerError,
-	HttpResponseForbidden,
-)
-from django.shortcuts import render
-#from django_summernote.settings import summernote_config, get_attachment_model
 from blog.tasks import addPost, Rate, commentImage
-
-#For Log-In
 from django.contrib.auth.views import (login as def_login,
-				password_change as def_password_change)
-from channels import Group
+									password_change as def_password_change)
 
 cat_list = Category.objects.all()
 
+
+@cache_page(6)
+@cache_control(max_age=600)
+@vary_on_headers('X-Requested-With', 'Cookie')
 def login(request, *args, **kwargs):
     if request.is_ajax():
         template = 'registration/login_ajax.html'
@@ -47,6 +34,8 @@ def login(request, *args, **kwargs):
 						extra_context= {'cat_list': cat_list} )
 
 
+@cache_page(3)
+@cache_control(max_age=3)
 def comments(request, postid):
 	post = Post.objects.get(id=postid)
 
@@ -62,6 +51,7 @@ def comments(request, postid):
 	template = 'comments-ajax.html'
 	return render(request, template,
 				  {'comments': comments})
+
 
 @never_cache
 @login_required(login_url='/login')
@@ -82,9 +72,11 @@ def addComment(request, postid, parent=0):
 	else:
 		pass
 
+
 @never_cache
 def tags(request):
 	#tags = Tag.objects.all().values().cache()
+
 	if cache.ttl("taglist"):
 		data = cache.get("taglist")
 	else:
@@ -98,7 +90,9 @@ def tags(request):
 
 
 @csrf_protect
-@never_cache
+@cache_page(600)
+@cache_control(max_age=600)
+@vary_on_headers('X-Requested-With', 'Cookie')
 def signup(request):
 	if request.method == 'POST':
 		form = SignupForm(request.POST)
@@ -109,14 +103,16 @@ def signup(request):
 	return render(request, 'registration/signup.html', { 'form': form,
 														'cat_list': cat_list })
 
+
 def signup_success(request):
 	return render(request, 'registration/signup_success.html')
 
+
 @login_required(login_url='/login')
-#@cache_page( 5 )
-#@vary_on_headers('X-Requested-With','Cookie')
-#@cache_control(max_age=5,private=True)
-#@never_cache
+# @cache_page( 5 )
+# @vary_on_headers('X-Requested-With','Cookie')
+# @cache_control(max_age=5,private=True)
+# @never_cache
 @never_cache
 def dashboard(request):
 	if request.is_ajax() == True :
@@ -165,10 +161,13 @@ def my_posts(request):
 	return render(request, template, {'posts':posts,
 											  'cat_list': cat_list})
 
+
 @login_required(redirect_field_name='next', login_url='/login')
-@never_cache
+@cache_page(6)
+@cache_control(max_age=6)
+@vary_on_headers('X-Requested-With', 'Cookie')
 def add_post(request):
-	if request.is_ajax() == True :
+	if request.is_ajax():
 		template = 'add_post-ajax.html'
 	else:
 		template = 'add_post.html'
@@ -186,7 +185,7 @@ def add_post(request):
 			data.author = request.user
 			data.url = slugify(data.title)
 			title = data.title
-			tag_list = request.POST['hidden_tags'].split(',') # tags list
+			tag_list = request.POST['hidden_tags'].split(',')  # tags list
 
 			have_new_tags = False
 			data.save()
@@ -205,6 +204,7 @@ def add_post(request):
 	return render(request, template, { 'form': form,
 											 'cat_list': cat_list})
 
+
 @login_required(redirect_field_name='next', login_url='/login')
 @never_cache
 def rate_elem(request, type, id, vote):
@@ -215,7 +215,7 @@ def rate_elem(request, type, id, vote):
 		votes_count = user.votes_count
 
 		if ((uv == None and votes_count != "B") or
-			( uv['votes'] > 0 and votes_count != "B")) :
+			( uv['votes'] > 0 and votes_count != "B")):
 			date_joined = str(user.date_joined.strftime('%Y_%m_%d'))
 			Rate.delay(user.id, date_joined, votes_count, type, id, vote)
 		else:
@@ -223,15 +223,16 @@ def rate_elem(request, type, id, vote):
 
 		return HttpResponse("accepted")
 
-#@cache_page(200 )
-#@cache_control(max_age=200)
-#@vary_on_headers('X-Requested-With','Cookie')
-#@never_cache
+
+@cache_page(60)
+@cache_control(max_age=60)
+@vary_on_headers('X-Requested-With', 'Cookie')
+# @never_cache
 def list(request, category=None, tag=None, pop=None):
 
 	context = {}
 
-	if request.is_ajax() :
+	if request.is_ajax():
 		template = 'list_ajax.html'
 	else:
 		template = 'list.html'
@@ -263,7 +264,7 @@ def list(request, category=None, tag=None, pop=None):
 		cache_str = "post_list_"+str(category.lower())\
 			+"_"+str(user_known)+"_"+str(pop)
 		if cache.ttl(cache_str):
-			post_list =  cache.get(cache_str)
+			post_list = cache.get(cache_str)
 		else:
 			if not user_known:
 				post_list = Post.objects.filter(category__slug=category)\
@@ -275,25 +276,25 @@ def list(request, category=None, tag=None, pop=None):
 							.filter(status="P")\
 							.select_related("category", "author")\
 							.prefetch_related('tags', 'ratingpost_set')
-			cache.set( cache_str, post_list, 1800)
+			cache.set(cache_str, post_list, 1800)
 
 
 	else:
 		cache_str = "post_list_"+str(user_known)+"_"+str(pop)
 		if cache.ttl(cache_str):
-			post_list =  cache.get(cache_str)
+			post_list = cache.get(cache_str)
 		else:
 			if not user_known:
 				post_list = Post.objects\
 							.filter(status="P").filter(private=False)\
-							.select_related( "category", "author")\
+							.select_related("category", "author")\
 							.prefetch_related('tags', 'ratingpost_set')
 			else:
 				post_list = Post.objects\
 							.filter(status="P")\
-							.select_related( "category", "author")\
+							.select_related("category", "author")\
 							.prefetch_related('tags', 'ratingpost_set')
-			cache.set( cache_str, post_list, 1800)
+			cache.set(cache_str, post_list, 1800)
 
 	#if pop:
 	#	pass filter
@@ -313,14 +314,15 @@ def list(request, category=None, tag=None, pop=None):
 	context['cat_list'] = cat_list
 	context['page'] = page
 
-	return render(request, template, context )
+	return render(request, template, context)
 
-#@cache_page(200)
-#@cache_control(max_age=200)
-#@vary_on_headers('X-Requested-With', 'Cookie')
+
+@cache_page(600)
+@cache_control(max_age=600)
+@vary_on_headers('X-Requested-With', 'Cookie')
 def single_post(request,  tag, title, id):
 
-	if request.is_ajax() == True :
+	if request.is_ajax():
 		template = 'single_ajax.html'
 	else:
 		template = 'single.html'
@@ -337,7 +339,7 @@ def single_post(request,  tag, title, id):
 			.prefetch_related('tags', 'ratingpost_set').get(pk=id)
 		cache.set(cache_str, post, 1800)
 
-	if post.private == True and not request.user.is_authenticated:
+	if post.private and not request.user.is_authenticated:
 		return HttpResponseNotFound()
 
 	comment_form = CommentForm()
@@ -351,6 +353,10 @@ def single_post(request,  tag, title, id):
 				  'cat_list': cat_list, 'comment_form': comment_form,
 				  'comments': comments})
 
+
+@cache_page(600)
+@cache_control(max_age=600)
+@vary_on_headers('X-Requested-With', 'Cookie')
 def password_change(request, *args, **kwargs):
 	if request.is_ajax():
 		template = 'registration/password_change_form-ajax.html'
