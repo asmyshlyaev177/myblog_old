@@ -1,3 +1,5 @@
+
+
 {% block content %}
 <script>processing = true;
 </script>
@@ -18,7 +20,7 @@
 {{ form.category.label_tag }}
 </div>
 
-<p>Post image:</p>
+<p>{{ form.post_image.label_tag }}</p>
 <div class="row">
   <ul class="tabs tabs-fixed-width teal" id="file-url">
           <li class="tab col s3 "><a href="#file" class="waves-effect  white-text">File</a></li>
@@ -72,7 +74,7 @@
 <div class="input-field">
 <p>
   <input id="id_private" name="private" type="checkbox">
-   <label for="id_private">not safe for work</label>
+   {{ form.private.label_tag }}
 </p>
 
 
@@ -87,11 +89,7 @@
 
 <div class="input-field">
   {{ form.tags_new.label_tag }}
-<div>
   <div data-tags-input-name="tag" id="tagBox"></div>
-</div>
-
-
 </div>
 
 <div class="input-field">

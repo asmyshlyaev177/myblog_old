@@ -8,29 +8,31 @@ import datetime, re, os, datetime
 from time import gmtime, strftime
 from imagekit.models import ImageSpecField, ProcessedImageField
 from imagekit.processors import ResizeToFit
-#from imagekit import ImageSpec, register
+# from imagekit import ImageSpec, register
 from django.utils.safestring import mark_safe
 from django.dispatch import receiver
 from django.conf import settings
 from bs4 import BeautifulSoup
 from PIL import Image
-#from unidecode import unidecode
+# from unidecode import unidecode
 from urllib.parse import urlparse, urlencode
 from urllib.request import urlopen, urlretrieve, Request
-from blog.functions import srcsets, findFile, findLink, srcsetThumb,deleteThumb
+from blog.functions import (srcsets, findFile, findLink,
+                            srcsetThumb, deleteThumb)
 from django.conf import settings
-from blog.functions import findLink,findFile,saveImage,srcsets
+from blog.functions import findLink, findFile, saveImage, srcsets
 from froala_editor.fields import FroalaField
 from django.utils.encoding import uri_to_iri, iri_to_uri
 from django.core.cache import cache
-#import mptt
-#from mptt.fields import TreeForeignKey
+# import mptt
+# from mptt.fields import TreeForeignKey
 from mptt.models import MPTTModel, TreeForeignKey
 from django.contrib.auth.models import Group
-#import socket #timeout just for test
-#socket.setdefaulttimeout(10)
+# import socket #timeout just for test
+# socket.setdefaulttimeout(10)
 from celery import Celery
 app = Celery('tasks', broker='pyamqp://guest@localhost//')
+
 
 class MyUserManager(BaseUserManager):
     def create_user(self, username, email, password=None):
@@ -40,8 +42,8 @@ class MyUserManager(BaseUserManager):
             raise ValueError('User mush have unique username!')
 
         user = self.model(
-            username = username.lower(),
-            email = email.lower()
+            username=username.lower(),
+            email=email.lower()
         )
 
         user.set_password(password)
@@ -64,6 +66,7 @@ class MyUserManager(BaseUserManager):
         user.is_it_staff = True
         user.save(using=self._db)
         return user
+
     def create_staff(self, username, email, password):
         user = self.create_user(
             username, email, password=password
@@ -75,14 +78,15 @@ class MyUserManager(BaseUserManager):
 
 class myUser(AbstractBaseUser):
     index_together = [
-    ["id", "username", "avatar"],
+        ["id", "username", "avatar"],
     ]
     username = models.CharField("Username", max_length=30,
                                 blank=False,
                                 unique=True)
-    rateable = models.BooleanField(default = True)
+    rateable = models.BooleanField(default=True)
+
     def user_directory_path(instance, filename):
-    # file will be uploaded to MEDIA_ROOT/user_<id>/<filename>
+        # file will be uploaded to MEDIA_ROOT/user_<id>/<filename>
         return 'avatars/{0}/{1}'.format(instance.username, filename)
 
     avatar = ProcessedImageField(upload_to=user_directory_path,
@@ -90,45 +94,50 @@ class myUser(AbstractBaseUser):
                                  format='JPEG',
                                  options={'quality': 90}, blank=True)
     email = models.EmailField(unique=True, blank=False)
-    #password = models.CharField("Password", max_length=230)
+    # password = models.CharField("Password", max_length=230)
     is_active = models.BooleanField("Is active", default=True)
     is_it_staff = models.BooleanField("Is stuff", default=False)
     is_it_superuser = models.BooleanField("Is admin", default=False)
     moderated = models.BooleanField("Moderated", default=True)
     user_last_login = models.DateTimeField(auto_now=True)
     date_joined = models.DateTimeField(auto_now_add=True)
-    REQUIRED_FIELDS = ['email',]
+    REQUIRED_FIELDS = ['email', ]
     USERNAME_FIELD = 'username'
     VOTES_COUNT = (
-                ("U", "Unlimited"),
-                ("N","Normal"),
-                ("B","Blocked"),
+                    ("U", "Unlimited"),
+                    ("N", "Normal"),
+                    ("B", "Blocked"),
     )
     votes_count = models.CharField(max_length=1, choices=VOTES_COUNT, default="N")
     objects = MyUserManager()
 
     def get_avatar(self):
-        return mark_safe('<img src="%s" class ="responsive-img"/>'\
+        return mark_safe('<img src="%s" class ="responsive-img"/>'
                          % (self.avatar.url))
     get_avatar.short_description = 'Current avatar'
 
     def __str__(self):
         return self.username.lower()
+
     def get_full_name(self):
         return self.username.lower()
+
     def get_short_name(self):
         return self.username.lower()
+
     def has_perm(self, perm, obj=None):
         return True
 
     def has_module_perms(self, app_label):
         return True
+
     class Meta:
         verbose_name_plural = "users"
 
     @property
     def is_superuser(self):
         return self.is_it_superuser
+
     @property
     def is_staff(self):
         return self.is_it_staff
@@ -136,6 +145,7 @@ class myUser(AbstractBaseUser):
     def save(self, *args, **kwargs):
 
         super(myUser, self).save(*args, **kwargs)
+
 
 @receiver(models.signals.post_delete, sender=myUser)
 def _post_delete(sender, instance, **kwargs):
@@ -145,12 +155,14 @@ def _post_delete(sender, instance, **kwargs):
         if os.path.isfile(instance.avatar.path):
             os.remove(instance.avatar.path)
 
+
 @app.task(name="deleteFile")
 def deleteFile(file):
     try:
         os.remove(file)
     except:
         pass
+
 
 @receiver(models.signals.pre_save, sender=myUser)
 def _pre_save(sender, instance, **kwargs):
@@ -172,52 +184,59 @@ def _pre_save(sender, instance, **kwargs):
             #deleteFile.apply_async((old_file.path,), countdown=1800)"""
 
 
-
 class Rating(models.Model):
-    #ratingid = models.IntegerField(unique = True)
+    # ratingid = models.IntegerField(unique = True)
     rating = models.FloatField(default=0.0)
 
     class Meta:
         abstract = True
 
+
 class RatingPost(Rating):
     post = models.ForeignKey('Post')
+
 
 class RatingTag(Rating):
     tag = models.ForeignKey('Tag', db_index=True)
 
+
 class RatingUser(Rating):
     user = models.ForeignKey('myUser', db_index=True)
+
 
 class RatingComment(Rating):
     comment = models.ForeignKey('Comment', db_index=True)
 
 
 class Vote(models.Model):
-    #vote_id = models.IntegerField(blank = True, null = True)
+    # vote_id = models.IntegerField(blank = True, null = True)
     rate = models.BooleanField()
-    score = models.FloatField(null = True, blank = True)
-    created = models.DateTimeField(auto_now_add=True) #for celery
+    score = models.FloatField(null=True, blank=True)
+    created = models.DateTimeField(auto_now_add=True)  # for celery
     counted = models.BooleanField(default=False)
+
     class Meta:
         abstract = True
+
 
 class VotePost(Vote):
     post = models.ForeignKey('Post', db_index=True)
 
+
 class UserVotes(models.Model):
-    #userid = models.IntegerField(blank = True, null = True)
-    votes = models.IntegerField(default = 10)
-    weight = models.FloatField(default = 0.25)
+    # userid = models.IntegerField(blank = True, null = True)
+    votes = models.IntegerField(default=10)
+    weight = models.FloatField(default=0.25)
     COUNT = (
                 ("U", "Unlimited"),
-                ("N","Normal"),
-                ("B","Blocked"),
+                ("N", "Normal"),
+                ("B", "Blocked"),
     )
     count = models.CharField(max_length=1, choices=COUNT, default="N")
     block_date = models.DateTimeField(blank=True, null=True)
-    manual = models.BooleanField(default = False)
-    user = models.ForeignKey('myUser',db_index=True)
+    manual = models.BooleanField(default=False)
+    user = models.ForeignKey('myUser', db_index=True)
+
 
 """class Thumbnail(ImageSpec):
     processors = [ResizeToFit(800, 600)]
@@ -226,22 +245,23 @@ class UserVotes(models.Model):
 
 register.generator('blog:thumbnail', Thumbnail) """
 
+
 class Post(models.Model):
     index_together = [
     ["title", "description", "post_thumbnail", "author", "category",
-     "url", "published", "private", "status","main_tag"],
+                "url", "published", "private", "status", "main_tag"],
     ]
-    title = models.CharField(max_length=100)
-    #description = RichTextField(max_length = 500, config_name = "description",
+    title = models.CharField("Заголовок", max_length=100)
+    # description = RichTextField(max_length = 500, config_name = "description",
     #                            blank=True)
-    rateable = models.BooleanField(default = True)
+    rateable = models.BooleanField(default=True)
     description = models.CharField(max_length=500)
-    #text = RichTextUploadingField(config_name = "post")
+    # text = RichTextUploadingField(config_name = "post")
     text = models.TextField()
     today = datetime.date.today()
-    upload_path = str(today.year)+'/' +str(today.month)+'/'+str(today.day)+'/'
-    post_image = models.ImageField(upload_to =
-                        upload_path, blank=True)
+    upload_path = str(today.year) + '/' + str(today.month)\
+                                + '/' + str(today.day) + '/'
+    post_image = models.ImageField(upload_to=upload_path, blank=True)
     image_url = models.URLField(null=True, blank=True, max_length=500)
 
     def post_image_gif(self):
@@ -256,14 +276,14 @@ class Post(models.Model):
             return False
 
     post_image.short_description = 'Image'
-    #post_thumbnail = ImageSpecField(source='post_image',
+    # post_thumbnail = ImageSpecField(source='post_image',
     #                            processors=[ResizeToFit(1366, 2000)],
     #                            format='JPEG',
     #                            options={'quality': 85})
-    post_thumbnail = models.ImageField(upload_to =
-                        upload_path, blank=True)
+    post_thumbnail = models.ImageField(upload_to=upload_path, blank=True)
+
     def get_image(self):
-        return mark_safe('<img src="%s" class ="responsive-img center-align"/>'\
+        return mark_safe('<img src="%s" class ="responsive-img center-align"/>'
                          % (self.post_thumbnail.url))
     get_image.short_description = 'Thumbnail'
 
@@ -271,47 +291,51 @@ class Post(models.Model):
     edited = models.DateTimeField(auto_now=True)
     published = models.DateTimeField(default=timezone.now)
     author = models.ForeignKey(settings.AUTH_USER_MODEL,
-                               default = 1,
-                               on_delete=models.SET_DEFAULT) ###
+                               default=1,
+                               on_delete=models.SET_DEFAULT)
     category = models.ForeignKey('Category')
     tags = models.ManyToManyField('Tag',
-                                        related_name='posts',
-                                        related_query_name='tag',
-                                        blank=True)
+                            related_name='posts',
+                            related_query_name='tag',
+                            blank=True)
     private = models.BooleanField(default=False)
     private.short_description = 'NSFW'
-    #main_tag = models.CharField(max_length=33, blank=True)
+    # main_tag = models.CharField(max_length=33, blank=True)
     main_tag = models.ForeignKey('Tag', null=True, blank=True)
-    url = models.CharField(max_length=330,blank=True)
+    url = models.CharField(max_length=330, blank=True)
     STATUS = (
                 ("D", "Draft"),
-                ("P","Published"),
+                ("P", "Published"),
     )
     status = models.CharField(max_length=1, choices=STATUS, default="D")
-
 
     class Meta:
         ordering = ['-published']
         verbose_name_plural = "posts"
+
     def __str__(self):
         return self.title
 
     def get_absolute_url(self):
         cat_url = self.main_tag.url
-        #post_url = slugify(unidecode(self.title))
+        # post_url = slugify(unidecode(self.title))
         return "/%s/%s-%i/" % (cat_url, self.url, self.id)
+
     def get_url(self):
         cat_url = self.main_tag.url
-        #post_url = slugify(unidecode(self.title))
+        # post_url = slugify(unidecode(self.title))
         return "%s/%s-%i/" % (cat_url, self.url, self.id)
+
     def get_category(self):
         return self.category.get_url
+
     def get_tags_list(self):
-        #return self.tags.values_list('name', flat=True)
+        # return self.tags.values_list('name', flat=True)
         return self.tags.all()
 
     def save(self, *args, **kwargs):
         super(Post, self).save(*args, **kwargs)
+
 
 @receiver(models.signals.pre_delete, sender=Post)
 def _post_delete(sender, instance, **kwargs):
@@ -319,7 +343,8 @@ def _post_delete(sender, instance, **kwargs):
     deleteThumb(instance.text)
     deleteThumb(instance.image_url)
 
-    cache_str = "post_list_" + str(instance.category).lower()+"_"+str(instance.private)
+    cache_str = "post_list_" + str(instance.category).lower()\
+                                + "_" + str(instance.private)
     cache.delete(cache_str)
     cache.delete("post_list_True")
     cache.delete("post_list_False")
@@ -333,13 +358,15 @@ def _post_delete(sender, instance, **kwargs):
     except:
         pass
 
+
 @receiver(models.signals.pre_save, sender=Post)
 def _post_save(sender, instance, **kwargs):
     """delete old file when thumbnail changed"""
 
     cache_str = "post_single_" + str(instance.id)
     cache.delete(cache_str)
-    cache_str = "post_list_" + str(instance.category).lower()+"_"+str(instance.private)
+    cache_str = "post_list_" + str(instance.category).lower()\
+                                + "_" + str(instance.private)
     cache.delete(cache_str)
     cache.delete("post_list_True")
     cache.delete("post_list_False")
@@ -370,49 +397,56 @@ def _post_save(sender, instance, **kwargs):
         if os.path.isfile(old_file.path):
             os.remove(old_file.path)
 
+
 @receiver(models.signals.post_save, sender=Post)
 def _post_save(sender, instance, **kwargs):
-    #thumb for gifs
+    # thumb for gifs
     if instance.post_image_gif():
-        file= instance.post_image.path.split('.gif')[0]
+        file = instance.post_image.path.split('.gif')[0]
         im = Image.open(instance.post_image.path).convert('RGB')
-        size = ( im.width, im.height)
+        size = (im.width, im.height)
         im.thumbnail(size)
         im.save(file + "-thumbnail.jpeg", "JPEG")
-        file_new = file.split(settings.MEDIA_ROOT)[1]+"-thumbnail"
+        file_new = file.split(settings.MEDIA_ROOT)[1] + "-thumbnail"
         try:
-            file_orig =  instance.post_thumbnail.path.split('.')[0].split(settings.MEDIA_ROOT)[1]
+            file_orig = instance.post_thumbnail.path.split('.')[0].split(settings.MEDIA_ROOT)[1]
         except:
             file_orig = ""
-        instance.post_thumbnail = file_new +".jpeg"
+        instance.post_thumbnail = file_new + ".jpeg"
 
         if file_orig != file_new:
             instance.save()
 
+
 class Category(models.Model):
     index_together = [
-    ["id","name", "order", "slug"],
+    ["id", "name", "order", "slug"],
     ]
     name = models.CharField(max_length=30, unique=True)
     description = models.TextField(max_length=400)
-    slug = models.CharField("URL",blank=True, max_length=250)
+    slug = models.CharField("URL", blank=True, max_length=250)
     order = models.SmallIntegerField(blank=True, default=1)
+
     class Meta:
         verbose_name_plural = "categories"
         ordering = ['order']
+
     def __str__(self):
         return self.name
+
     def get_url(self):
         cat_url = slugify(self.name.lower())
         return "/%s/" % (cat_url)
+
     @classmethod
     def list(self):
-        cat_list = self.objects.all().only("name","order", "slug")
+        cat_list = self.objects.all().only("name", "order", "slug")
         return cat_list
+
     def save(self, *args, **kwargs):
-        #if not self.slug:
+        # if not self.slug:
         self.slug = slugify(self.name.lower())
-        super(Category,self).save(*args, **kwargs)
+        super(Category, self).save(*args, **kwargs)
 
 
 class Tag(models.Model):
@@ -420,26 +454,29 @@ class Tag(models.Model):
     url = models.CharField(max_length=140, unique=True)
     created = models.DateTimeField(auto_now_add=True)
     private = models.BooleanField(default=False)
-    rateable = models.BooleanField(default = True)
-    description = models.TextField(max_length=700, blank =True, null=True)
+    rateable = models.BooleanField(default=True)
+    description = models.TextField(max_length=700, blank=True, null=True)
 
     category = models.ForeignKey('Category', blank=True, null=True)
 
     class Meta:
         verbose_name_plural = "tags"
+
     def __str__(self):
         return self.name
 
-    #def save(self, *args, **kwargs):
+    # def save(self, *args, **kwargs):
     #    if not self.url:
     #        self.url = slugify(self.name.lower())
 
     #    super(Tag, self).save(*args, **kwargs)
 
+
 @receiver(models.signals.pre_delete, sender=Tag)
 def delete_image_and_thumb(sender, instance, **kwargs):
     cache.delete("taglist")
     deleteThumb(instance.description)
+
 
 @receiver(models.signals.post_save, sender=Tag)
 def delete_old_image_and_thumb(sender, instance, **kwargs):
@@ -449,8 +486,9 @@ def delete_old_image_and_thumb(sender, instance, **kwargs):
 
     cache.delete("taglist")
     deleteThumb(instance.description)
-    if instance.description != None:
+    if instance.description is not None:
         instance.description = str(srcsets(instance.description, False))
+
 
 class Comment(MPTTModel):
     text = models.TextField(max_length=3700)
@@ -468,11 +506,13 @@ class Comment(MPTTModel):
         order_insertion_by = ['created']
         verbose_name_plural = "Comments"
 
+
 @receiver(models.signals.pre_delete, sender=Comment)
 def _post_delete(sender, instance, **kwargs):
     cache_str = "comment_" + str(instance.post.id)
     cache.delete(cache_str)
     deleteThumb(instance.text)
+
 
 @receiver(models.signals.post_save, sender=Comment)
 def _post_save(sender, instance, **kwargs):

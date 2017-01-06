@@ -15,9 +15,7 @@ Including another URLconf
     2. Add a URL to urlpatterns:  url(r'^blog/', include('blog.urls'))
 """
 
-
-
-from django.conf.urls import url,include
+from django.conf.urls import url, include
 from django.contrib import admin
 from blog import views
 from django.views.static import serve
@@ -55,7 +53,7 @@ urlpatterns = [
     url(r'^password_change/done\/?$', auth_views.password_change_done,
             name='password_change_done'),
     url(r'^password_reset\/?$', auth_views.password_reset,
-        { 'html_email_template_name': 'registration/password_reset_email.html'},
+        {'html_email_template_name': 'registration/password_reset_email.html'},
             name='password_reset'),
     url(r'^password_reset/done\/?$', auth_views.password_reset_done,
             name='password_reset_done'),

@@ -16,13 +16,13 @@ def deleteThumb(text):
     img_path = []
     for img in img_links:
         img_path.append(uri_to_iri('/root/myblog/myblog/blog/static/media/\
-                                                {}/{}/{}/{}{}.{}'\
-                                   .format(img[0], img[1],img[2],img[3],"-"\
-                                                +img[4],img[5])))
+                                                {}/{}/{}/{}{}.{}'
+                                   .format(img[0], img[1], img[2], img[3], "-" +
+                                                 img[4], img[5])))
         img_path.append(uri_to_iri('/root/myblog/myblog/blog/static/media/\
-                                                {}/{}/{}/{}.{}'\
-                                   .format(img[0], img[1],img[2],img[3],\
-                                                img[5])))
+                                                {}/{}/{}/{}.{}'
+                                   .format(img[0], img[1], img[2], img[3],
+                                                                    img[5])))
     for i in img_path:
         if os.path.isfile(i):
             os.remove(i)
@@ -30,7 +30,7 @@ def deleteThumb(text):
 
 def srcsetThumb(data):
     thumb = BeautifulSoup("lxml").new_tag("img")
-    thumb['src'] = "/"+str(data)
+    thumb['src'] = "/" + str(data)
     soup = srcsets(thumb, False, thumbnail=True)
     soup.html.unwrap()
     # soup.head.unwrap()
@@ -46,8 +46,8 @@ def findLink(text):
 def findFile(link):
     if link:
         return '/root/myblog/myblog/blog/static/media/{}/{}/{}/{}.{}'\
-            .format(link.group("year"), link.group("month"),link.group("day"),\
-            link.group("file"), link.group("ext"))
+            .format(link.group("year"), link.group("month"), link.group("day"),
+                                        link.group("file"), link.group("ext"))
     else:
         return ""
 
@@ -55,15 +55,15 @@ def findFile(link):
 def saveImage(link, file, sz):
 
     file_out = '/root/myblog/myblog/blog/static/media/{}/{}/{}/{}-{}.{}'\
-    .format(link.group("year"), link.group("month"),\
-            link.group("day"),uri_to_iri(link.group("file")),\
+    .format(link.group("year"), link.group("month"),
+            link.group("day"), uri_to_iri(link.group("file")),
             sz, link.group("ext"))
     link_out = '/media/{}/{}/{}/{}-{}.{}'\
-    .format(link.group("year"), link.group("month")\
-            ,link.group("day"),link.group("file"),\
+            .format(link.group("year"), link.group("month")
+            , link.group("day"), link.group("file"),
             sz, link.group("ext"))
     img = Image.open(file)
-    sz_tuple = (sz, sz*20)
+    sz_tuple = (sz, sz * 20)
 
     img.thumbnail(sz_tuple, Image.ANTIALIAS)
     img.save(file_out, subsampling=0, quality='keep')  # сохраняем
@@ -100,8 +100,8 @@ def srcsets(text, wrap_a, thumbnail=False):
             print("***************************")
             print('file ', str(file))
             original_pic = '/media/{}/{}/{}/{}.{}'.\
-                    format(link.group("year"), link.group("month"),\
-                    link.group("day"), uri_to_iri(link.group("file")),\
+                    format(link.group("year"), link.group("month"),
+                    link.group("day"), uri_to_iri(link.group("file")),
                     link.group("ext"))
 
             print("***************************")
@@ -123,11 +123,10 @@ def srcsets(text, wrap_a, thumbnail=False):
                         if w > sz:
                             srcset[sz] = saveImage(link, file, sz)
 
-
                     if 1600 in srcset:
                         alt = srcset[1366]   # дефолт
                         if 1920 not in srcset:
-                            srcset[1920] = saveImage(link, file, 1920 )
+                            srcset[1920] = saveImage(link, file, 1920)
                             # проверка пуст ли элемент
 
                     elif 1366 in srcset:
@@ -154,7 +153,7 @@ def srcsets(text, wrap_a, thumbnail=False):
 
                     src_str = ""
                     for src in srcset.keys():
-                        src_str += srcset[src] + " "+str(src)+"w, "
+                        src_str += srcset[src] + " " + str(src) + "w, "
 
                     print("***************************")
                     print('src_str ', str(src_str))

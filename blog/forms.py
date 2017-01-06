@@ -6,11 +6,13 @@ from blog.models import myUser, Post, Comment
 from django.conf import settings
 from froala_editor.widgets import FroalaEditor
 
-#forms for users
+
+# forms for users
 class SignupForm(forms.ModelForm):
     password1 = forms.CharField(label='Password', widget=forms.PasswordInput)
     password2 = forms.CharField(label='Repeat password',
                                 widget=forms.PasswordInput)
+
     class Meta:
         model = myUser
         fields = ('username', 'email')
@@ -29,12 +31,14 @@ class SignupForm(forms.ModelForm):
             user.save()
         return user
 
-#forms for users
+
+# forms for users
 class MyUserChangeForm(forms.ModelForm):
 
     class Meta:
         model = myUser
-        fields = ('username', 'email','avatar')
+        fields = ('username', 'email', 'avatar')
+
 
 class CommentForm(forms.ModelForm):
 
@@ -53,64 +57,74 @@ class CommentForm(forms.ModelForm):
                     'pasteDeniedTags': ['script'],
                     'imageEditButtons': [
                         'imageAlign', 'imageRemove',
-                        '|', 'imageLink','linkOpen',
+                        '|', 'imageLink', 'linkOpen',
                         'linkEdit', 'linkRemove', '-',
-                         'imageDisplay', 'imageStyle',
-                         'imageAlt', 'imageSize'
+                        'imageDisplay', 'imageStyle',
+                        'imageAlt', 'imageSize'
                     ],
                     'toolbarButtons': [
                         'bold', 'italic',
                         'underline', 'strikeThrough',
                         'fontSize', '|', 'align',
-                        'quote', '|','-','insertLink',
-                        'insertImage', 'insertVideo','|',
-                        'insertTable', '-','undo', 'redo',
-                        'clearFormatting','fullscreen'
-                        ],
-                    'toolbarButtonsMD':[
+                        'quote', '|', '-', 'insertLink',
+                        'insertImage', 'insertVideo', '|',
+                        'insertTable', '-', 'undo', 'redo',
+                        'clearFormatting', 'fullscreen'
+                                        ],
+                    'toolbarButtonsMD': [
                         'bold', 'italic',
                         'underline', 'strikeThrough',
                         'fontSize', '|', 'align',
-                        'quote', '|','-','insertLink',
-                        'insertImage', 'insertVideo','|',
-                        'insertTable', '-','undo', 'redo',
-                        'clearFormatting','fullscreen'
+                        'quote', '|', '-', 'insertLink',
+                        'insertImage', 'insertVideo', '|',
+                        'insertTable', '-', 'undo', 'redo',
+                        'clearFormatting', 'fullscreen'
                     ],
-                    'toolbarButtonsSM':[
+                    'toolbarButtonsSM': [
                         'bold', 'italic',
                         'underline', 'strikeThrough',
                         '|', 'align',
                         'quote', 'insertLink',
                         'insertImage', 'insertVideo',
                         'undo', 'redo',
-                        'clearFormatting','fullscreen'
+                        'clearFormatting', 'fullscreen'
                     ],
-                    'toolbarButtonsXS':[
+                    'toolbarButtonsXS': [
                         'align',
                         'quote', 'insertLink',
                         'insertImage', 'insertVideo',
                         'undo', 'redo',
-                        'clearFormatting','fullscreen'
+                        'clearFormatting', 'fullscreen'
                     ]}
-            )}
+                    )}
 
 
 class AddPostForm(forms.ModelForm):
-    tags_new = forms.CharField(label="new tags",required=False,
-                               widget= forms.TextInput(
+    tags_new = forms.CharField(label="Тэги", required=False,
+                               widget=forms.TextInput(
                                    attrs={'class': 'tm-input tm-input-typeahead tt-input'})
                                )
-    """hidden_tags_new = forms.CharField(required=False,
-                                      widget= forms.HiddenInput(
-                                          attrs={}
-                                      ))"""
 
     class Meta:
         model = Post
         fields = ('title', 'post_image', 'image_url', 'category', 'private',
-                  'description','text')
+                  'description', 'text')
+        labels = {
+            'title': ('Заголовок'),
+            'post_image': ('Изображение для главной'),
+            'category': ('Категория'),
+            'description': ('Описание'),
+            'text': ('Текст поста'),
+            'private': ('Для взрослых/только для зарегистрированных'),
+        }
+        error_messages = {
+            'title': {
+                'required': ('Это поле обязательно'),
+                        }
+        }
+
         widgets = {
-            #'text': SummernoteInplaceWidget(),
+            # 'text': SummernoteInplaceWidget(),
             'text': FroalaEditor(
 
                                 options={'toolbarInline': False,
@@ -124,46 +138,46 @@ class AddPostForm(forms.ModelForm):
                                         'pasteDeniedTags': ['script'],
                                         'imageEditButtons': [
                                             'imageAlign', 'imageRemove',
-                                            '|', 'imageLink','linkOpen',
+                                            '|', 'imageLink', 'linkOpen',
                                             'linkEdit', 'linkRemove', '-',
-                                             'imageDisplay', 'imageStyle',
-                                             'imageAlt', 'imageSize'
+                                            'imageDisplay', 'imageStyle',
+                                            'imageAlt', 'imageSize'
                                         ],
                                         'toolbarButtons': [
                                             'bold', 'italic',
                                             'underline', 'strikeThrough',
                                             'fontSize', '|', 'align',
-                                            'quote', '|','-','insertLink',
-                                            'insertImage', 'insertVideo','|',
-                                            'insertTable', '-','undo', 'redo',
-                                            'clearFormatting','fullscreen'
-                                            ],
-                                        'toolbarButtonsMD':[
+                                            'quote', '|', '-', 'insertLink',
+                                            'insertImage', 'insertVideo', '|',
+                                            'insertTable', '-', 'undo', 'redo',
+                                            'clearFormatting', 'fullscreen'
+                                                        ],
+                                        'toolbarButtonsMD': [
                                             'bold', 'italic',
                                             'underline', 'strikeThrough',
                                             'fontSize', '|', 'align',
-                                            'quote', '|','-','insertLink',
-                                            'insertImage', 'insertVideo','|',
-                                            'insertTable', '-','undo', 'redo',
-                                            'clearFormatting','fullscreen'
+                                            'quote', '|', '-', 'insertLink',
+                                            'insertImage', 'insertVideo', '|',
+                                            'insertTable', '-', 'undo', 'redo',
+                                            'clearFormatting', 'fullscreen'
                                         ],
-                                        'toolbarButtonsSM':[
+                                        'toolbarButtonsSM': [
                                             'bold', 'italic',
                                             'underline', 'strikeThrough',
                                             '|', 'align',
                                             'quote', 'insertLink',
                                             'insertImage', 'insertVideo',
                                             'undo', 'redo',
-                                            'clearFormatting','fullscreen'
+                                            'clearFormatting', 'fullscreen'
                                         ],
-                                        'toolbarButtonsXS':[
+                                        'toolbarButtonsXS': [
                                             'align',
                                             'quote', 'insertLink',
                                             'insertImage', 'insertVideo',
                                             'undo', 'redo',
-                                            'clearFormatting','fullscreen'
+                                            'clearFormatting', 'fullscreen'
                                         ]}),
-            'description' :FroalaEditor(
+            'description': FroalaEditor(
                                 options={'toolbarInline': False,
                                         'iframe': False,
                                         'toolbarSticky': False,
@@ -179,37 +193,37 @@ class AddPostForm(forms.ModelForm):
                                             'bold', 'italic',
                                             'underline', 'strikeThrough',
                                             'fontSize', '|', 'align',
-                                            'quote', '|','-','insertLink',
-                                            'insertVideo','|',
-                                            'insertTable', '-','undo', 'redo',
-                                            'clearFormatting','fullscreen'
-                                            ],
-                                        'toolbarButtonsMD':[
+                                            'quote', '|', '-', 'insertLink',
+                                            'insertVideo', '|',
+                                            'insertTable', '-', 'undo', 'redo',
+                                            'clearFormatting', 'fullscreen'
+                                                        ],
+                                        'toolbarButtonsMD': [
                                             'bold', 'italic',
                                             'underline', 'strikeThrough',
                                             'fontSize', '|', 'align',
-                                            'quote', '|','-','insertLink',
-                                            'insertVideo','|',
-                                            'insertTable', '-','undo', 'redo',
-                                            'clearFormatting','fullscreen'
+                                            'quote', '|', '-', 'insertLink',
+                                            'insertVideo', '|',
+                                            'insertTable', '-', 'undo', 'redo',
+                                            'clearFormatting', 'fullscreen'
                                         ],
-                                        'toolbarButtonsSM':[
+                                        'toolbarButtonsSM': [
                                             'bold', 'italic',
                                             'underline', 'strikeThrough',
                                             '|', 'align',
                                             'quote', 'insertLink',
                                             'insertVideo',
                                             'undo', 'redo',
-                                            'clearFormatting','fullscreen'
+                                            'clearFormatting', 'fullscreen'
                                         ],
-                                        'toolbarButtonsXS':[
+                                        'toolbarButtonsXS': [
                                             'align',
                                             'quote', 'insertLink',
                                             'insertVideo',
                                             'undo', 'redo',
-                                            'clearFormatting','fullscreen'
+                                            'clearFormatting', 'fullscreen'
                                         ]})
         }
-    #def save(self, commit=True):
+    # def save(self, commit=True):
         # do something with self.cleaned_data['temp_id']
-        #return super(AddPostForm, self).save(commit=commit)
+        # return super(AddPostForm, self).save(commit=commit)

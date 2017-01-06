@@ -1,6 +1,7 @@
 from channels import Group
 from channels.sessions import channel_session
 
+
 # Connected to websocket.connect
 @channel_session
 def ws_add(message):
@@ -9,6 +10,7 @@ def ws_add(message):
     print(str(path))
 
     Group(path).add(message.reply_channel)
+
 
 # Connected to websocket.receive
 @channel_session
@@ -20,9 +22,10 @@ def ws_message(message):
 
     group = message.content['path'].strip('/').split('/')[-1]
     Group(group).send({
-        #"text": "[user] %s" % message.content['text'],
-        "text":  message.content['text'],
+        # "text": "[user] %s" % message.content['text'],
+        "text": message.content['text'],
     })
+
 
 # Connected to websocket.disconnect
 @channel_session

@@ -1,11 +1,10 @@
 # -*- coding: utf-8 -*-
 from django.shortcuts import render
-from blog.models import (Post, Category, Tag,
-												Comment)
+from blog.models import (Post, Category, Tag, Comment)
 from slugify import slugify
 from blog.forms import SignupForm, MyUserChangeForm, AddPostForm, CommentForm
 from django.http import (HttpResponseRedirect,
-						HttpResponse, HttpResponseGone, HttpResponseNotFound)
+                        HttpResponse, HttpResponseNotFound)
 from django.views.decorators.csrf import csrf_protect
 from django.contrib.auth.decorators import login_required
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
@@ -16,7 +15,7 @@ from django.views.decorators.cache import cache_control
 from django.core.cache import cache
 from blog.tasks import addPost, Rate, commentImage
 from django.contrib.auth.views import (login as def_login,
-									password_change as def_password_change)
+                                password_change as def_password_change)
 
 cat_list = Category.objects.all()
 
@@ -28,65 +27,65 @@ def login(request, *args, **kwargs):
     if request.is_ajax():
         template = 'registration/login_ajax.html'
     else:
-        template='registration/login.html'
+        template = 'registration/login.html'
 
-    return def_login(request, *args, **kwargs, template_name = template,
-						extra_context= {'cat_list': cat_list} )
+    return def_login(request, *args, **kwargs, template_name=template,
+                                extra_context={'cat_list': cat_list})
 
 
 @cache_page(3)
 @cache_control(max_age=3)
 def comments(request, postid):
-	post = Post.objects.get(id=postid)
+    post = Post.objects.get(id=postid)
 
-	cache_str = "comment_" + str(postid)
-	if cache.ttl(cache_str):
-		comments = cache.get(cache_str)
-	else:
-		comments = Comment.objects.filter(post=post)\
-			.select_related("author")\
-			.prefetch_related('ratingcomment_set')
-		cache.set(cache_str, comments, timeout=300)
+    cache_str = "comment_" + str(postid)
+    if cache.ttl(cache_str):
+        comments = cache.get(cache_str)
+    else:
+        comments = Comment.objects.filter(post=post)\
+            .select_related("author")\
+            .prefetch_related('ratingcomment_set')
+        cache.set(cache_str, comments, timeout=300)
 
-	template = 'comments-ajax.html'
-	return render(request, template,
-				  {'comments': comments})
+    template = 'comments-ajax.html'
+    return render(request, template,
+                  {'comments': comments})
 
 
 @never_cache
 @login_required(login_url='/login')
 def addComment(request, postid, parent=0):
-	if request.method == "POST":
-		comment_form = CommentForm(request.POST, request.FILES)
-		if comment_form.is_valid():
-			parent_comment = int(parent)
-			comment = comment_form.save(commit=False)
-			comment.author = request.user
-			comment.post = Post.objects.get(id=postid)
-			if parent_comment != 0:
-				comment.parent = Comment.objects.get(id=parent_comment)
-			comment.save()
-			commentImage.delay(comment.id)
+    if request.method == "POST":
+        comment_form = CommentForm(request.POST, request.FILES)
+        if comment_form.is_valid():
+            parent_comment = int(parent)
+            comment = comment_form.save(commit=False)
+            comment.author = request.user
+            comment.post = Post.objects.get(id=postid)
+            if parent_comment != 0:
+                comment.parent = Comment.objects.get(id=parent_comment)
+            comment.save()
+            commentImage.delay(comment.id)
 
-			return HttpResponse("OK")
-	else:
-		pass
+            return HttpResponse("OK")
+    else:
+        pass
 
 
 @never_cache
 def tags(request):
-	#tags = Tag.objects.all().values().cache()
+    # tags = Tag.objects.all().values().cache()
 
-	if cache.ttl("taglist"):
-		data = cache.get("taglist")
-	else:
-		tags = Tag.objects.all().values("name")
-		data = []
-		for i in tags:
-			data.append(i['name'])
-		cache.set("taglist", data, timeout=None)
+    if cache.ttl("taglist"):
+        data = cache.get("taglist")
+    else:
+        tags = Tag.objects.all().values("name")
+        data = []
+        for i in tags:
+            data.append(i['name'])
+        cache.set("taglist", data, timeout=None)
 
-	return HttpResponse(json.dumps(data), content_type="application/json")
+    return HttpResponse(json.dumps(data), content_type="application/json")
 
 
 @csrf_protect
@@ -94,18 +93,18 @@ def tags(request):
 @cache_control(max_age=600)
 @vary_on_headers('X-Requested-With', 'Cookie')
 def signup(request):
-	if request.method == 'POST':
-		form = SignupForm(request.POST)
-		if form.is_valid():
-			form.save()
-			return HttpResponseRedirect('/signup_success/')
-	form = SignupForm()
-	return render(request, 'registration/signup.html', { 'form': form,
-														'cat_list': cat_list })
+    if request.method == 'POST':
+        form = SignupForm(request.POST)
+        if form.is_valid():
+            form.save()
+            return HttpResponseRedirect('/signup_success/')
+    form = SignupForm()
+    return render(request, 'registration/signup.html', {'form': form,
+                                                        'cat_list': cat_list})
 
 
 def signup_success(request):
-	return render(request, 'registration/signup_success.html')
+    return render(request, 'registration/signup_success.html')
 
 
 @login_required(login_url='/login')
@@ -115,51 +114,50 @@ def signup_success(request):
 # @never_cache
 @never_cache
 def dashboard(request):
-	if request.is_ajax() == True :
-		template = 'dashboard-ajax.html'
-	else:
-		template = 'dashboard.html'
+    if request.is_ajax():
+        template = 'dashboard-ajax.html'
+    else:
+        template = 'dashboard.html'
 
-	if request.method == 'POST':
-		form = MyUserChangeForm(request.POST, request.FILES,
-								instance=request.user)
-		if form.is_valid():
-			form.save()
-	else:
-		form = MyUserChangeForm(instance=request.user)
+    if request.method == 'POST':
+        form = MyUserChangeForm(request.POST, request.FILES,
+                                instance=request.user)
+        if form.is_valid():
+            form.save()
+    else:
+        form = MyUserChangeForm(instance=request.user)
 
-
-	return render(request, template, {'cat_list': cat_list,
-											  'form': form},
-								)
+    return render(request, template, {'cat_list': cat_list,
+                                              'form': form},
+											  					)
 
 
 @login_required(redirect_field_name='next', login_url='/login')
-#@cache_page(5 )
-#@cache_control(max_age=5, private=True)
-#@vary_on_headers('X-Requested-With','Cookie')
+# @cache_page(5 )
+# @cache_control(max_age=5, private=True)
+# @vary_on_headers('X-Requested-With','Cookie')
 @never_cache
 def my_posts(request):
-	if request.is_ajax() == True :
-		template = 'dash-my-posts-ajax.html'
-	else:
-		template = 'dash-my-posts.html'
-	#post_list = Post.objects.filter(author=request.user.id).cache()
-	post_list = Post.objects.filter(author=request.user.id)
+    if request.is_ajax():
+        template = 'dash-my-posts-ajax.html'
+    else:
+        template = 'dash-my-posts.html'
+    # post_list = Post.objects.filter(author=request.user.id).cache()
+    post_list = Post.objects.filter(author=request.user.id)
 
-	paginator = Paginator(post_list, 5)
-	page = request.GET.get('page')
+    paginator = Paginator(post_list, 5)
+    page = request.GET.get('page')
 
-	try:
-		posts = paginator.page(page)
-	except PageNotAnInteger:
-		posts = paginator.page(1)
-	except EmptyPage:
-		#posts = paginator.page(paginator.num_pages)
-		return HttpResponse('')
+    try:
+        posts = paginator.page(page)
+    except PageNotAnInteger:
+        posts = paginator.page(1)
+    except EmptyPage:
+        # posts = paginator.page(paginator.num_pages)
+        return HttpResponse('')
 
-	return render(request, template, {'posts':posts,
-											  'cat_list': cat_list})
+    return render(request, template, {'posts': posts,
+                                              'cat_list': cat_list})
 
 
 @login_required(redirect_field_name='next', login_url='/login')
@@ -167,61 +165,58 @@ def my_posts(request):
 @cache_control(max_age=6)
 @vary_on_headers('X-Requested-With', 'Cookie')
 def add_post(request):
-	if request.is_ajax():
-		template = 'add_post-ajax.html'
-	else:
-		template = 'add_post.html'
+    if request.is_ajax():
+        template = 'add_post-ajax.html'
+    else:
+        template = 'add_post.html'
 
-	if request.method == 'POST':
-		form = AddPostForm(request.POST, request.FILES)
-		if form.is_valid():
+    if request.method == 'POST':
+        form = AddPostForm(request.POST, request.FILES)
+        if form.is_valid():
 
-			data = form.save(commit=False)
-			if request.user.moderated:
-				moderated = True
-			else:
-				moderated = False
+            data = form.save(commit=False)
+            if request.user.moderated:
+                moderated = True
+            else:
+                moderated = False
 
-			data.author = request.user
-			data.url = slugify(data.title)
-			title = data.title
-			tag_list = request.POST['hidden_tags'].split(',')  # tags list
+            data.author = request.user
+            data.url = slugify(data.title)
+            title = data.title
+            tag_list = request.POST['hidden_tags'].split(',')  # tags list
 
-			have_new_tags = False
-			data.save()
-			post_id = data.id
-			addPost.delay(post_id, tag_list, moderated)
+            have_new_tags = False
+            data.save()
+            post_id = data.id
+            addPost.delay(post_id, tag_list, moderated)
 
+            return render(request, 'added-post.html',
+                          {'title': title,
+                           'cat_list': cat_list})
 
+    form = AddPostForm()
 
-			return render(request, 'added-post.html',
-						  {'title': title,
-						   'cat_list':cat_list})
-
-
-	form = AddPostForm()
-
-	return render(request, template, { 'form': form,
-											 'cat_list': cat_list})
+    return render(request, template, {'form': form,
+                                             'cat_list': cat_list})
 
 
 @login_required(redirect_field_name='next', login_url='/login')
 @never_cache
 def rate_elem(request, type, id, vote):
-	if request.method == 'POST':
+    if request.method == 'POST':
 
-		user = request.user
-		uv = cache.get('user_votes_' + str(user.id))
-		votes_count = user.votes_count
+        user = request.user
+        uv = cache.get('user_votes_' + str(user.id))
+        votes_count = user.votes_count
 
-		if ((uv == None and votes_count != "B") or
-			( uv['votes'] > 0 and votes_count != "B")):
-			date_joined = str(user.date_joined.strftime('%Y_%m_%d'))
-			Rate.delay(user.id, date_joined, votes_count, type, id, vote)
-		else:
-			return HttpResponse("no votes")
+        if ((uv is None and votes_count != "B") or
+        (uv['votes'] > 0 and votes_count != "B")):
+            date_joined = str(user.date_joined.strftime('%Y_%m_%d'))
+            Rate.delay(user.id, date_joined, votes_count, type, id, vote)
+        else:
+            return HttpResponse("no votes")
 
-		return HttpResponse("accepted")
+        return HttpResponse("accepted")
 
 
 @cache_page(60)
@@ -230,139 +225,136 @@ def rate_elem(request, type, id, vote):
 # @never_cache
 def list(request, category=None, tag=None, pop=None):
 
-	context = {}
+    context = {}
 
-	if request.is_ajax():
-		template = 'list_ajax.html'
-	else:
-		template = 'list.html'
+    if request.is_ajax():
+        template = 'list_ajax.html'
+    else:
+        template = 'list.html'
 
-	user_known = False
-	if request.user.is_authenticated:
-		user_known = True
-		#post_list = post_list.filter(private=False)
+    user_known = False
+    if request.user.is_authenticated:
+        user_known = True
+        # post_list = post_list.filter(private=False)
 
-	if tag:
-		cache_str = "post_list_"+str(tag)+"_"+str(user_known)
-		if cache.ttl(cache_str):
-			post_list = cache.get(cache_str)
-		else:
-			if not user_known:
-				post_list = Post.objects.filter(tags__url=tag)\
-							.filter(status="P").filter(private=False)\
-							.select_related("category", "author")\
-							.prefetch_related('tags', 'ratingpost_set')
-			else:
-				post_list = Post.objects.filter(tags__url=tag)\
-							.filter(status="P")\
-							.select_related("category", "author")\
-							.prefetch_related('tags', 'ratingpost_set')
-			cache.set(cache_str, post_list, 1800)
+    if tag:
+        cache_str = "post_list_" + str(tag) + "_" + str(user_known)
+        if cache.ttl(cache_str):
+            post_list = cache.get(cache_str)
+        else:
+            if not user_known:
+                post_list = Post.objects.filter(tags__url=tag)\
+                            .filter(status="P").filter(private=False)\
+                            .select_related("category", "author")\
+                            .prefetch_related('tags', 'ratingpost_set')
+            else:
+                post_list = Post.objects.filter(tags__url=tag)\
+                            .filter(status="P")\
+                            .select_related("category", "author")\
+                            .prefetch_related('tags', 'ratingpost_set')
+            cache.set(cache_str, post_list, 1800)
 
+    elif category:
+        cache_str = "post_list_" + str(category.lower())\
+            + "_" + str(user_known) + "_" + str(pop)
+        if cache.ttl(cache_str):
+            post_list = cache.get(cache_str)
+        else:
+            if not user_known:
+                post_list = Post.objects.filter(category__slug=category)\
+                            .filter(status="P").filter(private=False)\
+                            .select_related("category", "author")\
+                            .prefetch_related('tags', 'ratingpost_set')
+            else:
+                post_list = Post.objects.filter(category__slug=category)\
+                            .filter(status="P")\
+                            .select_related("category", "author")\
+                            .prefetch_related('tags', 'ratingpost_set')
+            cache.set(cache_str, post_list, 1800)
 
-	elif category:
-		cache_str = "post_list_"+str(category.lower())\
-			+"_"+str(user_known)+"_"+str(pop)
-		if cache.ttl(cache_str):
-			post_list = cache.get(cache_str)
-		else:
-			if not user_known:
-				post_list = Post.objects.filter(category__slug=category)\
-							.filter(status="P").filter(private=False)\
-							.select_related("category", "author")\
-							.prefetch_related('tags', 'ratingpost_set')
-			else:
-				post_list = Post.objects.filter(category__slug=category)\
-							.filter(status="P")\
-							.select_related("category", "author")\
-							.prefetch_related('tags', 'ratingpost_set')
-			cache.set(cache_str, post_list, 1800)
+    else:
+        cache_str = "post_list_" + str(user_known) + "_" + str(pop)
+        if cache.ttl(cache_str):
+            post_list = cache.get(cache_str)
+        else:
+            if not user_known:
+                post_list = Post.objects\
+                            .filter(status="P").filter(private=False)\
+                            .select_related("category", "author")\
+                            .prefetch_related('tags', 'ratingpost_set')
+            else:
+                post_list = Post.objects\
+                            .filter(status="P")\
+                            .select_related("category", "author")\
+                            .prefetch_related('tags', 'ratingpost_set')
+            cache.set(cache_str, post_list, 1800)
 
+    # if pop:
+    # pass filter
 
-	else:
-		cache_str = "post_list_"+str(user_known)+"_"+str(pop)
-		if cache.ttl(cache_str):
-			post_list = cache.get(cache_str)
-		else:
-			if not user_known:
-				post_list = Post.objects\
-							.filter(status="P").filter(private=False)\
-							.select_related("category", "author")\
-							.prefetch_related('tags', 'ratingpost_set')
-			else:
-				post_list = Post.objects\
-							.filter(status="P")\
-							.select_related("category", "author")\
-							.prefetch_related('tags', 'ratingpost_set')
-			cache.set(cache_str, post_list, 1800)
+    paginator = Paginator(post_list, 3)
+    page = request.GET.get('page')
 
-	#if pop:
-	#	pass filter
+    try:
+        posts = paginator.page(page)
+    except PageNotAnInteger:
+        posts = paginator.page(1)
+    except EmptyPage:
+        # posts = paginator.page(paginator.num_pages)
+        posts = None
+        # return HttpResponse('')
+    context['posts'] = posts
+    context['cat_list'] = cat_list
+    context['page'] = page
 
-	paginator = Paginator(post_list, 3)
-	page = request.GET.get('page')
-
-	try:
-		posts = paginator.page(page)
-	except PageNotAnInteger:
-		posts = paginator.page(1)
-	except EmptyPage:
-		#posts = paginator.page(paginator.num_pages)
-		posts = None
-		#return HttpResponse('')
-	context['posts'] = posts
-	context['cat_list'] = cat_list
-	context['page'] = page
-
-	return render(request, template, context)
+    return render(request, template, context)
 
 
 @cache_page(600)
 @cache_control(max_age=600)
 @vary_on_headers('X-Requested-With', 'Cookie')
-def single_post(request,  tag, title, id):
+def single_post(request, tag, title, id):
 
-	if request.is_ajax():
-		template = 'single_ajax.html'
-	else:
-		template = 'single.html'
+    if request.is_ajax():
+        template = 'single_ajax.html'
+    else:
+        template = 'single.html'
 
-	#post = Post.objects.select_related("author", "category")\
-	#	.prefetch_related('tags').cache().get(pk=id)
+    # post = Post.objects.select_related("author", "category")\
+    # .prefetch_related('tags').cache().get(pk=id)
+
+    cache_str = "post_single_" + str(id)
+    if cache.ttl(cache_str):
+        post = cache.get(cache_str)
+    else:
+        post = Post.objects.select_related("category")\
+            .prefetch_related('tags', 'ratingpost_set').get(pk=id)
+        cache.set(cache_str, post, 1800)
+
+    if post.private and not request.user.is_authenticated:
+        return HttpResponseNotFound()
+
+    comment_form = CommentForm()
+
+    # comments = Comment.objects.filter(post=post)
+
+    comments = Comment.objects.filter(post=post)
+
+    return render(request, template,
+                  {'post': post,
+                  'cat_list': cat_list, 'comment_form': comment_form,
+                  'comments': comments})
 
 
-	cache_str = "post_single_" + str(id)
-	if cache.ttl(cache_str):
-		post = cache.get(cache_str)
-	else:
-		post = Post.objects.select_related("category")\
-			.prefetch_related('tags', 'ratingpost_set').get(pk=id)
-		cache.set(cache_str, post, 1800)
-
-	if post.private and not request.user.is_authenticated:
-		return HttpResponseNotFound()
-
-	comment_form = CommentForm()
-
-	#comments = Comment.objects.filter(post=post)
-
-	comments = Comment.objects.filter(post=post)
-
-	return render(request, template,
-				  {'post': post,
-				  'cat_list': cat_list, 'comment_form': comment_form,
-				  'comments': comments})
-
-
-@cache_page(600)
-@cache_control(max_age=600)
+@cache_page(60)
+@cache_control(max_age=60)
 @vary_on_headers('X-Requested-With', 'Cookie')
 def password_change(request, *args, **kwargs):
-	if request.is_ajax():
-		template = 'registration/password_change_form-ajax.html'
-	else:
-		template = 'registration/password_change_form.html'
+    if request.is_ajax():
+        template = 'registration/password_change_form-ajax.html'
+    else:
+        template = 'registration/password_change_form.html'
 
-	return def_password_change(request, *args, **kwargs,
-							template_name = template,
-							extra_context = {'cat_list': cat_list})
+    return def_password_change(request, *args, **kwargs,
+                            template_name=template,
+                            extra_context={'cat_list': cat_list})
