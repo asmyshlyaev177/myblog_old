@@ -1,15 +1,16 @@
 {% extends 'index.html' %}
 
-{% block title %}Sign-up done!{% endblock %}
+{% block title %}Регистрация завершена!{% endblock %}
 
 {% block content %}
 
 <div>
   <p>
-    Your registration complete successfully!
+    Вы успешно зарегистрировались!
   </p>
   <p>
-    You can log-in using this<a href="{% url 'login' %}"> form </a>
+    Можете войти через эту
+      <a href="{% url 'login' %}" rel="modal:open"> форму</a>
   </p>
 </div>
 

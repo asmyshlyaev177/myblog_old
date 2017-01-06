@@ -2,16 +2,16 @@
 
 
 {% if user.is_authenticated %}
-  <h1>You are logged in already</h1>
+  <h1>Вы уже залогинены</h1>
   <p>
-    can <a href="{% url 'logout' %}">Logout</a>
+    можете <a href="{% url 'logout' %}">выйти</a>
   </p>
 
 {% else %}
 
-<h1>Log-In</h1>
+<h1>Войти</h1>
 <p>
-  enter email and password for login
+  Введите Email/логин и пароль
 </p>
 
 <div>
@@ -19,11 +19,11 @@
     <!-- label[for="id_username"] { color: red } -->
 
     <div class="input-field">
-      <label for="username">Email or Username</label>
+      {{ form.username.label_tag }}
       {{ form.username }}
     </div>
     <div class="input-field">
-    <label for="email">Password</label>
+    {{ form.password.label_tag }}
     {{ form.password }}
     </div>
 
@@ -33,8 +33,8 @@
       class="default waves-effect waves-light btn"/>
     </p>
   </form>
-  <p>If you forget password you can
-    <a href="{% url 'password_reset' %}">reset it</a></p>
+  <p>Если вы забыли пароль то можете его
+    <a href="{% url 'password_reset' %}" rel="modal:open">сбросить</a></p>
 </div>
 {% endif %}
 

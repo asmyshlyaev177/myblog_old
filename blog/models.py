@@ -80,7 +80,7 @@ class myUser(AbstractBaseUser):
     index_together = [
         ["id", "username", "avatar"],
     ]
-    username = models.CharField("Username", max_length=30,
+    username = models.CharField("Логин", max_length=30,
                                 blank=False,
                                 unique=True)
     rateable = models.BooleanField(default=True)
@@ -255,7 +255,7 @@ class Post(models.Model):
     # description = RichTextField(max_length = 500, config_name = "description",
     #                            blank=True)
     rateable = models.BooleanField(default=True)
-    description = models.CharField(max_length=500)
+    description = models.CharField(max_length=700)
     # text = RichTextUploadingField(config_name = "post")
     text = models.TextField()
     today = datetime.date.today()

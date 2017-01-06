@@ -1,4 +1,4 @@
-<h2 class="text-center">Welcome {{ request.user.username }}!</h2>
+<h2 class="text-center">Привет, {{ request.user.username }}!</h2>
 
 {% block content %}
 
@@ -7,16 +7,17 @@
 <div>
   <form action="{% url 'dashboard' %}" method="post"
    enctype="multipart/form-data">
-    <!-- label[for="id_username"] { color: red } -->
 
-    <div>
-      <label for="username">Username</label>{{ form.username }}
+    <div class="input-field">
+      {{ form.username.label_tab }}
+      {{ form.username }}
+    </div>
+    <div class="input-field">
+      {{ form.email.label_tab }}
+      {{ form.email }}
     </div>
     <div>
-    <label for="email">Email</label>{{ form.email }}
-    </div>
-    <div>
-      <label for="avatar">Avatar </label>
+      <label for="avatar">Аватар </label>
 
 
       {% if request.user.avatar %}
@@ -27,14 +28,22 @@
       </p>
       {% endif %}
     </div>
-    <div>
-      <input id="id_avatar" name="avatar" type="file"
-      onchange="Preview(this.files[0], 'avatar', 70)">
+    <div class="file-field input-field">
+        <div class="btn">
+          <span>Выбрать файл</span>
+          <input id="id_avatar" name="avatar" type="file"
+          onchange="Preview(this.files[0], 'avatar', 70)">
+        </div>
+        <div class="file-path-wrapper">
+          <input class="file-path validate" type="text">
+        </div>
+
     </div>
 
     {% csrf_token %}<br />
     <p>
-      <input type="submit" value="Save" />
+      <input type="submit" value="Сохранить"
+          class="waves-effect waves-light btn" />
     </p>
   </form>
 

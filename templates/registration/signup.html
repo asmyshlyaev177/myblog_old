@@ -6,24 +6,28 @@
 
 <div>
   <form action="{% url 'signup' %}" method="post">
-    <!-- label[for="id_username"] { color: red } -->
 
-    <div>
-      <label for="username">Username</label>{{ form.username }}
+    <div class="input-field">
+      {{ form.username.label_tag }}
+      {{ form.username }}
     </div>
-    <div>
-    <label for="email">Email</label>{{ form.email }}
+    <div class="input-field">
+      {{ form.email.label_tag }}
+      {{ form.email }}
     </div>
-    <div>
-    <label for="password1">Password</label>{{ form.password1 }}
+    <div class="input-field">
+      {{ form.password1.label_tag }}
+      {{ form.password1 }}
     </div>
-    <div>
-    <label for="password2">Repeat password</label>{{ form.password2 }}
+    <div class="input-field">
+      {{ form.password2.label_tag }}
+      {{ form.password2 }}
     </div>
 
     {% csrf_token %}
     <p>
-      <input type="submit" value="Signup" />
+      <input type="submit" value="Зарегистрироваться"
+              class="waves-effect waves-light btn"/>
     </p>
   </form>
 </div>

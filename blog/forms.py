@@ -9,19 +9,23 @@ from froala_editor.widgets import FroalaEditor
 
 # forms for users
 class SignupForm(forms.ModelForm):
-    password1 = forms.CharField(label='Password', widget=forms.PasswordInput)
-    password2 = forms.CharField(label='Repeat password',
+    password1 = forms.CharField(label='Пароль', widget=forms.PasswordInput)
+    password2 = forms.CharField(label='Пароль ещё раз',
                                 widget=forms.PasswordInput)
 
     class Meta:
         model = myUser
         fields = ('username', 'email')
+        labels = {
+            'username': ('Имя пользователя(должно быть уникально)'),
+            'email': ('E-mail'),
+                }
 
     def clean_password2(self):
         password1 = self.cleaned_data.get("password1")
         password2 = self.cleaned_data.get("password2")
         if password1 and password2 and password1 != password2:
-            raise forms.ValidateError("Password don't match")
+            raise forms.ValidateError("Пароли не совпадают")
         return password2
 
     def save(self, commit=True):
@@ -117,11 +121,6 @@ class AddPostForm(forms.ModelForm):
             'text': ('Текст поста'),
             'private': ('Для взрослых/только для зарегистрированных'),
         }
-        error_messages = {
-            'title': {
-                'required': ('Это поле обязательно'),
-                        }
-        }
 
         widgets = {
             # 'text': SummernoteInplaceWidget(),
@@ -185,7 +184,7 @@ class AddPostForm(forms.ModelForm):
                                         'placeholderText': '''Короткое описание
                                          для главной''',
                                         'charCounterCount': True,
-                                        'charCounterMax': 300,
+                                        'charCounterMax': 500,
                                         'pasteDeniedTags': ['script'],
                                         'imageMaxSize': 1024 * 1024 * 19,
 

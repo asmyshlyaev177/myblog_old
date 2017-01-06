@@ -89,8 +89,8 @@ def tags(request):
 
 
 @csrf_protect
-@cache_page(600)
-@cache_control(max_age=600)
+@cache_page(6)
+@cache_control(max_age=6)
 @vary_on_headers('X-Requested-With', 'Cookie')
 def signup(request):
     if request.method == 'POST':
@@ -129,7 +129,7 @@ def dashboard(request):
 
     return render(request, template, {'cat_list': cat_list,
                                               'form': form},
-											  					)
+                                                            )
 
 
 @login_required(redirect_field_name='next', login_url='/login')
@@ -219,8 +219,8 @@ def rate_elem(request, type, id, vote):
         return HttpResponse("accepted")
 
 
-@cache_page(60)
-@cache_control(max_age=60)
+@cache_page(6)
+@cache_control(max_age=6)
 @vary_on_headers('X-Requested-With', 'Cookie')
 # @never_cache
 def list(request, category=None, tag=None, pop=None):
@@ -310,8 +310,8 @@ def list(request, category=None, tag=None, pop=None):
     return render(request, template, context)
 
 
-@cache_page(600)
-@cache_control(max_age=600)
+@cache_page(6)
+@cache_control(max_age=6)
 @vary_on_headers('X-Requested-With', 'Cookie')
 def single_post(request, tag, title, id):
 
@@ -346,8 +346,8 @@ def single_post(request, tag, title, id):
                   'comments': comments})
 
 
-@cache_page(60)
-@cache_control(max_age=60)
+@cache_page(6)
+@cache_control(max_age=6)
 @vary_on_headers('X-Requested-With', 'Cookie')
 def password_change(request, *args, **kwargs):
     if request.is_ajax():

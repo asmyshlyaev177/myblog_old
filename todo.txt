@@ -32,6 +32,7 @@ while d <= end_date:
 рейтинг в админке
 
 Своя проверка валидности форм <input formnovalidate> <form action="demo_form.asp" novalidate>
+http://qtip2.com/guides#integration
 https://github.com/chrisdavies/tlite
 http://www.w3schools.com/css/css_tooltip.asp
 http://www.webdesignerdepot.com/2012/11/how-to-create-a-simple-css3-tooltip/
