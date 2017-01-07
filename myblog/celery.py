@@ -14,11 +14,15 @@ os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'myblog.settings')
 
 app = Celery('myblog')
 
-# Using a string here means the worker don't have to serialize
-# the configuration object to child processes.
-# - namespace='CELERY' means all celery-related configuration keys
-#   should have a `CELERY_` prefix.
 app.config_from_object('django.conf:settings', namespace='CELERY')
+
+app.conf.update(
+    result_backend='redis://',
+    backend='redis://',
+    result_serializer='json',
+    broker_url='amqp://guest:guest@localhost//',
+    result_expires=120,
+)
 
 # Load task modules from all registered Django app configs.
 app.autodiscover_tasks()
@@ -37,11 +41,6 @@ app.conf.beat_schedule = {
 @app.task(bind=True)
 def debug_task(self):
     print('Request: {0!r}'.format(self.request))
-
-
-app.conf.update(
-    result_expires=60,
-)
 
 if __name__ == '__main__':
     app.start()

@@ -30,8 +30,8 @@ NOTEBOOK_ARGUMENTS = [
 
 SHELL_PLUS_PRE_IMPORTS = (
     ('blog.models', ('Post', 'myUser', 'Category', 'Tag', 'Rating',
-                     'RatingPost', 'RatingTag', 'RatingUser', 'VotePost'
-                     , 'UserVotes')),
+                     'RatingPost', 'RatingTag', 'RatingUser', 'VotePost',
+                     'UserVotes')),
     ('blog.functions', ('deleteThumb', 'srcsetThumb', 'findLink',
                         'findFile', 'saveImage', 'srcsets',)),
 )
@@ -53,9 +53,9 @@ DEBUG = True
 LOGIN_URL = '/login'
 
 # FROALA_INCLUDE_JQUERY = False
-FROALA_UPLOAD_PATH = str(datetime.date.today().year)+'/'\
+FROALA_UPLOAD_PATH = str(datetime.date.today().year) + '/'\
     + str(datetime.date.today().month)\
-    + '/' + str(datetime.date.today().day)+'/'
+    + '/' + str(datetime.date.today().day) + '/'
 
 ALLOWED_HOSTS = ['*']
 DEBUG_TOOLBAR_PATCH_SETTINGS = False
@@ -77,8 +77,8 @@ SOCIAL_AUTH_FACEBOOK_KEY = 'key'
 SOCIAL_AUTH_FACEBOOK_SECRET = 'secret'
 SOCIAL_AUTH_FACEBOOK_SCOPE = ['email']
 SOCIAL_AUTH_FACEBOOK_PROFILE_EXTRA_PARAMS = {
-  'locale': 'ru_RU',
-  'fields': 'name, email'
+                    'locale': 'ru_RU',
+                    'fields': 'name, email'
 }
 SOCIAL_AUTH_GOOGLE_OAUTH2_KEY = 'key'
 SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET = 'secret'
@@ -120,8 +120,8 @@ AUTHENTICATION_BACKENDS = (
     'blog.authentication.UsernameAuthBackend',
     'blog.authentication.EmailAuthBackend',
 
-	'social.backends.facebook.FacebookOAuth2',
-	'social.backends.vk.VKOAuth2',
+    'social.backends.facebook.FacebookOAuth2',
+    'social.backends.vk.VKOAuth2',
 )
 
 AUTH_USER_MODEL = 'blog.myUser'
@@ -167,8 +167,9 @@ INSTALLED_APPS = [
     # 'silk',
 ]
 
-# CELERY_RESULT_BACKEND = 'django-db'
-CELERY_BROKER_URL = 'amqp://guest:guest@localhost//'
+
+#CELERY_BROKER_URL = 'amqp://guest:guest@localhost//'
+
 
 TEMPLATE_DEBUG = True
 THUMBNAIL_DEBUG = True
@@ -196,7 +197,7 @@ COMPRESS_CSS_FILTERS = ['compressor.filters.css_default.CssAbsoluteFilter',
 # MIDDLEWARE = [  #for debug toolbar
 MIDDLEWARE_CLASSES = [
     # 'debug_toolbar.middleware.DebugToolbarMiddleware',
-
+    'django.middleware.cache.UpdateCacheMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -205,6 +206,7 @@ MIDDLEWARE_CLASSES = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'django.middleware.locale.LocaleMiddleware',
+    'django.middleware.cache.FetchFromCacheMiddleware',
     # 'silk.middleware.SilkyMiddleware',
 
 ]
