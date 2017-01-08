@@ -41,6 +41,7 @@ urlpatterns = [
     url(r'^pop-(?P<pop>[-\w]+)\/?$', views.list, name='list_pop'),
     #url(r'^ckeditor/', include('ckeditor_uploader.urls')),
     url(r'^add-post\/?$', views.add_post, name='add_post'),
+    url(r'^edit-post-(?P<postid>[-vi\d]+)\/?$', views.edit_post, name='edit_post'),
 
     url(r'^signup\/?$', views.signup, name='signup'),
     url(r'^signup_success\/?$', views.signup_success, name='signup_success'),

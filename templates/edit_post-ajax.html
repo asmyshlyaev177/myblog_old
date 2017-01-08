@@ -1,0 +1,248 @@
+
+
+{% block content %}
+<script>processing = true;
+</script>
+<h1>Edit post</h1>
+
+<form action="{% url 'edit_post' postid %}" method="post" enctype="multipart/form-data">
+{% csrf_token %}
+
+<div class="input-field">
+     {{ form.title }}
+     {{ form.title.label_tag }}
+</div>
+
+<div class="input-field">
+
+  {{ form.category }}
+
+{{ form.category.label_tag }}
+</div>
+
+<p>{{ form.post_image.label_tag }}</p>
+<div class="row">
+  <ul class="tabs tabs-fixed-width teal" id="file-url">
+          <li class="tab col s3 "><a href="#file" class="waves-effect  white-text">File</a></li>
+          <li class="tab col s3"><a href="#url" class="waves-effect white-text">Url</a></li>
+  </ul>
+</div>
+
+<div id="file">
+  <div class="input-field file-field" >
+
+    <div class="btn">
+          <span>File</span>
+      <input id="id_post_image" name="post_image" type="file"
+      onchange="Preview(this.files[0], 'preview', 300); $('#id_image_url').val(null)">
+    </div>
+    <input class="file-path validate" type="text">
+  </div>
+
+
+</div>
+
+
+
+<div class="input-field" id="url">
+  <div class="btn" id="image_url">
+        <span>URL</span>
+  </div>
+  <input id="id_image_url" maxlength="490" name="image_url" type="text"
+  onfocusout="ClearInput('id_post_image')">
+</div>
+
+
+
+<p>
+  <img id="preview" />
+</p>
+
+
+
+
+<div class="input-field">
+{{ form.description }}
+{{ form.description.label_tag }}
+</div>
+
+<p>
+<br />
+</p>
+
+
+<div class="input-field">
+<p>
+  <input id="id_private" name="private" type="checkbox">
+   {{ form.private.label_tag }}
+</p>
+
+
+</div>
+
+
+<div class="input-field">
+  {{ form.text|safe }}
+  {{ form.text.label_tag }}
+</div>
+
+
+<div class="input-field">
+  {{ form.tags_new.label_tag }}
+  <div data-tags-input-name="tag" id="tagBox"></div>
+</div>
+
+<div class="input-field">
+<input class="hidden_tags" id="hidden_tags" name="hidden_tags" style=" display: none;">
+</div>
+
+<div style="height: 200px"></div>
+
+<input type="submit" value="Save" class="waves-effect waves-light btn"/>
+</form>
+
+<style>
+
+.type-zone.tt-hint {
+  z-index: -1;
+}
+
+label[for=fr-link-target-2], label[for=fr-link-target-1] {
+  margin-top: 13.6em!important;
+  margin-left: 3em!important;
+}
+
+.fr-box {
+  padding-top: 3.5em;
+}
+
+.tt-menu {
+position: static!important;
+}
+
+.tt-dataset.tt-dataset-taglist { position: absolute; }
+
+.tab a.active {
+background-color: rgba(0,0,0,0.1)!important;
+}
+
+.btn {
+height: 3rem;
+line-height: 3rem;
+}
+
+.chip > a, .tt-suggestion {
+cursor: pointer;
+}
+
+.tt-selectable {
+font-size: 16px;
+color: #26a69a;
+display: block;
+line-height: 22px;
+padding: 14px 16px;
+background-color: white;
+}
+
+.tt-selectable:hover {
+background-color: #eee;
+border-color: #84c7c1;
+    border-width: 1px;
+    border-style: solid;;
+}
+
+</style>
+
+<div style="height: 100px"></div>
+<script>
+$(document).ready(function(){
+  $post_image_url = $('#id_image_url');
+  $preview = $('#preview');
+
+	SelectHint();
+
+  $('select').material_select();
+
+  $('#id_image_url').on('click', function() {
+    ClearInput('id_post_image');
+  });
+  $('ul.tabs').tabs();
+  //$('#file-url').children('.indicator').css('background-color', 'white');
+});
+
+
+
+
+
+function ClearInput(id) {
+  $preview.attr( 'src', '' );
+  $preview.attr( 'src', $post_image_url.val() );
+   if ( $post_image_url.val().length > 8 ) {
+    $('#' +id).val(null);
+    $('.file-path.validate.valid').val(null);
+  }
+
+}
+
+var tagging_options = {
+  "no-duplicate": true,
+  "no-comma": false,
+	"no-duplicate-callback": HideHint,
+  "forbidden-chars-callback": null,
+	"tag-on-blur": false,
+  "no-spacebar": true,
+	"case-sensitive": true,
+  //"close-char": "X",
+  "close-class": "material-icons close",
+  "tag-class": "chip",
+
+  "close-char": "close",
+  "forbidden-chars": [],
+	"forbidden-words": [],
+};
+
+TagBox = $("#tagBox")
+TagBox.tagging( tagging_options);
+
+var taglist = new Bloodhound({
+  datumTokenizer: Bloodhound.tokenizers.whitespace,
+  queryTokenizer: Bloodhound.tokenizers.whitespace,
+  prefetch: {
+  url: '/tags.json',
+  //url: '../static/taglist.json',
+  cache: false
+   }
+});
+
+$('.type-zone').typeahead(null, {
+  name: 'taglist',
+  source: taglist,
+  hint: true,
+  highlight: true,
+  minLength: 2,
+  limit: 10
+});
+
+TagBox.on( "add:after", function (el, tagging){
+HintPos();
+CopyTags();
+TagBox.tagging( "emptyInput" );
+HideHint()
+} );
+
+TagBox.on( "remove:after", function (el, tagging){
+HintPos();
+CopyTags();
+} );
+
+$(document).on('click', '.tt-suggestion', function() {
+	HideHint()
+	TagBox.tagging( "add", $(this).text() );
+	TagBox.tagging( "emptyInput" );
+});
+
+$('html, body').scrollTop( 0 );
+$('#id_title').focus();
+
+</script>
+{% endblock %}

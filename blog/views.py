@@ -20,8 +20,8 @@ from django.contrib.auth.views import (login as def_login,
 cat_list = Category.objects.all()
 
 
-@cache_page(60)
-@cache_control(max_age=60)
+@cache_page(3)
+@cache_control(max_age=3)
 @vary_on_headers('X-Requested-With', 'Cookie')
 def login(request, *args, **kwargs):
     if request.is_ajax():
@@ -33,8 +33,8 @@ def login(request, *args, **kwargs):
                                 extra_context={'cat_list': cat_list})
 
 
-@cache_page(30)
-@cache_control(max_age=30)
+@cache_page(3)
+@cache_control(max_age=3)
 def comments(request, postid):
     post = Post.objects.get(id=postid)
 
@@ -89,8 +89,8 @@ def tags(request):
 
 
 @csrf_protect
-@cache_page(60)
-@cache_control(max_age=60)
+@cache_page(3)
+@cache_control(max_age=3)
 @vary_on_headers('X-Requested-With', 'Cookie')
 def signup(request):
     if request.method == 'POST':
@@ -160,9 +160,24 @@ def my_posts(request):
                                               'cat_list': cat_list})
 
 
+@never_cache
+def edit_post(request, postid):
+    template = 'edit_post.html'
+
+    if request.method == 'POST':
+        pass
+    else:
+        post = Post.objects.get(id=postid)
+        form = AddPostForm(instance=post)
+
+    return render(request, template,
+                {'form': form, 'postid': postid,
+                 'cat_list': cat_list})
+
+
 @login_required(redirect_field_name='next', login_url='/login')
-@cache_page(60)
-@cache_control(max_age=60)
+@cache_page(3)
+@cache_control(max_age=3)
 @vary_on_headers('X-Requested-With', 'Cookie')
 def add_post(request):
     if request.is_ajax():
@@ -219,8 +234,8 @@ def rate_elem(request, type, id, vote):
         return HttpResponse("accepted")
 
 
-@cache_page(60)
-@cache_control(max_age=60)
+@cache_page(3)
+@cache_control(max_age=3)
 @vary_on_headers('X-Requested-With', 'Cookie')
 # @never_cache
 def list(request, category=None, tag=None, pop=None):
@@ -310,8 +325,8 @@ def list(request, category=None, tag=None, pop=None):
     return render(request, template, context)
 
 
-@cache_page(60)
-@cache_control(max_age=60)
+@cache_page(3)
+@cache_control(max_age=3)
 @vary_on_headers('X-Requested-With', 'Cookie')
 def single_post(request, tag, title, id):
 
@@ -346,8 +361,8 @@ def single_post(request, tag, title, id):
                   'comments': comments})
 
 
-@cache_page(60)
-@cache_control(max_age=60)
+@cache_page(3)
+@cache_control(max_age=3)
 @vary_on_headers('X-Requested-With', 'Cookie')
 def password_change(request, *args, **kwargs):
     if request.is_ajax():
