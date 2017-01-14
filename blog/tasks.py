@@ -55,14 +55,14 @@ def Rate(userid, date_joined, votes_count, type, elem_id, vote):
         votes = {}
         if date_joined < dt - delta:
             coef = 0.25
-            votes['votes'] = 20
+            votes['votes'] = 200
         else:
             coef = 0.0
-            votes['votes'] = 10
+            votes['votes'] = 100
 
         votes['weight'] = 0.25 + coef + user_rating.rating / 50
         print("REDIS User: " + str(userid) + " weight " + str(votes['weight']) +
-            								" votes " + str(votes['votes']))
+                                                " votes " + str(votes['votes']))
 
         cache.set('user_votes_' + str(userid), votes, timeout=150)  # 86400 -1 day
 
@@ -98,9 +98,9 @@ def Rate(userid, date_joined, votes_count, type, elem_id, vote):
 
 @app.task(name="CalcRating")
 def CalcRating():
-    hot_rating = 1.0
-    cat_list = Category.objects.all()
-    today = datetime.datetime.today().strftime('%H')
+    # hot_rating = 1.0
+    # cat_list = Category.objects.all()
+    # today = datetime.datetime.today().strftime('%H')
 
     # рэйтинг для комментов
     votes_comment = cache.iter_keys('vote_comment_*')
@@ -134,7 +134,7 @@ def CalcRating():
         else:
             posts[vote['elem_id']]['rate'] += vote['rate']
 
-    cache.set('rating_post_day_' + today, posts, timeout=88000)
+    # cache.set('rating_post_day_' + today, posts, timeout=88000)
     del votes_post
     for post in posts:  # update rating on posts
         p = Post.objects.get(id=post)
@@ -145,8 +145,8 @@ def CalcRating():
         post_rate.save()
         user_rating.save()
 
-    # rating for main page
-    best_posts = {}
+"""    # rating for main page
+    best_posts = {}   # доделать рейтинги за неделю, не за день
     keys = cache.keys('rating_post_day_*')
     for k in keys:
         posts = cache.get(k)
@@ -174,6 +174,7 @@ def CalcRating():
             # filtr by rating
         best_posts = [post for post in best_posts if best_posts[post] > hot_rating]
         cache.set('best_post_day_catid_' + str(i.id), best_posts, timeout=88000)
+        """
 
 
 @app.task(name="commentImage")

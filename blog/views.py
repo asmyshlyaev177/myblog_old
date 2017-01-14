@@ -257,12 +257,12 @@ def rate_elem(request, type, id, vote):
         return HttpResponse("accepted")
 
 
-@cache_page(3)
-@cache_control(max_age=3)
-@vary_on_headers('X-Requested-With', 'Cookie')
-# @never_cache
+# @cache_page(3)
+# @cache_control(max_age=3)
+# @vary_on_headers('X-Requested-With', 'Cookie')
+@never_cache
 def list(request, category=None, tag=None, pop=None):
-
+    hot_rating = 3
     context = {}
 
     if request.is_ajax():
@@ -276,9 +276,10 @@ def list(request, category=None, tag=None, pop=None):
         # post_list = post_list.filter(private=False)
 
     if tag:
-        cache_str = "post_list_" + str(tag) + "_" + str(user_known)
-        if cache.ttl(cache_str):
-            post_list = cache.get(cache_str)
+        cache_str_tag = "post_list_" + str(tag) + "_" + str(user_known)\
+                                                        + "_" + str(pop)
+        if cache.ttl(cache_str_tag):
+            post_list = cache.get(cache_str_tag)
         else:
             if not user_known:
                 post_list = Post.objects.filter(tags__url=tag)\
@@ -290,13 +291,16 @@ def list(request, category=None, tag=None, pop=None):
                             .filter(status="P")\
                             .select_related("category", "author")\
                             .prefetch_related('tags', 'ratingpost_set')
-            cache.set(cache_str, post_list, 1800)
+            if pop == "best":
+                post_list = post_list.filter(ratingpost__rating__gte=hot_rating)
+
+            cache.set(cache_str_tag, post_list, 1800)
 
     elif category:
-        cache_str = "post_list_" + str(category.lower())\
+        cache_str_cat = "post_list_" + str(category.lower())\
             + "_" + str(user_known) + "_" + str(pop)
-        if cache.ttl(cache_str):
-            post_list = cache.get(cache_str)
+        if cache.ttl(cache_str_cat):
+            post_list = cache.get(cache_str_cat)
         else:
             if not user_known:
                 post_list = Post.objects.filter(category__slug=category)\
@@ -308,7 +312,10 @@ def list(request, category=None, tag=None, pop=None):
                             .filter(status="P")\
                             .select_related("category", "author")\
                             .prefetch_related('tags', 'ratingpost_set')
-            cache.set(cache_str, post_list, 1800)
+            if pop == "best":
+                post_list = post_list.filter(ratingpost__rating__gte=hot_rating)
+
+            cache.set(cache_str_cat, post_list, 1800)
 
     else:
         cache_str = "post_list_" + str(user_known) + "_" + str(pop)
@@ -325,10 +332,10 @@ def list(request, category=None, tag=None, pop=None):
                             .filter(status="P")\
                             .select_related("category", "author")\
                             .prefetch_related('tags', 'ratingpost_set')
-            cache.set(cache_str, post_list, 1800)
+            if pop == "best":
+                post_list = post_list.filter(ratingpost__rating__gte=hot_rating)
 
-    # if pop:
-    # pass filter
+            cache.set(cache_str, post_list, 1800)
 
     paginator = Paginator(post_list, 3)
     page = request.GET.get('page')

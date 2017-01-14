@@ -1353,7 +1353,7 @@ $(document).ready(function(){
       }
 
       // append indicator then set indicator width to tab width
-      $this.append('<div class="indicator"></div>');
+      /*  $this.append('<div class="indicator"></div>');
       var $indicator = $this.find('.indicator');
       if ($this.is(":visible")) {
         // $indicator.css({"right": $tabs_width - (($index + 1) * $tab_width)});
@@ -1362,7 +1362,7 @@ $(document).ready(function(){
           $indicator.css({"right": calcRightPos($active) });
           $indicator.css({"left": calcLeftPos($active) });
         }, 0);
-      }
+      }  */
       $(window).resize(function () {
         $tabs_width = $this.width();
         $tab_width = Math.max($tabs_width, $this[0].scrollWidth) / $links.length;
@@ -1370,8 +1370,8 @@ $(document).ready(function(){
           $index = 0;
         }
         if ($tab_width !== 0 && $tabs_width !== 0) {
-          $indicator.css({"right": calcRightPos($active) });
-          $indicator.css({"left": calcLeftPos($active) });
+          //$indicator.css({"right": calcRightPos($active) });
+          //$indicator.css({"left": calcLeftPos($active) });
         }
       });
 
@@ -1427,14 +1427,14 @@ $(document).ready(function(){
 
         // Update indicator
 
-        if (($index - $prev_index) >= 0) {
+      /*  if (($index - $prev_index) >= 0) {
           $indicator.velocity({"right": calcRightPos($active) }, { duration: 300, queue: false, easing: 'easeOutQuad'});
           $indicator.velocity({"left": calcLeftPos($active) }, {duration: 300, queue: false, easing: 'easeOutQuad', delay: 90});
 
         } else {
           $indicator.velocity({"left": calcLeftPos($active) }, { duration: 300, queue: false, easing: 'easeOutQuad'});
           $indicator.velocity({"right": calcRightPos($active) }, {duration: 300, queue: false, easing: 'easeOutQuad', delay: 90});
-        }
+        } */
 
         // Prevent the anchor's default click action
         e.preventDefault();
@@ -3515,7 +3515,7 @@ $(document).ready(function(){
 
     init : function(options) {
       var defaults = {
-        indicators: true,
+        indicators: false,
         height: 400,
         transition: 500,
         interval: 6000

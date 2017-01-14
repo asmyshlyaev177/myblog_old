@@ -34,7 +34,7 @@
         Tags
         {% for tag in post.get_tags_list %}
           {% if tag.url|length > 1 %}
-          <a href="/{{ tag.url }}" class="ajax-menu chip"
+          <a href="/{{ tag.url }}" class="ajax-menu chip" tag
           url = "{{ tag.url }}">{{ tag }}</a>
           {% endif %}
         <!-- {% if not forloop.last %},{% endif %} -->

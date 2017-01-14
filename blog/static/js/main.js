@@ -167,6 +167,10 @@ function ratePost() {
 						disableRate();
 						console.log(data);
 					}
+					else {
+						//$(vote_btn).animate({opacity: "toggle"}, 300)
+						//.animate({opacity: "toggle"}, 200);
+					}
 				}
 	     });
 	return false;
@@ -252,28 +256,44 @@ function TopButtonScroll(){
 function ClickAjaxMenu() {
 $(document).on('click', '.ajax-menu', function() {
 	//event.preventDefault();
+	pop = "";
 	ajax_menu = $(this);
+	if ( ajax_menu.is('[single_page]' ) ) { // if it is menu don't load on scroll
+		single = true;
+	}
+	else { // if it is list page load on scroll
+		single = false;
+	}
+
 	if ( ajax_menu.attr("url") != undefined &&
 				ajax_menu.attr("url") != ""  )
 			{
 				//debugger;
 			myurl = ajax_menu.attr('url');
-			category = "/" + myurl;
 			if ( ajax_menu.is("[cat]") ) {
 				category = "/cat/" + myurl.toLowerCase();
+				console.log("category= " + category);
+			}
+
+			if ( ajax_menu.is("[pop]") ) {
+				pop = myurl.toLowerCase();
+				//if ( myurl == "all" ) { myurl = ""; }
+				/*if ( window.location.pathname.split('/').pop() == "pop-best")
+				{
+					category2 = category + "/" + myurl.toLowerCase();
+					console.log("pop " + pop + " myurl " + myurl);
+				}
+				else {
+					category2 = category + "/" + myurl.toLowerCase();
+					console.log("pop " + pop + " myurl " + myurl);
+				} */
+
 			}
 	}
 	else {
 		category = "/";
 		myurl = ""
 	}
-
-		if ( ajax_menu.is('[single_page]' ) ) { // if it is menu don't load on scroll
-			single = true;
-		}
-		else { // if it is list page load on scroll
-			single = false;
-		}
 
 	$('html, body').scrollTop( 0 );
 
@@ -289,10 +309,23 @@ $(document).on('click', '.ajax-menu', function() {
 	}
 	catch(err) {}
 
-	//ChangePage();
-	window.history.pushState({state:'new'}, "",  category);
-	ChangePageNew( category, myurl, single );
-	return false;
+	//Change Page
+	if ( pop ) {
+		if ( category == "/" ) {
+			url = category + pop;
+		} else {
+			url = category + '/' + pop;
+		}
+		console.log("pop url " + url);
+	} else {
+		url = category;
+		console.log("url " + url);
+	}
+
+		window.history.pushState({state:'new'}, "",  url);
+		ChangePageNew( url, myurl, single);
+		return false;
+
 });
 }
 
@@ -373,6 +406,7 @@ if ( $("#Comments_title").length > 0 ) {
 function ChangePageNew( link, myurl, single ) {
 	content = $(".content")
 	content.fadeTo(0, 0.1);
+
 	loader.css('top', '120px').css('left', '50%').css('position', 'absolute').show();
 	$.ajax({
       type:"GET",
@@ -391,9 +425,19 @@ function ChangePageNew( link, myurl, single ) {
 	//window.history.pushState({state:'new'}, "",  link);
    page = 1;
 
-	 $('.menu').parent().removeClass('active');
+	$(".menu").parent().removeClass('active');
+
  	if ( myurl != "" && single == false) {
-        $('.menu').filter( $('#'+myurl ) ).parent().addClass('active');
+				link = link.split('/');
+				pop = link.pop();
+				cat = link.pop();
+				console.log("pop " + pop + " link " + link);
+				if ( pop == "pop-all" || pop == "pop-best") {
+								$('.menu').filter( $('#'+pop ) ).parent().addClass('active');
+								$('.menu').filter( $('#'+cat ) ).parent().addClass('active');
+							} else {
+								$('.menu').filter( $('#'+myurl ) ).parent().addClass('active');
+							}
     }
 
 };
