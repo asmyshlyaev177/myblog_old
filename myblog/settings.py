@@ -18,6 +18,7 @@ CHANNEL_LAYERS = {
         "ROUTING": "blog.routing.channel_routing",
         "CONFIG": {
             "hosts": [("127.0.0.1", 6379)],
+            "capacity": 1000,
         },
     },
 }
@@ -139,7 +140,7 @@ CACHES = {
         "LOCATION": "unix:///tmp/redis.sock?db=0",
         "OPTIONS": {
             "CLIENT_CLASS": "django_redis.client.DefaultClient",
-            "CONNECTION_POOL_KWARGS": {"max_connections": 10000},
+            "CONNECTION_POOL_KWARGS": {"max_connections": 100},
         }
     }
 }

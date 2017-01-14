@@ -264,30 +264,19 @@ $(document).on('click', '.ajax-menu', function() {
 	else { // if it is list page load on scroll
 		single = false;
 	}
+	myurl = ajax_menu.attr('url');
 
 	if ( ajax_menu.attr("url") != undefined &&
 				ajax_menu.attr("url") != ""  )
 			{
 				//debugger;
-			myurl = ajax_menu.attr('url');
 			if ( ajax_menu.is("[cat]") ) {
 				category = "/cat/" + myurl.toLowerCase();
 				console.log("category= " + category);
-			}
-
-			if ( ajax_menu.is("[pop]") ) {
+			} else if ( ajax_menu.is("[pop]") ) {
 				pop = myurl.toLowerCase();
-				//if ( myurl == "all" ) { myurl = ""; }
-				/*if ( window.location.pathname.split('/').pop() == "pop-best")
-				{
-					category2 = category + "/" + myurl.toLowerCase();
-					console.log("pop " + pop + " myurl " + myurl);
-				}
-				else {
-					category2 = category + "/" + myurl.toLowerCase();
-					console.log("pop " + pop + " myurl " + myurl);
-				} */
-
+			} else {
+				category = '/' + myurl.toLowerCase();
 			}
 	}
 	else {
@@ -301,13 +290,6 @@ $(document).on('click', '.ajax-menu', function() {
 		document.title = ajax_menu.text();}
 	else {
 		document.title = "My blog!";}
-
-	try {
-		sockets[window.location.pathname].close();
-		console.log("socket "+ sockets[window.location.pathname].url + " CLOSED");
-		delete sockets[window.location.pathname];
-	}
-	catch(err) {}
 
 	//Change Page
 	if ( pop ) {
@@ -378,9 +360,8 @@ if ( $("#Comments_title").length > 0 ) {
 
 	var socket = new ReconnectingWebSocket(
 		"ws://" + window.location.host + '/ws' + window.location.pathname, null,
-		{maxReconnectInterval: 2000});
+		{maxReconnectInterval: 2000, maxReconnectAttempts: 10});
 	socket.onmessage = function(e) {
-		sockets[window.location.pathname] = socket;
 		try {
 			console.log(e.data);
 			var elem = JSON.parse(e.data);
@@ -392,11 +373,12 @@ if ( $("#Comments_title").length > 0 ) {
 	}
 	socket.onopen = function() {
 		//socket.send("hello world");
+		sockets[window.location.pathname] = socket;
 		console.log("socket "+ socket.url + " opened");
 	}
 	socket.onclose = function() {
 		//socket.send("disconnect");
-		console.log("socket "+ socket.url + " reconnected");
+		console.log("socket "+ socket.url + " closed");
 	}
 	// Call onopen directly if socket is already open
 	if (socket.readyState == WebSocket.OPEN) socket.onopen();
@@ -407,19 +389,25 @@ function ChangePageNew( link, myurl, single ) {
 	content = $(".content")
 	content.fadeTo(0, 0.1);
 
+	//try {
+		for ( socket in sockets ) {
+			console.log("socket "+ socket + " CLOSED");
+			sockets[socket].close();
+			//delete sockets[socket];
+		}
+	//} catch(err) {}
+
 	loader.css('top', '120px').css('left', '50%').css('position', 'absolute').show();
 	$.ajax({
       type:"GET",
 		  //cache : false,
 		  url: link,
       success:function(data){
-      data2 = ('<div class="posts">' + data + '</div>');
-      $(data2).replaceAll('.posts');
-			content.fadeTo(0, 1);
-			$('#load_circle').hide();
-			disableRate();
-			//setTimeout( stubImgs(), 0 );
-			wsConnect();
+	      data2 = ('<div class="posts">' + data + '</div>');
+	      $(data2).replaceAll('.posts');
+				content.fadeTo(0, 1);
+				$('#load_circle').hide();
+				disableRate();
           }
      });
 	//window.history.pushState({state:'new'}, "",  link);
@@ -444,9 +432,9 @@ function ChangePageNew( link, myurl, single ) {
 
 function BackForwardButtons() {
 	window.onpopstate = function(event) {
-		category = document.location.pathname;
-		myurl = category.split('/').pop()
-	  ChangePageNew(document.location, myurl);
+		url = document.location.pathname;
+		//myurl = category.split('/').pop()
+	  ChangePageNew(url);
 	};
 
 }

@@ -293,8 +293,9 @@ def list(request, category=None, tag=None, pop=None):
                             .prefetch_related('tags', 'ratingpost_set')
             if pop == "best":
                 post_list = post_list.filter(ratingpost__rating__gte=hot_rating)
-
-            cache.set(cache_str_tag, post_list, 1800)
+                cache.set(cache_str_tag, post_list, 300)
+            else:
+                cache.set(cache_str_tag, post_list, 3600)
 
     elif category:
         cache_str_cat = "post_list_" + str(category.lower())\
@@ -314,8 +315,9 @@ def list(request, category=None, tag=None, pop=None):
                             .prefetch_related('tags', 'ratingpost_set')
             if pop == "best":
                 post_list = post_list.filter(ratingpost__rating__gte=hot_rating)
-
-            cache.set(cache_str_cat, post_list, 1800)
+                cache.set(cache_str_cat, post_list, 300)
+            else:
+                cache.set(cache_str_cat, post_list, 3600)
 
     else:
         cache_str = "post_list_" + str(user_known) + "_" + str(pop)
@@ -334,8 +336,9 @@ def list(request, category=None, tag=None, pop=None):
                             .prefetch_related('tags', 'ratingpost_set')
             if pop == "best":
                 post_list = post_list.filter(ratingpost__rating__gte=hot_rating)
-
-            cache.set(cache_str, post_list, 1800)
+                cache.set(cache_str, post_list, 300)
+            else:
+                cache.set(cache_str, post_list, 3600)
 
     paginator = Paginator(post_list, 3)
     page = request.GET.get('page')
