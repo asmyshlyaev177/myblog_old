@@ -16,7 +16,7 @@
   <img src="{{ MEDIA_URL }}{{ post.post_image.url }}"
     class="responsive-img center-align post-image"></a>
   {% else %}
-    {{ post.image_url }}
+    {{ post.main_image_srcset }}
   {% endif %}
 
 </p>

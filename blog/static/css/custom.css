@@ -10,6 +10,10 @@
 		height: 0;
 }
 
+.chip {
+	white-space: nowrap;
+}
+
 .post-image {
 	width: 100%;
 }
@@ -39,6 +43,10 @@
 }
 
 .post-thumbnail {position: relative; }
+
+.rate-icon {
+  border-radius: 20px;
+}
 
 .rating, .rate-score {
 	display: inline-block;

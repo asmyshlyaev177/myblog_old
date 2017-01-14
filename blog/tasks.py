@@ -62,7 +62,7 @@ def Rate(userid, date_joined, votes_count, type, elem_id, vote):
 
         votes['weight'] = 0.25 + coef + user_rating.rating / 50
         print("REDIS User: " + str(userid) + " weight " + str(votes['weight']) +
-            									" votes " + str(votes['votes']))
+            								" votes " + str(votes['votes']))
 
         cache.set('user_votes_' + str(userid), votes, timeout=150)  # 86400 -1 day
 
@@ -287,7 +287,7 @@ def addPost(post_id, tag_list, moderated):
         upload_path1 = '/root/myblog/myblog/blog/static/media/' + \
         str(today.year) + '/' + str(today.month) + '/' + str(today.day) + '/'
         upload_path = str(today.year) + '/' + str(today.month) + \
-	 									'/' + str(today.day) + '/'
+                                        '/' + str(today.day) + '/'
         filename = urlparse(data.image_url).path.split('/')[-1]
         save_path = os.path.join(upload_path1, filename)
         user_agent = 'Mozilla/5.0 (Windows NT 6.1; Win64; x64)'
@@ -309,12 +309,15 @@ def addPost(post_id, tag_list, moderated):
         data.image_url = ""
 
     if data.post_image and not data.post_image_gif():
-        data.image_url = srcsetThumb(data.post_image)
+        data.main_image_srcset = srcsetThumb(data.post_image)
+        # data.image_url = srcsetThumb(data.post_image)
 
     if not moderated:
         data.status = "P"
     data.save()
     cache.delete_pattern("post_list_*")
+    cache_str = "post_single_" + str(data.id)
+    cache.delete(cache_str)
     # tag_rating, _ = RatingTag.objects.cache().get_or_create(tag=tag)
     tag_rating, _ = RatingTag.objects.get_or_create(tag=tag)
     tag_rating.tag = tag
@@ -326,6 +329,7 @@ def addPost(post_id, tag_list, moderated):
     if _:
         post_rating.rating = 0.0
     post_rating.save()
+
     """try:
         if have_new_tags:
             pass

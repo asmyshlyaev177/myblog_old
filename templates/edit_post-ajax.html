@@ -5,7 +5,7 @@
 </script>
 <h1>Edit post</h1>
 
-<form action="{% url 'edit_post' postid %}" method="post" enctype="multipart/form-data">
+<form action="{% url 'edit_post' post.id %}" method="post" enctype="multipart/form-data">
 {% csrf_token %}
 
 <div class="input-field">
@@ -21,6 +21,7 @@
 </div>
 
 <p>{{ form.post_image.label_tag }}</p>
+
 <div class="row">
   <ul class="tabs tabs-fixed-width teal" id="file-url">
           <li class="tab col s3 "><a href="#file" class="waves-effect  white-text">File</a></li>
@@ -52,13 +53,16 @@
   onfocusout="ClearInput('id_post_image')">
 </div>
 
-
-
+{% if post.post_image %}
+<p>
+    <img src="{{ post.post_image.url }}"
+    id = "preview" class="responsive-img, post-image">
+</p>
+{% else %}
 <p>
   <img id="preview" />
 </p>
-
-
+{% endif %}
 
 
 <div class="input-field">
@@ -86,7 +90,6 @@
   {{ form.text.label_tag }}
 </div>
 
-
 <div class="input-field">
   {{ form.tags_new.label_tag }}
   <div data-tags-input-name="tag" id="tagBox"></div>
@@ -94,6 +97,10 @@
 
 <div class="input-field">
 <input class="hidden_tags" id="hidden_tags" name="hidden_tags" style=" display: none;">
+</div>
+
+<div id="tags_list" tags="{{ tags_list|safe }}">
+
 </div>
 
 <div style="height: 200px"></div>
@@ -167,10 +174,16 @@ $(document).ready(function(){
     ClearInput('id_post_image');
   });
   $('ul.tabs').tabs();
+
+  loadTags();
   //$('#file-url').children('.indicator').css('background-color', 'white');
 });
 
-
+function loadTags() {
+  tags_list = JSON.parse( $("#tags_list").attr('tags').
+    replace(/'/g, '"').trim() );
+  $("#tagBox").tagging( "add", tags_list );
+}
 
 
 

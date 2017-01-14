@@ -262,7 +262,8 @@ class Post(models.Model):
     upload_path = str(today.year) + '/' + str(today.month)\
                                 + '/' + str(today.day) + '/'
     post_image = models.ImageField(upload_to=upload_path, blank=True)
-    image_url = models.URLField(null=True, blank=True, max_length=500)
+    image_url = models.URLField(null=True, blank=True, max_length=1000)
+    main_image_srcset = models.TextField(null=True, blank=True)
 
     def post_image_gif(self):
         if self.post_image:
@@ -461,6 +462,7 @@ class Tag(models.Model):
 
     class Meta:
         verbose_name_plural = "tags"
+        ordering = ['name']
 
     def __str__(self):
         return self.name

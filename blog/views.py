@@ -163,16 +163,39 @@ def my_posts(request):
 @never_cache
 def edit_post(request, postid):
     template = 'edit_post.html'
+    post = Post.objects.get(id=postid)
 
     if request.method == 'POST':
-        pass
+        form = AddPostForm(request.POST, request.FILES, instance=post)
+        if form.is_valid():
+            data = form.save(commit=False)
+            if request.user.moderated:
+                moderated = True
+            else:
+                moderated = False
+            ##data.author = request.user
+            data.url = slugify(data.title)
+            title = data.title
+            tag_list = request.POST['hidden_tags'].split(',')  # tags list
+
+            have_new_tags = False
+            data.save()
+            post_id = data.id
+            addPost.delay(post_id, tag_list, moderated)
+
+            return render(request, 'added-post.html',
+                          {'title': title,
+                           'cat_list': cat_list})
+
     else:
-        post = Post.objects.get(id=postid)
         form = AddPostForm(instance=post)
 
+    tags_list = []
+    for i in post.tags.all():
+        tags_list.append(i.name)
     return render(request, template,
-                {'form': form, 'postid': postid,
-                 'cat_list': cat_list})
+                {'form': form, 'post': post,
+                 'cat_list': cat_list, 'tags_list': tags_list})
 
 
 @login_required(redirect_field_name='next', login_url='/login')
@@ -325,9 +348,10 @@ def list(request, category=None, tag=None, pop=None):
     return render(request, template, context)
 
 
-@cache_page(3)
-@cache_control(max_age=3)
-@vary_on_headers('X-Requested-With', 'Cookie')
+# @cache_page(3)
+# @cache_control(max_age=3)
+# @vary_on_headers('X-Requested-With', 'Cookie')
+@never_cache
 def single_post(request, tag, title, id):
 
     if request.is_ajax():

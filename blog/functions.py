@@ -59,8 +59,8 @@ def saveImage(link, file, sz):
             link.group("day"), uri_to_iri(link.group("file")),
             sz, link.group("ext"))
     link_out = '/media/{}/{}/{}/{}-{}.{}'\
-            .format(link.group("year"), link.group("month")
-            , link.group("day"), link.group("file"),
+            .format(link.group("year"), link.group("month"),
+            link.group("day"), link.group("file"),
             sz, link.group("ext"))
     img = Image.open(file)
     sz_tuple = (sz, sz * 20)
@@ -75,11 +75,19 @@ def srcsets(text, wrap_a, thumbnail=False):
     soup = BeautifulSoup(uri_to_iri(text), "lxml")  # текст поста
     print("***************************")
     print('soup ', str(soup))
+
+    # def not_processed_imgs(tag):
+    #    return (tag.name == 'img' and
+    #            'responsive-img' not in tag.get('class') and
+    #            'responsive-img,' not in tag.get('class'))
+
     img_links_raw = soup.find_all("img")  # ищем все картинки
+    #img_links_raw = soup.find_all(not_processed_imgs)
     print("***************************")
     print('img_links_raw ', str(img_links_raw))
     img_links = []
     for i in img_links_raw:  # фильтруем без srcset, ещё не обработанные
+        # i['class'].remove('fr-dii fr-draggable')
         if not i.has_attr('srcset'):
             img_links.append(i)
 
@@ -110,7 +118,7 @@ def srcsets(text, wrap_a, thumbnail=False):
 
             if os.path.isfile(file):
 
-                i['class'] = 'responsive-img, post-image'
+                i['class'] = 'responsive-img post-image'
                 # если картинка больше нужного размера создаём миниатюру
                 w, AttributeErrorh = Image.open(file).size
                 ext = i['src'].split('.')[-1].lower()
@@ -155,9 +163,9 @@ def srcsets(text, wrap_a, thumbnail=False):
                     for src in srcset.keys():
                         src_str += srcset[src] + " " + str(src) + "w, "
 
+                    src_str = src_str.rstrip(', ')
                     print("***************************")
                     print('src_str ', str(src_str))
-                    src_str = src_str.rstrip(', ')
                     i['srcset'] = src_str
                     i['src'] = alt
                     i['sizes'] = "60vw"
