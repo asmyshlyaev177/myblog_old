@@ -5,6 +5,18 @@
 {% if page == None %}
 
 <script>processing = false;
+$(".pop-tabs").show();
+path = window.location.pathname.split('/');
+link = $('a[href="/' + path[1] + '/' + path[2] + '"');
+link.addClass('active').parent().addClass('active');
+pop = path[3];
+$("#" + pop).addClass('active').parent().addClass('active');
+if ( $("a.menu.active[cat]").length ) {
+  category = $("a.menu.active[cat]").attr("href");
+} else {
+  category = "";
+}
+
 </script>
 
 {% if category %}
@@ -23,6 +35,7 @@
 
 {% endif %}
 
+<div class="posts">
 {% if not posts == None %}
 {% for post in posts %}
 
@@ -94,4 +107,5 @@
 {% endfor %}
 {% endif %}
 
+</div>
 {% endautoescape %}

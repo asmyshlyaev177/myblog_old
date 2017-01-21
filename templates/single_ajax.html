@@ -1,7 +1,9 @@
 {% load post_header %}
 
 <script>processing = true;
-wsConnect();</script>
+wsConnect();
+$(".pop-tabs").hide();
+</script>
 
 {% autoescape off %}
 <h1 class="center-align post-title">{{ post.title }}</h1>
@@ -51,7 +53,6 @@ id = "def_form_place">
 <script>
 Comments();
 </script>
-
 
 {% endautoescape %}
 

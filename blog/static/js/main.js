@@ -185,7 +185,6 @@ function disableRate() {
 	}
 }
 
-
 function getCookie(name) {
     var cookieValue = null;
     if (document.cookie && document.cookie !== '') {
@@ -223,13 +222,31 @@ function Scroll() {
   if ( $(document).scrollTop() > ( ($(document).height() - $(window).height())-300  )) {
 	  processing = true; //prevent multiple scrolls once first is hit
 	  if ( $( "#last_page" ).length == 0 ) {
-		loader.css('top', '').css('left', '').css('position', 'static').show();
-		page += 1;
-		loadMore();
+			loader.css('top', '').css('left', '').css('position', 'static').show();
+			page += 1;
+			loadMore();
 		}
    }
 	});
 	}
+
+function loadMore(){
+	console.log("load url " + category+ "?page=" +page);
+     $.ajax({
+      type:"GET",
+		  //cache : false,
+      url:category+"?page="+page,
+      success:function(data){
+               $('.posts').append(data); //adds data to the end of the table
+               processing = false; // the processing variable prevents multiple ajax calls when scrolling
+							 loader.hide();
+							 disableRate();
+							 //setTimeout( stubImgs(), 0 );
+              	//ImageHeight();
+          }
+     });
+
+}
 
 function ToTop() {
 	$(document).on('click', '.back-to-top', function() {
@@ -253,6 +270,8 @@ function TopButtonScroll(){
 
 function ClickAjaxMenu() {
 	$(document).on('click', '.ajax-menu', function() {
+	$(".menu").removeClass('active');
+	$(this).addClass('active');
 	//event.preventDefault();
 	pop = "";
 	ajax_menu = $(this);
@@ -270,7 +289,6 @@ function ClickAjaxMenu() {
 				//debugger;
 			if ( ajax_menu.is("[cat]") ) {
 				category = "/cat/" + myurl.toLowerCase();
-				console.log("category= " + category);
 			} else if ( ajax_menu.is("[pop]") ) {
 				pop = myurl.toLowerCase();
 			} else {
@@ -296,10 +314,8 @@ function ClickAjaxMenu() {
 		} else {
 			url = category + '/' + pop;
 		}
-		console.log("pop url " + url);
 	} else {
 		url = category;
-		console.log("url " + url);
 	}
 
 		window.history.pushState({state:'new'}, "",  url);
@@ -315,11 +331,7 @@ function cloneComment( data ) {
 			com.removeClass('sample_comment');
 			com.attr('comment_id', comment['id']);
 			com.attr('level', comment['level']);
-			console.log('level: ' + comment['level'] +
-			' com level '+ com.attr('level') );
 			com.attr('parent', comment['parent']);
-			console.log('parent: ' + comment['parent'] +
-			' com parent '+ com.attr('parent') );
 			com.css('margin-left', comment['level']*25+'px');
 			com.find('.comment_text').html(comment['text']);
 			com.find('.comment_user_avatar').children().attr('src', '/static' + comment['avatar']);
@@ -331,19 +343,16 @@ function cloneComment( data ) {
 		var parent = $( p_str );
 		var last_child = $("[parent="+parseInt(comment['parent']) +"]").last();
 	} else {
-		console.log("root com");
 		$(".comments").append( com );
 		com.wrap('<ul><li></li></ul>');
 		com.css('display', 'block');
 	}
 
 	if (last_child.length > 0) {
-		//console.log("append after last child");
 		last_child = $( last_child ).parent('li');
 		$( last_child ).after(com);
 		com.wrap('<li></li>');
 	} else {
-		//console.log("append after parent");
 		if ( parent.length > 0 ) {
 			$( parent ).after(com);
 			com.wrap('<ul><li></li></ul>');
@@ -361,7 +370,6 @@ function wsConnect() {
 			{maxReconnectInterval: 2000, maxReconnectAttempts: 10});
 		socket.onmessage = function(e) {
 			try {
-				console.log(e.data);
 				var elem = JSON.parse(e.data);
 				if ( elem['comment'] ) {
 					cloneComment(elem);
@@ -372,24 +380,20 @@ function wsConnect() {
 		socket.onopen = function() {
 			//socket.send("hello world");
 			sockets[window.location.pathname] = socket;
-			console.log("socket "+ socket.url + " opened");
 		}
-		socket.onclose = function() {
+		//socket.onclose = function() {
 			//socket.send("disconnect");
-			console.log("socket "+ socket.url + " closed");
-		}
+		//}
 		// Call onopen directly if socket is already open
 		if (socket.readyState == WebSocket.OPEN) socket.onopen();
 		}
 	}
 
-function ChangePageNew( link, myurl, single ) {
+function ChangePageNew( link, myurl, single_page ) {
 	content = $(".content")
 	content.fadeTo(0, 0.1);
-
 	//try {
 		for ( socket in sockets ) {
-			console.log("socket "+ socket + " CLOSED");
 			sockets[socket].close();
 			//delete sockets[socket];
 		}
@@ -401,26 +405,26 @@ function ChangePageNew( link, myurl, single ) {
 		  //cache : false,
 		  url: link,
       success:function(data){
-	      data2 = ('<div class="posts">' + data + '</div>');
-	      $(data2).replaceAll('.posts');
+	      data2 = ('<div class="content">' + data + '</div>');
+	      $(data2).replaceAll('.content');
 				content.fadeTo(0, 1);
 				$('#load_circle').hide();
 				disableRate();
-				$(".login-link").attr("href", "/login?next=" + window.location.pathname);
-				$(".logout-link").attr("href", "/logout?next=" + window.location.pathname);
+				$("#login-link").attr("href", "/login?next=" + window.location.pathname);
+				$("#logout-link").attr("href", "/logout?next=" + window.location.pathname);
           }
      });
 
-
+		 if ( !$("div.posts").length ) {
+		 	$(".pop-tabs").hide();
+		 }
    page = 1;
-
 	$(".menu").parent().removeClass('active');
 
- 	if ( myurl != "" && single == false) {
+ 	if ( myurl != "" && single_page == false) {
 				link = link.split('/');
 				pop = link.pop();
 				cat = link.pop();
-				console.log("pop " + pop + " link " + link);
 				if ( pop == "pop-all" || pop == "pop-best") {
 								$('.menu').filter( $('#'+pop ) ).parent().addClass('active');
 								$('.menu').filter( $('#'+cat ) ).parent().addClass('active');
@@ -428,8 +432,7 @@ function ChangePageNew( link, myurl, single ) {
 								$('.menu').filter( $('#'+myurl ) ).parent().addClass('active');
 							}
     }
-
-};
+	};
 
 function BackForwardButtons() {
 	window.onpopstate = function(event) {
@@ -437,23 +440,6 @@ function BackForwardButtons() {
 		//myurl = category.split('/').pop()
 	  ChangePageNew(url);
 	};
-
-}
-
-function loadMore(){
-     $.ajax({
-      type:"GET",
-		  //cache : false,
-      url:category+"?page="+page,
-      success:function(data){
-               $('.posts').append(data); //adds data to the end of the table
-               processing = false; // the processing variable prevents multiple ajax calls when scrolling
-							 loader.hide();
-							 disableRate();
-							 //setTimeout( stubImgs(), 0 );
-              	//ImageHeight();
-          }
-     });
 
 }
 
@@ -493,4 +479,7 @@ function Preview( files, el_id, height ) {
 	preview = document.getElementById(el_id)
 	preview.src = window.URL.createObjectURL(files);
 	preview.height = height;
-}
+  }
+
+
+//
