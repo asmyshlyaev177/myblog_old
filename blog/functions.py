@@ -120,7 +120,7 @@ def srcsets(text, wrap_a, thumbnail=False):
 
                 i['class'] = 'responsive-img post-image'
                 # если картинка больше нужного размера создаём миниатюру
-                w, AttributeErrorh = Image.open(file).size
+                w, h = Image.open(file).size
                 ext = i['src'].split('.')[-1].lower()
 
                 if ext == "jpg" or ext == "jpeg" or ext == "bmp" or ext == "png":

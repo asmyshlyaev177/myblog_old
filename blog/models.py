@@ -277,11 +277,11 @@ class Post(models.Model):
             return False
 
     post_image.short_description = 'Image'
-    # post_thumbnail = ImageSpecField(source='post_image',
-    #                            processors=[ResizeToFit(1366, 2000)],
-    #                            format='JPEG',
-    #                            options={'quality': 85})
-    post_thumbnail = models.ImageField(upload_to=upload_path, blank=True)
+    post_thumbnail = ImageSpecField(source='post_image',
+                                processors=[ResizeToFit(1366, 2000)],
+                                format='JPEG',
+                                options={'quality': 85})
+    #post_thumbnail = models.ImageField(upload_to=upload_path, blank=True)
 
     def get_image(self):
         return mark_safe('<img src="%s" class ="responsive-img center-align"/>'
