@@ -408,9 +408,11 @@ function ChangePageNew( link, myurl, single ) {
 				content.fadeTo(0, 1);
 				$('#load_circle').hide();
 				disableRate();
+				$(".redirect-url").attr("href", "/login?next=" + window.location.pathname);
           }
      });
-	//window.history.pushState({state:'new'}, "",  link);
+
+
    page = 1;
 
 	$(".menu").parent().removeClass('active');

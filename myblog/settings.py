@@ -90,8 +90,8 @@ SOCIAL_AUTH_VK_OAUTH2_SCOPE = ['email']
 SOCIAL_AUTH_USER_MODEL = 'blog.myUser'
 SOCIAL_AUTH_PROTECTED_USER_FIELDS = ['email', ]
 
-LOGIN_REDIRECT_URL = '/'
-LOGOUT_REDIRECT_URL = '/'
+#LOGIN_REDIRECT_URL = '/'
+#LOGOUT_REDIRECT_URL = '/'
 
 # SOCIAL_AUTH_LOGIN_REDIRECT_URL = '/'
 # SOCIAL_AUTH_LOGIN_ERROR_URL = '/login-error/'
@@ -222,10 +222,10 @@ TEMPLATES = [
         'OPTIONS': {
             'context_processors': [
                 'django.template.context_processors.debug',
+                'django.template.context_processors.request',
                 'social.apps.django_app.context_processors.backends',
                 'social.apps.django_app.context_processors.login_redirect',
                 'django.contrib.auth.context_processors.auth',
-                'django.template.context_processors.request',
                 'django.contrib.messages.context_processors.messages',
 
             ],

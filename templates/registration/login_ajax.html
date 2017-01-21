@@ -17,6 +17,7 @@
 <div>
   <form action="{% url 'login' %}" method="post">
     <!-- label[for="id_username"] { color: red } -->
+ <input type="hidden" name="next" value="{{ next }}" />
 
     <div class="input-field">
       {{ form.username.label_tag }}
