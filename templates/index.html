@@ -153,6 +153,7 @@ style="border: 1px black dotted;">
 
       <p>Sidebar 1</p>
     {% if user.is_authenticated %}
+    <div id="user_auth"></div>
       <p><a href="{% url 'dashboard' %}" single_page
         url = "dashboard" class="ajax-menu">
         {{ user.username }}
@@ -167,14 +168,14 @@ style="border: 1px black dotted;">
       <p><a href="{% url 'add_post' %}" single_page
         url = "add-post" class="ajax-menu">Add Post</a></p>
       <p><a href="{% url 'logout' %}?next={{request.path}}"
-        class="redirect-url" >Logout</a></p>
+        id="logout-link" >Logout</a></p>
     {% else %}
       <p><a href="{% url 'signup' %}">Register</a></p>
       <p><a href="{% url 'login' %}?next={{request.path}}" single_page
-        url = "login" class="ajax-menu redirect-url">Log-in</a></p>
+        id="login-link" url = "login" class="ajax-menu">Log-in</a></p>
 
       <p><a href="{% url 'login' %}?next={{request.path}}"
-        class="redirect-url" rel="modal:open">log-in modal</a></p>
+        id="login-link" rel="modal:open">log-in modal</a></p>
 
 
       <p><a href="{% url 'social:begin' 'google-oauth2' %}?next={{ request.path }}">Login with google</a></p>
