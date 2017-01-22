@@ -1,0 +1,29 @@
+ffmpeg version N-83183-gd60f090 Copyright (c) 2000-2017 the FFmpeg developers
+  built with gcc 4.4.7 (GCC) 20120313 (Red Hat 4.4.7-17)
+  configuration: --prefix=/root/ffmpeg_build --extra-cflags=-I/root/ffmpeg_build/include --extra-ldflags='-L/root/ffmpeg_build/lib -ldl' --bindir=/root/bin --pkg-config-flags=--static --enable-gpl --enable-nonfree --enable-libfreetype --enable-libmp3lame --enable-libvorbis --enable-libvpx --enable-libx264 --enable-libx265
+  libavutil      55. 43.100 / 55. 43.100
+  libavcodec     57. 75.100 / 57. 75.100
+  libavformat    57. 62.100 / 57. 62.100
+  libavdevice    57.  2.100 / 57.  2.100
+  libavfilter     6. 69.100 /  6. 69.100
+  libswscale      4.  3.101 /  4.  3.101
+  libswresample   2.  4.100 /  2.  4.100
+  libpostproc    54.  2.100 / 54.  2.100
+Input #0, rawvideo, from 'pipe:':
+  Duration: N/A, start: 0.000000, bitrate: 54432 kb/s
+    Stream #0:0: Video: rawvideo (RGB[24] / 0x18424752), rgb24, 450x252, 54432 kb/s, 20 tbr, 20 tbn, 20 tbc
+Codec AVOption preset (Set the encoding preset (cf. x264 --fullhelp)) specified for output file #0 (/root/myblog/myblog/blog/static/media/2017/1/21/1.webm) has not been used for any stream. The most likely reason is either wrong type (e.g. a video option with no video streams) or that it is a private option of some encoder which was not actually used for any stream.
+[libvpx @ 0xae18a00] v1.3.0
+Output #0, webm, to '/root/myblog/myblog/blog/static/media/2017/1/21/1.webm':
+  Metadata:
+    encoder         : Lavf57.62.100
+    Stream #0:0: Video: vp8 (libvpx), yuv420p, 450x252, q=-1--1, 200 kb/s, 20 fps, 1k tbn, 20 tbc
+    Metadata:
+      encoder         : Lavc57.75.100 libvpx
+    Side data:
+      cpb: bitrate max/min/avg: 0/0/0 buffer size: 0 vbv_delay: -1
+Stream mapping:
+  Stream #0:0 -> #0:0 (rawvideo (native) -> vp8 (libvpx))
+[swscaler @ 0xae231a0] Warning: data is not aligned! This can lead to a speedloss
+frame=    9 fps=0.0 q=0.0 size=       0kB time=00:00:00.40 bitrate=   8.7kbits/s speed=0.743x    frame=   15 fps= 14 q=0.0 size=       0kB time=00:00:00.70 bitrate=   5.0kbits/s speed=0.642x    frame=   19 fps= 12 q=0.0 size=       0kB time=00:00:00.90 bitrate=   3.9kbits/s speed=0.564x    frame=   23 fps= 10 q=0.0 size=       0kB time=00:00:01.10 bitrate=   3.2kbits/s speed=0.503x    frame=   29 fps= 10 q=0.0 size=       0kB time=00:00:01.40 bitrate=   2.5kbits/s speed=0.504x    frame=   34 fps= 10 q=0.0 size=       0kB time=00:00:01.65 bitrate=   2.1kbits/s speed=0.493x    frame=   41 fps= 10 q=0.0 size=       0kB time=00:00:02.00 bitrate=   1.7kbits/s speed=0.508x    frame=   44 fps=9.5 q=0.0 size=       0kB time=00:00:02.15 bitrate=   1.6kbits/s speed=0.467x    frame=   50 fps=9.7 q=0.0 size=       0kB time=00:00:02.45 bitrate=   1.4kbits/s speed=0.474x    frame=   52 fps=9.1 q=0.0 size=       0kB time=00:00:02.55 bitrate=   1.4kbits/s speed=0.447x    frame=   57 fps=9.1 q=0.0 size=       0kB time=00:00:02.80 bitrate=   1.2kbits/s speed=0.446x    frame=   58 fps=8.4 q=0.0 size=       0kB time=00:00:02.85 bitrate=   1.2kbits/s speed=0.415x    frame=   63 fps=8.5 q=0.0 size=       0kB time=00:00:03.10 bitrate=   1.1kbits/s speed=0.416x    frame=   65 fps=8.2 q=0.0 size=       0kB time=00:00:03.20 bitrate=   1.1kbits/s speed=0.402x    frame=   70 fps=8.2 q=0.0 size=       0kB time=00:00:03.45 bitrate=   1.0kbits/s speed=0.406x    frame=   72 fps=7.9 q=0.0 size=       0kB time=00:00:03.55 bitrate=   1.0kbits/s speed=0.388x    frame=   75 fps=7.8 q=0.0 size=       0kB time=00:00:03.70 bitrate=   0.9kbits/s speed=0.383x    frame=   77 fps=7.5 q=0.0 size=       0kB time=00:00:03.80 bitrate=   0.9kbits/s speed=0.372x    frame=   79 fps=7.3 q=0.0 size=       0kB time=00:00:03.90 bitrate=   0.9kbits/s speed=0.361x    frame=   84 fps=7.4 q=0.0 size=       0kB time=00:00:04.15 bitrate=   0.8kbits/s speed=0.364x    frame=   86 fps=7.0 q=0.0 size=       0kB time=00:00:04.25 bitrate=   0.8kbits/s speed=0.348x    frame=   90 fps=7.0 q=0.0 size=       0kB time=00:00:04.45 bitrate=   0.8kbits/s speed=0.348x    frame=   93 fps=6.5 q=0.0 size=       0kB time=00:00:04.60 bitrate=   0.8kbits/s speed=0.322x    frame=   94 fps=6.4 q=0.0 size=       0kB time=00:00:04.65 bitrate=   0.8kbits/s speed=0.314x    frame=   95 fps=6.1 q=0.0 size=       0kB time=00:00:04.70 bitrate=   0.7kbits/s speed=0.304x    frame=   96 fps=5.9 q=0.0 size=       0kB time=00:00:04.75 bitrate=   0.7kbits/s speed=0.294x    frame=  100 fps=5.9 q=0.0 size=     123kB time=00:00:04.95 bitrate= 204.0kbits/s speed=0.293x    frame=  100 fps=5.9 q=0.0 Lsize=     130kB time=00:00:04.95 bitrate= 214.3kbits/s speed=0.29x    
+video:128kB audio:0kB subtitle:0kB other streams:0kB global headers:0kB muxing overhead: 0.916733%
