@@ -19,6 +19,8 @@ django.setup()
 
 }
 
+установить librabbitmq
+
 NGINX compile
 ./configure --sbin-path=/usr/local/nginx/nginx\
  --conf-path=/usr/local/nginx/nginx.conf \

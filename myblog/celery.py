@@ -7,6 +7,7 @@ from django.conf import settings
 from datetime import timedelta
 from kombu.serialization import register
 
+
 register('json', json.dumps, json.loads, content_type='application/json',
          content_encoding='utf-8')
 # set the default Django settings module for the 'celery' program.
@@ -20,7 +21,8 @@ app.conf.update(
     result_backend='redis://',
     backend='redis://',
     result_serializer='json',
-    broker_url='amqp://guest:guest@localhost//',
+    broker_url='pyamqp://guest:guest@127.0.0.1/',
+    # broker_url='librabbitmq://guest:guest@localhost/',
     result_expires=120,
 )
 

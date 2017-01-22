@@ -269,7 +269,7 @@ class Post(models.Model):
         if self.post_image:
             ext = []
             ext = self.post_image.path.split('.')
-            if ext[-1] == "gif":
+            if ext[-1] == "gif" or ext[-1] == "webm":
                 return True
             else:
                 return False

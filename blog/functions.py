@@ -1,9 +1,10 @@
 # -*- coding: utf-8 -*-
-import os, datetime, json, re
+import os, datetime, json, re, shutil, random
 from bs4 import BeautifulSoup
 from PIL import Image
 import datetime
 from django.utils.encoding import uri_to_iri, iri_to_uri
+from moviepy.editor import *
 
 src_szs = [480, 800, 1366, 1600, 1920]
 
@@ -29,11 +30,11 @@ def deleteThumb(text):
 
 
 def srcsetThumb(data):
-    thumb = BeautifulSoup("lxml").new_tag("img")
+    thumb = BeautifulSoup("html5lib").new_tag("img")
     thumb['src'] = "/" + str(data)
-    soup = srcsets(thumb, False, thumbnail=True)
+    soup = srcsets(thumb, False)
     soup.html.unwrap()
-    # soup.head.unwrap()
+    soup.head.unwrap()
     soup.body.unwrap()
     image_url = soup.prettify()
     return str(image_url)
@@ -70,9 +71,9 @@ def saveImage(link, file, sz):
     return link_out
 
 
-def srcsets(text, wrap_a, thumbnail=False):
+def srcsets(text, wrap_a):
     """Make few srcsets"""
-    soup = BeautifulSoup(uri_to_iri(text), "lxml")  # текст поста
+    soup = BeautifulSoup(uri_to_iri(text), "html5lib")  # текст поста
     print("***************************")
     print('soup ', str(soup))
 
@@ -123,7 +124,9 @@ def srcsets(text, wrap_a, thumbnail=False):
                 w, h = Image.open(file).size
                 ext = i['src'].split('.')[-1].lower()
 
-                if ext == "jpg" or ext == "jpeg" or ext == "bmp" or ext == "png":
+                if ext == "gif":
+                    notgif = False
+                else:
                     notgif = True
 
                 if notgif:
@@ -175,6 +178,35 @@ def srcsets(text, wrap_a, thumbnail=False):
                         format(link.group("year"), link.group("month"),\
                                link.group("day"),link.group("file"),alt,\
                                link.group("ext"))"""
+                else:  # конвертим гифки в webm
+                    file_out = "/root/myblog/myblog/blog/static/media/{}/{}/{}/{}.webm"\
+                    .format(link.group("year"), link.group("month"),
+                        link.group("day"), link.group("file"))
+                    file_out_tmp = "/tmp/{}.webm".format(random.randint(1, 1000))
+                    link_out = '/media/{}/{}/{}/{}.webm'\
+                            .format(link.group("year"), link.group("month"),
+                            link.group("day"), link.group("file"))
+                    file_tmp = "/tmp{}.gif".format(random.randint(1, 1000))
+                    shutil.move(file, file_tmp)
+
+                    clip = VideoFileClip(file_tmp)
+                    video = CompositeVideoClip([clip])
+                    video.write_videofile(file_out_tmp, codec='libvpx', audio=False,
+                            ffmpeg_params=['-crf', '4', '-b:v', '1500K'])
+                    shutil.move(file_out_tmp, uri_to_iri(file_out))
+
+                    webm = BeautifulSoup("", "html5lib").new_tag("video")
+                    webm['autoplay'] = ""
+                    webm['loop'] = ""
+                    webm['controls'] = ""
+                    source = BeautifulSoup("", "html5lib").new_tag("source")
+                    source['src'] = link_out
+                    source['type'] = "video/webm"
+                    webm.insert(0, source)
+                    i.replaceWith(webm)
+                    #os.remove(original_pic)
+                    os.remove(file_tmp)
+
                 if wrap_a and notgif:
                     a_tag = soup.new_tag("a")
                     # оборачиваем в ссылку на оригинал

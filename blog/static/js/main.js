@@ -25,6 +25,7 @@ $(window).load(function(){
 	//setTimeout( stubImgs(), 0 );
 	hideBanner();
 	setTimeout( wsConnect(), 0 );
+	playPause();
 });
 
 function hideBanner() {
@@ -74,6 +75,16 @@ function Comments() {
      });
 	 });
 }
+
+function playPause() {
+	$(document).on('click', 'video', function(e) {
+		if ( this.paused ) {
+			this.play();
+		} else {
+			this.pause();
+		}
+	});
+ }
 
 function AddCommentBtn() {
 	$(document).on('click', '.btn.add-comment', function (e) {

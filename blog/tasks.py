@@ -16,20 +16,7 @@ from blog.functions import srcsets, srcsetThumb
 from django.core.cache import cache
 from channels import Group
 
-app = Celery('tasks', broker='pyamqp://guest@localhost//')
-
-
-# @periodic_task(run_every=timedelta(seconds=10))
-"""@app.task(name='taglist')
-def taglist():
-    tags = Tag.objects.all().values()
-    data = []
-    for i in tags:
-        data.append(i['name'])
-    filename = "/root/myblog/myblog/blog/static/taglist.json"
-    with open(filename, 'w', encoding='utf8') as out:
-        out.write(json.dumps(data), ensure_ascii=False)
-        """
+app = Celery('tasks', broker='amqp://guest:guest@127.0.0.1/')
 
 delta_tz = datetime.timedelta(hours=+3)
 tz = datetime.timezone(delta_tz)
@@ -145,7 +132,7 @@ def CalcRating():
         post_rate.save()
         user_rating.save()
 
-"""    # rating for main page
+    """    # rating for main page
     best_posts = {}   # доделать рейтинги за неделю, не за день
     keys = cache.keys('rating_post_day_*')
     for k in keys:
@@ -263,8 +250,9 @@ def addPost(post_id, tag_list, moderated):
                 data.main_tag = tag
             j = False
 
-    # создаём картинки из текста
+    # ищем картинки в тексте
     soup = srcsets(data.text, True)
+
     # выравниваем видео по центру
     ifr_links = soup.find_all("iframe")
     ifr_class = []
@@ -277,7 +265,7 @@ def addPost(post_id, tag_list, moderated):
             i['class'] = ifr_class
 
     soup.html.unwrap()
-    # soup.head.unwrap()
+    soup.head.unwrap()
     soup.body.unwrap()
     data.text = soup.prettify()
 
