@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 import os, json
 from celery import Celery
 from celery.task import periodic_task
@@ -13,18 +12,16 @@ register('json', json.dumps, json.loads, content_type='application/json',
 # set the default Django settings module for the 'celery' program.
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'myblog.settings')
 
-app = Celery('myblog')
+app = Celery('myblog',
+                backend='redis://',
+                result_serializer='json',
+                broker_url='pyamqp://guest:guest@127.0.0.1/',
+                result_expires=120,
+                result_backend='redis://',
+                include=['blog.tasks'])
 
 app.config_from_object('django.conf:settings', namespace='CELERY')
 
-app.conf.update(
-    result_backend='redis://',
-    backend='redis://',
-    result_serializer='json',
-    broker_url='pyamqp://guest:guest@127.0.0.1/',
-    # broker_url='librabbitmq://guest:guest@localhost/',
-    result_expires=120,
-)
 
 # Load task modules from all registered Django app configs.
 app.autodiscover_tasks()

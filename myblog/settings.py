@@ -12,6 +12,8 @@ https://docs.djangoproject.com/en/1.10/ref/settings/
 import os
 import datetime
 
+CELERY_RESULT_BACKEND = 'django-cache'
+
 CHANNEL_LAYERS = {
     "default": {
         "BACKEND": "asgi_redis.RedisChannelLayer",
@@ -165,6 +167,8 @@ INSTALLED_APPS = [
     'django_extensions',
     'mptt',
     'channels',
+    'django_celery_results',
+    'django_celery_beat',
     # 'silk',
 ]
 
