@@ -1,25 +1,25 @@
 #!/bin/sh
 #
-# Simple UWSGI init.d script conceived to work on Linux systems
+# Simple GUNICORN init.d script conceived to work on Linux systems
 # as it does use of the /proc filesystem.
 
 EXEC="cd /root/myblog; source bin/activate; cd /root/myblog/myblog; \
-	/root/myblog/bin/uwsgi --module myblog.wsgi:application \
-	-c /root/myblog/myblog/uwsgi.ini"
-PIDFILE="/tmp/uwsgi.pid"
-#CONF="/root/myblog/myblog/uwsgi.ini"
+	/root/myblog/bin/gunicorn myblog.wsgi:application -c \
+	/root/myblog/myblog/gunicorn.conf"
+PIDFILE="/var/run/gunicorn.pid"
+CONF="/root/myblog/myblog/gunicorn.conf"
 
 start() 
 	{
-		cd /root/myblog && source bin/activate && sleep 3
         if [ -f $PIDFILE ]
         then
                 echo "$PIDFILE exists, process is already running or crashed"
-                rm -rf $PIDFILE
-                /bin/su -l root -c /bin/bash -c "$EXEC"
+                rm -rf $PIDFILE && sleep 5
+		/bin/su -l root -c /bin/bash -c "$EXEC" &
         else
-                echo "Starting UWSGI server..."
-                /bin/su -l root -c /bin/bash -c "$EXEC"
+                echo "Starting GUNICORN server..."
+		/bin/su -l root -c /bin/bash -c "$EXEC" &
+
         fi
 	}
 	
@@ -28,11 +28,13 @@ stop()
 	if [ ! -f $PIDFILE ]
         then
                 echo "Try to stop UWSGI"
-                /root/myblog/bin/uwsgi --stop $PIDFILE 
 		kill `ps aux | grep gunicorn | gawk '{print $2}'`
+                /bin/sleep 10
+
         else
-		/root/myblog/bin/uwsgi --stop $PIDFILE 
+                echo "Stopping ..."
 		kill `ps aux | grep gunicorn | gawk '{print $2}'`
+                /bin/sleep 10
         fi
 	}
 case "$1" in
