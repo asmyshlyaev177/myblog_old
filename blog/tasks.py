@@ -16,7 +16,7 @@ from blog.functions import srcsets, srcsetThumb
 from django.core.cache import cache
 from channels import Group
 
-app = Celery('tasks', broker='amqp://guest:guest@127.0.0.1/')
+app = Celery('tasks', broker='amqp://guest:guest@localhost//')
 
 delta_tz = datetime.timedelta(hours=+3)
 tz = datetime.timezone(delta_tz)

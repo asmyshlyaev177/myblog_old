@@ -15,7 +15,7 @@ os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'myblog.settings')
 app = Celery('myblog',
                 backend='redis://',
                 result_serializer='json',
-                broker_url='pyamqp://guest:guest@127.0.0.1/',
+                broker_url='pyamqp://guest:guest@localhost//',
                 result_expires=120,
                 result_backend='redis://',
                 include=['blog.tasks'])
