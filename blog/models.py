@@ -2,7 +2,9 @@
 from django.db import models
 from django.contrib.auth.models import (AbstractBaseUser,
                                         BaseUserManager)
-from slugify import slugify, SLUG_OK
+#from slugify import slugify   #####can't install
+from django.utils.text import slugify
+
 from django.utils import timezone
 import datetime, re, os, datetime
 from time import gmtime, strftime
@@ -319,12 +321,10 @@ class Post(models.Model):
 
     def get_absolute_url(self):
         cat_url = self.main_tag.url
-        # post_url = slugify(unidecode(self.title))
         return "/%s/%s-%i/" % (cat_url, self.url, self.id)
 
     def get_url(self):
         cat_url = self.main_tag.url
-        # post_url = slugify(unidecode(self.title))
         return "%s/%s-%i/" % (cat_url, self.url, self.id)
 
     def get_category(self):
@@ -436,7 +436,7 @@ class Category(models.Model):
         return self.name
 
     def get_url(self):
-        cat_url = slugify(self.name.lower())
+        cat_url = slugify(self.name.lower(), allow_unicode=True)
         return "/%s/" % (cat_url)
 
     @classmethod
@@ -446,7 +446,7 @@ class Category(models.Model):
 
     def save(self, *args, **kwargs):
         # if not self.slug:
-        self.slug = slugify(self.name.lower())
+        self.slug = slugify(self.name.lower(), allow_unicode=True)
         super(Category, self).save(*args, **kwargs)
 
 

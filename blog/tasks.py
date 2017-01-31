@@ -4,7 +4,8 @@ from datetime import timedelta
 import os, datetime, json, re
 from blog.models import (Post, RatingPost, RatingTag, RatingComment, Tag,
                         RatingUser, Category, Comment)
-from slugify import slugify, SLUG_OK
+##from slugify import slugify, SLUG_OK
+from django.utils.text import slugify
 from bs4 import BeautifulSoup
 from PIL import Image
 from urllib.parse import urlparse, urlencode
@@ -224,14 +225,14 @@ def addPost(post_id, tag_list, moderated):
     for i in tag_list:
         if len(i) > 2:
             if nsfw:
-                tag_url = slugify(i.lower() + "_nsfw")
+                tag_url = slugify(i.lower() + "_nsfw", allow_unicode=True)
                 try:
                     tag = Tag.objects.get(url__iexact=tag_url)
                 except:
                     have_new_tags = True
                     tag = Tag.objects.create(name=i, url=tag_url)
             else:
-                tag_url = slugify(i.lower())
+                tag_url = slugify(i.lower(), allow_unicode=True)
                 try:
                     tag = Tag.objects.get(url__iexact=tag_url)
                 except:

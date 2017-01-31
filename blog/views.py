@@ -1,7 +1,8 @@
 # -*- coding: utf-8 -*-
 from django.shortcuts import render
 from blog.models import (Post, Category, Tag, Comment)
-from slugify import slugify
+#from slugify import slugify
+from django.utils.text import slugify
 from blog.forms import SignupForm, MyUserChangeForm, AddPostForm, CommentForm
 from django.http import (HttpResponseRedirect,
                         HttpResponse, HttpResponseNotFound)
@@ -174,7 +175,7 @@ def edit_post(request, postid):
             else:
                 moderated = False
             ##data.author = request.user
-            data.url = slugify(data.title)
+            data.url = slugify(data.title, allow_unicode=True)
             title = data.title
             tag_list = request.POST['hidden_tags'].split(',')  # tags list
 
@@ -219,7 +220,7 @@ def add_post(request):
                 moderated = False
 
             data.author = request.user
-            data.url = slugify(data.title)
+            data.url = slugify(data.title, allow_unicode=True)
             title = data.title
             tag_list = request.POST['hidden_tags'].split(',')  # tags list
 

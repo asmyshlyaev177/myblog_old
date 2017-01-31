@@ -19,7 +19,7 @@ CHANNEL_LAYERS = {
         "BACKEND": "asgi_redis.RedisChannelLayer",
         "ROUTING": "blog.routing.channel_routing",
         "CONFIG": {
-            "hosts": [("127.0.0.1", 6379)],
+            "hosts": [("redis://:Qvjuzowu177Qvjuzowu177Qvjuzowu177@redis:6379/0")],
             "capacity": 1000,
         },
     },
@@ -64,7 +64,7 @@ ALLOWED_HOSTS = ['*']
 DEBUG_TOOLBAR_PATCH_SETTINGS = False
 JQUERY_URL = ""
 SHOW_COLLAPSED = True
-INTERNAL_IPS = ['192.168.1.68', '192.168.1.70', '127.0.0.1']
+INTERNAL_IPS = ['192.168.1.68', '192.168.1.70', '127.0.0.1', '192.168.1.244']
 
 EMAIL_USE_TLS = True
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
@@ -139,10 +139,12 @@ AUTH_USER_MODEL = 'blog.myUser'
 CACHES = {
     "default": {
         "BACKEND": "django_redis.cache.RedisCache",
-        "LOCATION": "unix:///tmp/redis.sock?db=0",
+        "LOCATION": "unix:////root/myblog/redis/redis.sock?db=0",
+	#"LOCATION": "172.17.0.2:6379",
         "OPTIONS": {
+            "PASSWORD": "Qvjuzowu177Qvjuzowu177Qvjuzowu177",
             "CLIENT_CLASS": "django_redis.client.DefaultClient",
-            "CONNECTION_POOL_KWARGS": {"max_connections": 100},
+            "CONNECTION_POOL_KWARGS": {"max_connections": 300},
         }
     }
 }
