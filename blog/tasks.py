@@ -16,8 +16,9 @@ from urllib.request import urlopen, Request
 from blog.functions import srcsets, srcsetThumb
 from django.core.cache import cache
 from channels import Group
+from myblog.celery import app
 
-app = Celery('tasks', broker='amqp://guest:guest@localhost//')
+#app = Celery('myblog', broker='amqp://django:Qvjuzowu177Qvjuzowu177Qvjuzowu177@rabbitmq:5672//')
 
 delta_tz = datetime.timedelta(hours=+3)
 tz = datetime.timezone(delta_tz)

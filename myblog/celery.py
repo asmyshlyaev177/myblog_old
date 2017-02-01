@@ -15,10 +15,11 @@ os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'myblog.settings')
 app = Celery('myblog',
                 backend='redis://Qvjuzowu177Qvjuzowu177Qvjuzowu177@redis:6379/0',
                 result_serializer='json',
-                broker_url='pyamqp://guest:guest@host//rabbitmq',
+                broker_url='amqp://django:Qvjuzowu177Qvjuzowu177Qvjuzowu177@rabbitmq:5672//',
                 result_expires=120,
                 result_backend='redis://Qvjuzowu177Qvjuzowu177Qvjuzowu177@redis:6379/0',
-                include=['blog.tasks'])
+                include=['blog.tasks']
+		)
 
 app.config_from_object('django.conf:settings', namespace='CELERY')
 

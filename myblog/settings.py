@@ -175,7 +175,7 @@ INSTALLED_APPS = [
 ]
 
 
-#CELERY_BROKER_URL = 'amqp://guest:guest@localhost//'
+CELERY_BROKER_URL = 'amqp://django:Qvjuzowu177Qvjuzowu177Qvjuzowu177@rabbitmq:5672//'
 
 
 TEMPLATE_DEBUG = True
