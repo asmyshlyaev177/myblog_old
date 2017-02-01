@@ -13,11 +13,11 @@ register('json', json.dumps, json.loads, content_type='application/json',
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'myblog.settings')
 
 app = Celery('myblog',
-                backend='redis://',
+                backend='redis://Qvjuzowu177Qvjuzowu177Qvjuzowu177@redis:6379/0',
                 result_serializer='json',
-                broker_url='pyamqp://guest:guest@localhost//',
+                broker_url='pyamqp://guest:guest@host//rabbitmq',
                 result_expires=120,
-                result_backend='redis://',
+                result_backend='redis://Qvjuzowu177Qvjuzowu177Qvjuzowu177@redis:6379/0',
                 include=['blog.tasks'])
 
 app.config_from_object('django.conf:settings', namespace='CELERY')

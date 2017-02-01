@@ -93,6 +93,7 @@ simplegeneric==0.8.1
 six==1.10.0
 slimit==0.8.1
 social-auth-core==1.0.1
+social-auth-app-django==1.0.1
 sqlparse==0.2.2
 statprof==0.1.2
 terminado==0.6

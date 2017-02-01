@@ -19,7 +19,7 @@ CHANNEL_LAYERS = {
         "BACKEND": "asgi_redis.RedisChannelLayer",
         "ROUTING": "blog.routing.channel_routing",
         "CONFIG": {
-            "hosts": [("redis://:Qvjuzowu177Qvjuzowu177Qvjuzowu177@redis:6379/0")],
+            "hosts": [("redis://:Qvjuzowu177Qvjuzowu177Qvjuzowu177@redis:6379/1")],
             "capacity": 1000,
         },
     },
@@ -117,14 +117,14 @@ SOCIAL_AUTH_PIPELINE = (
 )
 
 AUTHENTICATION_BACKENDS = (
-    'social.backends.google.GoogleOAuth2',
-    # 'social.backends.google.GoogleOpenId',
-    # 'social.backends.google.GoogleOpenIdConnect',
+    'social_core.backends.google.GoogleOAuth2',
+    # 'social_core.backends.google.GoogleOpenId',
+    # 'social_core.backends.google.GoogleOpenIdConnect',
     'blog.authentication.UsernameAuthBackend',
     'blog.authentication.EmailAuthBackend',
 
-    'social.backends.facebook.FacebookOAuth2',
-    'social.backends.vk.VKOAuth2',
+    'social_core.backends.facebook.FacebookOAuth2',
+    'social_core.backends.vk.VKOAuth2',
 )
 
 AUTH_USER_MODEL = 'blog.myUser'
@@ -139,7 +139,7 @@ AUTH_USER_MODEL = 'blog.myUser'
 CACHES = {
     "default": {
         "BACKEND": "django_redis.cache.RedisCache",
-        "LOCATION": "unix:////root/myblog/redis/redis.sock?db=0",
+        "LOCATION": "unix:////root/myblog/tmp/redis.sock?db=0",
 	#"LOCATION": "172.17.0.2:6379",
         "OPTIONS": {
             "PASSWORD": "Qvjuzowu177Qvjuzowu177Qvjuzowu177",
@@ -165,12 +165,12 @@ INSTALLED_APPS = [
     'compressor',
     'django_cleanup',
     # 'django_celery_results',
-    'social.apps.django_app.default',
     'django_extensions',
     'mptt',
     'channels',
     'django_celery_results',
     'django_celery_beat',
+    'social_django',
     # 'silk',
 ]
 
@@ -229,8 +229,8 @@ TEMPLATES = [
             'context_processors': [
                 'django.template.context_processors.debug',
                 'django.template.context_processors.request',
-                'social.apps.django_app.context_processors.backends',
-                'social.apps.django_app.context_processors.login_redirect',
+                'social_django.context_processors.backends',
+                'social_django.context_processors.login_redirect',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
 

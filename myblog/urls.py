@@ -32,7 +32,10 @@ urlpatterns = [
         views.addComment, name='add-comment'),
     url(r'^comments/(?P<postid>[-vi\d]+)\/?', views.comments, name='comments'),
     url(r'^tags.json\/?', views.tags, name='tags'),
-    url('login-social/', include('social.apps.django_app.urls', namespace='social')),
+
+    #url('login-social/', include('social.apps.django_app.urls', namespace='social')),
+    url('login-social/', include('social_django.urls', namespace='social')),
+
     url(r'^froala_editor\/?', include('froala_editor.urls')),
     #url(r'^$', cache_page(60 * 15)(views.Index), name='Index'),
     url(r'^__debug__/', include(debug_toolbar.urls)),
