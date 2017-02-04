@@ -117,12 +117,13 @@ SOCIAL_AUTH_PIPELINE = (
 )
 
 AUTHENTICATION_BACKENDS = (
-    #'social_core.backends.google.GoogleOAuth2',
+    'social_core.backends.google.GoogleOAuth2',
     'blog.authentication.UsernameAuthBackend',
     'blog.authentication.EmailAuthBackend',
 
-    #'social_core.backends.facebook.FacebookOAuth2',
-    #'social_core.backends.vk.VKOAuth2',
+    'social_core.backends.facebook.FacebookOAuth2',
+    'social_core.backends.vk.VKOAuth2',
+    'django.contrib.auth.backends.ModelBackend',
 )
 
 AUTH_USER_MODEL = 'blog.myUser'
@@ -167,7 +168,8 @@ INSTALLED_APPS = [
     'channels',
     'django_celery_results',
     'django_celery_beat',
-    #'social_django',
+    'social_django',
+    #'social.apps.django_app.default',
     # 'silk',
 ]
 
@@ -226,8 +228,8 @@ TEMPLATES = [
             'context_processors': [
                 'django.template.context_processors.debug',
                 'django.template.context_processors.request',
-                #'social_django.context_processors.backends',
-                #'social_django.context_processors.login_redirect',
+                'social_django.context_processors.backends',
+                'social_django.context_processors.login_redirect',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
 
