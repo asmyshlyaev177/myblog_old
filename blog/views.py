@@ -84,7 +84,7 @@ def tags(request):
         data = []
         for i in tags:
             data.append(i['name'])
-        cache.set("taglist", data, timeout=None)
+        cache.set("taglist", data, 36000)
 
     return HttpResponse(json.dumps(data), content_type="application/json")
 
