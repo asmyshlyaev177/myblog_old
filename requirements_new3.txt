@@ -80,6 +80,7 @@ PyJWT==1.4.2
 pyparsing==2.1.10
 python-dateutil==2.6.0
 python-openid==2.2.5
+python-social-auth==0.3.6
 python3-openid==3.0.10
 pytz==2016.10
 pyzmq==16.0.2
@@ -92,7 +93,6 @@ simplegeneric==0.8.1
 six==1.10.0
 slimit==0.8.1
 social-auth-core==1.0.1
-social-auth-app-django==1.0.1
 sqlparse==0.2.2
 statprof==0.1.2
 terminado==0.6

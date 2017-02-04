@@ -103,28 +103,26 @@ SOCIAL_AUTH_PROTECTED_USER_FIELDS = ['email', ]
 SOCIAL_AUTH_URL_NAMESPACE = 'social'
 
 
-SOCIAL_AUTH_PIPELINE = (
-    'social.pipeline.social_auth.social_details',
-    'social.pipeline.social_auth.social_uid',
-    'social.pipeline.social_auth.auth_allowed',
-    'social.pipeline.social_auth.social_user',
-    'social.pipeline.user.get_username',
-    'social.pipeline.social_auth.associate_by_email',  # <--- enable this one
-    'social.pipeline.user.create_user',
-    'social.pipeline.social_auth.associate_user',
-    'social.pipeline.social_auth.load_extra_data',
-    'social.pipeline.user.user_details',
-)
+#SOCIAL_AUTH_PIPELINE = (
+#    'social.pipeline.social_auth.social_details',
+#    'social.pipeline.social_auth.social_uid',
+#    'social.pipeline.social_auth.auth_allowed',
+#    'social.pipeline.social_auth.social_user',
+#    'social.pipeline.user.get_username',
+#    'social.pipeline.social_auth.associate_by_email',  # <--- enable this one
+#    'social.pipeline.user.create_user',
+#    'social.pipeline.social_auth.associate_user',
+#    'social.pipeline.social_auth.load_extra_data',
+#    'social.pipeline.user.user_details',
+#)
 
 AUTHENTICATION_BACKENDS = (
-    'social_core.backends.google.GoogleOAuth2',
-    # 'social_core.backends.google.GoogleOpenId',
-    # 'social_core.backends.google.GoogleOpenIdConnect',
+    #'social_core.backends.google.GoogleOAuth2',
     'blog.authentication.UsernameAuthBackend',
     'blog.authentication.EmailAuthBackend',
 
-    'social_core.backends.facebook.FacebookOAuth2',
-    'social_core.backends.vk.VKOAuth2',
+    #'social_core.backends.facebook.FacebookOAuth2',
+    #'social_core.backends.vk.VKOAuth2',
 )
 
 AUTH_USER_MODEL = 'blog.myUser'
@@ -169,7 +167,7 @@ INSTALLED_APPS = [
     'channels',
     'django_celery_results',
     'django_celery_beat',
-    'social_django',
+    #'social_django',
     # 'silk',
 ]
 
@@ -228,8 +226,8 @@ TEMPLATES = [
             'context_processors': [
                 'django.template.context_processors.debug',
                 'django.template.context_processors.request',
-                'social_django.context_processors.backends',
-                'social_django.context_processors.login_redirect',
+                #'social_django.context_processors.backends',
+                #'social_django.context_processors.login_redirect',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
 
