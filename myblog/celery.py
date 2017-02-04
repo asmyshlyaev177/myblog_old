@@ -13,11 +13,11 @@ register('json', json.dumps, json.loads, content_type='application/json',
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'myblog.settings')
 
 app = Celery('myblog',
-                backend='redis://Qvjuzowu177Qvjuzowu177Qvjuzowu177@redis:6379/0',
+                backend='redis+socket://Qvjuzowu177Qvjuzowu177Qvjuzowu177@/root/myblog/tmp/redis.sock',
                 result_serializer='json',
-                broker_url='amqp://django:Qvjuzowu177Qvjuzowu177Qvjuzowu177@rabbitmq:5672//',
+                broker_url='amqp://django:Qvjuzowu177Qvjuzowu177Qvjuzowu177@127.0.0.1:5672//',
                 result_expires=120,
-                result_backend='redis://Qvjuzowu177Qvjuzowu177Qvjuzowu177@redis:6379/0',
+                result_backend='redis+socket://Qvjuzowu177Qvjuzowu177Qvjuzowu177@/root/myblog/tmp/redis.sock',
                 include=['blog.tasks']
 		)
 

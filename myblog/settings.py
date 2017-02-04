@@ -19,7 +19,7 @@ CHANNEL_LAYERS = {
         "BACKEND": "asgi_redis.RedisChannelLayer",
         "ROUTING": "blog.routing.channel_routing",
         "CONFIG": {
-            "hosts": [("redis://:Qvjuzowu177Qvjuzowu177Qvjuzowu177@redis:6379/1")],
+            "hosts": [("redis://:Qvjuzowu177Qvjuzowu177Qvjuzowu177@127.0.0.1:6379/1")],
             "capacity": 1000,
         },
     },
@@ -140,11 +140,10 @@ CACHES = {
     "default": {
         "BACKEND": "django_redis.cache.RedisCache",
         "LOCATION": "unix:////root/myblog/tmp/redis.sock?db=0",
-	#"LOCATION": "172.17.0.2:6379",
         "OPTIONS": {
             "PASSWORD": "Qvjuzowu177Qvjuzowu177Qvjuzowu177",
             "CLIENT_CLASS": "django_redis.client.DefaultClient",
-            "CONNECTION_POOL_KWARGS": {"max_connections": 300},
+            "CONNECTION_POOL_KWARGS": {"max_connections": 500},
         }
     }
 }
@@ -175,7 +174,7 @@ INSTALLED_APPS = [
 ]
 
 
-CELERY_BROKER_URL = 'amqp://django:Qvjuzowu177Qvjuzowu177Qvjuzowu177@rabbitmq:5672//'
+CELERY_BROKER_URL = 'amqp://django:Qvjuzowu177Qvjuzowu177Qvjuzowu177@127.0.0.1:5672//'
 
 
 TEMPLATE_DEBUG = True
