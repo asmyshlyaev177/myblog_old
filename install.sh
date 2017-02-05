@@ -108,12 +108,8 @@ make altinstall
 mkdir -p /var/log/supervisor
 mkdir -p /var/log/ginicorn
 mkdir -p /var/log/redis
-mkdir -p /root/myblog/tmp/redis/
 mkdir -p /var/run/redis
 /usr/bin/easy_install supervisor
-chmod -R 777 /root/myblog/tmp
-chmod -R 777 /root/.imageio/
-chown -R nginx:nginx /root/
 cp /root/myblog/myblog/supervisord.init /etc/init.d/supervisord
 chmod +x /etc/init.d/supervisord
 chkconfig --add /etc/init.d/supervisord
@@ -122,7 +118,6 @@ chkconfig supervisord on
 
 cd /root/
 virtualenv --always-copy --python=/usr/local/bin/python3.5 myblog
-chown nginx:nginx -R /root
 cd myblog
 source/bin activate
 
@@ -150,11 +145,13 @@ cd /root/myblog
 git clone https://github.com/asmyshlyaev177/myblog.git
 cd myblog
 pip install --upgrade pip
-pip install -r requirements_new3.txt
+mkdir -p /root/myblog/tmp
+pip install --no-index --find-links=pip -r requirements_new3.txt
+#pip install -r requirements_new3.txt
 sed -i -e "s|patterns('',|[|g" -e "s|patterns, | |g" \
 -e "s/^)/]/g" /root/myblog/lib/python3.5/site-packages/froala_editor/urls.py
 
-# FFMPEG for conver gif
+# FFMPEG for convert gif
 pip install imageio
 python << EOT
 import imageio
