@@ -6,9 +6,9 @@ yum update -y
 yum groupinstall "Development Tools" -y
 yum install perl perl-devel make \
 tcl-devel yum-utils nano wget iputils tar \
-epel-release unzip gcc-c++ perl-ExtUtils-Embed \
+unzip gcc-c++ perl-ExtUtils-Embed \
 perl-devel sqlite-devel glibc-devel gnupg\
-geoip-devel gd-devel libxslt-devel make autoconf \
+geoip-devel gd-devel libxslt-devel autoconf \
 m4 coreutils glibc-devel openssl-devel git \
 bzip2-devel tk-devel yum-utils xz-libs \
 zlib-devel ncurses-devel readline-devel \
@@ -80,11 +80,20 @@ net.bridge.bridge-nf-call-iptables = 1 \n
 fs.inotify.max_user_watches=100000" > /etc/sysctl.conf
 sysctl -p
 
+# Python 3.5
+yum-builddep python -y
+wget -4 https://www.python.org/ftp/python/3.5.2/Python-3.5.2.tgz
+tar -xvf Python-3.5.2.tgz
+cd Python-3.5.2
+#umask 0022
+#./configure --prefix=/usr/local --enable-shared LDFLAGS="-Wl,-rpath /usr/local/lib"
+./configure # --enable-optimizations
+make
+make altinstall
+
 # nginx
 yum install pcre-devel nginx nginx-all-modules -y
 mkdir -p /tmp/nginx/cache
-pip install --upgrade pip
-pip install virtualenv
 #nginx -c /root/myblog/myblog/nginx_new.conf -g 'daemon off;'
 # add ip tables exception
 
@@ -92,37 +101,8 @@ pip install virtualenv
 rpm -Uvh http://rpms.remirepo.net/enterprise/remi-release-6.rpm
 yum --enablerepo="remi" install redis -y
 
-# Python 3.5
-yum-builddep python -y
-wget -4 https://www.python.org/ftp/python/3.5.3/Python-3.5.3.tgz
-tar -xvf Python-3.5.3.tgz
-cd Python-3.5.3
-#umask 0022
-#./configure --prefix=/usr/local --enable-shared LDFLAGS="-Wl,-rpath /usr/local/lib"
-#./configure --enable-optimizations
-./configure
-make
-make altinstall
-
-# Supervisor
-mkdir -p /var/log/supervisor
-mkdir -p /var/log/ginicorn
-mkdir -p /var/log/redis
-mkdir -p /var/run/redis
-/usr/bin/easy_install supervisor
-cp /root/myblog/myblog/supervisord.init /etc/init.d/supervisord
-chmod +x /etc/init.d/supervisord
-chkconfig --add /etc/init.d/supervisord
-chkconfig supervisord on
-
-
-cd /root/
-virtualenv --always-copy --python=/usr/local/bin/python3.5 myblog
-cd myblog
-source/bin activate
-
-
 # rabbitmq
+cd /root
 wget -4 https://www.rabbitmq.com/releases/rabbitmq-server/v3.6.6/rabbitmq-server-3.6.6-1.el6.noarch.rpm
 wget -4 https://packages.erlang-solutions.com/erlang/esl-erlang/FLAVOUR_1_general/esl-erlang_19.2~centos~6_i386.rpm
 wget -4 https://github.com/jasonmcintosh/esl-erlang-compat/releases/download/1.1.1/esl-erlang-compat-18.1-1.noarch.rpm
@@ -139,11 +119,28 @@ sleep 5
 rabbitmqctl set_permissions -p "/" django ".*" ".*" ".*"
 sleep 5
 rabbitmqctl stop && rabbitmqctl stop_app
+chkconfig rabbitmq-server on
+
+# virtualenv
+pip install --upgrade pip
+pip install virtualenv
+cd /root/
+virtualenv --always-copy --python=/usr/local/bin/python3.5 myblog
+cd myblog
+source bin/activate
+
+# twisted from pip doesn't work
+wget https://github.com/twisted/twisted/archive/twisted-16.2.0.tar.gz
+tar -xvf twisted-16.2.0.tar.gz
+cd twisted-twisted-16.2.0/
+python setup.py install
 
 # django and modules
 cd /root/myblog
 git clone https://github.com/asmyshlyaev177/myblog.git
 cd myblog
+git remote rm origin
+git remote add origin https://asmyshlyaev177@github.com/asmyshlyaev177/myblog.git
 pip install --upgrade pip
 mkdir -p /root/myblog/tmp
 pip install --no-index --find-links=pip -r requirements_new3.txt
@@ -158,5 +155,20 @@ import imageio
 imageio.plugins.ffmpeg.download()
 EOT
 
+deactivate
+# Supervisor
+mkdir -p /var/log/supervisor
+mkdir -p /var/log/ginicorn
+mkdir -p /var/log/redis
+mkdir -p /var/run/redis
+mkdir -p /var/log/celery/
+mkdir -p /var/run/celery/
+mkdir -p /var/log/gunicorn/
+/usr/bin/easy_install supervisor
+cp /root/myblog/myblog/supervisord.init /etc/init.d/supervisord
+chmod +x /etc/init.d/supervisord
+chkconfig --add /etc/init.d/supervisord
+chkconfig supervisord on
 
+service rabbitmq-server start
 

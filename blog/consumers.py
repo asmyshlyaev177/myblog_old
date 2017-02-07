@@ -6,8 +6,12 @@ from channels.sessions import channel_session
 @channel_session
 def ws_add(message):
     path = message.content['path'].strip('/').split('/')[-1]
-    # print("************************")
-    # print(str(path))
+    print("************************")
+    print(str(path))
+    print("************************")
+    message.reply_channel.send({
+        "text": "hello",
+    })
     Group(path).add(message.reply_channel)
 
 
@@ -16,8 +20,8 @@ def ws_add(message):
 def ws_message(message):
     # print("**********ONMESSAGE**************")
     # print(str(message.content['path'].strip('/').split('/')[-1]))
-    # print("**********TEXT**************")
-    # print(str(message.content['text']))
+    print("**********TEXT**************")
+    print(str(message.content['text']))
 
     group = message.content['path'].strip('/').split('/')[-1]
     Group(group).send({

@@ -377,7 +377,8 @@ function wsConnect() {
 	if ( $("#Comments_title").length > 0 ) {
 
 		var socket = new ReconnectingWebSocket(
-			"ws://" + window.location.host + '/ws' + window.location.pathname, null,
+			"ws://" + window.location.host + '/ws/' +
+			decodeURIComponent(window.location.pathname).split('/').filter(Boolean).slice(-1)[0], null,
 			{maxReconnectInterval: 2000, maxReconnectAttempts: 10});
 		socket.onmessage = function(e) {
 			try {
