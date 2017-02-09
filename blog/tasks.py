@@ -247,8 +247,11 @@ def addPost(post_id, tag_list, moderated):
             try:
                 data.main_tag = tag
             except:
-                # tag = Tag.objects.cache().get(id=8)
-                tag = Tag.objects.get(id=8)
+                #tag = Tag.objects.get(id=8)
+                tag, _ = Tag.objects.get_or_create(name="Разное")
+                if _:
+                    tag.url = "others"
+                    tag.save()
                 data.main_tag = tag
             j = False
 

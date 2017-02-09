@@ -10,6 +10,10 @@
 		height: 0;
 }
 
+.gif {
+	  left: 0;
+}
+
 video {
     width: 100%;
     height: auto;
@@ -76,10 +80,9 @@ z-index: 20;}
 position: inherit;
 font-size: 64px;
 color: blue;
-top: 50%;
 z-index: 20;
 opacity: 0.5;
-top: 40%;
+top: 35%;
 left: 45%;
 transition: opacity .3s ease-in-out;
 }

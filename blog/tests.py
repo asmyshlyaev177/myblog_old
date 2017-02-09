@@ -4,8 +4,17 @@ from django.test import Client
 
 from blog.views import list
 
+from selenium import webdriver
+from selenium.webdriver.common.by import By
+from selenium.webdriver.common.keys import Keys
+from selenium.webdriver.support.ui import Select
+from selenium.common.exceptions import NoSuchElementException
+from selenium.common.exceptions import NoAlertPresentException
+#  import unittest, time, re
+import time, re
+from blog.models import myUser
 
-class SimpleTestCase(TransactionTestCase):
+class SimpleTestCase(TestCase):
 
     def setUp(self):
         self.factory = RequestFactory()

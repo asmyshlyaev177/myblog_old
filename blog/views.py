@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 from django.shortcuts import render
 from blog.models import (Post, Category, Tag, Comment)
-#from slugify import slugify
+#  from slugify import slugify
 from django.utils.text import slugify
 from blog.forms import SignupForm, MyUserChangeForm, AddPostForm, CommentForm
 from django.http import (HttpResponseRedirect,

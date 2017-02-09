@@ -56,9 +56,10 @@ def findFile(link):
 def saveImage(link, file, sz):
 
     file_out = '/root/myblog/myblog/blog/static/media/{}/{}/{}/{}-{}.{}'\
-    .format(link.group("year"), link.group("month"),
-            link.group("day"), uri_to_iri(link.group("file")),
-            sz, link.group("ext"))
+                        .format(link.group("year"), link.group("month"),
+                        link.group("day"), uri_to_iri(link.group("file")),
+                        sz, link.group("ext"))
+
     link_out = '/media/{}/{}/{}/{}-{}.{}'\
             .format(link.group("year"), link.group("month"),
             link.group("day"), link.group("file"),

@@ -4,7 +4,7 @@
 {% if user.is_authenticated %}
   <h1>Вы уже залогинены</h1>
   <p>
-    можете <a href="{% url 'logout' %}">выйти</a>
+    можете <a href="{% url 'logout' %}?next={{ request.path }}">выйти</a>
   </p>
 
 {% else %}
