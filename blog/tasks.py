@@ -256,7 +256,7 @@ def addPost(post_id, tag_list, moderated):
             j = False
 
     # ищем картинки в тексте
-    soup = srcsets(data.text, True)
+    soup = srcsets(data.text, True, post_id=post_id)
 
     # выравниваем видео по центру
     ifr_links = soup.find_all("iframe")
@@ -302,8 +302,11 @@ def addPost(post_id, tag_list, moderated):
             pass
         data.image_url = ""
 
-    if data.post_image and not data.post_image_gif():
-        data.main_image_srcset = srcsetThumb(data.post_image)
+    if data.post_image:
+        print("***********************************")
+        print("Post_image True")
+        data.main_image_srcset = srcsetThumb(data.post_image, post_id=post_id)
+        data.post_image.delete()
         # data.image_url = srcsetThumb(data.post_image)
 
     if not moderated:

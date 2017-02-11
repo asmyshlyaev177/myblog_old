@@ -13,15 +13,9 @@ $(".pop-tabs").hide();
 
 <div class="clearfix"></div>
 
-{% if post.post_image %}
+{% if post.main_image_srcset %}
 <p class="post-image center-align">
-  {% if post.post_image_gif %}
-  <img src="{{ MEDIA_URL }}{{ post.post_image.url }}"
-    class="responsive-img center-align post-image"></a>
-  {% else %}
     {{ post.main_image_srcset }}
-  {% endif %}
-
 </p>
 {% endif %}
 

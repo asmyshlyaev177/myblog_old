@@ -47,26 +47,10 @@ if ( $("a.menu.active[cat]").length ) {
 
   {% post_header %}
 
-    {% if post.post_image %}
+    {% if post.main_image_srcset %}
     <div class="post-thumbnail center-align">
 
-        {% if post.post_image_gif %}
-        <a class="gif" href="#">
-          <span class="play">&#9658;</span>
-        </a>
-        <img src="{{ post.post_thumbnail.url }}"
-        width="{{ post.post_image.width }}"
-        height="{{ post.post_image.height }}"
-        dataalt='/media/{{ post.post_image }}'
-        class="responsive-img center-align gif"
-        >
-
-        {% else %}
-
         {{ post.main_image_srcset }}
-
-        {% endif %}
-
 
     </div>
     {% endif %}

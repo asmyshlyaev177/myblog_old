@@ -18,7 +18,7 @@ $(window).load(function(){
 
 	ClickAjaxMenu();
   BackForwardButtons();
-	GifPlay();
+	//GifPlay();
 	ratePost();
   ReplyBtn();
 	AddCommentBtn();
@@ -212,6 +212,7 @@ function getCookie(name) {
     return cookieValue;
 }
 
+// есть webm так что не нужно
 function GifPlay() {
 	$(document).on('click', '.gif', function() {
 		img = $(this).parent().children("img");

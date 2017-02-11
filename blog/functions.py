@@ -29,10 +29,13 @@ def deleteThumb(text):
             os.remove(i)
 
 
-def srcsetThumb(data):
+def srcsetThumb(data, post_id=None):
     thumb = BeautifulSoup("html5lib").new_tag("img")
     thumb['src'] = "/" + str(data)
-    soup = srcsets(thumb, False)
+    if post_id:
+        soup = srcsets(thumb, False, post_id=post_id)
+    else:
+        soup = srcsets(thumb, False)
     soup.html.unwrap()
     soup.head.unwrap()
     soup.body.unwrap()
@@ -72,7 +75,7 @@ def saveImage(link, file, sz):
     return link_out
 
 
-def srcsets(text, wrap_a):
+def srcsets(text, wrap_a, post_id=None):
     """Make few srcsets"""
     soup = BeautifulSoup(uri_to_iri(text), "html5lib")  # текст поста
     print("***************************")
@@ -180,24 +183,21 @@ def srcsets(text, wrap_a):
                                link.group("day"),link.group("file"),alt,\
                                link.group("ext"))"""
                 else:  # конвертим гифки в webm
-                    file_out = "/root/myblog/myblog/blog/static/media/{}/{}/{}/{}.webm"\
+                    file_out = "/root/myblog/myblog/blog/static/media/{}/{}/{}/{}-{}.webm"\
                     .format(link.group("year"), link.group("month"),
-                        link.group("day"), link.group("file"))
-                    file_out_tmp = "/tmp/{}.webm".format(random.randint(1, 1000))
-                    link_out = '/media/{}/{}/{}/{}.webm'\
+                        link.group("day"), link.group("file"), str(post_id))
+                    link_out = '/media/{}/{}/{}/{}-{}.webm'\
                             .format(link.group("year"), link.group("month"),
-                            link.group("day"), link.group("file"))
-                    file_tmp = "/tmp{}.gif".format(random.randint(1, 1000))
-                    shutil.move(file, file_tmp)
+                            link.group("day"), link.group("file"), str(post_id))
 
-                    clip = VideoFileClip(file_tmp)
+                    clip = VideoFileClip(file)
                     video = CompositeVideoClip([clip])
                     #video.write_videofile(file_out_tmp, codec='libvpx', audio=False,
                     #        ffmpeg_params=['-crf', '4', '-b:v', '1500K'])
-                    # игнорирует параметры ffmpeg и подрезает клип
-                    video.write_videofile(file_out_tmp, codec='libvpx', audio=False,
+                    # игнорирует параметры ffmpeg
+                    video.write_videofile(uri_to_iri(file_out), codec='libvpx', audio=False,
                             preset='superslow')
-                    shutil.move(file_out_tmp, uri_to_iri(file_out))
+                    os.remove(file)
 
                     webm = BeautifulSoup("", "html5lib").new_tag("video")
                     webm['autoplay'] = ""
@@ -209,8 +209,6 @@ def srcsets(text, wrap_a):
                     source['type'] = "video/webm"
                     webm.insert(0, source)
                     i.replaceWith(webm)
-                    #os.remove(original_pic)
-                    os.remove(file_tmp)
 
                 if wrap_a and notgif:
                     a_tag = soup.new_tag("a")

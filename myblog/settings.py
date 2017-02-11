@@ -37,6 +37,7 @@ SHELL_PLUS_PRE_IMPORTS = (
                      'UserVotes')),
     ('blog.functions', ('deleteThumb', 'srcsetThumb', 'findLink',
                         'findFile', 'saveImage', 'srcsets',)),
+    ('django.core.cache', ('cache',)),
 )
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
