@@ -192,14 +192,18 @@ def srcsets(text, wrap_a):
 
                     clip = VideoFileClip(file_tmp)
                     video = CompositeVideoClip([clip])
+                    #video.write_videofile(file_out_tmp, codec='libvpx', audio=False,
+                    #        ffmpeg_params=['-crf', '4', '-b:v', '1500K'])
+                    # игнорирует параметры ffmpeg и подрезает клип
                     video.write_videofile(file_out_tmp, codec='libvpx', audio=False,
-                            ffmpeg_params=['-crf', '4', '-b:v', '1500K'])
+                            preset='superslow')
                     shutil.move(file_out_tmp, uri_to_iri(file_out))
 
                     webm = BeautifulSoup("", "html5lib").new_tag("video")
                     webm['autoplay'] = ""
                     webm['loop'] = ""
                     webm['controls'] = ""
+                    webm['style'] = "max-width: " + str(w) + "px;"
                     source = BeautifulSoup("", "html5lib").new_tag("source")
                     source['src'] = link_out
                     source['type'] = "video/webm"
