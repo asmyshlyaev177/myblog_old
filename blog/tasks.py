@@ -84,6 +84,12 @@ def Rate(userid, date_joined, votes_count, type, elem_id, vote):
 
         cache.set('user_votes_' + str(userid), uv, timeout=uv_ttl)
 
+        return "Element type {} with id {} rated".format(str(type), str(elem_id))
+    else:
+        return "No votes for user with id {},\
+            type {} with id {} rated"\
+            .format(str(user_id), str(type), str(elem_id))
+
 
 @app.task(name="CalcRating")
 def CalcRating():
@@ -134,36 +140,6 @@ def CalcRating():
         post_rate.save()
         user_rating.save()
 
-    """    # rating for main page
-    best_posts = {}   # доделать рейтинги за неделю, не за день
-    keys = cache.keys('rating_post_day_*')
-    for k in keys:
-        posts = cache.get(k)
-        posts = [posts[post] for post in posts]
-        for post in posts:
-            if not post['id'] in best_posts:
-                best_posts[post['id']] = post['rate']
-            else:
-                best_posts[post['id']] += post['rate']
-        # filtr by rating
-    best_posts = [post for post in best_posts if best_posts[post] > hot_rating]
-    cache.set('best_post_day_all', best_posts, timeout=88000)
-
-    for i in cat_list:  # make ratings for categories
-        best_posts = {}
-        keys = cache.keys('rating_post_day_*')
-        for k in keys:
-            posts = cache.get(k)
-            posts = [posts[post] for post in posts if posts[post]['category'] == i.id]
-            for post in posts:
-                if not post['id'] in best_posts:
-                    best_posts[post['id']] = post['rate']
-                else:
-                    best_posts[post['id']] += post['rate']
-            # filtr by rating
-        best_posts = [post for post in best_posts if best_posts[post] > hot_rating]
-        cache.set('best_post_day_catid_' + str(i.id), best_posts, timeout=88000)
-        """
 
 
 @app.task(name="commentImage")
@@ -215,6 +191,9 @@ def commentImage(comment_id):
         # "text": "[user] %s" % message.content['text'],
         "text": json.dumps(c),
                         })
+    return "Comment with id {} from user {} \
+        proccessed".format(str(comment_id),
+        str(data.author.username))
 
 
 @app.task(name="addPost")

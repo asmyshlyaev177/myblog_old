@@ -18,7 +18,14 @@ from blog.tasks import addPost, Rate, commentImage
 from django.contrib.auth.views import (login as def_login,
                                 password_change as def_password_change)
 
-cat_list = Category.objects.all()
+
+def get_cat_list():
+    if cache.ttl("cat_list"):
+        cat_list = cache.get("cat_list")
+    else:
+        cat_list = Category.objects.all()
+        cache.set("cat_list", cat_list, 36000)
+    return cat_list
 
 
 @cache_page(3)
@@ -31,7 +38,7 @@ def login(request, *args, **kwargs):
         template = 'registration/login.html'
 
     return def_login(request, *args, **kwargs, template_name=template,
-                                extra_context={'cat_list': cat_list})
+                                extra_context={'cat_list': get_cat_list()})
 
 
 @cache_page(3)
@@ -101,7 +108,7 @@ def signup(request):
             return HttpResponseRedirect('/signup_success/')
     form = SignupForm()
     return render(request, 'registration/signup.html', {'form': form,
-                                                        'cat_list': cat_list})
+                                                'cat_list': get_cat_list()})
 
 
 def signup_success(request):
@@ -128,7 +135,7 @@ def dashboard(request):
     else:
         form = MyUserChangeForm(instance=request.user)
 
-    return render(request, template, {'cat_list': cat_list,
+    return render(request, template, {'cat_list': get_cat_list(),
                                               'form': form},
                                                             )
 
@@ -158,7 +165,7 @@ def my_posts(request):
         return HttpResponse('')
 
     return render(request, template, {'posts': posts,
-                                              'cat_list': cat_list})
+                                              'cat_list': get_cat_list()})
 
 
 @never_cache
@@ -186,7 +193,7 @@ def edit_post(request, postid):
 
             return render(request, 'added-post.html',
                           {'title': title,
-                           'cat_list': cat_list})
+                           'cat_list': get_cat_list()})
 
     else:
         form = AddPostForm(instance=post)
@@ -196,7 +203,7 @@ def edit_post(request, postid):
         tags_list.append(i.name)
     return render(request, template,
                 {'form': form, 'post': post,
-                 'cat_list': cat_list, 'tags_list': tags_list})
+                 'cat_list': get_cat_list(), 'tags_list': tags_list})
 
 
 @login_required(redirect_field_name='next', login_url='/login')
@@ -231,12 +238,12 @@ def add_post(request):
 
             return render(request, 'added-post.html',
                           {'title': title,
-                           'cat_list': cat_list})
+                           'cat_list': get_cat_list()})
 
     form = AddPostForm()
 
     return render(request, template, {'form': form,
-                                             'cat_list': cat_list})
+                                             'cat_list': get_cat_list()})
 
 
 @login_required(redirect_field_name='next', login_url='/login')
@@ -353,7 +360,7 @@ def list(request, category=None, tag=None, pop=None):
         posts = None
         # return HttpResponse('')
     context['posts'] = posts
-    context['cat_list'] = cat_list
+    context['cat_list'] = get_cat_list()
     context['page'] = page
 
     return render(request, template, context)
@@ -392,7 +399,7 @@ def single_post(request, tag, title, id):
 
     return render(request, template,
                   {'post': post,
-                  'cat_list': cat_list, 'comment_form': comment_form,
+                  'cat_list': get_cat_list(), 'comment_form': comment_form,
                   'comments': comments})
 
 
@@ -407,4 +414,4 @@ def password_change(request, *args, **kwargs):
 
     return def_password_change(request, *args, **kwargs,
                             template_name=template,
-                            extra_context={'cat_list': cat_list})
+                            extra_context={'cat_list': get_cat_list()})

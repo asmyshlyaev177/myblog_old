@@ -12,7 +12,7 @@ https://docs.djangoproject.com/en/1.10/ref/settings/
 import os
 import datetime
 
-CELERY_RESULT_BACKEND = 'django-cache'
+CELERY_RESULT_BACKEND = 'django-db'  # for testing
 
 CHANNEL_LAYERS = {
     "default": {
@@ -163,12 +163,11 @@ INSTALLED_APPS = [
     'froala_editor',
     'compressor',
     'django_cleanup',
-    # 'django_celery_results',
     'django_extensions',
     'mptt',
     'channels',
     'django_celery_results',
-    'django_celery_beat',
+    #'django_celery_beat',
     'social_django',
     #'social.apps.django_app.default',
     # 'silk',

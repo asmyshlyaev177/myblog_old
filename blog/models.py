@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 from django.db import models
 from django.contrib.auth.models import (AbstractBaseUser,
-                                        BaseUserManager)
+                                        BaseUserManager, PermissionsMixin)
 #from slugify import slugify   #####can't install
 from django.utils.text import slugify
 
@@ -64,8 +64,9 @@ class MyUserManager(BaseUserManager):
         user = self.create_user(
             username, email, password=password
         )
-        user.is_it_superuser = True
-        user.is_it_staff = True
+        user.is_superuser = True
+        user.moderated = False
+        user.is_staff = True
         user.save(using=self._db)
         return user
 
@@ -74,11 +75,12 @@ class MyUserManager(BaseUserManager):
             username, email, password=password
         )
         user.is_staff = True
+        user.moderated = False
         user.save(using.self._db)
         return user
 
 
-class myUser(AbstractBaseUser):
+class myUser(AbstractBaseUser, PermissionsMixin):
     index_together = [
         ["id", "username", "avatar"],
     ]
@@ -98,8 +100,8 @@ class myUser(AbstractBaseUser):
     email = models.EmailField(unique=True, blank=False)
     # password = models.CharField("Password", max_length=230)
     is_active = models.BooleanField("Is active", default=True)
-    is_it_staff = models.BooleanField("Is stuff", default=False)
-    is_it_superuser = models.BooleanField("Is admin", default=False)
+    is_staff = models.BooleanField("Is stuff", default=False)
+    #is_superuser = models.BooleanField("Is admin", default=False)
     moderated = models.BooleanField("Moderated", default=True)
     user_last_login = models.DateTimeField(auto_now=True)
     date_joined = models.DateTimeField(auto_now_add=True)
@@ -127,22 +129,22 @@ class myUser(AbstractBaseUser):
     def get_short_name(self):
         return self.username.lower()
 
-    def has_perm(self, perm, obj=None):
-        return True
+    #def has_perm(self, perm, obj=None):
+    #    return True
 
-    def has_module_perms(self, app_label):
-        return True
+    #def has_module_perms(self, app_label):
+    #    return True
 
     class Meta:
         verbose_name_plural = "users"
 
-    @property
-    def is_superuser(self):
-        return self.is_it_superuser
+    #@property
+    #def is_superuser(self):
+    #    return self.is_superuser
 
-    @property
-    def is_staff(self):
-        return self.is_it_staff
+    #@property
+    #def is_staff(self):
+    #    return self.is_staff
 
     def save(self, *args, **kwargs):
 
@@ -342,7 +344,7 @@ class Post(models.Model):
 def _post_delete(sender, instance, **kwargs):
 
     deleteThumb(instance.text)
-    deleteThumb(instance.image_url)
+    deleteThumb(instance.main_image_srcset)
 
     cache_str = "post_list_" + str(instance.category).lower()\
                                 + "_" + str(instance.private)
@@ -448,6 +450,16 @@ class Category(models.Model):
         # if not self.slug:
         self.slug = slugify(self.name.lower(), allow_unicode=True)
         super(Category, self).save(*args, **kwargs)
+
+
+@receiver(models.signals.pre_delete, sender=Category)
+def _post_delete(sender, instance, **kwargs):
+    cache.delete("cat_list")
+
+
+@receiver(models.signals.post_save, sender=Category)
+def _post_save(sender, instance, **kwargs):
+    cache.delete("cat_list")
 
 
 class Tag(models.Model):

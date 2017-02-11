@@ -21,8 +21,8 @@ class UserAdmin(BaseUserAdmin):
 
     fieldsets = (
         (None, {'fields': ('username', 'get_avatar', 'avatar',
-                           'email', 'password', 'is_active', 'moderated',
-                           'is_it_staff', 'is_it_superuser')}),
+                           'email', 'is_active', 'moderated',
+                           'is_staff')}),
     )
 
     #add_fieldsets = (
@@ -37,11 +37,11 @@ class UserAdmin(BaseUserAdmin):
     ordering = ['username', 'email']
     show_full_result_count = True
     list_filter = ('is_active',
-                       'is_it_staff', 'is_it_superuser')
+                       'is_staff')
     filter_horizontal = ()
 
 admin.site.register(myUser, UserAdmin)
-#admin.site.unregister(Group)
+#admin.site.register(Group)
 
 
 class PostAdmin(admin.ModelAdmin):
