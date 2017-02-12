@@ -41,8 +41,8 @@ def login(request, *args, **kwargs):
                                 extra_context={'cat_list': get_cat_list()})
 
 
-@cache_page(3)
-@cache_control(max_age=3)
+@cache_page(30)
+@cache_control(max_age=30)
 def comments(request, postid):
     post = Post.objects.get(id=postid)
 
@@ -265,10 +265,10 @@ def rate_elem(request, type, id, vote):
         return HttpResponse("accepted")
 
 
-# @cache_page(3)
-# @cache_control(max_age=3)
-# @vary_on_headers('X-Requested-With', 'Cookie')
-@never_cache
+@cache_page(30)
+@cache_control(max_age=30)
+@vary_on_headers('X-Requested-With', 'Cookie')
+#@never_cache
 def list(request, category=None, tag=None, pop=None):
     hot_rating = 3
     context = {}
@@ -293,7 +293,7 @@ def list(request, category=None, tag=None, pop=None):
                 post_list = Post.objects.filter(tags__url=tag)\
                             .filter(status="P").filter(private=False)\
                             .select_related("category", "author")\
-                            .prefetch_related('tags', 'ratingpost_set')
+                            .prefetch_related('tags', 'ratingpost_set')\
             else:
                 post_list = Post.objects.filter(tags__url=tag)\
                             .filter(status="P")\
@@ -356,9 +356,8 @@ def list(request, category=None, tag=None, pop=None):
     except PageNotAnInteger:
         posts = paginator.page(1)
     except EmptyPage:
-        # posts = paginator.page(paginator.num_pages)
+        #posts = paginator.page(paginator.num_pages)
         posts = None
-        # return HttpResponse('')
     context['posts'] = posts
     context['cat_list'] = get_cat_list()
     context['page'] = page
@@ -366,10 +365,10 @@ def list(request, category=None, tag=None, pop=None):
     return render(request, template, context)
 
 
-# @cache_page(3)
-# @cache_control(max_age=3)
-# @vary_on_headers('X-Requested-With', 'Cookie')
-@never_cache
+@cache_page(30)
+@cache_control(max_age=30)
+@vary_on_headers('X-Requested-With', 'Cookie')
+#@never_cache
 def single_post(request, tag, title, id):
 
     if request.is_ajax():

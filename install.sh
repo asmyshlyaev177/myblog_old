@@ -13,7 +13,7 @@ m4 coreutils glibc-devel openssl-devel git \
 bzip2-devel tk-devel yum-utils xz-libs \
 zlib-devel ncurses-devel readline-devel \
 gdbm-devel db4-devel libpcap-devel xz-devel \
-python-pip make gcc man -y
+python-pip make gcc man pcre-devel -y
 
 sed -i "s/SELINUX=enforcing/SELINUX=disabled/g" /etc/selinux/config
 
@@ -75,8 +75,6 @@ kernel.sched_migration_cost_ns=5000000 \n
 kernel.sched_autogroup_enabled=0 \n
 kernel.threads-max = 227351 \n
 fs.file-max = 450000 \n
-net.bridge.bridge-nf-call-ip6tables = 1 \n
-net.bridge.bridge-nf-call-iptables = 1 \n
 fs.inotify.max_user_watches=100000" > /etc/sysctl.conf
 sysctl -p
 
@@ -92,8 +90,34 @@ make
 make altinstall
 
 # nginx
-yum install pcre-devel nginx nginx-all-modules -y
+#yum install pcre-devel nginx nginx-all-modules -y
 mkdir -p /tmp/nginx/cache
+
+wget -4 http://nginx.org/download/nginx-1.11.9.tar.gz
+tar -xvf nginx-1.11.9.tar.gz
+cd nginx-1.11.9
+./configure --sbin-path=/usr/sbin/nginx \
+ --prefix=/etc/nginx --lock-path=/var/run/nginx.lock \
+ --conf-path=/etc/nginx/nginx.conf \
+ --user=nginx --group=nginx \
+ --pid-path=/var/run/nginx.pid \
+ --with-pcre --with-pcre-jit\
+ --with-http_ssl_module \
+ --with-http_addition_module --with-http_sub_module \
+ --with-http_dav_module --with-http_flv_module \
+ --with-http_mp4_module --with-http_random_index_module \
+ --with-http_secure_link_module --with-http_stub_status_module \
+ --with-http_auth_request_module \
+ --with-http_perl_module=dynamic --with-stream \
+ --with-stream_ssl_module \
+ --with-http_slice_module --with-mail_ssl_module \
+ --with-http_v2_module \
+ --with-mail=dynamic --with-file-aio \
+ --with-threads --with-http_slice_module \
+ --with-http_gzip_static_module --with-http_gunzip_module
+ 
+ make && make install
+
 #nginx -c /root/myblog/myblog/nginx_new.conf -g 'daemon off;'
 # add ip tables exception
 

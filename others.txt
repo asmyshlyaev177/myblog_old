@@ -25,7 +25,7 @@ NGINX compile
  --conf-path=/etc/nginx/nginx.conf \
  --user=nginx --group=nginx \
  --pid-path=/var/run/nginx.pid \
- --with-pcre=pcre-8.40 --with-zlib=zlib-1.2.11 \
+ --with-pcre \
  --with-http_ssl_module \
  --with-http_addition_module --with-http_sub_module \
  --with-http_dav_module --with-http_flv_module \

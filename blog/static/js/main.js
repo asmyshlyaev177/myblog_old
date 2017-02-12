@@ -76,16 +76,6 @@ function Comments() {
 	 });
 }
 
-function playPause() {
-	$(document).on('click', 'video', function(e) {
-		if ( this.paused ) {
-			this.play();
-		} else {
-			this.pause();
-		}
-	});
- }
-
 function AddCommentBtn() {
 	$(document).on('click', '.btn.add-comment', function (e) {
 	var form = $("#comment-form");
@@ -250,11 +240,10 @@ function loadMore(){
       url:category+"?page="+page,
       success:function(data){
                $('.posts').append(data); //adds data to the end of the table
+							 //console.log(data);
                processing = false; // the processing variable prevents multiple ajax calls when scrolling
 							 loader.hide();
 							 disableRate();
-							 //setTimeout( stubImgs(), 0 );
-              	//ImageHeight();
           }
      });
 
@@ -496,3 +485,12 @@ function Preview( files, el_id, height ) {
 
 
 //
+function playPause() {
+	$(document).on('click', 'video', function(e) {
+		if ( this.paused ) {
+			this.play();
+		} else {
+			this.pause();
+		}
+	});
+ }

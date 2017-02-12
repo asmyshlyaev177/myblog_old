@@ -102,7 +102,7 @@ class myUser(AbstractBaseUser, PermissionsMixin):
     is_active = models.BooleanField("Is active", default=True)
     is_staff = models.BooleanField("Is stuff", default=False)
     #is_superuser = models.BooleanField("Is admin", default=False)
-    moderated = models.BooleanField("Moderated", default=True)
+    moderated = models.BooleanField("Moderated", default=False)
     user_last_login = models.DateTimeField(auto_now=True)
     date_joined = models.DateTimeField(auto_now_add=True)
     REQUIRED_FIELDS = ['email', ]
