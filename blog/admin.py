@@ -22,7 +22,7 @@ class UserAdmin(BaseUserAdmin):
     fieldsets = (
         (None, {'fields': ('username', 'get_avatar', 'avatar',
                            'email', 'is_active', 'moderated',
-                           'is_staff')}),
+                           'is_staff', 'moder_tags', 'moder_cat')}),
     )
 
     #add_fieldsets = (
@@ -39,6 +39,10 @@ class UserAdmin(BaseUserAdmin):
     list_filter = ('is_active',
                        'is_staff')
     filter_horizontal = ()
+
+    def get_avatar(self, obj):
+        return obj.get_avatar()
+    get_avatar.short_description = "Текущий аватар"
 
 admin.site.register(myUser, UserAdmin)
 #admin.site.register(Group)

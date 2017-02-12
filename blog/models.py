@@ -96,13 +96,14 @@ class myUser(AbstractBaseUser, PermissionsMixin):
     avatar = ProcessedImageField(upload_to=user_directory_path,
                                  processors=[ResizeToFit(64, 64)],
                                  format='JPEG',
-                                 options={'quality': 90}, blank=True)
+                                 options={'quality': 90}, blank=True,
+                                 verbose_name="Аватар")
     email = models.EmailField(unique=True, blank=False)
     # password = models.CharField("Password", max_length=230)
-    is_active = models.BooleanField("Is active", default=True)
-    is_staff = models.BooleanField("Is stuff", default=False)
+    is_active = models.BooleanField("Активен", default=True)
+    is_staff = models.BooleanField("Персонал", default=False)
     #is_superuser = models.BooleanField("Is admin", default=False)
-    moderated = models.BooleanField("Moderated", default=False)
+    moderated = models.BooleanField("Модерируется", default=False)
     user_last_login = models.DateTimeField(auto_now=True)
     date_joined = models.DateTimeField(auto_now_add=True)
     REQUIRED_FIELDS = ['email', ]
@@ -113,6 +114,10 @@ class myUser(AbstractBaseUser, PermissionsMixin):
                     ("B", "Blocked"),
     )
     votes_count = models.CharField(max_length=1, choices=VOTES_COUNT, default="N")
+    moder_tags = models.ManyToManyField('Tag', blank=True, null=True,
+                verbose_name="Модерирует тэги")
+    moder_cat = models.ManyToManyField('Category', blank=True, null=True,
+                verbose_name="Модерирует категории")
     objects = MyUserManager()
 
     def get_avatar(self):

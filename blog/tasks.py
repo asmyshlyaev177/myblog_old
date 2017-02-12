@@ -28,9 +28,10 @@ tz = datetime.timezone(delta_tz)
 def Rate(userid, date_joined, votes_count, type, elem_id, vote):
 
     if type == "post":
-        element = Post.objects.get(id=elem_id)
+        element = Post.objects.only('id', 'rateable', 'category')\
+            .select_related('category').get(id=elem_id)
     elif type == "comment":
-        element = Comment.objects.get(id=elem_id)
+        element = Comment.objects.only('id').get(id=elem_id)
 
     # user = myUser.objects.get(id=userid)
     delta = datetime.timedelta(weeks=4)
@@ -40,7 +41,7 @@ def Rate(userid, date_joined, votes_count, type, elem_id, vote):
     if uv is None:   # user votes кол-во голосов у юзеров
         date_joined = pytz.utc.localize\
             (datetime.datetime.strptime(date_joined, '%Y_%m_%d'))
-        user_rating = RatingUser.objects.get(user=userid)
+        user_rating = RatingUser.objects.only('id', 'rating').get(user=userid)
         votes = {}
         if date_joined < dt - delta:
             coef = 0.25
@@ -111,7 +112,7 @@ def CalcRating():
             comments[vote['elem_id']]['rate'] += vote['rate']
     del votes_comment
     for comment in comments:  # update rating on comments
-        com = Comment.objects.get(id=comment)
+        com = Comment.objects.only('id').get(id=comment)
         comment_rate, _ = RatingComment.objects.get_or_create(comment=com)
         comment_rate.rating += comments[comment]['rate']
         comment_rate.save()
@@ -132,19 +133,20 @@ def CalcRating():
     # cache.set('rating_post_day_' + today, posts, timeout=88000)
     del votes_post
     for post in posts:  # update rating on posts
-        p = Post.objects.get(id=post)
+        p = Post.objects.only('id', 'author')\
+                .select_related('author').get(id=post)
         post_rate, _ = RatingPost.objects.get_or_create(post=p)
-        user_rating = RatingUser.objects.get(user=p.author.id)
+        user_rating = RatingUser.objects.only('id', 'rating')\
+                .get(user=p.author.id)
         post_rate.rating += posts[post]['rate']
         user_rating.rating += posts[post]['rate'] / 30
         post_rate.save()
         user_rating.save()
 
 
-
 @app.task(name="commentImage")
 def commentImage(comment_id):
-    data = Comment.objects.get(id=comment_id)
+    data = Comment.objects.select_related('author').get(id=comment_id)
 
     # создаём картинки из текста
     soup = srcsets(data.text, True)

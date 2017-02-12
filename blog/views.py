@@ -1,10 +1,10 @@
 # -*- coding: utf-8 -*-
 from django.shortcuts import render
-from blog.models import (Post, Category, Tag, Comment)
+from blog.models import (Post, Category, Tag, Comment, myUser)
 #  from slugify import slugify
 from django.utils.text import slugify
 from blog.forms import SignupForm, MyUserChangeForm, AddPostForm, CommentForm
-from django.http import (HttpResponseRedirect,
+from django.http import (HttpResponseRedirect, HttpResponseForbidden,
                         HttpResponse, HttpResponseNotFound)
 from django.views.decorators.csrf import csrf_protect
 from django.contrib.auth.decorators import login_required
@@ -44,7 +44,7 @@ def login(request, *args, **kwargs):
 @cache_page(30)
 @cache_control(max_age=30)
 def comments(request, postid):
-    post = Post.objects.get(id=postid)
+    post = Post.objects.only('id').get(id=postid)
 
     cache_str = "comment_" + str(postid)
     if cache.ttl(cache_str):
@@ -69,9 +69,9 @@ def addComment(request, postid, parent=0):
             parent_comment = int(parent)
             comment = comment_form.save(commit=False)
             comment.author = request.user
-            comment.post = Post.objects.get(id=postid)
+            comment.post = Post.objects.only('id').get(id=postid)
             if parent_comment != 0:
-                comment.parent = Comment.objects.get(id=parent_comment)
+                comment.parent = Comment.objects.only('id').get(id=parent_comment)
             comment.save()
             commentImage.delay(comment.id)
 
@@ -151,7 +151,8 @@ def my_posts(request):
     else:
         template = 'dash-my-posts.html'
     # post_list = Post.objects.filter(author=request.user.id).cache()
-    post_list = Post.objects.filter(author=request.user.id)
+    post_list = Post.objects.prefetch_related()\
+                .select_related().filter(author=request.user.id)
 
     paginator = Paginator(post_list, 5)
     page = request.GET.get('page')
@@ -171,39 +172,58 @@ def my_posts(request):
 @never_cache
 def edit_post(request, postid):
     template = 'edit_post.html'
-    post = Post.objects.get(id=postid)
 
-    if request.method == 'POST':
-        form = AddPostForm(request.POST, request.FILES, instance=post)
-        if form.is_valid():
-            data = form.save(commit=False)
-            if request.user.moderated:
-                moderated = True
-            else:
-                moderated = False
-            ##data.author = request.user
-            data.url = slugify(data.title, allow_unicode=True)
-            title = data.title
-            tag_list = request.POST['hidden_tags'].split(',')  # tags list
+    post = Post.objects.select_related().prefetch_related().get(id=postid)
 
-            have_new_tags = False
-            data.save()
-            post_id = data.id
-            addPost.delay(post_id, tag_list, moderated)
+    user = myUser.objects.select_related().prefetch_related()\
+                                            .get(id=request.user.id)
+    post_tags = set(tag for tag in post.tags.values_list('id', flat=True))
+    user_moder_tags = \
+    set(t for t in user.moder_tags.values_list('id', flat=True))
 
-            return render(request, 'added-post.html',
-                          {'title': title,
-                           'cat_list': get_cat_list()})
+    if request.user.id == post.author.id\
+            or len(post_tags & user_moder_tags) > 0 \
+            or post.category.id in \
+            user.moder_cat.values_list('id', flat=True)\
+            or request.user.is_superuser:
+
+        if request.method == 'POST':
+            form = AddPostForm(request.POST, request.FILES, instance=post)
+            if form.is_valid():
+                data = form.save(commit=False)
+                if request.user.moderated:
+                    moderated = True
+                else:
+                    moderated = False
+                ##data.author = request.user
+                data.url = slugify(data.title, allow_unicode=True)
+                title = data.title
+                tag_list = request.POST['hidden_tags'].split(',')  # tags list
+
+                have_new_tags = False
+                data.save()
+                post_id = data.id
+                addPost.delay(post_id, tag_list, moderated)
+
+                return render(request, 'added-post.html',
+                              {'title': title,
+                               'cat_list': get_cat_list()})
+
+        else:
+            form = AddPostForm(instance=post)
+
+        tags_list = []
+        for i in post.tags.all():
+            tags_list.append(i.name)
+        return render(request, template,
+                    {'form': form, 'post': post,
+                     'cat_list': get_cat_list(), 'tags_list': tags_list})
 
     else:
-        form = AddPostForm(instance=post)
+        return HttpResponseForbidden()
 
-    tags_list = []
-    for i in post.tags.all():
-        tags_list.append(i.name)
-    return render(request, template,
-                {'form': form, 'post': post,
-                 'cat_list': get_cat_list(), 'tags_list': tags_list})
+
+
 
 
 @login_required(redirect_field_name='next', login_url='/login')
@@ -293,7 +313,7 @@ def list(request, category=None, tag=None, pop=None):
                 post_list = Post.objects.filter(tags__url=tag)\
                             .filter(status="P").filter(private=False)\
                             .select_related("category", "author")\
-                            .prefetch_related('tags', 'ratingpost_set')\
+                            .prefetch_related('tags', 'ratingpost_set')
             else:
                 post_list = Post.objects.filter(tags__url=tag)\
                             .filter(status="P")\
@@ -383,7 +403,7 @@ def single_post(request, tag, title, id):
     if cache.ttl(cache_str):
         post = cache.get(cache_str)
     else:
-        post = Post.objects.select_related("category")\
+        post = Post.objects.select_related("category", "author")\
             .prefetch_related('tags', 'ratingpost_set').get(pk=id)
         cache.set(cache_str, post, 1800)
 
