@@ -169,24 +169,32 @@ def my_posts(request):
                                               'cat_list': get_cat_list()})
 
 
+def user_moderator(user, obj):
+    result = False
+    if type(obj) == Post:
+        post = obj
+        #user = myUser.objects.select_related().prefetch_related()\
+        #                                        .get(id=user.id)
+        post_tags = set(tag for tag in post.tags.values_list('id', flat=True))
+        user_moder_tags = \
+        set(t for t in user.moder_tags.values_list('id', flat=True))
+
+        if len(post_tags & user_moder_tags) > 0\
+                or post.category.id in \
+                user.moder_cat.values_list('id', flat=True):
+            result = True
+
+    return result
+
+
 @never_cache
 def edit_post(request, postid):
     template = 'edit_post.html'
-
     post = Post.objects.select_related().prefetch_related().get(id=postid)
 
-    user = myUser.objects.select_related().prefetch_related()\
-                                            .get(id=request.user.id)
-    post_tags = set(tag for tag in post.tags.values_list('id', flat=True))
-    user_moder_tags = \
-    set(t for t in user.moder_tags.values_list('id', flat=True))
-
     if request.user.id == post.author.id\
-            or len(post_tags & user_moder_tags) > 0 \
-            or post.category.id in \
-            user.moder_cat.values_list('id', flat=True)\
-            or request.user.is_superuser:
-
+            or request.user.is_superuser\
+            or user_moderator(request.user, post):
         if request.method == 'POST':
             form = AddPostForm(request.POST, request.FILES, instance=post)
             if form.is_valid():
@@ -221,9 +229,6 @@ def edit_post(request, postid):
 
     else:
         return HttpResponseForbidden()
-
-
-
 
 
 @login_required(redirect_field_name='next', login_url='/login')
@@ -285,10 +290,10 @@ def rate_elem(request, type, id, vote):
         return HttpResponse("accepted")
 
 
-@cache_page(30)
-@cache_control(max_age=30)
-@vary_on_headers('X-Requested-With', 'Cookie')
-#@never_cache
+#@cache_page(30)
+#@cache_control(max_age=30)
+#@vary_on_headers('X-Requested-With', 'Cookie')
+@never_cache
 def list(request, category=None, tag=None, pop=None):
     hot_rating = 3
     context = {}
@@ -385,10 +390,10 @@ def list(request, category=None, tag=None, pop=None):
     return render(request, template, context)
 
 
-@cache_page(30)
-@cache_control(max_age=30)
-@vary_on_headers('X-Requested-With', 'Cookie')
-#@never_cache
+#@cache_page(30)
+#@cache_control(max_age=30)
+#@vary_on_headers('X-Requested-With', 'Cookie')
+@never_cache
 def single_post(request, tag, title, id):
 
     if request.is_ajax():
@@ -422,9 +427,9 @@ def single_post(request, tag, title, id):
                   'comments': comments})
 
 
-@cache_page(3)
-@cache_control(max_age=3)
-@vary_on_headers('X-Requested-With', 'Cookie')
+#@cache_page(3)
+#@cache_control(max_age=3)
+#@vary_on_headers('X-Requested-With', 'Cookie')
 def password_change(request, *args, **kwargs):
     if request.is_ajax():
         template = 'registration/password_change_form-ajax.html'

@@ -1,4 +1,7 @@
 {% load post_header %}
+{% load cache %}
+
+{% cache 180 single request.user.is_anonymous request.path %}
 
 <script>processing = true;
 wsConnect();
@@ -62,3 +65,5 @@ Comments();
     <a class="play-pause"></a>
     <ol class="indicator"></ol>
 </div>
+
+{% endcache %}

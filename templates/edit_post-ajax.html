@@ -23,6 +23,17 @@ $(".pop-tabs").hide();
 
 <p>{{ form.post_image.label_tag }}</p>
 
+{% if post.post_image %}
+<p>
+    <img src="{{ post.post_image.url }}"
+    id = "preview" class="responsive-img post-image">
+</p>
+{% else %}
+<p>
+  <img id="preview" />
+</p>
+{% endif %}
+
 <div class="row">
   <ul class="tabs tabs-fixed-width teal" id="file-url">
           <li class="tab col s3 "><a href="#file" class="waves-effect  white-text">File</a></li>
@@ -53,18 +64,6 @@ $(".pop-tabs").hide();
   <input id="id_image_url" maxlength="490" name="image_url" type="text"
   onfocusout="ClearInput('id_post_image')">
 </div>
-
-{% if post.post_image %}
-<p>
-    <img src="{{ post.post_image.url }}"
-    id = "preview" class="responsive-img, post-image">
-</p>
-{% else %}
-<p>
-  <img id="preview" />
-</p>
-{% endif %}
-
 
 <div class="input-field">
 {{ form.description }}
