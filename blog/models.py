@@ -82,7 +82,7 @@ class MyUserManager(BaseUserManager):
 
 class myUser(AbstractBaseUser, PermissionsMixin):
     index_together = [
-        ["id", "username", "avatar"],
+        ["id", "username", "avatar", "moderator"],
     ]
     username = models.CharField("Логин", max_length=30,
                                 blank=False,
@@ -104,6 +104,7 @@ class myUser(AbstractBaseUser, PermissionsMixin):
     is_staff = models.BooleanField("Персонал", default=False)
     #is_superuser = models.BooleanField("Is admin", default=False)
     moderated = models.BooleanField("Модерируется", default=False)
+    moderator = models.BooleanField("Модератор", default=False)
     user_last_login = models.DateTimeField(auto_now=True)
     date_joined = models.DateTimeField(auto_now_add=True)
     REQUIRED_FIELDS = ['email', ]
@@ -133,6 +134,24 @@ class myUser(AbstractBaseUser, PermissionsMixin):
 
     def get_short_name(self):
         return self.username.lower()
+
+    def is_moderator(self, obj):
+        result = False
+        obj = Post.objects.get(id=obj)
+        if type(obj) == Post:
+            post = obj
+            #user = myUser.objects.select_related().prefetch_related()\
+            #                                        .get(id=user.id)
+            user = self
+            post_tags = set(tag for tag in post.tags.values_list('id', flat=True))
+            user_moder_tags = \
+            set(t for t in user.moder_tags.values_list('id', flat=True))
+
+            if len(post_tags & user_moder_tags) > 0\
+                    or post.category.id in \
+                    user.moder_cat.values_list('id', flat=True):
+                result = True
+        return result
 
     #def has_perm(self, perm, obj=None):
     #    if self.is_superuser:

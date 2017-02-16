@@ -169,24 +169,6 @@ def my_posts(request):
                                               'cat_list': get_cat_list()})
 
 
-def user_moderator(user, obj):
-    result = False
-    if type(obj) == Post:
-        post = obj
-        #user = myUser.objects.select_related().prefetch_related()\
-        #                                        .get(id=user.id)
-        post_tags = set(tag for tag in post.tags.values_list('id', flat=True))
-        user_moder_tags = \
-        set(t for t in user.moder_tags.values_list('id', flat=True))
-
-        if len(post_tags & user_moder_tags) > 0\
-                or post.category.id in \
-                user.moder_cat.values_list('id', flat=True):
-            result = True
-
-    return result
-
-
 @never_cache
 def edit_post(request, postid):
     template = 'edit_post.html'
@@ -194,7 +176,8 @@ def edit_post(request, postid):
 
     if request.user.id == post.author.id\
             or request.user.is_superuser\
-            or user_moderator(request.user, post):
+            or request.user.is_moderator(post):
+
         if request.method == 'POST':
             form = AddPostForm(request.POST, request.FILES, instance=post)
             if form.is_valid():
@@ -398,8 +381,14 @@ def single_post(request, tag, title, id):
 
     if request.is_ajax():
         template = 'single_ajax.html'
+        if not request.user.is_anonymous():
+            if request.user.moderator:
+                template = 'single_ajax_moder.html'
     else:
         template = 'single.html'
+        if not request.user.is_anonymous():
+            if request.user.moderator:
+                template = 'single_moder.html'
 
     # post = Post.objects.select_related("author", "category")\
     # .prefetch_related('tags').cache().get(pk=id)

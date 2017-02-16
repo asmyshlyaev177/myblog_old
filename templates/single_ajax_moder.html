@@ -1,7 +1,8 @@
 {% load post_header %}
+{% load is_moderator %}
 {% load cache %}
 
-{% cache 60 single request.user.is_anonymous request.path %}
+{% cache 60 single_moder request.path request.user|is_moderator:post.id %}
 
 <script>processing = true;
 wsConnect();
@@ -19,6 +20,14 @@ $(".pop-tabs").hide();
 <p class="post-image center-align">
     {{ post.main_image_srcset }}
 </p>
+{% endif %}
+
+{% if not request.user.is_anonymous %}
+  {% if request.user|is_moderator:post.id %}
+  <div>
+    USER IS MODERATOR
+  </div>
+  {% endif %}
 {% endif %}
 
 <!-- <div class="row"> -->

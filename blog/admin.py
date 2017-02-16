@@ -22,7 +22,8 @@ class UserAdmin(BaseUserAdmin):
     fieldsets = (
         (None, {'fields': ('username', 'get_avatar', 'avatar',
                            'email', 'is_active', 'moderated',
-                           'is_staff', 'moder_tags', 'moder_cat')}),
+                           'is_staff', 'moderator',
+                           'moder_tags', 'moder_cat')}),
     )
 
     #add_fieldsets = (

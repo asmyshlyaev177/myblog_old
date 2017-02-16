@@ -2,12 +2,10 @@
 import os, datetime, json, re, shutil, random
 from bs4 import BeautifulSoup
 from PIL import Image
-import datetime
 from django.utils.encoding import uri_to_iri, iri_to_uri
 from moviepy.editor import *
 
 src_szs = [480, 800, 1366, 1600, 1920]
-
 
 def deleteThumb(text):
     # удаляем файлы картинок при удалении поста
