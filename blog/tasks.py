@@ -284,8 +284,6 @@ def addPost(post_id, tag_list, moderated):
         data.image_url = ""
 
     if data.post_image:
-        print("***********************************")
-        print("Post_image True")
         data.main_image_srcset = srcsetThumb(data.post_image, post_id=post_id)
         #data.post_image.delete()
         # data.image_url = srcsetThumb(data.post_image)
