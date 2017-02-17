@@ -290,6 +290,14 @@ class Post(models.Model):
     rateable = models.BooleanField("Разрешено голосовать", default=True)
     comments = models.BooleanField("Разрешено комментировать", default=True)
     locked = models.BooleanField("Не разрешать редактировать автору", default=False)
+    def is_private(self):
+        return self.private
+    def is_rateable(self):
+        return self.rateable
+    def is_comments(self):
+        return self.comments
+    def is_locked(self):
+        return self.locked
     description = models.CharField(max_length=700)
     # text = RichTextUploadingField(config_name = "post")
     text = models.TextField()

@@ -77,7 +77,11 @@ $(".pop-tabs").hide();
 
 <div class="input-field">
 <p>
+  {% if post.is_private %}
+  <input id="id_private" name="private" type="checkbox" checked>
+  {% else %}
   <input id="id_private" name="private" type="checkbox">
+  {% endif %}
    {{ form.private.label_tag }}
 </p>
 </div>
@@ -85,21 +89,33 @@ $(".pop-tabs").hide();
 {% if request.user|is_moderator:post %}
 <div class="input-field">
 <p>
+  {% if post.is_rateable %}
+  <input id="id_rateable" name="rateable" type="checkbox" checked>
+  {% else %}
   <input id="id_rateable" name="rateable" type="checkbox">
+  {% endif %}
    {{ form.rateable.label_tag }}
 </p>
 </div>
 
 <div class="input-field">
 <p>
+  {% if post.is_comments %}
+  <input id="id_comments" name="comments" type="checkbox" checked>
+  {% else %}
   <input id="id_comments" name="comments" type="checkbox">
+  {% endif %}
    {{ form.comments.label_tag }}
 </p>
 </div>
 
 <div class="input-field">
 <p>
+  {% if post.is_locked %}
+  <input id="id_locked" name="locked" type="checkbox" checked>
+  {% else %}
   <input id="id_locked" name="locked" type="checkbox">
+  {% endif %}
    {{ form.locked.label_tag }}
 </p>
 </div>
