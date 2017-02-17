@@ -1,4 +1,4 @@
-
+{% load is_moderator %}
 
 {% block content %}
 <script>processing = true;
@@ -80,10 +80,38 @@ $(".pop-tabs").hide();
   <input id="id_private" name="private" type="checkbox">
    {{ form.private.label_tag }}
 </p>
-
-
 </div>
 
+{% if request.user|is_moderator:post %}
+<div class="input-field">
+<p>
+  <input id="id_rateable" name="rateable" type="checkbox">
+   {{ form.rateable.label_tag }}
+</p>
+</div>
+
+<div class="input-field">
+<p>
+  <input id="id_comments" name="comments" type="checkbox">
+   {{ form.comments.label_tag }}
+</p>
+</div>
+
+<div class="input-field">
+<p>
+  <input id="id_locked" name="locked" type="checkbox">
+   {{ form.locked.label_tag }}
+</p>
+</div>
+
+<div class="input-field">
+<p>
+  {{ form.status }}
+   {{ form.status.label_tag }}
+</p>
+</div>
+
+{% endif %}
 
 <div class="input-field">
   {{ form.text|safe }}

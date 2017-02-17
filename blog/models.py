@@ -102,7 +102,7 @@ class myUser(AbstractBaseUser, PermissionsMixin):
     # password = models.CharField("Password", max_length=230)
     is_active = models.BooleanField("Активен", default=True)
     is_staff = models.BooleanField("Персонал", default=False)
-    #is_superuser = models.BooleanField("Is admin", default=False)
+    #is_superuser = models.BooleanField("Админ всего и вся", default=False)
     moderated = models.BooleanField("Модерируется", default=False)
     moderator = models.BooleanField("Модератор", default=False)
     user_last_login = models.DateTimeField(auto_now=True)
@@ -119,6 +119,8 @@ class myUser(AbstractBaseUser, PermissionsMixin):
                 verbose_name="Модерирует тэги")
     moder_cat = models.ManyToManyField('Category', blank=True, null=True,
                 verbose_name="Модерирует категории")
+    can_post = models.BooleanField("Может добавлять посты", default=True)
+    can_comment = models.BooleanField("Может комментировать", default=True)
     objects = MyUserManager()
 
     def get_avatar(self):
@@ -137,7 +139,7 @@ class myUser(AbstractBaseUser, PermissionsMixin):
 
     def is_moderator(self, obj):
         result = False
-        obj = Post.objects.get(id=obj)
+        #obj = Post.objects.get(id=obj)
         if type(obj) == Post:
             post = obj
             #user = myUser.objects.select_related().prefetch_related()\
@@ -149,7 +151,8 @@ class myUser(AbstractBaseUser, PermissionsMixin):
 
             if len(post_tags & user_moder_tags) > 0\
                     or post.category.id in \
-                    user.moder_cat.values_list('id', flat=True):
+                    user.moder_cat.values_list('id', flat=True)\
+                    or user.is_superuser:
                 result = True
         return result
 
@@ -283,7 +286,10 @@ class Post(models.Model):
     title = models.CharField("Заголовок", max_length=100)
     # description = RichTextField(max_length = 500, config_name = "description",
     #                            blank=True)
-    rateable = models.BooleanField(default=True)
+    private = models.BooleanField('NSFW', default=False)
+    rateable = models.BooleanField("Разрешено голосовать", default=True)
+    comments = models.BooleanField("Разрешено комментировать", default=True)
+    locked = models.BooleanField("Не разрешать редактировать автору", default=False)
     description = models.CharField(max_length=700)
     # text = RichTextUploadingField(config_name = "post")
     text = models.TextField()
@@ -328,14 +334,12 @@ class Post(models.Model):
                             related_name='posts',
                             related_query_name='tag',
                             blank=True)
-    private = models.BooleanField(default=False)
-    private.short_description = 'NSFW'
     # main_tag = models.CharField(max_length=33, blank=True)
     main_tag = models.ForeignKey('Tag', null=True, blank=True)
     url = models.CharField(max_length=330, blank=True)
     STATUS = (
-                ("D", "Draft"),
-                ("P", "Published"),
+                ("D", "Черновик/удалён"),
+                ("P", "Опубликован"),
     )
     status = models.CharField(max_length=1, choices=STATUS, default="D")
 

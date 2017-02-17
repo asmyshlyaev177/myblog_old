@@ -2,7 +2,7 @@
 {% load is_moderator %}
 {% load cache %}
 
-{% cache 60 single_moder request.path request.user|is_moderator:post.id %}
+{% cache 60 single_moder request.path request.user|is_moderator:post %}
 
 <script>processing = true;
 wsConnect();
@@ -23,9 +23,11 @@ $(".pop-tabs").hide();
 {% endif %}
 
 {% if not request.user.is_anonymous %}
-  {% if request.user|is_moderator:post.id %}
+  {% if request.user|is_moderator:post %}
   <div>
     USER IS MODERATOR
+    <a href="/edit-post-{{post.id}}" class="btn btn-small">
+      <span>Редактировать</span></a>
   </div>
   {% endif %}
 {% endif %}

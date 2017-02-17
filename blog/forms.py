@@ -112,7 +112,8 @@ class AddPostForm(forms.ModelForm):
     class Meta:
         model = Post
         fields = ('title', 'post_image', 'image_url', 'category', 'private',
-                  'description', 'text')
+                  'description', 'text', 'rateable', 'comments', 'locked',
+                  'status')
         labels = {
             'title': ('Заголовок'),
             'post_image': ('Изображение для главной'),
@@ -120,6 +121,9 @@ class AddPostForm(forms.ModelForm):
             'description': ('Описание'),
             'text': ('Текст поста'),
             'private': ('Для взрослых/только для зарегистрированных'),
+            'rateable': ('Голосование разрешено'),
+            'comments': ('Комментирование разрешено'),
+            'locked': ('Редактирование разрешено'),
         }
 
         widgets = {

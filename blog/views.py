@@ -174,9 +174,9 @@ def edit_post(request, postid):
     template = 'edit_post.html'
     post = Post.objects.select_related().prefetch_related().get(id=postid)
 
-    if request.user.id == post.author.id\
-            or request.user.is_superuser\
-            or request.user.is_moderator(post):
+    if request.user.is_superuser\
+            or request.user.is_moderator(post)\
+            or user.id == post.author.id:
 
         if request.method == 'POST':
             form = AddPostForm(request.POST, request.FILES, instance=post)
@@ -382,12 +382,14 @@ def single_post(request, tag, title, id):
     if request.is_ajax():
         template = 'single_ajax.html'
         if not request.user.is_anonymous():
-            if request.user.moderator:
+            if request.user.moderator\
+            or request.user.is_superuser:
                 template = 'single_ajax_moder.html'
     else:
         template = 'single.html'
         if not request.user.is_anonymous():
-            if request.user.moderator:
+            if request.user.moderator\
+            or request.user.is_superuser:
                 template = 'single_moder.html'
 
     # post = Post.objects.select_related("author", "category")\
