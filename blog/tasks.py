@@ -204,6 +204,7 @@ def addPost(post_id, tag_list, moderated):
     j = True
     nsfw = data.private
     have_new_tags = False
+    data.tags.clear()
     for i in tag_list:
         if len(i) > 2:
             if nsfw:

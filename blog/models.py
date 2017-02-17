@@ -349,7 +349,7 @@ class Post(models.Model):
                 ("D", "Черновик/удалён"),
                 ("P", "Опубликован"),
     )
-    status = models.CharField(max_length=1, choices=STATUS, default="D")
+    status = models.CharField("Статус", max_length=1, choices=STATUS, default="D")
 
     class Meta:
         ordering = ['-published']
