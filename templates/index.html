@@ -81,12 +81,38 @@
 <body>
 
 <nav class="nav-extended">
-    <div class="nav-wrapper light-blue accent-4">
+    <div class="nav-wrapper">
         <div class="row">
           <div class="col s12 m12 l12">
-            <a class="waves-effect brand-logo center ajax-menu menu" url=""
+            <a class="waves-effect brand-logo left ajax-menu menu" url=""
             href="/">
-              <img alt="logo" src="#" /></a>
+              <img alt="logo" src="#" />
+            </a>
+
+            <a href="#" id="user-menu"
+            data-activates="slide-out" class="button-collapse right user-menu">
+
+              {% if user.is_authenticated %}
+                <div class="username center">
+                  {{ user.username.strip }}
+                </div>
+                  {% if user.avatar %}
+                            <p><img src="{{ user.avatar.url }}"
+                            width="{{ user.avatar.width }}"
+                            height="{{ user.avatar.height }}"
+                            class = "img-avatar circle z-depth-4"></p>
+                  {% else %}
+                  <p><img src="/static/img/avatar.jpg" class ="img-avatar circle"/></p>
+                  {% endif %}
+              {% else %}
+                <div class="username center">
+                  Guest
+                </div>
+                <img src="/static/img/avatar.jpg"
+                class ="img-avatar circle z-depth-3"/></p>
+              {% endif %}
+
+            </a>
           </div>
 
           <div class="col s12 m12 l12 top-menu">
@@ -95,7 +121,8 @@
         {% for cat in cat_list %}
             <li class="tab">
               <a href="/cat/{{ cat.slug }}"
-              url = "{{ cat.slug }}" class="waves-effect ajax-menu menu"
+              url = "{{ cat.slug }}"
+              class="waves-effect ajax-menu menu z-depth-2"
                id="{{ cat.slug }}" cat>
               {{ cat.name }}</a></li>
         {% endfor %}
@@ -105,13 +132,15 @@
 
             <li class="tab">
               <a href="#"
-              url = "pop-all" class="waves-effect ajax-menu menu" pop
+              url = "pop-all"
+              class="waves-effect ajax-menu menu z-depth-2" pop
               id="pop-all">
               Новое</a>
             </li>
             <li class="tab">
               <a href="#"
-              url = "pop-best" class="waves-effect ajax-menu menu" pop
+              url = "pop-best"
+              class="waves-effect ajax-menu menu z-depth-2" pop
               id="pop-best">
               Лучшее</a>
             </li>
@@ -129,78 +158,73 @@
 style="border: 1px black dotted;">
 <h1 class="text-center">{% block title2 %}{% endblock %}</h1>
 
+<a href="#" class="back-to-top"><i class="medium material-icons">navigation</i></a>
+
 <div class="content">
   {% block content %}
 
   {% endblock %}
 
 </div>
-
-<a href="#" class="back-to-top"><i class="medium material-icons">navigation</i></a>
-
 </div>
 
+<ul id="slide-out" class="side-nav">
 
+  <li><div class="divider"></div></li>
 
+        {% if not user.is_authenticated %}
+          <li><p><a href="{% url 'signup' %}" single_page>Register</a></p>
+          </li>
+
+          <li><p><a href="{% url 'login' %}?next={{request.path}}"
+            id="login-link" rel="modal:open">log-in modal</a></p>
+          </li>
+
+        <li>
+          <p><a href="{% url 'social:begin' 'google-oauth2' %}?next={{ request.path }}">Login with google</a></p>
+        </li>
+        <li>
+          <p><a href="{% url 'social:begin' 'facebook' %}?next={{ request.path }}">Login with facebook</a></p>
+        </li>
+        <li>
+          <p><a href="{% url 'social:begin' 'vk-oauth2' %}?next={{ request.path }}">Login with VK</a></p>
+        </li>
+        {% else %}
+
+      <li><p><a href="{% url 'add_post' %}" single_page
+        url = "add-post" class="ajax-menu">Add Post</a></p>
+      </li>
+
+      <li><div class="divider"></div></li>
+
+      <li><p><a href="{% url 'password_change' %}"
+        rel="modal:open">Change password modal</a></p>
+      </li>
+
+      <li><p>
+            <a href="{% url 'dashboard' %}" single_page
+            url = "dashboard" class="ajax-menu">Dashboard</a>
+          </p>
+      </li>
+
+      <li><p><a href="{% url 'my_posts' %}"
+          single_page class="ajax-menu" url = "dashboard/my-posts"
+          >My Posts</a></p>
+      </li>
+
+      <li><div class="divider"></div></li>
+
+      <li><p><a href="{% url 'logout' %}?next={{request.path}}"
+        id="logout-link" >Logout</a></p>
+      </li>
+
+      {% endif %}
+
+  </ul>
 
 <div class="col s3 m3 l3 offset-s1
 offset-m1 offset-l1 sidebar"
 style="border: 1px black dotted;">
-
-  <div class="sidebar1">
-
-      <p>Sidebar 1</p>
-    {% if user.is_authenticated %}
-    <div id="user_auth"></div>
-      <p><a href="{% url 'dashboard' %}" single_page
-        url = "dashboard" class="ajax-menu">
-        {{ user.username }}
-                      {% if user.avatar %}
-                                <p><img src="{{ user.avatar.url }}"
-                                width="{{ user.avatar.width }}"
-                                height="{{ user.avatar.height }}"></p>
-                      {% else %}
-                      <p><img src="/static/img/avatar.jpg" class ="img-avatar"/></p>
-                      {% endif %}
-                            </a></p>
-      <p><a href="{% url 'add_post' %}" single_page
-        url = "add-post" class="ajax-menu">Add Post</a></p>
-      <p><a href="{% url 'logout' %}?next={{request.path}}"
-        id="logout-link" >Logout</a></p>
-    {% else %}
-      <p><a href="{% url 'signup' %}" single_page>Register</a></p>
-      <p><a href="{% url 'login' %}?next={{request.path}}" single_page
-        id="login-link" url = "login" class="ajax-menu">Log-in</a></p>
-
-      <p><a href="{% url 'login' %}?next={{request.path}}"
-        id="login-link" rel="modal:open">log-in modal</a></p>
-
-
-      <p><a href="{% url 'social:begin' 'google-oauth2' %}?next={{ request.path }}">Login with google</a></p>
-      <p><a href="{% url 'social:begin' 'facebook' %}?next={{ request.path }}">Login with facebook</a></p>
-      <p><a href="{% url 'social:begin' 'vk-oauth2' %}?next={{ request.path }}">Login with VK</a></p>
-    {% endif %}
-  </div>
-
-  <div class="sidebar2">
-
-    {% if user.is_authenticated %}
-      <p>Sidebar 2</p>
-      <p><a href="{% url 'password_change' %}" single_page
-         class="ajax-menu" url = "password_change"
-         >Change password</a></p>
-
-      <p><a href="{% url 'password_change' %}"
-        rel="modal:open">Change password modal</a></p>
-
-      <p><a href="{% url 'my_posts' %}"
-        single_page class="ajax-menu" url = "dashboard/my-posts"
-        >My Posts</a></p>
-
-    {% endif %}
-  </div>
-
-</div>
 
 <div id="loader" class="loader" style="
     /* width: 60%; */
