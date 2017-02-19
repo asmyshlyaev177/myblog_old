@@ -103,7 +103,7 @@
                             <p><img src="{{ user.avatar.url }}"
                             width="{{ user.avatar.width }}"
                             height="{{ user.avatar.height }}"
-                            class = "img-avatar circle z-depth-4"></p>
+                            class = "img-avatar circle z-depth-2 hoverable"></p>
                   {% else %}
                   <p><img src="/static/img/avatar.jpg" class ="img-avatar circle"/></p>
                   {% endif %}
@@ -112,7 +112,7 @@
                   Guest
                 </div>
                 <img src="/static/img/avatar.jpg"
-                class ="img-avatar circle z-depth-3"/></p>
+                class ="img-avatar circle z-depth-2 hoverable"/></p>
               {% endif %}
 
             </a>
@@ -125,7 +125,7 @@
             <li class="tab">
               <a href="/cat/{{ cat.slug }}"
               url = "{{ cat.slug }}"
-              class="waves-effect ajax-menu menu z-depth-2"
+              class="waves-effect ajax-menu menu z-depth-2 hoverable"
                id="{{ cat.slug }}" cat>
               {{ cat.name }}</a></li>
         {% endfor %}
@@ -136,14 +136,14 @@
             <li class="tab">
               <a href="#"
               url = "pop-all"
-              class="waves-effect ajax-menu menu z-depth-2" pop
+              class="waves-effect ajax-menu menu z-depth-2 hoverable" pop
               id="pop-all">
               Новое</a>
             </li>
             <li class="tab">
               <a href="#"
               url = "pop-best"
-              class="waves-effect ajax-menu menu z-depth-2" pop
+              class="waves-effect ajax-menu menu z-depth-2 hoverable" pop
               id="pop-best">
               Лучшее</a>
             </li>
@@ -225,10 +225,6 @@ style="border: 1px black dotted;">
       {% endif %}
 
   </ul>
-
-<div class="col s3 m3 l3 offset-s1
-offset-m1 offset-l1 sidebar"
-style="border: 1px black dotted;">
 
 <div id="loader" class="loader" style="
     /* width: 60%; */

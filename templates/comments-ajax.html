@@ -1,53 +1,67 @@
 {% load mptt_tags %}
 {% autoescape off %}
 
-  <div class="card horizontal comment z-depth-2 sample_comment" style="
-   margin-left:0px; display:none!important;" parent="" level="" comment_id="0">
-          <div class="row">
-            <div class="col s12 m2 l2 comment_user">
-              <p class="comment_username center-align">
+  <div class="card horizontal comment z-depth-2 sample_comment"
+    style='
+    margin-left:0px; display:none!important;'
+    comment_id=0 level="" parent="">
+    <div class="row">
+      <div class="col s12 m2 l2 comment_user">
+        <p class="comment_username center-align">
 
-              </p>
+        </p>
 
-              <p class="comment_user_avatar center-align">
-                <img src="" class="responsive-img">
-              </p>
+        <p class="comment_user_avatar center-align">
+          <img src=""
+            class="responsive-img"/>
+        </p>
 
-            </div>
-            <div class="col s12 m10 l10 card-stacked">
-              <div class="card-content comment_text z-depth-1">
+      </div>
 
+      <div class="col s12 m10 l10 card-stacked comment-body">
+        <div class="card-content comment_text">
+
+        </div>
+
+        <div class="comment_extra">
+
+        <div class="row">
+          <div class="col s4 m4 l4">
+          <div class="comment-bottom valign-wrapper">
+            <div class="valign rating-comment valign-wrapper" comment="">
+              <a href="#" class="rate-icon rate-up" rate="1">
+                <i class="small material-icons">
+                  thumb_up</i></a>
+              <div class="rate-score valign">
+                  <p>0</p>
               </div>
-              <div class="comment_extra z-depth-1">
-                <hr>
-
-                <div class="comment-bottom valign-wrapper">
-                  <div class="valign rating-comment valign-wrapper" comment="69">
-                    <a href="#" class="rate-icon rate-up" rate="1">
-                      <i class="small material-icons">
-                        thumb_up</i></a>
-                    <div class="rate-score valign">
-                      <p>0</p>
-                    </div>
-                    <a href="#" class="rate-icon rate-down" rate="0">
-                      <i class="small material-icons">thumb_down
-                      </i></a>
-                  </div>
-
-                    <div class="valign comment-date">
-                    </div>
-
-                  <div class="valign comment-rpl-btn">
-                    <a href="#" class="btn btn-small reply-btn">
-                      <span>Reply</span>
-                    </a>
-                  </div>
-                </div>
-
+              <a href="#" class="rate-icon rate-down" rate="0">
+                <i class="small material-icons">thumb_down
+                </i></a>
+            </div>
+            </div>
+            </div>
+            <div class="col s4 m4 l4">
+              <div class="valign comment-date">
               </div>
             </div>
+
+            <div class="col s4 m4 l4">
+            <div class="valign comment-rpl-btn">
+              <a href ="#" class="btn btn-small reply-btn">
+                <span>Ответить</span>
+              </a>
             </div>
             </div>
+          </div>
+
+          </div>
+          </div>
+          </div>
+
+          </div>
+
+
 
 <ul class="comments">
   {% for comment, structure  in comments|tree_info %}
@@ -71,13 +85,15 @@
             </p>
             {% endif %}
           </div>
-          <div class="col s12 m10 l10 card-stacked">
-            <div class="card-content comment_text z-depth-1">
+          <div class="col s12 m10 l10 card-stacked comment-body">
+            <div class="card-content comment_text">
               <p>{{ comment.text}}</p>
             </div>
-            <div class="comment_extra z-depth-1">
-              <hr />
 
+            <div class="comment_extra">
+
+            <div class="row">
+              <div class="col s4 m4 l4">
               <div class="comment-bottom valign-wrapper">
                 <div class="valign rating-comment valign-wrapper" comment="{{ comment.id }}">
                   <a href="#" class="rate-icon rate-up" rate="1">
@@ -94,23 +110,29 @@
                     <i class="small material-icons">thumb_down
                     </i></a>
                 </div>
-
+                </div>
+                </div>
+                <div class="col s4 m4 l4">
                   <div class="valign comment-date">
                     {{ comment.created|date:"Y.m.j H:i" }}
                   </div>
+                </div>
 
+                <div class="col s4 m4 l4">
                 {% if post.author == comment.author %} Author! {% endif %}
                 <div class="valign comment-rpl-btn">
                   <a href ="#" class="btn btn-small reply-btn">
-                    <span>Reply</span>
+                    <span>Ответить</span>
                   </a>
+                </div>
                 </div>
               </div>
 
-            </div>
-          </div>
-          </div>
-          </div>
+              </div>
+              </div>
+              </div>
+
+              </div>
 
 
 

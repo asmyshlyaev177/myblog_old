@@ -2649,7 +2649,7 @@ i.small {
 }
 
 i.medium {
-  font-size: 4rem;
+  font-size: 3rem;
 }
 
 i.large {
@@ -3395,7 +3395,7 @@ input[type=range] + .thumb {
 .row {
   margin-left: auto;
   margin-right: auto;
-  margin-bottom: 20px;
+  margin-bottom: 15px;
 }
 
 .row:after {

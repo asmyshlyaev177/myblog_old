@@ -250,7 +250,7 @@ function loadMore(){
 		  //cache : false,
       url:category+"?page="+page,
       success:function(data){
-               $('.posts').append(data); //adds data to the end of the table
+               $('.content').append(data); //adds data to the end of the table
 							 //console.log(data);
                processing = false; // the processing variable prevents multiple ajax calls when scrolling
 							 loader.hide();

@@ -136,8 +136,7 @@ def CalcRating():
         p = Post.objects.only('id', 'author')\
                 .select_related('author').get(id=post)
         post_rate, _ = RatingPost.objects.get_or_create(post=p)
-        user_rating = RatingUser.objects.only('id', 'rating')\
-                .get(user=p.author.id)
+        user_rating, _ = RatingUser.objects.get_or_create(user=p.author)
         post_rate.rating += posts[post]['rate']
         user_rating.rating += posts[post]['rate'] / 30
         post_rate.save()

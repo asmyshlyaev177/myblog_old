@@ -28,21 +28,19 @@ if ( $("a.menu.active[cat]").length ) {
   {% endif %}
 {% endif %}
 
-    {% if tag %}
-      <h1>List Posts from Tag: {{ tag.name }}</h1>
-     {{ tag.description }}
-    {% endif %}
+{% if tag %}
+  <h1>List Posts from Tag: {{ tag.name }}</h1>
+ {{ tag.description }}
+{% endif %}
 
 {% endif %}
 
-<div class="posts">
-{% if not posts == None %}
 {% for post in posts %}
 
-  <div class="post">
+  <div class="post z-depth-2">
     <a href="{{ post.get_absolute_url|escape }}" class="ajax-menu center-block
      post-title" single_page="" url="{{ post.get_url }}">
-      <h2 class="center-align">
+      <h2 class="center">
       {{ post.title }}</h2></a>
 
   {% post_header %}
@@ -59,7 +57,11 @@ if ( $("a.menu.active[cat]").length ) {
     {% if post.description %}
       {{ post.description }}
     {% endif %}
+    </div>
 
+
+<div class="row post-footer">
+  <div class="col s3 m3 l3">
     <div class="rating valign-wrapper" post={{ post.id }}>
       <a href="#" class="rate-icon rate-up" rate=1><i class="medium material-icons"
         >thumb_up</i></a>
@@ -74,22 +76,26 @@ if ( $("a.menu.active[cat]").length ) {
       <a href="#" class="rate-icon rate-down" rate=0><i class="medium material-icons"
         >thumb_down</i></a>
     </div>
-
+  </div>
+    <div class="col s3 m3 l3 offset-m6 offset-l6 offset-s6">
+      <div class="post-date right">
+        {{ post.created|date:"Y.m.d" }}
+        <br />
+        {{ post.created|date:"H:i"}}
+      </div>
     </div>
 
     {% if not posts.has_next %}
     <p id="last_page"></p>
     {% endif %}
-
   </div>
+</div>
 
 {% empty %}
-<div class="post">
+<div class="posts">
     <h3>No posts in this category yet...</h3>
 </div>
 
 {% endfor %}
-{% endif %}
 
-</div>
 {% endautoescape %}

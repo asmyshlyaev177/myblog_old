@@ -41,8 +41,8 @@ def login(request, *args, **kwargs):
                                 extra_context={'cat_list': get_cat_list()})
 
 
-@cache_page(30)
-@cache_control(max_age=30)
+@cache_page(3)
+@cache_control(max_age=3)
 def comments(request, postid):
     post = Post.objects.only('id').get(id=postid)
 
@@ -53,7 +53,7 @@ def comments(request, postid):
         comments = Comment.objects.filter(post=post)\
             .select_related("author")\
             .prefetch_related('ratingcomment_set')
-        cache.set(cache_str, comments, timeout=300)
+        cache.set(cache_str, comments, timeout=3)
 
     template = 'comments-ajax.html'
     return render(request, template,
