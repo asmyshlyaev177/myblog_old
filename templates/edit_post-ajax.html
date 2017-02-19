@@ -74,7 +74,7 @@ $(".pop-tabs").hide();
 <br />
 </p>
 
-
+<div class="checkbox">
 <div class="input-field">
 <p>
   {% if post.is_private %}
@@ -120,7 +120,7 @@ $(".pop-tabs").hide();
 </p>
 </div>
 
-<div class="input-field">
+<div class="input-field status-post">
 <p>
   {{ form.status }}
    {{ form.status.label_tag }}
@@ -128,6 +128,7 @@ $(".pop-tabs").hide();
 </div>
 
 {% endif %}
+</div>
 
 <div class="input-field">
   {{ form.text|safe }}

@@ -117,6 +117,23 @@ video {
 
 .post-thumbnail {position: relative; }
 
+#tagBox .twitter-typeahead {
+    margin-top: 2rem;
+}
+
+.select-wrapper {
+	padding-top: 1.5rem;
+	padding-bottom: 1rem;
+}
+
+.status-post {
+	margin-top: 3rem!important;
+}
+
+.label {
+	margin-bottom: 2rem;
+}
+
 .rate-icon {
   border-radius: 20px;
 }

@@ -174,41 +174,42 @@ def edit_post(request, postid):
     template = 'edit_post.html'
     post = Post.objects.select_related().prefetch_related().get(id=postid)
 
-    if request.user.is_superuser\
-            or request.user.is_moderator(post)\
-            or user.id == post.author.id:
+    if request.user.is_authenticated:
+        if request.user.is_superuser\
+                or request.user.is_moderator(post)\
+                or user.id == post.author.id:
 
-        if request.method == 'POST':
-            form = AddPostForm(request.POST, request.FILES, instance=post)
-            if form.is_valid():
-                data = form.save(commit=False)
-                if request.user.moderated:
-                    moderated = True
-                else:
-                    moderated = False
-                ##data.author = request.user
-                data.url = slugify(data.title, allow_unicode=True)
-                title = data.title
-                tag_list = request.POST['hidden_tags'].split(',')  # tags list
+            if request.method == 'POST':
+                form = AddPostForm(request.POST, request.FILES, instance=post)
+                if form.is_valid():
+                    data = form.save(commit=False)
+                    if request.user.moderated:
+                        moderated = True
+                    else:
+                        moderated = False
+                    ##data.author = request.user
+                    data.url = slugify(data.title, allow_unicode=True)
+                    title = data.title
+                    tag_list = request.POST['hidden_tags'].split(',')  # tags list
 
-                have_new_tags = False
-                data.save()
-                post_id = data.id
-                addPost.delay(post_id, tag_list, moderated)
+                    have_new_tags = False
+                    data.save()
+                    post_id = data.id
+                    addPost.delay(post_id, tag_list, moderated)
 
-                return render(request, 'added-post.html',
-                              {'title': title,
-                               'cat_list': get_cat_list()})
+                    return render(request, 'added-post.html',
+                                  {'title': title,
+                                   'cat_list': get_cat_list()})
 
-        else:
-            form = AddPostForm(instance=post)
+            else:
+                form = AddPostForm(instance=post)
 
-        tags_list = []
-        for i in post.tags.all():
-            tags_list.append(i.name)
-        return render(request, template,
-                    {'form': form, 'post': post,
-                     'cat_list': get_cat_list(), 'tags_list': tags_list})
+            tags_list = []
+            for i in post.tags.all():
+                tags_list.append(i.name)
+            return render(request, template,
+                        {'form': form, 'post': post,
+                         'cat_list': get_cat_list(), 'tags_list': tags_list})
 
     else:
         return HttpResponseForbidden()
