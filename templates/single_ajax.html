@@ -9,6 +9,7 @@ $(".pop-tabs").hide();
 </script>
 
 {% autoescape off %}
+<div class="post z-depth-1">
 <h1 class="center-align post-title">{{ post.title }}</h1>
 
 {% post_header %}
@@ -44,6 +45,8 @@ style="display:none;">
 id = "def_form_place">
 <span>Написать</span></a>
 
+</div>
+
 <div id="Comments_title">Комментарии</div>
 
 <script>
@@ -64,5 +67,4 @@ Comments();
     <a class="play-pause"></a>
     <ol class="indicator"></ol>
 </div>
-
 {% endcache %}

@@ -114,7 +114,8 @@
                 </div>
                 <div class="col s4 m4 l4">
                   <div class="valign comment-date">
-                    {{ comment.created|date:"Y.m.j H:i" }}
+                    {{ comment.created|date:"Y.m.j" }}
+                    {{ comment.created|date:"H:i" }}
                   </div>
                 </div>
 

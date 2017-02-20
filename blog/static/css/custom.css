@@ -1,3 +1,11 @@
+body {
+	background-color: rgba(239, 239, 239, 0.44);
+}
+
+.tab, .post {
+background-color: white;
+}
+
 .post {
 	margin-bottom: 20px;
 }
@@ -45,18 +53,28 @@ a.post-category {
 	color: #039be5;
 }
 
+h2 {
+  color: #3e3e3e;
+}
+
+h2:hover {
+	color: #039be5;
+}
+
 .user-menu {
 	display: inline-block;
 }
 
 .tabs .tab {
-    margin-left: 5%!important;
-    margin-right: 5%!important;
+    margin-left: 1%!important;
+    margin-right: 1%!important;
+		width: 5%;
 }
 
 .tab a {
-color: black;
+color: #3e3e3e;
 font-weight: 600!important;
+margin-top: 1px;
 }
 
 .tab a:hover {
@@ -101,13 +119,23 @@ video {
 .post-text { padding: 0!important; }
 
 .post-description {
-	border-bottom: 1px solid rgba(160,160,160,0.2);;
+	border-bottom: 1px solid rgba(160,160,160,0.2);
 }
 
 .main {overflow: hidden;}
 
+.header1 {
+	background-color: #039be5;
+  padding-bottom: 1rem!important;
+}
+
+.pop-tabs {
+	margin-top: 5px!important;
+	margin-bottom: 3px!important;
+}
+
 .top-menu {
-	margin-top: 100px;
+	padding-top: 15px!important;
 }
 
 .comment {
@@ -184,10 +212,10 @@ ul.tabs {
 }
 
 .comment-body {
-  border-left: 1px solid rgba(160,160,160,0.2);	
+  border-left: 1px solid rgba(160,160,160,0.2);
 }
 
-.comment-extra {
+.comment_extra {
   border-top: 1px solid rgba(160,160,160,0.2);
 }
 
