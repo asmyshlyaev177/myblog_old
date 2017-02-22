@@ -6,6 +6,7 @@ var myurl = "";
 var loader;
 var votes = true;
 var sockets = {};
+var isTouch =  !!("ontouchstart" in window) || window.navigator.msMaxTouchPoints > 0;
 
 $(window).load(function(){
 	if ( loader == undefined) {
@@ -19,7 +20,7 @@ $(window).load(function(){
 	ClickAjaxMenu();
   BackForwardButtons();
 	//GifPlay();
-	ratePost();
+	rate();
   ReplyBtn();
 	AddCommentBtn();
 	//setTimeout( stubImgs(), 0 );
@@ -27,6 +28,7 @@ $(window).load(function(){
 	setTimeout( wsConnect(), 0 );
 	playPause();
 	userMenu();
+	rateHoverClick();
 });
 
 function userMenu() {
@@ -146,7 +148,41 @@ function LoginModal() {
 	$('<a href="' + '/login?next=' + window.location.pathname + '"></a>').modal();
 }
 
-function ratePost() {
+function rateHoverClick() {
+	$(document).on('mouseover', '.rate-icon.rate-up', function() {
+    $(this).addClass('link-green');
+  });
+   $(document).on('click', '.rate-icon.rate-up', function() {
+    $(this).animate({
+			opacity: 0.3},
+			100).delay(100)
+				.animate({opacity: 1}, 100);
+				if ( isTouch ) {
+					$(this).removeClass('link-green');
+				}
+	});
+	$(document).on('mouseleave', '.rate-icon.rate-up', function() {
+		$(this).removeClass('link-green');
+	});
+
+	$(document).on('mouseover', '.rate-icon.rate-down', function() {
+    $(this).addClass('link-red');
+  });
+   $(document).on('click', '.rate-icon.rate-down', function() {
+    $(this).animate({
+			opacity: 0.3},
+			100).delay(100)
+				.animate({opacity: 1}, 100);
+				if ( isTouch ) {
+					$(this).removeClass('link-red');
+				}
+	});
+	$(document).on('mouseleave', '.rate-icon.rate-down', function() {
+		$(this).removeClass('link-red');
+	});
+}
+
+function rate() {
 	$(document).on('click', '.rate-icon', function() {
 		if (votes == false) {
 			return false;

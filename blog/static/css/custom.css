@@ -2,6 +2,14 @@ body {
 	background-color: rgba(239, 239, 239, 0.44);
 }
 
+.link-green {
+	color:green!important;
+}
+
+.link-red {
+	color:red!important;
+}
+
 .tab, .post {
 background-color: white;
 }
@@ -143,9 +151,13 @@ video {
 }
 
 .rating-comment, .comment-date, .comment-rpl-btn {
-	display: inline-flex!important;
 	margin-left: 5px;
 	margin-right: 5px;
+	display: inline-flex!important;
+}
+
+.comment-bottom {
+	display: inline-block!important;
 }
 
 .btn-small {
@@ -193,22 +205,9 @@ ul.tabs {
   overflow: hidden;
 }
 
-.rate-icon.rate-up {
+.rate-icon.rate-up, .rate-icon.rate-down {
   color:#039be5;
 	transition:.3s;
-}
-
-.rate-icon.rate-up:hover {
-  color:green;
-}
-
-.rate-icon.rate-down {
-  color:#039be5;
-	transition:.3s;
-}
-
-.rate-icon.rate-down:hover {
-  color:red;
 }
 
 .comment-body {
@@ -227,8 +226,10 @@ ul.tabs {
 	margin-top: 12px;
 }
 
-.comment-rpl-btn {
-	margin-top: 19px;
+@media screen and (min-width: 595px) { /*540 */
+	.comment-rpl-btn {
+		margin-top: 19px;
+	}
 }
 
 #load_circle {
