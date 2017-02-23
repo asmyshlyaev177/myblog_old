@@ -373,6 +373,53 @@ function ClickAjaxMenu() {
 	});
 	}
 
+function ChangePageNew( link, myurl, single_page ) {
+		content = $(".content")
+		content.fadeTo(0, 0.1);
+		//try {
+			for ( socket in sockets ) {
+				sockets[socket].close();
+				//delete sockets[socket];
+			}
+		//} catch(err) {}
+
+		loader.css('top', '120px').css('left', '50%').css('position', 'absolute').show();
+		$.ajax({
+	      type:"GET",
+			  //cache : false,
+			  url: link,
+	      success:function(data){
+		      data2 = ('<div class="content">' + data + '</div>');
+		      $(data2).replaceAll('.content');
+					content.fadeTo(0, 1);
+					$('#load_circle').hide();
+					disableRate();
+					$("#login-link").attr("href", "/login?next=" + window.location.pathname);
+					$("#logout-link").attr("href", "/logout?next=" + window.location.pathname);
+	          }
+	     });
+
+	   page = 1;
+		$(".menu").parent().removeClass('active');
+
+	 	if ( myurl != "" && single_page == false) {
+					link = link.split('/');
+					pop = link.pop();
+					cat = link.pop();
+					if ( pop == "pop-all" || pop == "pop-best") {
+									$('.menu').filter( $('#'+pop ) ).parent().addClass('active');
+									$('.menu').filter( $('#'+cat ) ).parent().addClass('active');
+								} else {
+									$('.menu').filter( $('#'+myurl ) ).parent().addClass('active');
+								}
+	    }
+
+			if ( $("div.post").length < 2 ) {
+			 $(".pop-tabs").hide();
+			}
+
+		};
+
 function cloneComment( data ) {
 	var comment = data;
 	var com = $(".sample_comment").clone();
@@ -437,51 +484,6 @@ function wsConnect() {
 		if (socket.readyState == WebSocket.OPEN) socket.onopen();
 		}
 	}
-
-function ChangePageNew( link, myurl, single_page ) {
-	content = $(".content")
-	content.fadeTo(0, 0.1);
-	//try {
-		for ( socket in sockets ) {
-			sockets[socket].close();
-			//delete sockets[socket];
-		}
-	//} catch(err) {}
-
-	loader.css('top', '120px').css('left', '50%').css('position', 'absolute').show();
-	$.ajax({
-      type:"GET",
-		  //cache : false,
-		  url: link,
-      success:function(data){
-	      data2 = ('<div class="content">' + data + '</div>');
-	      $(data2).replaceAll('.content');
-				content.fadeTo(0, 1);
-				$('#load_circle').hide();
-				disableRate();
-				$("#login-link").attr("href", "/login?next=" + window.location.pathname);
-				$("#logout-link").attr("href", "/logout?next=" + window.location.pathname);
-          }
-     });
-
-		 if ( !$("div.posts").length ) {
-		 	$(".pop-tabs").hide();
-		 }
-   page = 1;
-	$(".menu").parent().removeClass('active');
-
- 	if ( myurl != "" && single_page == false) {
-				link = link.split('/');
-				pop = link.pop();
-				cat = link.pop();
-				if ( pop == "pop-all" || pop == "pop-best") {
-								$('.menu').filter( $('#'+pop ) ).parent().addClass('active');
-								$('.menu').filter( $('#'+cat ) ).parent().addClass('active');
-							} else {
-								$('.menu').filter( $('#'+myurl ) ).parent().addClass('active');
-							}
-    }
-	};
 
 function BackForwardButtons() {
 	window.onpopstate = function(event) {

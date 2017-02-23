@@ -9,7 +9,7 @@ from django.http import (HttpResponseRedirect, HttpResponseForbidden,
 from django.views.decorators.csrf import csrf_protect
 from django.contrib.auth.decorators import login_required
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
-import json
+import json, sys, os
 from django.views.decorators.cache import cache_page, never_cache
 from django.views.decorators.vary import vary_on_headers
 from django.views.decorators.cache import cache_control
@@ -17,6 +17,14 @@ from django.core.cache import cache
 from blog.tasks import addPost, Rate, commentImage
 from django.contrib.auth.views import (login as def_login,
                                 password_change as def_password_change)
+
+
+def clear_cache(request):
+    if request.user.is_superuser:
+        os.system("/root/myblog/myblog/clear_cache.sh")
+        return HttpResponseRedirect('/admin/')
+    else:
+        return HttpResponseForbidden()
 
 
 def get_cat_list():
@@ -335,6 +343,7 @@ def list(request, category=None, tag=None, pop=None):
                 cache.set(cache_str_cat, post_list, 300)
             else:
                 cache.set(cache_str_cat, post_list, 1800)
+                print(cache_str_cat)
 
     else:
         cache_str = "post_list_" + str(user_known) + "_" + str(pop)

@@ -56,7 +56,7 @@ a.post-category {
 	font-weight: 500;
 }
 
-.side-nav a:hover, a:hover {
+.side-nav a:hover {
   transition-duration: 0.23s;
 	color: #039be5;
 }
@@ -65,7 +65,7 @@ h2 {
   color: #3e3e3e;
 }
 
-h2:hover {
+h2:hover, a.back-to-top:hover {
 	color: #039be5;
 }
 
