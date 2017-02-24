@@ -223,10 +223,10 @@ def edit_post(request, postid):
         return HttpResponseForbidden()
 
 
-@login_required(redirect_field_name='next', login_url='/login')
-@cache_page(3)
-@cache_control(max_age=3)
-@vary_on_headers('X-Requested-With', 'Cookie')
+#@login_required(redirect_field_name='next', login_url='/login')
+#@cache_page(3)
+#@cache_control(max_age=3)
+#@vary_on_headers('X-Requested-With', 'Cookie')
 def add_post(request):
     if request.is_ajax():
         template = 'add_post-ajax.html'
@@ -364,7 +364,7 @@ def list(request, category=None, tag=None, pop=None):
     context['cat_list'] = get_cat_list()
     context['page'] = page
 
-    if not posts:
+    if not posts and page:
         return HttpResponse('last_page')
     else:
         return render(request, template, context)

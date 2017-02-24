@@ -153,7 +153,7 @@ SESSION_CACHE_ALIAS = "default"
 
 INSTALLED_APPS = [
     'django.contrib.staticfiles',
-    'debug_toolbar',
+    #'debug_toolbar',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -202,7 +202,7 @@ COMPRESS_CSS_FILTERS = ['compressor.filters.css_default.CssAbsoluteFilter',
 
 # MIDDLEWARE = [  #for debug toolbar
 MIDDLEWARE_CLASSES = [
-    'debug_toolbar.middleware.DebugToolbarMiddleware',
+    #'debug_toolbar.middleware.DebugToolbarMiddleware',
     'django.middleware.cache.UpdateCacheMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
@@ -244,10 +244,22 @@ WSGI_APPLICATION = 'myblog.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/1.10/ref/settings/#databases
 
+#DATABASES = {
+#    'default': {
+##        'ENGINE': 'django.db.backends.sqlite3',
+#        'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
+#    }
+#}
+
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': 'myblog',
+        'USER': 'mybloguser',
+        'PASSWORD': 'Qvjuzowu177Qvjuzowu177Qvjuzowu177',
+        'HOST': '/var/run/postgresql',
+        'CONN_MAX_AGE': None,
+        #'PORT': '6432',
     }
 }
 

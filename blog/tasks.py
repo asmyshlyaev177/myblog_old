@@ -200,10 +200,10 @@ def commentImage(comment_id):
 @app.task(name="addPost")
 def addPost(post_id, tag_list, moderated):
     data = Post.objects.get(id=post_id)
-    j = True
     nsfw = data.private
     have_new_tags = False
     data.tags.clear()
+    tag = None
     for i in tag_list:
         if len(i) > 2:
             if nsfw:
@@ -224,17 +224,16 @@ def addPost(post_id, tag_list, moderated):
             if have_new_tags:
                 tag.save()
             data.tags.add(tag)
-        if j:
-            try:
-                data.main_tag = tag
-            except:
-                #tag = Tag.objects.get(id=8)
-                tag, _ = Tag.objects.get_or_create(name="Разное")
-                if _:
-                    tag.url = "others"
-                    tag.save()
-                data.main_tag = tag
-            j = False
+
+    if tag:
+        data.main_tag = tag
+    else:
+        #tag = Tag.objects.get(id=8)
+        tag, _ = Tag.objects.get_or_create(name="Разное")
+        if _:
+            tag.url = "others"
+            tag.save()
+        data.main_tag = tag
 
     # ищем картинки в тексте
     soup = srcsets(data.text, True, post_id=post_id)
@@ -294,21 +293,11 @@ def addPost(post_id, tag_list, moderated):
     cache.delete_pattern("post_list_*")
     cache_str = "post_single_" + str(data.id)
     cache.delete(cache_str)
-    # tag_rating, _ = RatingTag.objects.cache().get_or_create(tag=tag)
     tag_rating, _ = RatingTag.objects.get_or_create(tag=tag)
     tag_rating.tag = tag
     tag_rating.rating = 0
     tag_rating.save()
-    # post_rating, _ = RatingPost.objects.cache().get_or_create(post=data)
     post_rating, _ = RatingPost.objects.get_or_create(post=data)
-    post_rating.post = data
     if _:
         post_rating.rating = 0.0
     post_rating.save()
-
-    """try:
-        if have_new_tags:
-            pass
-            #taglist.delay()
-    except:
-        pass"""
