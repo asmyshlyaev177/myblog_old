@@ -75,6 +75,7 @@ pilkit==1.1.13
 Pillow==4.0.0
 ply==3.9
 prompt-toolkit==1.0.9
+psycopg2==2.6.2
 ptyprocess==0.5.1
 pycryptodomex==3.4.3
 Pygments==2.2.0

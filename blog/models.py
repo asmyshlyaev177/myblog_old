@@ -240,21 +240,6 @@ class RatingComment(Rating):
     comment = models.ForeignKey('Comment', db_index=True)
 
 
-class Vote(models.Model):
-    # vote_id = models.IntegerField(blank = True, null = True)
-    rate = models.BooleanField()
-    score = models.FloatField(null=True, blank=True)
-    created = models.DateTimeField(auto_now_add=True)  # for celery
-    counted = models.BooleanField(default=False)
-
-    class Meta:
-        abstract = True
-
-
-class VotePost(Vote):
-    post = models.ForeignKey('Post', db_index=True)
-
-
 class UserVotes(models.Model):
     # userid = models.IntegerField(blank = True, null = True)
     votes = models.IntegerField(default=10)
@@ -280,8 +265,8 @@ register.generator('blog:thumbnail', Thumbnail) """
 
 class Post(models.Model):
     index_together = [
-    ["title", "description", "post_thumbnail", "author", "category",
-                "url", "published", "private", "status", "main_tag"],
+    ["id", "author", "category", "tags",
+        "published", "private", "status", "main_tag"],
     ]
     title = models.CharField("Заголовок", max_length=100)
     # description = RichTextField(max_length = 500, config_name = "description",
@@ -304,7 +289,7 @@ class Post(models.Model):
     today = datetime.date.today()
     upload_path = str(today.year) + '/' + str(today.month)\
                                 + '/' + str(today.day) + '/'
-    post_image = models.ImageField(upload_to=upload_path, blank=True)
+    post_image = models.ImageField(upload_to=upload_path, blank=True, null=True)
     image_url = models.URLField(null=True, blank=True, max_length=1000)
     main_image_srcset = models.TextField(null=True, blank=True)
 
@@ -321,7 +306,7 @@ class Post(models.Model):
 
     post_image.short_description = 'Image'
     post_thumbnail = ImageSpecField(source='post_image',
-                                processors=[ResizeToFit(1366, 2000)],
+                                processors=[ResizeToFit(300, 300)],
                                 format='JPEG',
                                 options={'quality': 85})
     #post_thumbnail = models.ImageField(upload_to=upload_path, blank=True)
@@ -373,8 +358,8 @@ class Post(models.Model):
         # return self.tags.values_list('name', flat=True)
         return self.tags.all()
 
-    def save(self, *args, **kwargs):
-        super(Post, self).save(*args, **kwargs)
+    #def save(self, *args, **kwargs):
+    #    super(Post, self).save(*args, **kwargs)
 
 
 @receiver(models.signals.pre_delete, sender=Post)
@@ -388,6 +373,7 @@ def _post_delete(sender, instance, **kwargs):
     cache.delete(cache_str)
     cache.delete("post_list_True")
     cache.delete("post_list_False")
+    cache.delete_pattern("page_*")
     cache_str = "post_single_" + str(instance.id)
     cache.delete(cache_str)
     try:
@@ -410,6 +396,7 @@ def _post_save(sender, instance, **kwargs):
     cache.delete(cache_str)
     cache.delete("post_list_True")
     cache.delete("post_list_False")
+    cache.delete_pattern("page_*")
     if not instance.pk:
         return False
 

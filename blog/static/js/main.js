@@ -286,9 +286,15 @@ function loadMore(){
 		  //cache : false,
       url:category+"?page="+page,
       success:function(data){
-               $('.content').append(data); //adds data to the end of the table
-							 //console.log(data);
-               processing = false; // the processing variable prevents multiple ajax calls when scrolling
+							 if ( data != 'last_page') {
+								 $('.content').append(data); //adds data to the end of the table
+								 //console.log(data);
+	               processing = false; // the processing variable prevents
+								  									 //multiple ajax calls when scrolling
+							 } else {
+								 $('.content').append('<p id="last_page"></p>')
+							 }
+
 							 loader.hide();
 							 disableRate();
           }

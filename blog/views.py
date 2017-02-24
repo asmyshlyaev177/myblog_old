@@ -298,89 +298,76 @@ def list(request, category=None, tag=None, pop=None):
     user_known = False
     if request.user.is_authenticated:
         user_known = True
-        # post_list = post_list.filter(private=False)
 
-    if tag:
-        cache_str_tag = "post_list_" + str(tag) + "_" + str(user_known)\
-                                                        + "_" + str(pop)
-        if cache.ttl(cache_str_tag):
-            post_list = cache.get(cache_str_tag)
-        else:
-            if not user_known:
-                post_list = Post.objects.filter(tags__url=tag)\
-                            .filter(status="P").filter(private=False)\
-                            .select_related("category", "author")\
-                            .prefetch_related('tags', 'ratingpost_set')
-            else:
-                post_list = Post.objects.filter(tags__url=tag)\
-                            .filter(status="P")\
-                            .select_related("category", "author")\
-                            .prefetch_related('tags', 'ratingpost_set')
-            if pop == "best":
-                post_list = post_list.filter(ratingpost__rating__gte=hot_rating)
-                cache.set(cache_str_tag, post_list, 300)
-            else:
-                cache.set(cache_str_tag, post_list, 1800)
-
-    elif category:
-        cache_str_cat = "post_list_" + str(category.lower())\
-            + "_" + str(user_known) + "_" + str(pop)
-        if cache.ttl(cache_str_cat):
-            post_list = cache.get(cache_str_cat)
-        else:
-            if not user_known:
-                post_list = Post.objects.filter(category__slug=category)\
-                            .filter(status="P").filter(private=False)\
-                            .select_related("category", "author")\
-                            .prefetch_related('tags', 'ratingpost_set')
-            else:
-                post_list = Post.objects.filter(category__slug=category)\
-                            .filter(status="P")\
-                            .select_related("category", "author")\
-                            .prefetch_related('tags', 'ratingpost_set')
-            if pop == "best":
-                post_list = post_list.filter(ratingpost__rating__gte=hot_rating)
-                cache.set(cache_str_cat, post_list, 300)
-            else:
-                cache.set(cache_str_cat, post_list, 1800)
-                print(cache_str_cat)
-
-    else:
-        cache_str = "post_list_" + str(user_known) + "_" + str(pop)
-        if cache.ttl(cache_str):
-            post_list = cache.get(cache_str)
-        else:
-            if not user_known:
-                post_list = Post.objects\
-                            .filter(status="P").filter(private=False)\
-                            .select_related("category", "author")\
-                            .prefetch_related('tags', 'ratingpost_set')
-            else:
-                post_list = Post.objects\
-                            .filter(status="P")\
-                            .select_related("category", "author")\
-                            .prefetch_related('tags', 'ratingpost_set')
-            if pop == "best":
-                post_list = post_list.filter(ratingpost__rating__gte=hot_rating)
-                cache.set(cache_str, post_list, 300)
-            else:
-                cache.set(cache_str, post_list, 1800)
-
-    paginator = Paginator(post_list, 3)
     page = request.GET.get('page')
 
-    try:
-        posts = paginator.page(page)
-    except PageNotAnInteger:
-        posts = paginator.page(1)
-    except EmptyPage:
-        #posts = paginator.page(paginator.num_pages)
-        posts = None
+    cache_str = "page_" + str(category) + "_" + \
+        str(tag) + "_" + str(pop) + "_" + str(user_known) + \
+        "_" + str(page)
+
+    if cache.ttl(cache_str):
+        posts = cache.get(cache_str)
+    else:
+        if tag:
+            if not user_known:
+                post_list = Post.objects.filter(tags__url=tag)\
+                            .filter(status="P").filter(private=False)\
+                            .select_related("category", "author")\
+                            .prefetch_related('tags', 'ratingpost_set')
+            else:
+                post_list = Post.objects.filter(tags__url=tag)\
+                            .filter(status="P")\
+                            .select_related("category", "author")\
+                            .prefetch_related('tags', 'ratingpost_set')
+            if pop == "best":
+                post_list = post_list.filter(ratingpost__rating__gte=hot_rating)
+
+        elif category:
+            if not user_known:
+                post_list = Post.objects.filter(category__slug=category)\
+                            .filter(status="P").filter(private=False)\
+                            .select_related("category", "author")\
+                            .prefetch_related('tags', 'ratingpost_set')
+            else:
+                post_list = Post.objects.filter(category__slug=category)\
+                            .filter(status="P")\
+                            .select_related("category", "author")\
+                            .prefetch_related('tags', 'ratingpost_set')
+            if pop == "best":
+                post_list = post_list.filter(ratingpost__rating__gte=hot_rating)
+
+        else:
+            if not user_known:
+                post_list = Post.objects\
+                            .filter(status="P").filter(private=False)\
+                            .select_related("category", "author")\
+                            .prefetch_related('tags', 'ratingpost_set')
+            else:
+                post_list = Post.objects\
+                            .filter(status="P")\
+                            .select_related("category", "author")\
+                            .prefetch_related('tags', 'ratingpost_set')
+            if pop == "best":
+                post_list = post_list.filter(ratingpost__rating__gte=hot_rating)
+
+        paginator = Paginator(post_list, 3)
+
+        try:
+            posts = paginator.page(page).object_list
+        except PageNotAnInteger:
+            posts = paginator.page(1).object_list
+        except EmptyPage:
+            posts = None
+        cache.set(cache_str, posts, 180)
+
     context['posts'] = posts
     context['cat_list'] = get_cat_list()
     context['page'] = page
 
-    return render(request, template, context)
+    if not posts:
+        return HttpResponse('last_page')
+    else:
+        return render(request, template, context)
 
 
 #@cache_page(30)
@@ -401,9 +388,6 @@ def single_post(request, tag, title, id):
             if request.user.moderator\
             or request.user.is_superuser:
                 template = 'single_moder.html'
-
-    # post = Post.objects.select_related("author", "category")\
-    # .prefetch_related('tags').cache().get(pk=id)
 
     cache_str = "post_single_" + str(id)
     if cache.ttl(cache_str):
