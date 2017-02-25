@@ -1,7 +1,9 @@
 
 
 {% block content %}
-<script>processing = true;</script>
+<script>processing = true;
+$(".categories").hide();
+</script>
 <div class="post z-depth-1">
 <h1>Add post</h1>
 
@@ -168,7 +170,6 @@ $(document).ready(function(){
     ClearInput('id_post_image');
   });
   $('ul.tabs').tabs();
-  //$('#file-url').children('.indicator').css('background-color', 'white');
 });
 
 
@@ -196,13 +197,12 @@ var tagging_options = {
   //"close-char": "X",
   "close-class": "material-icons close",
   "tag-class": "chip",
-
   "close-char": "close",
   "forbidden-chars": [],
 	"forbidden-words": [],
 };
 
-TagBox = $("#tagBox")
+TagBox = $("#tagBox");
 TagBox.tagging( tagging_options);
 
 var taglist = new Bloodhound({
@@ -210,7 +210,6 @@ var taglist = new Bloodhound({
   queryTokenizer: Bloodhound.tokenizers.whitespace,
   prefetch: {
   url: '/tags.json',
-  //url: '../static/taglist.json',
   cache: false
    }
 });

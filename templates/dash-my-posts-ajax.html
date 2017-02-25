@@ -1,17 +1,12 @@
 
-
-<div class="container-fluid">
   <script>processing = false;
   $(".pop-tabs").hide();
   </script>
-<h3 class="text-center">My posts</h3>
 
 {% if posts %}
 
     {% for post in posts %}
-    <div class="row">
 
-      <div class="col-md-8">
        <a href="{{ post.get_absolute_url }}" >
          <h4 class="post-title-dash text-center">{{ post.title }} </h4></a>
          <div class="pull-right">Category:
@@ -20,9 +15,7 @@
            {{post.category}}</a>
          </div>
 
-         </div>
 
-    <div class="col-md-4">
       {% if post.post_image %}
 
         <img src="{{ post.post_image.url }}"
@@ -32,11 +25,7 @@
 
       <p class="post-description">{% autoescape off %}
         {{ post.description }}{% endautoescape %}</p>
-   </div>
 
-
-
-         </div>
     {% endfor %}
 
 {% else %}
@@ -46,5 +35,3 @@
 </p>
 
 {% endif %}
-
-</div>

@@ -1,7 +1,9 @@
 {% load is_moderator %}
 
 {% block content %}
+<div class="post z-depth-1">
 <script>processing = true;
+$(".categories").hide();
 $(".pop-tabs").hide();
 </script>
 <h1>Edit post</h1>
@@ -219,16 +221,9 @@ $(document).ready(function(){
     ClearInput('id_post_image');
   });
   $('ul.tabs').tabs();
-
-  loadTags();
-  //$('#file-url').children('.indicator').css('background-color', 'white');
 });
 
-function loadTags() {
-  tags_list = JSON.parse( $("#tags_list").attr('tags').
-    replace(/'/g, '"').trim() );
-  $("#tagBox").tagging( "add", tags_list );
-}
+
 
 
 
@@ -253,13 +248,12 @@ var tagging_options = {
   //"close-char": "X",
   "close-class": "material-icons close",
   "tag-class": "chip",
-
   "close-char": "close",
   "forbidden-chars": [],
 	"forbidden-words": [],
 };
 
-TagBox = $("#tagBox")
+TagBox = $("#tagBox");
 TagBox.tagging( tagging_options);
 
 var taglist = new Bloodhound({
@@ -267,7 +261,6 @@ var taglist = new Bloodhound({
   queryTokenizer: Bloodhound.tokenizers.whitespace,
   prefetch: {
   url: '/tags.json',
-  //url: '../static/taglist.json',
   cache: false
    }
 });
@@ -302,5 +295,9 @@ $(document).on('click', '.tt-suggestion', function() {
 $('html, body').scrollTop( 0 );
 $('#id_title').focus();
 
+$(".pop-tabs").hide();
+$(".menu").removeClass('active').parent().removeClass('active');
+
 </script>
+</div>
 {% endblock %}

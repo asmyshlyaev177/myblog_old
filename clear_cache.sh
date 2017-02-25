@@ -8,7 +8,8 @@ find /root/myblog -name "*.pyc" -type f -delete
 
 #clear cache from redis
 rpass="Qvjuzowu177Qvjuzowu177Qvjuzowu177"
-keys=("*taglist*" "*cat_list*" "*post_*" "*comment*", "*page_*") 
+keys=("*taglist*" "*cat_list*" "*post_*" "*comment*" "*page_*"\
+ "*list*" "*single*") 
 for i in ${keys[@]} ; 
   do 
     /usr/bin/redis-cli -a $rpass --scan --pattern $i\

@@ -368,13 +368,9 @@ def _post_delete(sender, instance, **kwargs):
     deleteThumb(instance.text)
     deleteThumb(instance.main_image_srcset)
 
-    cache_str = "post_list_" + str(instance.category).lower()\
-                                + "_" + str(instance.private)
-    cache.delete(cache_str)
-    cache.delete("post_list_True")
-    cache.delete("post_list_False")
-    cache.delete_pattern("page_*")
     cache_str = "post_single_" + str(instance.id)
+    cache.delete(cache_str)
+    cache_str = "page_" + str(instance.category) + "*"
     cache.delete(cache_str)
     try:
         if instance.post_image:
@@ -391,12 +387,8 @@ def _post_save(sender, instance, **kwargs):
 
     cache_str = "post_single_" + str(instance.id)
     cache.delete(cache_str)
-    cache_str = "post_list_" + str(instance.category).lower()\
-                                + "_" + str(instance.private)
+    cache_str = "page_" + str(instance.category) + "*"
     cache.delete(cache_str)
-    cache.delete("post_list_True")
-    cache.delete("post_list_False")
-    cache.delete_pattern("page_*")
     if not instance.pk:
         return False
 
@@ -554,5 +546,4 @@ def _post_delete(sender, instance, **kwargs):
 
 @receiver(models.signals.post_save, sender=Comment)
 def _post_save(sender, instance, **kwargs):
-    cache_str = "comment_" + str(instance.post.id)
-    cache.delete(cache_str)
+    pass

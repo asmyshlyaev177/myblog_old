@@ -1,12 +1,11 @@
 {% load post_header %}
 {% load cache %}
-{% cache 180 list_ajax request.user.is_anonymous request.path page %}
+{% cache 3 list_ajax request.user.is_anonymous request.path page %}
 {% autoescape off %}
 
 {% if page == None %}
 
 <script>processing = false;
-$(".pop-tabs").show();
 path = window.location.pathname.split('/');
 link = $('a[href="/' + path[1] + '/' + path[2] + '"');
 link.addClass('active').parent().addClass('active');

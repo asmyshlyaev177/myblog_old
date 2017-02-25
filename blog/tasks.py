@@ -224,6 +224,8 @@ def addPost(post_id, tag_list, moderated):
             if have_new_tags:
                 tag.save()
             data.tags.add(tag)
+    if have_new_tags:
+        cache.delete_pattern("taglist")
 
     if tag:
         data.main_tag = tag
@@ -290,7 +292,8 @@ def addPost(post_id, tag_list, moderated):
     if not moderated:
         data.status = "P"
     data.save()
-    cache.delete_pattern("post_list_*")
+    cache_str = "page_" + str(data.category) + "*"
+    cache.delete_pattern(cache_str)
     cache_str = "post_single_" + str(data.id)
     cache.delete(cache_str)
     tag_rating, _ = RatingTag.objects.get_or_create(tag=tag)

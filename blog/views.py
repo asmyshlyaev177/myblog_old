@@ -52,13 +52,11 @@ def login(request, *args, **kwargs):
 @cache_page(3)
 @cache_control(max_age=3)
 def comments(request, postid):
-    post = Post.objects.only('id').get(id=postid)
-
     cache_str = "comment_" + str(postid)
     if cache.ttl(cache_str):
         comments = cache.get(cache_str)
     else:
-        comments = Comment.objects.filter(post=post)\
+        comments = Comment.objects.filter(post=postid)\
             .select_related("author")\
             .prefetch_related('ratingcomment_set')
         cache.set(cache_str, comments, timeout=3)
@@ -179,7 +177,10 @@ def my_posts(request):
 
 @never_cache
 def edit_post(request, postid):
-    template = 'edit_post.html'
+    if request.is_ajax():
+        template = 'edit_post-ajax.html'
+    else:
+        template = 'edit_post.html'
     post = Post.objects.select_related().prefetch_related().get(id=postid)
 
     if request.user.is_authenticated:

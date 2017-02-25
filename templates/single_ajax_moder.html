@@ -27,7 +27,8 @@ $(".pop-tabs").hide();
   {% if request.user|is_moderator:post %}
   <div>
     USER IS MODERATOR
-    <a href="/edit-post-{{post.id}}" class="btn btn-small">
+    <a href="/edit-post-{{post.id}}" one_col
+    url="edit-post-{{post.id}}" class="ajax-menu btn btn-small">
       <span>Редактировать</span></a>
   </div>
   {% endif %}

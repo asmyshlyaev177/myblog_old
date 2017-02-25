@@ -331,9 +331,13 @@ function ClickAjaxMenu() {
 	ajax_menu = $(this);
 	if ( ajax_menu.is('[single_page]' ) ) { // if it is menu don't load on scroll
 		single = true;
-	}
-	else { // if it is list page load on scroll
+	} else { // if it is list page load on scroll
 		single = false;
+	}
+	if ( ajax_menu.is('[one_col]' ) ) {
+		one_col = true;
+	} else {
+		one_col = false;
 	}
 	myurl = ajax_menu.attr('url');
 
@@ -373,13 +377,13 @@ function ClickAjaxMenu() {
 	}
 
 		window.history.pushState({state:'new'}, "",  url);
-		ChangePageNew( url, myurl, single);
+		ChangePageNew( url, myurl, single, one_col);
 		return false;
 
 	});
 	}
 
-function ChangePageNew( link, myurl, single_page ) {
+function ChangePageNew( link, myurl, single_page, one_col ) {
 		content = $(".content")
 		content.fadeTo(0, 0.1);
 		//try {
@@ -395,13 +399,25 @@ function ChangePageNew( link, myurl, single_page ) {
 			  //cache : false,
 			  url: link,
 	      success:function(data){
-		      data2 = ('<div class="content">' + data + '</div>');
-		      $(data2).replaceAll('.content');
 					content.fadeTo(0, 1);
 					$('#load_circle').hide();
 					disableRate();
 					$("#login-link").attr("href", "/login?next=" + window.location.pathname);
 					$("#logout-link").attr("href", "/logout?next=" + window.location.pathname);
+					if ( one_col ) {
+						$(".main").attr('class', 'main col s12 m12 l12');
+					} else {
+						$(".main").attr('class', 'main col s12 m10 l6 offset-m1 offset-l1');
+					}
+					data2 = ('<div class="content">' + data + '</div>');
+					$(data2).replaceAll('.content');
+					if ( $("div.post").length < 2 && single_page) {
+					 $(".pop-tabs").hide();
+				 } else {
+					 $(".pop-tabs").show();
+					 $(".categories").show();
+				 };
+
 	          }
 	     });
 
@@ -419,10 +435,6 @@ function ChangePageNew( link, myurl, single_page ) {
 									$('.menu').filter( $('#'+myurl ) ).parent().addClass('active');
 								}
 	    }
-
-			if ( $("div.post").length < 2 ) {
-			 $(".pop-tabs").hide();
-			}
 
 		};
 
