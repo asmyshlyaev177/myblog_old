@@ -235,6 +235,8 @@ def add_post(request):
 
     if request.method == 'POST':
         form = AddPostForm(request.POST, request.FILES)
+        form.data['status'] = 'D'
+        print("before from validation")
         if form.is_valid():
 
             data = form.save(commit=False)
@@ -256,6 +258,8 @@ def add_post(request):
             return render(request, 'added-post.html',
                           {'title': title,
                            'cat_list': get_cat_list()})
+        else:
+            return HttpResponse(str(form.errors))
 
     form = AddPostForm()
 
