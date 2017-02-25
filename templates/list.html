@@ -1,9 +1,9 @@
 {% extends "index.html" %}
 {% load cache %}
+{% cache 60 list request.user.is_anonymous request.path page %}
 
 {% block title %}My blog!{% endblock %}
 
-{% cache 180 list request.user.is_anonymous %}
 {% block content %}
 
 {% include "list_ajax.html" %}

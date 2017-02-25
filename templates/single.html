@@ -1,4 +1,6 @@
 {% extends "index.html" %}
+{% load cache %}
+{% cache 1800 single request.user.is_anonymous request.path %}
 
 {% block title %}{{ post.title }}{% endblock %}
 
@@ -7,3 +9,5 @@
 {% include "single_ajax.html" %}
 
 {% endblock %}
+
+{% endcache %}

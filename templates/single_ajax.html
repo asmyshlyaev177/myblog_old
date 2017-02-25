@@ -1,7 +1,6 @@
 {% load post_header %}
 {% load cache %}
-
-{% cache 60 single request.user.is_anonymous request.path %}
+{% cache 1800 single_ajax request.user.is_anonymous request.path %}
 
 <script>processing = true;
 wsConnect();

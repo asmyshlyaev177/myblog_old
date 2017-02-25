@@ -1,5 +1,6 @@
 {% load post_header %}
-
+{% load cache %}
+{% cache 180 list_ajax request.user.is_anonymous request.path page %}
 {% autoescape off %}
 
 {% if page == None %}
@@ -18,9 +19,8 @@ if ( $("a.menu.active[cat]").length ) {
 }
 
 </script>
-
 {% if category %}
-<h1>List Posts from {{ category }}</h1>
+<h2>List Posts from {{ category }}</h1>
   {% if category.description %}
   <p class="lead">
     Category description: {{ category.description }}
@@ -29,7 +29,7 @@ if ( $("a.menu.active[cat]").length ) {
 {% endif %}
 
 {% if tag %}
-  <h1>List Posts from Tag: {{ tag.name }}</h1>
+  <h2>List Posts from Tag: {{ tag.name }}</h1>
  {{ tag.description }}
 {% endif %}
 
@@ -94,5 +94,5 @@ if ( $("a.menu.active[cat]").length ) {
 </div>
 
 {% endfor %}
-
 {% endautoescape %}
+{% endcache %}

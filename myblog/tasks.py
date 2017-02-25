@@ -17,16 +17,3 @@ def add(x, y):
 @app.task()
 def test(self):
     os.mknod(str(datetime.datetime.now()))
-
-@app.task()
-def taglist():
-    tags = Tag.objects.all().values()
-    data = []
-    for i in tags:
-        #tag = {}
-        #tag['id'] = i['id']
-        #tag['name'] = i['name']
-        data.append(i['name'])
-        filename = "/root/myblog/myblog/blog/static/taglist.json" + str(strftime("%H:%M:%S", gmtime()))
-    with open(filename, 'w') as out:
-        out.write(json.dumps(data))
