@@ -73,7 +73,7 @@ class CommentForm(forms.ModelForm):
                         'quote', '|', '-', 'insertLink',
                         'insertImage', 'insertVideo', '|',
                         'insertTable', '-', 'undo', 'redo',
-                        'clearFormatting', 'fullscreen'
+                        'clearFormatting'
                                         ],
                     'toolbarButtonsMD': [
                         'bold', 'italic',
@@ -82,7 +82,7 @@ class CommentForm(forms.ModelForm):
                         'quote', '|', '-', 'insertLink',
                         'insertImage', 'insertVideo', '|',
                         'insertTable', '-', 'undo', 'redo',
-                        'clearFormatting', 'fullscreen'
+                        'clearFormatting'
                     ],
                     'toolbarButtonsSM': [
                         'bold', 'italic',
@@ -91,14 +91,14 @@ class CommentForm(forms.ModelForm):
                         'quote', 'insertLink',
                         'insertImage', 'insertVideo',
                         'undo', 'redo',
-                        'clearFormatting', 'fullscreen'
+                        'clearFormatting'
                     ],
                     'toolbarButtonsXS': [
                         'align',
                         'quote', 'insertLink',
                         'insertImage', 'insertVideo',
                         'undo', 'redo',
-                        'clearFormatting', 'fullscreen'
+                        'clearFormatting'
                     ]}
                     )}
 
@@ -153,7 +153,7 @@ class AddPostForm(forms.ModelForm):
                                             'quote', '|', '-', 'insertLink',
                                             'insertImage', 'insertVideo', '|',
                                             'insertTable', '-', 'undo', 'redo',
-                                            'clearFormatting', 'fullscreen'
+                                            'clearFormatting'
                                                         ],
                                         'toolbarButtonsMD': [
                                             'bold', 'italic',
@@ -162,7 +162,7 @@ class AddPostForm(forms.ModelForm):
                                             'quote', '|', '-', 'insertLink',
                                             'insertImage', 'insertVideo', '|',
                                             'insertTable', '-', 'undo', 'redo',
-                                            'clearFormatting', 'fullscreen'
+                                            'clearFormatting'
                                         ],
                                         'toolbarButtonsSM': [
                                             'bold', 'italic',
@@ -171,14 +171,14 @@ class AddPostForm(forms.ModelForm):
                                             'quote', 'insertLink',
                                             'insertImage', 'insertVideo',
                                             'undo', 'redo',
-                                            'clearFormatting', 'fullscreen'
+                                            'clearFormatting'
                                         ],
                                         'toolbarButtonsXS': [
                                             'align',
                                             'quote', 'insertLink',
                                             'insertImage', 'insertVideo',
                                             'undo', 'redo',
-                                            'clearFormatting', 'fullscreen'
+                                            'clearFormatting'
                                         ]}),
             'description': FroalaEditor(
                                 options={'toolbarInline': False,
@@ -199,7 +199,7 @@ class AddPostForm(forms.ModelForm):
                                             'quote', '|', '-', 'insertLink',
                                             'insertVideo', '|',
                                             'insertTable', '-', 'undo', 'redo',
-                                            'clearFormatting', 'fullscreen'
+                                            'clearFormatting'
                                                         ],
                                         'toolbarButtonsMD': [
                                             'bold', 'italic',
@@ -208,7 +208,7 @@ class AddPostForm(forms.ModelForm):
                                             'quote', '|', '-', 'insertLink',
                                             'insertVideo', '|',
                                             'insertTable', '-', 'undo', 'redo',
-                                            'clearFormatting', 'fullscreen'
+                                            'clearFormatting'
                                         ],
                                         'toolbarButtonsSM': [
                                             'bold', 'italic',
@@ -217,14 +217,14 @@ class AddPostForm(forms.ModelForm):
                                             'quote', 'insertLink',
                                             'insertVideo',
                                             'undo', 'redo',
-                                            'clearFormatting', 'fullscreen'
+                                            'clearFormatting'
                                         ],
                                         'toolbarButtonsXS': [
                                             'align',
                                             'quote', 'insertLink',
                                             'insertVideo',
                                             'undo', 'redo',
-                                            'clearFormatting', 'fullscreen'
+                                            'clearFormatting'
                                         ]})
         }
     # def save(self, commit=True):

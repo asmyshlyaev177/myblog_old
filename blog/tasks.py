@@ -292,9 +292,9 @@ def addPost(post_id, tag_list, moderated):
     if not moderated:
         data.status = "P"
     data.save()
-    cache_str = "page_" + str(data.category) + "*"
+    cache_str = "*page_" + str(data.category) + "*"
     cache.delete_pattern(cache_str)
-    cache_str = "post_single_" + str(data.id)
+    cache_str = "*post_single_" + str(data.id)
     cache.delete(cache_str)
     tag_rating, _ = RatingTag.objects.get_or_create(tag=tag)
     tag_rating.tag = tag

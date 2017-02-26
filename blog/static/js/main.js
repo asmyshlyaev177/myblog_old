@@ -7,6 +7,7 @@ var loader;
 var votes = true;
 var sockets = {};
 var isTouch =  !!("ontouchstart" in window) || window.navigator.msMaxTouchPoints > 0;
+var userAuth = false;
 
 $(window).load(function(){
 	if ( loader == undefined) {
@@ -29,6 +30,7 @@ $(window).load(function(){
 	playPause();
 	userMenu();
 	rateHoverClick();
+	checkUserAuth();
 });
 
 function userMenu() {
@@ -475,8 +477,15 @@ function cloneComment( data ) {
 	//stubImgs();
 }
 
+function checkUserAuth() {
+	if ( $("#user_auth").length > 0 ) {
+		userAuth = true;
+	} else {
+		userAuth = false }
+}
+
 function wsConnect() {
-	if ( $("#Comments_title").length > 0 ) {
+	if ( $(".socket").length > 0 && userAuth ) {
 
 		var socket = new ReconnectingWebSocket(
 			"ws://" + window.location.host + '/ws/' +

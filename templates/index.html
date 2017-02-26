@@ -49,6 +49,7 @@
     <script src="/static/js/tagging.js"></script>
     <script src="/static/js/main.js"></script>
     <script src="/static/js/jquery.blueimp-gallery.min.js"></script>
+    <script src="/static/js/js.cookie.js"></script>
 
     <script src="/static/js/materialize.js"></script>
     <script type="text/javascript" src="/static/froala_editor/js/froala_editor.min.js"></script>
@@ -96,6 +97,7 @@
             data-activates="slide-out" class="button-collapse right user-menu">
 
               {% if user.is_authenticated %}
+                <p id="user_auth"style="display: none;"></p>
                   {% if user.avatar %}
                             <p><img src="{{ user.avatar.url }}"
                             width="50px"
