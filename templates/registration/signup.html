@@ -1,36 +1,9 @@
 {% extends 'index.html' %}
 
-{% block title %}Sign-up{% endblock %}
+{% block title %}{% endblock %}
 
 {% block content %}
 
-<script>$(".pop-tabs").hide();</script>
-<div>
-  <form action="{% url 'signup' %}" method="post">
-
-    <div class="input-field">
-      {{ form.username.label_tag }}
-      {{ form.username }}
-    </div>
-    <div class="input-field">
-      {{ form.email.label_tag }}
-      {{ form.email }}
-    </div>
-    <div class="input-field">
-      {{ form.password1.label_tag }}
-      {{ form.password1 }}
-    </div>
-    <div class="input-field">
-      {{ form.password2.label_tag }}
-      {{ form.password2 }}
-    </div>
-
-    {% csrf_token %}
-    <p>
-      <input type="submit" value="Зарегистрироваться"
-              class="waves-effect waves-light btn"/>
-    </p>
-  </form>
-</div>
+{% include 'registration/signup-ajax.html' %}
 
 {% endblock %}

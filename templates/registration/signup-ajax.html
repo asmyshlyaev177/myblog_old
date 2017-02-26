@@ -1,0 +1,33 @@
+{% block title %}{% endblock %}
+
+{% block content %}
+<div class="post z-depth-1">
+<script>$(".pop-tabs").hide();</script>
+  <form class="signup" action="{% url 'signup' %}" method="post">
+    <h2 class="center">Sign-up</h2>
+    <div class="input-field">
+      {{ form.username.label_tag }}
+      {{ form.username }}
+    </div>
+    <div class="input-field">
+      {{ form.email.label_tag }}
+      {{ form.email }}
+    </div>
+    <div class="input-field">
+      {{ form.password1.label_tag }}
+      {{ form.password1 }}
+    </div>
+    <div class="input-field">
+      {{ form.password2.label_tag }}
+      {{ form.password2 }}
+    </div>
+
+    {% csrf_token %}
+    <p class="center">
+      <input type="submit" value="Зарегистрироваться"
+              class="waves-effect waves-light btn"/>
+    </p>
+  </form>
+
+</div>
+{% endblock %}

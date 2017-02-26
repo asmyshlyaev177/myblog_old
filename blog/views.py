@@ -9,7 +9,7 @@ from django.http import (HttpResponseRedirect, HttpResponseForbidden,
 from django.views.decorators.csrf import csrf_protect
 from django.contrib.auth.decorators import login_required
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
-import json, sys, os
+import json, sys, os, datetime
 from django.views.decorators.cache import cache_page, never_cache
 from django.views.decorators.vary import vary_on_headers
 from django.views.decorators.cache import cache_control
@@ -18,6 +18,8 @@ from blog.tasks import addPost, Rate, commentImage
 from django.contrib.auth.views import (login as def_login,
                                 password_change as def_password_change)
 
+hot_rating = 3
+
 
 def clear_cache(request):
     if request.user.is_superuser:
@@ -25,6 +27,37 @@ def clear_cache(request):
         return HttpResponseRedirect('/admin/')
     else:
         return HttpResponseForbidden()
+
+
+def get_good_posts(category=None, private=None):
+    cache_str = "good_posts_" + str(category) + "_" + str(private)
+    if cache.ttl(cache_str):
+        posts = cache.get(cache_str)
+    else:
+        cur_date = datetime.datetime.now()
+        delta = datetime.timedelta(days=14)
+        start_date = cur_date - delta
+        posts = Post.objects.filter(published__range=(start_date, cur_date))\
+                .filter(status="P")\
+                .filter(ratingpost__rating__gte=0)\
+                .order_by("-ratingpost__rating")
+        if category:
+            posts = posts.filter(category_id=category)
+        if not private:
+            posts = posts.exclude(private=True)
+        posts = posts[0:4]
+        cache.set(cache_str, posts, 3600)
+    return posts
+
+
+def sidebar(request, category):
+    template = "sidebar.html"
+    if request.user.is_authenticated:
+        user_known = True
+    else:
+        user_known = False
+    good_posts = get_good_posts(category=category, private=user_known)
+    return render(request, template, {'good_posts': good_posts})
 
 
 def get_cat_list():
@@ -105,15 +138,19 @@ def tags(request):
 @csrf_protect
 @cache_page(3)
 @cache_control(max_age=3)
-@vary_on_headers('X-Requested-With', 'Cookie')
+@vary_on_headers('X-Requested-With')
 def signup(request):
+    if request.is_ajax():
+        template = 'registration/signup-ajax.html'
+    else:
+        template = 'registration/signup.html'
     if request.method == 'POST':
         form = SignupForm(request.POST)
         if form.is_valid():
             form.save()
             return HttpResponseRedirect('/signup_success/')
     form = SignupForm()
-    return render(request, 'registration/signup.html', {'form': form,
+    return render(request, template, {'form': form,
                                                 'cat_list': get_cat_list()})
 
 
@@ -237,6 +274,7 @@ def add_post(request):
     if request.method == 'POST':
         form = AddPostForm(request.POST, request.FILES)
         form.data['status'] = 'D'
+
         print("before from validation")
         if form.is_valid():
 
@@ -292,7 +330,6 @@ def rate_elem(request, type, id, vote):
 #@vary_on_headers('X-Requested-With', 'Cookie')
 @never_cache
 def list(request, category=None, tag=None, pop=None):
-    hot_rating = 3
     context = {}
 
     if request.is_ajax():
@@ -314,46 +351,18 @@ def list(request, category=None, tag=None, pop=None):
         posts = cache.get(cache_str)
     else:
         if tag:
-            if not user_known:
-                post_list = Post.objects.filter(tags__url=tag)\
-                            .filter(status="P").filter(private=False)\
-                            .select_related("category", "author")\
-                            .prefetch_related('tags', 'ratingpost_set')
-            else:
-                post_list = Post.objects.filter(tags__url=tag)\
-                            .filter(status="P")\
-                            .select_related("category", "author")\
-                            .prefetch_related('tags', 'ratingpost_set')
-            if pop == "best":
-                post_list = post_list.filter(ratingpost__rating__gte=hot_rating)
-
+            post_list = Post.objects.filter(tags__url=tag)
         elif category:
-            if not user_known:
-                post_list = Post.objects.filter(category__slug=category)\
-                            .filter(status="P").filter(private=False)\
-                            .select_related("category", "author")\
-                            .prefetch_related('tags', 'ratingpost_set')
-            else:
-                post_list = Post.objects.filter(category__slug=category)\
-                            .filter(status="P")\
-                            .select_related("category", "author")\
-                            .prefetch_related('tags', 'ratingpost_set')
-            if pop == "best":
-                post_list = post_list.filter(ratingpost__rating__gte=hot_rating)
-
+            post_list = Post.objects.filter(category__slug=category)
         else:
-            if not user_known:
-                post_list = Post.objects\
-                            .filter(status="P").filter(private=False)\
-                            .select_related("category", "author")\
-                            .prefetch_related('tags', 'ratingpost_set')
-            else:
-                post_list = Post.objects\
-                            .filter(status="P")\
-                            .select_related("category", "author")\
-                            .prefetch_related('tags', 'ratingpost_set')
-            if pop == "best":
-                post_list = post_list.filter(ratingpost__rating__gte=hot_rating)
+            post_list = Post.objects.all()
+        if not user_known:
+            post_list = post_list.exclude(private=True)
+        if pop == "best":
+            post_list = post_list.filter(ratingpost__rating__gte=hot_rating)
+        post_list = post_list.filter(status="P")\
+                    .select_related("category", "author")\
+                    .prefetch_related('tags', 'ratingpost_set')
 
         paginator = Paginator(post_list, 3)
 
@@ -364,7 +373,9 @@ def list(request, category=None, tag=None, pop=None):
         except EmptyPage:
             posts = None
         cache.set(cache_str, posts, 180)
+    good_posts = get_good_posts(category=category, private=user_known)
 
+    context['good_posts'] = good_posts
     context['posts'] = posts
     context['cat_list'] = get_cat_list()
     context['page'] = page

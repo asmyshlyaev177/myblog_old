@@ -1,0 +1,52 @@
+{% load post_header %}
+{% load cache %}
+{% cache 30 sidebar request.user.is_anonymous request.path%}
+
+{% autoescape off %}
+
+<div class="sidebar-inner">
+<h3>Best posts for 2 weeks</h3>
+{% for post in good_posts %}
+
+  <div class="post z-depth-1">
+    <a href="{{ post.get_absolute_url|escape }}" class="ajax-menu center-block
+     post-title" single_page="" url="{{ post.get_url }}">
+      <h2 class="center">
+      {{ post.title }}</h2></a>
+
+  {% post_header %}
+
+    {% if post.main_image_srcset %}
+    <div class="post-thumbnail center-align">
+
+        {{ post.main_image_srcset }}
+
+    </div>
+    {% endif %}
+
+
+<div class="row post-footer">
+  <div class="col s3 m3 l3">
+
+  </div>
+    <div class="col s3 m3 l3 offset-m6 offset-l6 offset-s6">
+      <div class="post-date right">
+        {{ post.created|date:"Y.m.d" }}
+        <br />
+        {{ post.created|date:"H:i"}}
+      </div>
+    </div>
+
+  </div>
+</div>
+
+{% empty %}
+<div class="posts">
+    <h3>No posts in this category yet...</h3>
+</div>
+
+</div>
+{% endfor %}
+{% endautoescape %}
+
+{% endcache %}

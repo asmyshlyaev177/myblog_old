@@ -10,8 +10,12 @@ body {
 	color:red!important;
 }
 
-.categories .tab, .post {
+.categories .tab, .pop-tabs .tab, .post.post {
 background-color: white;
+}
+
+form.signup {
+	padding: 0.1rem 1rem 2rem 1rem;
 }
 
 .post {

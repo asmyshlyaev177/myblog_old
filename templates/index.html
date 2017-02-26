@@ -152,73 +152,76 @@
     </div>
 </nav>
 
-<div class="row">
+  <div class="row">
 
-<h1 class="text-center">{% block title2 %}{% endblock %}</h1>
+    <h1 class="text-center">{% block title2 %}{% endblock %}</h1>
 
-<a href="#" class="back-to-top"><i class="medium material-icons">navigation</i></a>
+    <a href="#" class="back-to-top"><i class="medium material-icons">navigation</i></a>
 
-<div class="main col s12 m10 l6 offset-m1 offset-l1">
-  <div class="content">
-  {% block content %}
+    <div class="main col s12 m10 l6 offset-m1 offset-l1">
+      <div class="content">
+      {% block content %}{% endblock %}
+      </div>
+    </div>
 
-  {% endblock %}
-  </div>
-</div>
+    <div class="sidebar col l4 offset-l1">
+      {% block sidebar %}{% endblock %}
+    </div>
 
 
-<ul id="slide-out" class="side-nav">
+  <ul id="slide-out" class="side-nav">
 
-  <li><div class="divider"></div></li>
+    <li><div class="divider"></div></li>
 
-        {% if not user.is_authenticated %}
-          <li><p><a href="{% url 'signup' %}" single_page>Register</a></p>
+          {% if not user.is_authenticated %}
+            <li><p><a href="{% url 'signup' %}" single_page
+              class="ajax-menu" url="signup" one_col>Register</a></p>
+            </li>
+
+            <li><p><a href="{% url 'login' %}?next={{request.path}}"
+              id="login-link" rel="modal:open">log-in modal</a></p>
+            </li>
+
+          <li>
+            <p><a href="{% url 'social:begin' 'google-oauth2' %}?next={{ request.path }}">Login with google</a></p>
           </li>
-
-          <li><p><a href="{% url 'login' %}?next={{request.path}}"
-            id="login-link" rel="modal:open">log-in modal</a></p>
+          <li>
+            <p><a href="{% url 'social:begin' 'facebook' %}?next={{ request.path }}">Login with facebook</a></p>
           </li>
+          <li>
+            <p><a href="{% url 'social:begin' 'vk-oauth2' %}?next={{ request.path }}">Login with VK</a></p>
+          </li>
+          {% else %}
 
-        <li>
-          <p><a href="{% url 'social:begin' 'google-oauth2' %}?next={{ request.path }}">Login with google</a></p>
+          <p id="user_auth"></p>
+        <li><p><a href="{% url 'add_post' %}" single_page one_col
+          url = "add-post" class="ajax-menu">Add Post</a></p>
         </li>
-        <li>
-          <p><a href="{% url 'social:begin' 'facebook' %}?next={{ request.path }}">Login with facebook</a></p>
+
+        <li><div class="divider"></div></li>
+
+        <li><p><a href="{% url 'password_change' %}"
+          rel="modal:open">Change password modal</a></p>
         </li>
-        <li>
-          <p><a href="{% url 'social:begin' 'vk-oauth2' %}?next={{ request.path }}">Login with VK</a></p>
+
+        <li><p>
+              <a href="{% url 'dashboard' %}" single_page
+              url = "dashboard" class="ajax-menu">Dashboard</a>
+            </p>
         </li>
-        {% else %}
 
-        <p id="user_auth"></p>
-      <li><p><a href="{% url 'add_post' %}" single_page one_col
-        url = "add-post" class="ajax-menu">Add Post</a></p>
-      </li>
+        <li><p><a href="{% url 'my_posts' %}" one_col
+            single_page class="ajax-menu" url = "dashboard/my-posts"
+            >My Posts</a></p>
+        </li>
 
-      <li><div class="divider"></div></li>
+        <li><div class="divider"></div></li>
 
-      <li><p><a href="{% url 'password_change' %}"
-        rel="modal:open">Change password modal</a></p>
-      </li>
+        <li><p><a href="{% url 'logout' %}?next=/"
+          id="logout-link" >Logout</a></p>
+        </li>
 
-      <li><p>
-            <a href="{% url 'dashboard' %}" single_page
-            url = "dashboard" class="ajax-menu">Dashboard</a>
-          </p>
-      </li>
-
-      <li><p><a href="{% url 'my_posts' %}" one_col
-          single_page class="ajax-menu" url = "dashboard/my-posts"
-          >My Posts</a></p>
-      </li>
-
-      <li><div class="divider"></div></li>
-
-      <li><p><a href="{% url 'logout' %}?next=/"
-        id="logout-link" >Logout</a></p>
-      </li>
-
-      {% endif %}
+        {% endif %}
 
   </ul>
 

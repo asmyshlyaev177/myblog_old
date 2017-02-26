@@ -112,7 +112,7 @@ class AddPostForm(forms.ModelForm):
     class Meta:
         model = Post
         fields = ('title', 'post_image', 'image_url', 'category', 'private',
-                  'description', 'text', 'rateable', 'comments', 'locked',
+                  'description', 'text', 'locked',
                   'status')
         labels = {
             'title': ('Заголовок'),

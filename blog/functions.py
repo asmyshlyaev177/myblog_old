@@ -7,6 +7,7 @@ from moviepy.editor import *
 
 src_szs = [480, 800, 1366, 1600, 1920]
 
+
 def deleteThumb(text):
     # удаляем файлы картинок при удалении поста
     img_links = re.findall\

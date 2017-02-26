@@ -26,15 +26,13 @@ from django.contrib.auth import views as auth_views
 
 urlpatterns = [
     #url(r'^silk/', include('silk.urls', namespace='silk')),
-    #url(r'^add-comment/(?P<postid>[-vi\d]+)/(?P<parent>[-vi/d]+)\/?',
-    #    views.addComment, name='add-comment'),
     url(r'^clear-cache\/?', views.clear_cache, name='clear_cache'),
+    url(r'sidebar/(?P<category>[-vi\d]+)\/?', views.sidebar, name='sidebar'),
     url(r'^add-comment/(?P<postid>[-vi\d]+)/(?P<parent>[-vi\d]+)\/?',
         views.addComment, name='add-comment'),
     url(r'^comments/(?P<postid>[-vi\d]+)\/?', views.comments, name='comments'),
     url(r'^tags.json\/?', views.tags, name='tags'),
 
-    #url('login-social/', include('social.apps.django_app.urls', namespace='social')),
     url('login-social/', include('social_django.urls', namespace='social')),
 
     url(r'^froala_editor\/?', include('froala_editor.urls')),
@@ -49,7 +47,6 @@ urlpatterns = [
 
     url(r'^signup\/?$', views.signup, name='signup'),
     url(r'^signup_success\/?$', views.signup_success, name='signup_success'),
-    #url(r'^login\/?$', auth_views.login, name='login'),
     url(r'^login\/?$', views.login, name='login'),
     url(r'^dashboard\/?$', views.dashboard, name='dashboard'),
     url(r'^dashboard/my-posts\/?$', views.my_posts, name='my_posts'),
@@ -71,14 +68,10 @@ urlpatterns = [
 
     url(r'^cat/(?P<category>([^\/]+))\/?$', views.list, name='category'),
     url(r'^cat/(?P<category>([^\/]+))/pop-(?P<pop>[-\w]+)\/?$', views.list, name='category_pop'),
-    #url(r'^(?P<tag>((([-\w]+)?([-\W]+)?([-\w]+)?)+))\/?$', views.list, name='tag'),
     url(r'^(?P<tag>([^\/]+))\/?$', views.list, name='tag'),
-    #url(r'^(?P<tag>[^/]+)\/?$', views.list, name='tag'),
 
     url(r'^(?P<tag>([^\/]+))/pop-(?P<pop>[-\w]+)\/?$', views.list, name='tag_pop'),
 
-    #url(r'^(?P<tag>[-\w]+)/(?P<title>[-\w]+)-(?P<id>[-vi\d]+)\/?$',
-    #        views.single_post, name='single_post'),
     url(r'^(?P<tag>([^\/]+)/(?P<title>([^\/]+))-(?P<id>[-vi\d]+))\/?$',
             views.single_post, name='single_post'),
 
