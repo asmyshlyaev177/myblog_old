@@ -408,8 +408,10 @@ function ChangePageNew( link, myurl, single_page, one_col ) {
 					$("#logout-link").attr("href", "/logout?next=" + window.location.pathname);
 					if ( one_col ) {
 						$(".main").attr('class', 'main col s12 m12 l12');
+						$(".sidebar").hide();
 					} else {
 						$(".main").attr('class', 'main col s12 m10 l6 offset-m1 offset-l1');
+						$(".sidebar").show();
 					}
 					data2 = ('<div class="content">' + data + '</div>');
 					$(data2).replaceAll('.content');

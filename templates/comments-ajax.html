@@ -100,8 +100,8 @@
                     <i class="small material-icons">
                       thumb_up</i></a>
                   <div class="rate-score valign">
-                    <p>{% if comment.ratingcomment_set.get.rating %}
-                      {{ comment.ratingcomment_set.get.rating|floatformat:2 }}
+                    <p>{% if comment.rating %}
+                      {{ comment.rating|floatformat:2 }}
                     {% else %}
                       0
                     {% endif %}</p>

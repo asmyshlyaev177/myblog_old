@@ -2,8 +2,7 @@
 from celery import Celery
 from datetime import timedelta
 import os, datetime, json, re
-from blog.models import (Post, RatingPost, RatingTag, RatingComment, Tag,
-                        RatingUser, Category, Comment)
+from blog.models import (myUser, Post, Tag, Category, Comment)
 ##from slugify import slugify, SLUG_OK
 from django.utils.text import slugify
 from bs4 import BeautifulSoup
@@ -33,7 +32,6 @@ def Rate(userid, date_joined, votes_count, type, elem_id, vote):
     elif type == "comment":
         element = Comment.objects.only('id').get(id=elem_id)
 
-    # user = myUser.objects.get(id=userid)
     delta = datetime.timedelta(weeks=4)
     dt = datetime.datetime.now(tz=tz)
     uv = cache.get('user_votes_' + str(userid))
@@ -41,7 +39,7 @@ def Rate(userid, date_joined, votes_count, type, elem_id, vote):
     if uv is None:   # user votes кол-во голосов у юзеров
         date_joined = pytz.utc.localize\
             (datetime.datetime.strptime(date_joined, '%Y_%m_%d'))
-        user_rating = RatingUser.objects.only('id', 'rating').get(user=userid)
+        user_rating = myUser.objects.only('rating').get(id=userid)
         votes = {}
         if date_joined < dt - delta:
             coef = 0.25
@@ -55,8 +53,7 @@ def Rate(userid, date_joined, votes_count, type, elem_id, vote):
                                                 " votes " + str(votes['votes']))
 
         cache.set('user_votes_' + str(userid), votes, timeout=150)  # 86400 -1 day
-
-        uv = cache.get('user_votes_' + str(userid))
+        uv = votes
 
     uv_ttl = cache.ttl('user_votes_' + str(userid))
 
@@ -100,47 +97,45 @@ def CalcRating():
 
     # рэйтинг для комментов
     votes_comment = cache.iter_keys('vote_comment_*')
-    comments = {}
+    comments_rates = {}
     for i in votes_comment:
         vote = cache.get(i)
         cache.delete(i)
-        if not vote['elem_id'] in comments:
-            comments[vote['elem_id']] = {}
-            comments[vote['elem_id']]['rate'] = vote['rate']
-            comments[vote['elem_id']]['id'] = vote['elem_id']
+        if not vote['elem_id'] in comments_rates:
+            comments_rates[vote['elem_id']] = {}
+            comments_rates[vote['elem_id']]['rate'] = vote['rate']
+            comments_rates[vote['elem_id']]['id'] = vote['elem_id']
         else:
-            comments[vote['elem_id']]['rate'] += vote['rate']
+            comments_rates[vote['elem_id']]['rate'] += vote['rate']
     del votes_comment
-    for comment in comments:  # update rating on comments
-        com = Comment.objects.only('id').get(id=comment)
-        comment_rate, _ = RatingComment.objects.get_or_create(comment=com)
-        comment_rate.rating += comments[comment]['rate']
-        comment_rate.save()
+    comments = Comment.objects.filter(id__in=(comments_rates))
+    for i in comments_rates:  # update rating on comments
+        com = comments.get(id=i)
+        com.rating += comments_rates[i]['rate']
+        com.save()
 
     votes_post = cache.iter_keys('vote_post_*')
-    posts = {}
+    posts_rates = {}
     for i in votes_post:
         vote = cache.get(i)
         cache.delete(i)
-        if not vote['elem_id'] in posts:
-            posts[vote['elem_id']] = {}
-            posts[vote['elem_id']]['category'] = vote['category']
-            posts[vote['elem_id']]['rate'] = vote['rate']
-            posts[vote['elem_id']]['id'] = vote['elem_id']
+        if not vote['elem_id'] in posts_rates:
+            posts_rates[vote['elem_id']] = {}
+            posts_rates[vote['elem_id']]['category'] = vote['category']
+            posts_rates[vote['elem_id']]['rate'] = vote['rate']
+            posts_rates[vote['elem_id']]['id'] = vote['elem_id']
         else:
-            posts[vote['elem_id']]['rate'] += vote['rate']
+            posts_rates[vote['elem_id']]['rate'] += vote['rate']
 
     # cache.set('rating_post_day_' + today, posts, timeout=88000)
     del votes_post
-    for post in posts:  # update rating on posts
-        p = Post.objects.only('id', 'author')\
-                .select_related('author').get(id=post)
-        post_rate, _ = RatingPost.objects.get_or_create(post=p)
-        user_rating, _ = RatingUser.objects.get_or_create(user=p.author)
-        post_rate.rating += posts[post]['rate']
-        user_rating.rating += posts[post]['rate'] / 30
-        post_rate.save()
-        user_rating.save()
+    posts = Post.objects.filter(id__in=(posts_rates)).select_related('author')
+    for i in posts_rates:  # update rating on posts
+        post = posts.get(id=i)
+        post.rating += posts_rates[i]['rate']
+        post.author.rating += posts_rates[i]['rate'] / 30
+        post.save()
+        post.author.save()
 
 
 @app.task(name="commentImage")
@@ -296,11 +291,3 @@ def addPost(post_id, tag_list, moderated):
     cache.delete_pattern(cache_str)
     cache_str = "*post_single_" + str(data.id)
     cache.delete(cache_str)
-    tag_rating, _ = RatingTag.objects.get_or_create(tag=tag)
-    tag_rating.tag = tag
-    tag_rating.rating = 0
-    tag_rating.save()
-    post_rating, _ = RatingPost.objects.get_or_create(post=data)
-    if _:
-        post_rating.rating = 0.0
-    post_rating.save()

@@ -50,13 +50,8 @@ class MyUserManager(BaseUserManager):
 
         user.set_password(password)
         user.save(using=self._db)
-
-        user_rating, _ = RatingUser.objects.get_or_create(user=user)
-        user_rating.user = user
-        user_rating.rating = 0.0
         user_votes, _ = UserVotes.objects.get_or_create(user=user)
         user_votes.user = user
-        user_rating.save()
         user_votes.save()
         return user
 
@@ -82,7 +77,7 @@ class MyUserManager(BaseUserManager):
 
 class myUser(AbstractBaseUser, PermissionsMixin):
     index_together = [
-        ["id", "username", "avatar", "moderator"],
+        ["id", "username", "moderator"],
     ]
     username = models.CharField("Логин", max_length=30,
                                 blank=False,
@@ -114,6 +109,7 @@ class myUser(AbstractBaseUser, PermissionsMixin):
                     ("N", "Normal"),
                     ("B", "Blocked"),
     )
+    rating = models.FloatField('Рейтинг', default=0.0)
     votes_count = models.CharField(max_length=1, choices=VOTES_COUNT, default="N")
     moder_tags = models.ManyToManyField('Tag', blank=True, null=True,
                 verbose_name="Модерирует тэги")
@@ -216,32 +212,7 @@ def _pre_save(sender, instance, **kwargs):
             #deleteFile.apply_async((old_file.path,), countdown=1800)"""
 
 
-class Rating(models.Model):
-    # ratingid = models.IntegerField(unique = True)
-    rating = models.FloatField(default=0.0)
-
-    class Meta:
-        abstract = True
-
-
-class RatingPost(Rating):
-    post = models.ForeignKey('Post')
-
-
-class RatingTag(Rating):
-    tag = models.ForeignKey('Tag', db_index=True)
-
-
-class RatingUser(Rating):
-    user = models.ForeignKey('myUser', db_index=True)
-
-
-class RatingComment(Rating):
-    comment = models.ForeignKey('Comment', db_index=True)
-
-
 class UserVotes(models.Model):
-    # userid = models.IntegerField(blank = True, null = True)
     votes = models.IntegerField(default=10)
     weight = models.FloatField(default=0.25)
     COUNT = (
@@ -265,7 +236,7 @@ register.generator('blog:thumbnail', Thumbnail) """
 
 class Post(models.Model):
     index_together = [
-    ["id", "author", "category", "tags",
+    ["id", "author", "category", "tags", "rating",
         "published", "private", "status", "main_tag"],
     ]
     title = models.CharField("Заголовок", max_length=100)
@@ -327,7 +298,7 @@ class Post(models.Model):
                             related_name='posts',
                             related_query_name='tag',
                             blank=True)
-    # main_tag = models.CharField(max_length=33, blank=True)
+    rating = models.FloatField('Рейтинг', default=0.0)
     main_tag = models.ForeignKey('Tag', null=True, blank=True)
     url = models.CharField(max_length=330, blank=True)
     STATUS = (
@@ -439,7 +410,7 @@ def _post_save(sender, instance, **kwargs):
 
 class Category(models.Model):
     index_together = [
-    ["id", "name", "order", "slug"],
+        ["id", "name", "slug"],
     ]
     name = models.CharField(max_length=30, unique=True)
     description = models.TextField(max_length=400)
@@ -479,13 +450,16 @@ def _post_save(sender, instance, **kwargs):
 
 
 class Tag(models.Model):
+    index_together = [
+        ["id", "name", "rating"],
+    ]
     name = models.CharField(max_length=30)
     url = models.CharField(max_length=140, unique=True)
     created = models.DateTimeField(auto_now_add=True)
     private = models.BooleanField(default=False)
     rateable = models.BooleanField(default=True)
     description = models.TextField(max_length=700, blank=True, null=True)
-
+    rating = models.FloatField('Рейтинг', default=0.0)
     category = models.ForeignKey('Category', blank=True, null=True)
 
     class Meta:
@@ -521,13 +495,17 @@ def delete_old_image_and_thumb(sender, instance, **kwargs):
 
 
 class Comment(MPTTModel):
+    index_together = [
+        ["id", "post", "rating"],
+    ]
     text = models.TextField(max_length=3700)
     author = models.ForeignKey('myUser', blank=True, null=True)
     post = models.ForeignKey('Post', blank=True, null=True)
     removed = models.BooleanField(default=False)
     created = models.DateTimeField(auto_now_add=True)
     parent = TreeForeignKey('self', null=True, blank=True,
-                            related_name='children', db_index=True)
+                            related_name='children')
+    rating = models.FloatField('Рейтинг', default=0.0)
 
     def __str__(self):
         return self.text

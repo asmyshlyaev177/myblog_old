@@ -83,6 +83,10 @@ h2:hover, a.back-to-top:hover {
 		width: 5%;
 }
 
+.tab.active {
+    background-color: rgba(0, 0, 0, 0.15);
+}
+
 .tab a {
 color: #3e3e3e;
 font-weight: 600!important;

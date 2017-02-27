@@ -1,6 +1,6 @@
 {% load post_header %}
 {% load cache %}
-{% cache 3 list_ajax request.user.is_anonymous request.path page %}
+{% cache 30 list_ajax request.user.is_anonymous request.path page %}
 {% autoescape off %}
 
 {% if page == None %}
@@ -65,8 +65,8 @@ if ( $("a.menu.active[cat]").length ) {
       <a href="#" class="rate-icon rate-up" rate=1><i class="medium material-icons"
         >thumb_up</i></a>
       <div class="rate-score valign">
-        <p>{% if post.ratingpost_set.get.rating %}
-          {{ post.ratingpost_set.get.rating|floatformat:2 }}
+        <p>{% if post.rating %}
+          {{ post.rating|floatformat:2 }}
         {% else %}
           0
         {% endif %}

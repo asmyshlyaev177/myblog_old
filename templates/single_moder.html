@@ -3,6 +3,9 @@
 {% block title %}{{ post.title }}{% endblock %}
 
 {% block content %}
-{% include "single_ajax_moder.html" %}
+  {% include "single_ajax_moder.html" %}
+{% endblock %}
 
+{% block sidebar %}
+  {% include "sidebar.html" %}
 {% endblock %}

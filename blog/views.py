@@ -39,8 +39,8 @@ def get_good_posts(category=None, private=None):
         start_date = cur_date - delta
         posts = Post.objects.filter(published__range=(start_date, cur_date))\
                 .filter(status="P")\
-                .filter(ratingpost__rating__gte=0)\
-                .order_by("-ratingpost__rating")
+                .filter(rating__gte=0)\
+                .order_by("-rating")
         if category:
             posts = posts.filter(category_id=category)
         if not private:
@@ -82,16 +82,15 @@ def login(request, *args, **kwargs):
                                 extra_context={'cat_list': get_cat_list()})
 
 
-@cache_page(3)
-@cache_control(max_age=3)
+@cache_page(30)
+@cache_control(max_age=30)
 def comments(request, postid):
     cache_str = "comment_" + str(postid)
     if cache.ttl(cache_str):
         comments = cache.get(cache_str)
     else:
         comments = Comment.objects.filter(post=postid)\
-            .select_related("author")\
-            .prefetch_related('ratingcomment_set')
+            .select_related("author")
         cache.set(cache_str, comments, timeout=3)
 
     template = 'comments-ajax.html'
@@ -136,8 +135,8 @@ def tags(request):
 
 
 @csrf_protect
-@cache_page(3)
-@cache_control(max_age=3)
+@cache_page(30)
+@cache_control(max_age=30)
 @vary_on_headers('X-Requested-With')
 def signup(request):
     if request.is_ajax():
@@ -261,10 +260,10 @@ def edit_post(request, postid):
         return HttpResponseForbidden()
 
 
-#@login_required(redirect_field_name='next', login_url='/login')
-#@cache_page(3)
-#@cache_control(max_age=3)
-#@vary_on_headers('X-Requested-With', 'Cookie')
+@login_required(redirect_field_name='next', login_url='/login')
+@cache_page(30)
+@cache_control(max_age=30)
+@vary_on_headers('X-Requested-With')
 def add_post(request):
     if request.is_ajax():
         template = 'add_post-ajax.html'
@@ -359,10 +358,10 @@ def list(request, category=None, tag=None, pop=None):
         if not user_known:
             post_list = post_list.exclude(private=True)
         if pop == "best":
-            post_list = post_list.filter(ratingpost__rating__gte=hot_rating)
+            post_list = post_list.filter(rating__gte=hot_rating)
         post_list = post_list.filter(status="P")\
                     .select_related("category", "author")\
-                    .prefetch_related('tags', 'ratingpost_set')
+                    .prefetch_related('tags')
 
         paginator = Paginator(post_list, 3)
 
@@ -410,7 +409,7 @@ def single_post(request, tag, title, id):
         post = cache.get(cache_str)
     else:
         post = Post.objects.select_related("category", "author")\
-            .prefetch_related('tags', 'ratingpost_set').get(pk=id)
+            .prefetch_related('tags').get(pk=id)
         cache.set(cache_str, post, 1800)
 
     if post.private and not request.user.is_authenticated:
@@ -422,15 +421,23 @@ def single_post(request, tag, title, id):
 
     comments = Comment.objects.filter(post=post)
 
-    return render(request, template,
-                  {'post': post,
-                  'cat_list': get_cat_list(), 'comment_form': comment_form,
-                  'comments': comments})
+    user_known = False
+    if request.user.is_authenticated:
+        user_known = True
+    good_posts = get_good_posts(category=post.category.id, private=user_known)
+    context = {}
+    context['good_posts'] = good_posts
+    context['post'] = post
+    context['cat_list'] = get_cat_list()
+    context['comment_form'] = comment_form
+    context['comments'] = comments
+
+    return render(request, template, context)
 
 
-#@cache_page(3)
-#@cache_control(max_age=3)
-#@vary_on_headers('X-Requested-With', 'Cookie')
+@cache_page(30)
+@cache_control(max_age=30)
+@vary_on_headers('X-Requested-With')
 def password_change(request, *args, **kwargs):
     if request.is_ajax():
         template = 'registration/password_change_form-ajax.html'

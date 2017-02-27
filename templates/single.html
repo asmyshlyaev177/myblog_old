@@ -6,8 +6,11 @@
 
 
 {% block content %}
-{% include "single_ajax.html" %}
+  {% include "single_ajax.html" %}
+{% endblock %}
 
+{% block sidebar %}
+  {% include "sidebar.html" %}
 {% endblock %}
 
 {% endcache %}
