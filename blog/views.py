@@ -339,7 +339,8 @@ def list(request, category=None, tag=None, pop=None):
     user_known = False
     if request.user.is_authenticated:
         user_known = True
-
+    if not pop:
+        pop = 'all'
     page = request.GET.get('page')
 
     cache_str = "page_" + str(category) + "_" + \

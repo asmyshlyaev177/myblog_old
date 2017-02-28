@@ -1,6 +1,5 @@
-{% load post_header %}
 {% load cache %}
-{% cache 30 sidebar request.user.is_anonymous request.path%}
+{% cache 3 sidebar request.user.is_anonymous request.path%}
 
 {% autoescape off %}
 
@@ -9,20 +8,31 @@
 {% for post in good_posts %}
 
   <div class="post z-depth-1">
-    <a href="{{ post.get_absolute_url|escape }}" class="ajax-menu center-block
-     post-title" single_page="" url="{{ post.get_url }}">
-      <h2 class="center">
-      {{ post.title }}</h2></a>
+    <a href="{{ post.get_absolute_url|escape }}" class="ajax-menu center-block"
+    single_page="" url="{{ post.get_url }}">
+      <h4 class="post-title-sidebar center">
+      {{ post.title }}</h4></a>
 
-  {% post_header %}
+    <div class="row valign-wrapper">
+      <div class="col m5 l5 valign">
+        {% if post.post_thumbnail %}
+        <div class="post-thumbnail-small">
 
-    {% if post.main_image_srcset %}
-    <div class="post-thumbnail center-align">
+            <img class="responsive-img post-image"
+            src="/media/{{ post.post_thumbnail }}" />
 
-        {{ post.main_image_srcset }}
+        </div>
+        {% endif %}
+    </div>
+    <div class="col m7 l7 valign">
+      {% if post.description %}
+        <div>
+          {{ post.description|truncatewords:25 }}
+        </div>
+      {% endif %}
+    </div>
 
     </div>
-    {% endif %}
 
 
 <div class="row post-footer">
