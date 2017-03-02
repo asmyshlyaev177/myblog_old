@@ -2,7 +2,7 @@ body {
 	background-color: rgba(239, 239, 239, 0.44);
 }
 
-.side-nav a:hover, a.chip:hover, h2:hover, h3:hover,
+.side-nav a:hover, a.chip:hover, h2:hover,
 h4:hover, a.back-to-top:hover, .tab a:hover {
 	color: #039be5;
 }

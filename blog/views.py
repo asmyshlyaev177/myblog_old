@@ -40,7 +40,10 @@ def get_good_posts(category=None, private=None):
         posts = Post.objects.filter(published__range=(start_date, cur_date))\
                 .filter(status="P")\
                 .filter(rating__gte=0)\
-                .order_by("-rating")
+                .order_by("-rating")\
+                .prefetch_related("tags", "category", "author", "main_tag")\
+                .only("id", "title", "description", "url", "category",
+                        "main_tag", "main_image_srcset", "rating", "created")
         if category:
             posts = posts.filter(category_id=category)
         if not private:
@@ -90,7 +93,7 @@ def comments(request, postid):
         comments = cache.get(cache_str)
     else:
         comments = Comment.objects.filter(post=postid)\
-            .select_related("author")
+            .prefetch_related("author")
         cache.set(cache_str, comments, timeout=3)
 
     template = 'comments-ajax.html'
@@ -350,19 +353,21 @@ def list(request, category=None, tag=None, pop=None):
     if cache.ttl(cache_str):
         posts = cache.get(cache_str)
     else:
+        post_list = Post.objects.filter(status="P")
         if tag:
-            post_list = Post.objects.filter(tags__url=tag)
-        elif category:
-            post_list = Post.objects.filter(category__slug=category)
-        else:
-            post_list = Post.objects.all()
+            post_list = post_list.filter(tags__url=tag)
+        if category:
+            post_list = post_list.filter(category__slug=category)
         if not user_known:
             post_list = post_list.exclude(private=True)
         if pop == "best":
             post_list = post_list.filter(rating__gte=hot_rating)
-        post_list = post_list.filter(status="P")\
-                    .select_related("category", "author")\
-                    .prefetch_related('tags')
+        post_list = post_list\
+                    .prefetch_related("tags", "category", "author", "main_tag")\
+                    .only("id", "title", "author", "category", "main_image_srcset",
+                     "description", "rating", "created", "url")
+                    #.select_related("category", "author")\
+                    #.prefetch_related('tags')
 
         paginator = Paginator(post_list, 3)
 
@@ -409,8 +414,9 @@ def single_post(request, tag, title, id):
     if cache.ttl(cache_str):
         post = cache.get(cache_str)
     else:
-        post = Post.objects.select_related("category", "author")\
-            .prefetch_related('tags').get(pk=id)
+        post = Post.objects\
+            .prefetch_related("tags", "category", "author", "main_tag")\
+            .get(pk=id)
         cache.set(cache_str, post, 1800)
 
     if post.private and not request.user.is_authenticated:
@@ -422,9 +428,10 @@ def single_post(request, tag, title, id):
 
     comments = Comment.objects.filter(post=post)
 
-    user_known = False
     if request.user.is_authenticated:
         user_known = True
+    else:
+        user_known = False
     good_posts = get_good_posts(category=post.category.id, private=user_known)
     context = {}
     context['good_posts'] = good_posts

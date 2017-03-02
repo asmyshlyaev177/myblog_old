@@ -175,12 +175,7 @@ def srcsets(text, wrap_a, post_id=None):
                     i['srcset'] = src_str
                     i['src'] = alt
                     i['sizes'] = "60vw"
-                    # "(min-width: 40em) 33.3vw, 100vw"
 
-                    """i['src'] = '/media/{}/{}/{}/{}-{}.{}'.\
-                        format(link.group("year"), link.group("month"),\
-                               link.group("day"),link.group("file"),alt,\
-                               link.group("ext"))"""
                 else:  # конвертим гифки в webm
                     file_out = "/root/myblog/myblog/blog/static/media/{}/{}/{}/{}-{}.webm"\
                     .format(link.group("year"), link.group("month"),
@@ -191,11 +186,8 @@ def srcsets(text, wrap_a, post_id=None):
 
                     clip = VideoFileClip(file)
                     video = CompositeVideoClip([clip])
-                    #video.write_videofile(file_out_tmp, codec='libvpx', audio=False,
-                    #        ffmpeg_params=['-crf', '4', '-b:v', '1500K'])
-                    # игнорирует параметры ffmpeg
-                    video.write_videofile(uri_to_iri(file_out), codec='libvpx', audio=False,
-                            preset='superslow')
+                    video.write_videofile(uri_to_iri(file_out), codec='libvpx',
+                                            audio=False, preset='superslow')
                     os.remove(file)
 
                     webm = BeautifulSoup("", "html5lib").new_tag("video")

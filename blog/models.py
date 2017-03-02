@@ -33,6 +33,7 @@ from django.contrib.auth.models import Group
 # import socket #timeout just for test
 # socket.setdefaulttimeout(10)
 from celery import Celery
+
 app = Celery('tasks', broker='pyamqp://guest@localhost//')
 
 
@@ -263,6 +264,15 @@ class Post(models.Model):
     post_image = models.ImageField(upload_to=upload_path, blank=True, null=True)
     image_url = models.URLField(null=True, blank=True, max_length=1000)
     main_image_srcset = models.TextField(null=True, blank=True)
+
+    def get_comments_count(self):
+        cache_str = "count_comments_" + str(self.id)
+        if cache.ttl(cache_str):
+            count = cache.get(cache_str)
+        else:
+            count = self.comment_set.count()
+            cache.set(cache_str, count, 120)
+        return count
 
     def post_image_gif(self):
         if self.post_image:
@@ -496,7 +506,7 @@ def delete_old_image_and_thumb(sender, instance, **kwargs):
 
 class Comment(MPTTModel):
     index_together = [
-        ["id", "post", "rating"],
+        ["id", "post", "rating", "author"],
     ]
     text = models.TextField(max_length=3700)
     author = models.ForeignKey('myUser', blank=True, null=True)

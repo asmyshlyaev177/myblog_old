@@ -75,14 +75,20 @@ if ( $("a.menu.active[cat]").length ) {
       <a href="#" class="rate-icon rate-down" rate=0><i class="medium material-icons"
         >thumb_down</i></a>
     </div>
+
   </div>
-    <div class="col s3 m3 l3 offset-m6 offset-l6 offset-s6">
-      <div class="post-date right">
-        {{ post.created|date:"Y.m.d" }}
-        <br />
-        {{ post.created|date:"H:i"}}
-      </div>
+
+  <div class="comments-count col s3 m3 l3 offset-m2 offset-l2 offset-s2 center">
+    <i class="material-icons">comment</i>{{ post.get_comments_count }}
+  </div>
+
+  <div class="col s3 m3 l3 offset-m1 offset-l1 offset-s1">
+    <div class="post-date right">
+      {{ post.created|date:"Y.m.d" }}
+      <br />
+      {{ post.created|date:"H:i"}}
     </div>
+  </div>
 
   </div>
 </div>
