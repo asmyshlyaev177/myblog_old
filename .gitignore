@@ -2,3 +2,4 @@
 **/CACHE/**
 celerybeat-schedule.*
 *.ipnb
+*.idea/*
