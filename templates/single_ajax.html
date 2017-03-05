@@ -2,11 +2,6 @@
 {% load cache %}
 {% cache 1800 single_ajax request.user.is_anonymous request.path %}
 
-<script>processing = true;
-wsConnect();
-$(".pop-tabs").hide();
-</script>
-
 {% autoescape off %}
 <div class="post z-depth-1">
 <h1 class="center-align post-title">{{ post.title }}</h1>
@@ -55,7 +50,6 @@ Comments();
 
 {% endautoescape %}
 
-
 <!-- The Gallery as lightbox dialog, should be a child element of the document body -->
 <div id="blueimp-gallery" class="blueimp-gallery" fullScreen="true"
  preloadRange=1>
@@ -68,3 +62,8 @@ Comments();
     <ol class="indicator"></ol>
 </div>
 {% endcache %}
+
+<script>processing = true;
+wsConnect();
+$(".pop-tabs").hide();
+</script>
