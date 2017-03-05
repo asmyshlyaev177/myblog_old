@@ -390,7 +390,7 @@ def list(request, category=None, tag=None, pop=None):
         return render(request, template, context)
 
 
-#@cache_page(30) test
+#@cache_page(30)
 #@cache_control(max_age=30)
 #@vary_on_headers('X-Requested-With', 'Cookie')
 @never_cache
