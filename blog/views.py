@@ -390,11 +390,11 @@ def list(request, category=None, tag=None, pop=None):
         return render(request, template, context)
 
 
-#@cache_page(30) test
+#@cache_page(30)
 #@cache_control(max_age=30)
 #@vary_on_headers('X-Requested-With', 'Cookie')
 @never_cache
-def single_post(request,tag, title, id):
+def single_post(request, tag, title, id):
 
     if request.is_ajax():
         template = 'single_ajax.html'
