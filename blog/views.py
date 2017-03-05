@@ -20,7 +20,7 @@ from django.contrib.auth.views import (login as def_login,
 
 hot_rating = 3
 
-#test
+#test1
 
 def clear_cache(request):
     if request.user.is_superuser:

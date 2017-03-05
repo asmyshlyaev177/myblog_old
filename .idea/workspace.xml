@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="8dd524c4-4355-4f32-8a1e-7fd61f795809" name="Default" comment="">
+    <list default="true" id="8dd524c4-4355-4f32-8a1e-7fd61f795809" name="Default" comment="Merge remote-tracking branch 'origin/master'&#10;&#10;# Conflicts:&#10;#&#9;.idea/workspace.xml&#10;">
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.gitignore" afterPath="$PROJECT_DIR$/.gitignore" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/myblog/urls.py" afterPath="$PROJECT_DIR$/myblog/urls.py" />
     </list>
     <ignored path="myblog.iws" />
     <ignored path=".idea/workspace.xml" />
@@ -88,8 +88,8 @@
       <file leaf-file-name="urls.py" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/myblog/urls.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="667">
-              <caret line="74" column="19" lean-forward="false" selection-start-line="74" selection-start-column="19" selection-end-line="74" selection-end-column="19" />
+            <state relative-caret-position="378">
+              <caret line="57" column="79" lean-forward="true" selection-start-line="57" selection-start-column="79" selection-end-line="57" selection-end-column="79" />
               <folding />
             </state>
           </provider>
@@ -125,8 +125,8 @@
         <option value="$PROJECT_DIR$/templates/index.html" />
         <option value="$PROJECT_DIR$/blog/static/js/main.js" />
         <option value="$PROJECT_DIR$/blog/views.py" />
-        <option value="$PROJECT_DIR$/.gitignore" />
         <option value="$PROJECT_DIR$/myblog/urls.py" />
+        <option value="$PROJECT_DIR$/.gitignore" />
       </list>
     </option>
   </component>
@@ -505,14 +505,7 @@
       <option name="project" value="LOCAL" />
       <updated>1488720467270</updated>
     </task>
-    <task id="LOCAL-00007" summary="Merge remote-tracking branch 'origin/master'&#10;&#10;# Conflicts:&#10;#&#9;.idea/workspace.xml&#10;">
-      <created>1488720600566</created>
-      <option name="number" value="00007" />
-      <option name="presentableId" value="LOCAL-00007" />
-      <option name="project" value="LOCAL" />
-      <updated>1488720600566</updated>
-    </task>
-    <option name="localTasksCounter" value="8" />
+    <option name="localTasksCounter" value="7" />
     <servers />
   </component>
   <component name="TestHistory">
@@ -559,8 +552,7 @@
   <component name="VcsManagerConfiguration">
     <MESSAGE value="." />
     <MESSAGE value="Cleaning code" />
-    <MESSAGE value="Merge remote-tracking branch 'origin/master'&#10;&#10;# Conflicts:&#10;#&#9;.idea/workspace.xml&#10;" />
-    <option name="LAST_COMMIT_MESSAGE" value="Merge remote-tracking branch 'origin/master'&#10;&#10;# Conflicts:&#10;#&#9;.idea/workspace.xml&#10;" />
+    <option name="LAST_COMMIT_MESSAGE" value="Cleaning code" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
@@ -696,8 +688,8 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/myblog/urls.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="667">
-          <caret line="74" column="19" lean-forward="false" selection-start-line="74" selection-start-column="19" selection-end-line="74" selection-end-column="19" />
+        <state relative-caret-position="378">
+          <caret line="57" column="79" lean-forward="true" selection-start-line="57" selection-start-column="79" selection-end-line="57" selection-end-column="79" />
           <folding />
         </state>
       </provider>
