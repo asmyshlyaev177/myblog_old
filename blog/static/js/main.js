@@ -414,12 +414,18 @@ function ChangePageNew( link, category, single_page, one_col ) {
 					}
 					data2 = ('<div class="content">' + data + '</div>');
 					$(data2).replaceAll('.content');
-					if ( $("div.post").length < 2 && single_page) {
+					if ( $("div.post").length < 2) {
 					 $(".pop-tabs").hide();
-				 } else {
+					 processing = true;
+				    } else {
 					 $(".pop-tabs").show();
 					 $(".categories").show();
-				 };
+				     };
+				    if ( single_page) {
+				        processing = true;
+				    else {
+				        processing = false;
+				    }}
 
 	          }
 	     });
