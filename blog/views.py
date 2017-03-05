@@ -20,6 +20,7 @@ from django.contrib.auth.views import (login as def_login,
 
 hot_rating = 3
 
+#test
 
 def clear_cache(request):
     if request.user.is_superuser:
@@ -291,7 +292,6 @@ def add_post(request):
             title = data.title
             tag_list = request.POST['hidden_tags'].split(',')  # tags list
 
-            have_new_tags = False
             data.save()
             post_id = data.id
             addPost.delay(post_id, tag_list, moderated)
@@ -395,7 +395,7 @@ def list(request, category=None, tag=None, pop=None):
 #@cache_control(max_age=30)
 #@vary_on_headers('X-Requested-With', 'Cookie')
 @never_cache
-def single_post(request, tag, title, id):
+def single_post(request, title, id):
 
     if request.is_ajax():
         template = 'single_ajax.html'

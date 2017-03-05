@@ -282,11 +282,11 @@ function Scroll() {
 	}
 
 function loadMore(){
-	console.log("load url " + category+ "?page=" +page);
+	console.log("load url " + myurl+ "?page=" +page);
      $.ajax({
       type:"GET",
 		  //cache : false,
-      url:category+"?page="+page,
+      url:myurl+"?page="+page,
       success:function(data){
 							 if ( data != 'last_page') {
 								 $('.content').append(data); //adds data to the end of the table
@@ -328,7 +328,6 @@ function ClickAjaxMenu() {
 	$(document).on('click', '.ajax-menu', function() {
 	$(".menu").removeClass('active');
 	$(this).addClass('active');
-	//event.preventDefault();
 	pop = "";
 	ajax_menu = $(this);
 	if ( ajax_menu.is('[single_page]' ) ) { // if it is menu don't load on scroll
@@ -341,23 +340,23 @@ function ClickAjaxMenu() {
 	} else {
 		one_col = false;
 	}
-	myurl = ajax_menu.attr('url');
+	category = ajax_menu.attr('url');
 
 	if ( ajax_menu.attr("url") != undefined &&
 				ajax_menu.attr("url") != ""  )
 			{
 				//debugger;
 			if ( ajax_menu.is("[cat]") ) {
-				category = "/cat/" + myurl.toLowerCase();
+				myurl = "/cat/" + category.toLowerCase();
 			} else if ( ajax_menu.is("[pop]") ) {
-				pop = myurl.toLowerCase();
+				pop = category.toLowerCase();
 			} else {
-				category = '/' + myurl.toLowerCase();
+				myurl = '/' + category.toLowerCase();
 			}
 	}
 	else {
-		category = "/";
-		myurl = ""
+		myurl = "/";
+		category = ""
 	}
 
 	$('html, body').scrollTop( 0 );
@@ -369,23 +368,23 @@ function ClickAjaxMenu() {
 
 	//Change Page
 	if ( pop ) {
-		if ( category == "/" ) {
-			url = category + pop;
+		if ( myurl == "/" ) {
+			url = myurl + pop;
 		} else {
-			url = category + '/' + pop;
+			url = myurl + '/' + pop;
 		}
 	} else {
-		url = category;
+		url = myurl;
 	}
 
 		window.history.pushState({state:'new'}, "",  url);
-		ChangePageNew( url, myurl, single, one_col);
+		ChangePageNew( url, category, single, one_col);
 		return false;
 
 	});
 	}
 
-function ChangePageNew( link, myurl, single_page, one_col ) {
+function ChangePageNew( link, category, single_page, one_col ) {
 		content = $(".content")
 		content.fadeTo(0, 0.1);
 		//try {
@@ -428,7 +427,7 @@ function ChangePageNew( link, myurl, single_page, one_col ) {
 	   page = 1;
 		$(".menu").parent().removeClass('active');
 
-	 	if ( myurl != "" && single_page == false) {
+	 	if ( category != "" && single_page == false) {
 					link = link.split('/');
 					pop = link.pop();
 					cat = link.pop();
@@ -436,7 +435,7 @@ function ChangePageNew( link, myurl, single_page, one_col ) {
 									$('.menu').filter( $('#'+pop ) ).parent().addClass('active');
 									$('.menu').filter( $('#'+cat ) ).parent().addClass('active');
 								} else {
-									$('.menu').filter( $('#'+myurl ) ).parent().addClass('active');
+									$('.menu').filter( $('#'+category ) ).parent().addClass('active');
 								}
 	    }
 
@@ -517,7 +516,6 @@ function wsConnect() {
 function BackForwardButtons() {
 	window.onpopstate = function(event) {
 		url = document.location.pathname;
-		//myurl = category.split('/').pop()
 	  ChangePageNew(url);
 	};
 

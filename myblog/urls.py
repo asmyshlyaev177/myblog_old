@@ -72,7 +72,7 @@ urlpatterns = [
 
     url(r'^(?P<tag>([^\/]+))/pop-(?P<pop>[-\w]+)\/?$', views.list, name='tag_pop'),
 
-    url(r'^(?P<tag>([^\/]+)/(?P<title>([^\/]+))-(?P<id>[-vi\d]+))\/?$',
+    url(r'^(?P<title>([^\/]+))-(?P<id>[-vi\d]+))\/?$',
             views.single_post, name='single_post'),
 
     url(r'^media/(?P<path>.*)\/?$', serve,
