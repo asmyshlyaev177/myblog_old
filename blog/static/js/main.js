@@ -349,7 +349,7 @@ function ClickAjaxMenu() {
 				//debugger;
 			if ( ajax_menu.is("[cat]") ) {
 				myurl = "/cat/" + category.toLowerCase();
-				sidebarUrl = category.toLowerCase();
+				sidebarUrl = "/sidebar/" + category.toLowerCase();
 			} else if ( ajax_menu.is("[pop]") ) {
 				pop = category.toLowerCase();
 			} else {
@@ -431,7 +431,6 @@ function ChangePageNew( link, category, single_page, one_col, sidebarUrl ) {
 
 	          }
 	     });
-
         if ( sidebarUrl != "" ) {
             $.ajax({
               type:"GET",

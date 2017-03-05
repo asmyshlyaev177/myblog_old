@@ -45,7 +45,7 @@ def get_good_posts(category=None, private=None):
                 .only("id", "title", "description", "url", "category",
                         "main_tag", "main_image_srcset", "rating", "created")
         if category:
-            posts = posts.filter(category_slug=category)
+            posts = posts.filter(category__slug=category)
         if not private:
             posts = posts.exclude(private=True)
         posts = posts[0:4]
