@@ -329,6 +329,7 @@ function ClickAjaxMenu() {
 	$(".menu").removeClass('active');
 	$(this).addClass('active');
 	pop = "";
+	sidebar-url = "";
 	ajax_menu = $(this);
 	if ( ajax_menu.is('[single_page]' ) ) { // if it is menu don't load on scroll
 		single = true;
@@ -348,6 +349,7 @@ function ClickAjaxMenu() {
 				//debugger;
 			if ( ajax_menu.is("[cat]") ) {
 				myurl = "/cat/" + category.toLowerCase();
+				sidebar-url = category.toLowerCase();
 			} else if ( ajax_menu.is("[pop]") ) {
 				pop = category.toLowerCase();
 			} else {
@@ -378,13 +380,13 @@ function ClickAjaxMenu() {
 	}
 
 		window.history.pushState({state:'new'}, "",  url);
-		ChangePageNew( url, category, single, one_col);
+		ChangePageNew( url, category, single, one_col, sidebar-url);
 		return false;
 
 	});
 	}
 
-function ChangePageNew( link, category, single_page, one_col ) {
+function ChangePageNew( link, category, single_page, one_col, sidebar-url ) {
 		content = $(".content")
 		content.fadeTo(0, 0.1);
 		//try {
@@ -430,6 +432,16 @@ function ChangePageNew( link, category, single_page, one_col ) {
 	          }
 	     });
 
+        if ( sidebar-url != "" ) {
+            $.ajax({
+              type:"GET",
+                  cache : false,
+                  url: sidebar-url,
+                   success:function(data){
+                    $(data).replaceAll(".sidebar-inner");
+                   }
+            });
+        }
 	   page = 1;
 		$(".menu").parent().removeClass('active');
 

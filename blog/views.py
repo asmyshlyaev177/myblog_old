@@ -45,7 +45,7 @@ def get_good_posts(category=None, private=None):
                 .only("id", "title", "description", "url", "category",
                         "main_tag", "main_image_srcset", "rating", "created")
         if category:
-            posts = posts.filter(category_id=category)
+            posts = posts.filter(category_slug=category)
         if not private:
             posts = posts.exclude(private=True)
         posts = posts[0:4]
@@ -60,7 +60,7 @@ def sidebar(request, category):
     else:
         user_known = False
     good_posts = get_good_posts(category=category, private=user_known)
-    return render(request, template, {'good_posts': good_posts})
+    return render(request, template, {'good_posts': good_posts, 'category': category})
 
 
 def get_cat_list():
