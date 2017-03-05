@@ -38,7 +38,7 @@ if ( $("a.menu.active[cat]").length ) {
 
   <div class="post z-depth-1">
     <a href="{{ post.get_absolute_url|escape }}" class="ajax-menu center-block
-     post-title" single_page="" url="{{ post.get_url }}">
+     post-title" single_page="" url="single-{{ post.id }}">
       <h2 class="center">
       {{ post.title }}</h2></a>
 
