@@ -2,5 +2,7 @@
 **/CACHE/**
 celerybeat-schedule.*
 *.ipnb
-**/.idea/**
-**/workspace.xml
+/.idea/workspace.xml
+/celerybeat-schedule.bak
+/celerybeat-schedule.dir
+/celerybeat-schedule.dat

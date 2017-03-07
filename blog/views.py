@@ -53,7 +53,7 @@ def get_good_posts(category=None, private=None):
     return posts
 
 
-def sidebar(request, category):
+def sidebar(request, category=None):
     template = "sidebar.html"
     if request.user.is_authenticated:
         user_known = True
