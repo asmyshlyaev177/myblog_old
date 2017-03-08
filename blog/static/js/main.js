@@ -8,6 +8,9 @@ var votes = true;
 var sockets = {};
 var isTouch =  !!("ontouchstart" in window) || window.navigator.msMaxTouchPoints > 0;
 var userAuth = false;
+var sidebarUrl = "/sidebar/";
+var single_page = false;
+var one_col= false;
 
 $(window).load(function(){
 	if ( loader == undefined) {
@@ -328,12 +331,11 @@ function ClickAjaxMenu() {
 	$(".menu").removeClass('active');
 	$(this).addClass('active');
 	pop = "";
-	sidebarUrl = "";
 	ajax_menu = $(this);
 	if ( ajax_menu.is('[single_page]' ) ) { // if it is menu don't load on scroll
-		single = true;
+		single_page = true;
 	} else { // if it is list page load on scroll
-		single = false;
+		single_page = false;
 	}
 	if ( ajax_menu.is('[one_col]' ) ) {
 		one_col = true;
@@ -347,12 +349,12 @@ function ClickAjaxMenu() {
 			{
 				//debugger;
 			if ( ajax_menu.is("[cat]") ) {
-				myurl = "/cat/" + shortLink.toLowerCase();
-				sidebarUrl = "/sidebar/" + shortLink.toLowerCase();
+				myurl = "/cat/" + shortLink;
+				sidebarUrl = "/sidebar/" + shortLink;
 			} else if ( ajax_menu.is("[pop]") ) {
-				pop = shortLink.toLowerCase();
+				pop = shortLink;
 			} else {
-				myurl = '/' + shortLink.toLowerCase();
+				myurl = '/' + shortLink;
 			}
 	}
 	else {
@@ -360,7 +362,7 @@ function ClickAjaxMenu() {
 		shortLink = ""
 	}
     if ( ajax_menu.is(".brand-logo") ) {
-        sidebarUrl = "/sidebar/" + shortLink.toLowerCase()
+        sidebarUrl = "/sidebar/" + shortLink
     }
 
 	$('html, body').scrollTop( 0 );
@@ -382,7 +384,7 @@ function ClickAjaxMenu() {
 	}
 
 		window.history.pushState({state:'new'}, "",  url);
-		ChangePageNew( url, shortLink, single, one_col, sidebarUrl);
+		ChangePageNew( url );
 		return false;
 
 	});
@@ -398,7 +400,7 @@ function twoCol() {
 	$(".sidebar").show();
 }
 
-function ChangePageNew( link, shortLink, single_page, one_col, sidebarUrl ) {
+function ChangePageNew( link ) {
 		content = $(".content")
 		content.fadeTo(0, 0.1);
 		//try {
@@ -422,18 +424,18 @@ function ChangePageNew( link, shortLink, single_page, one_col, sidebarUrl ) {
 					if ( one_col ) { oneCol(); } else { twoCol(); }
 					data2 = ('<div class="content">' + data + '</div>');
 					$(data2).replaceAll('.content');
+
 					if ( $("div.post").length < 2) {
-					 $(".pop-tabs").hide();
-					 processing = true;
-				    } else {
-					 $(".pop-tabs").show();
-					 $(".categories").show();
-				     };
-				    if ( single_page) {
-				        processing = true;}
-				    else {
-				        processing = false;
-				    }
+                         processing = true;
+                            if ( single_page ) {
+                             $('.top-menu').hide()
+                            }
+                        }
+
+                    else {
+                            $('.top-menu').show()
+                            processing = false;
+                        }
 
 	          }
 	     });
@@ -457,9 +459,9 @@ function ChangePageNew( link, shortLink, single_page, one_col, sidebarUrl ) {
 					if ( pop == "pop-all" || pop == "pop-best") {
 									$('.menu').filter( $('#'+pop ) ).parent().addClass('active');
 									$('.menu').filter( $('#'+cat ) ).parent().addClass('active');
-								} else {
-									$('.menu').filter( $('#'+shortLink ) ).parent().addClass('active');
-								}
+								} //else {
+									//$('.menu').filter( $('#'+shortLink ) ).parent().addClass('active');
+								//}
 	    }
 
 		};
@@ -539,6 +541,8 @@ function wsConnect() {
 function BackForwardButtons() {
 	window.onpopstate = function(event) {
 		url = document.location.pathname;
+        myurl = "";
+        one_col = false;
 	  ChangePageNew(url);
 	};
 

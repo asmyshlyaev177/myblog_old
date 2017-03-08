@@ -1,37 +1,73 @@
+{% load post_header %}
+{% autoescape off %}
 
-  <script>processing = false;
-  $(".pop-tabs").hide();
+  <script>
+    processing = false;
   </script>
 
 {% if posts %}
 
-    {% for post in posts %}
+{% for post in posts %}
 
-       <a href="{{ post.get_absolute_url }}" >
-         <h4 class="post-title-dash text-center">{{ post.title }} </h4></a>
-         <div class="pull-right">Category:
-           <a href="
-           /cat/{{ post.category.slug }}">
-           {{post.category}}</a>
-         </div>
+  <div class="post z-depth-1">
+    <a href="{{ post.get_absolute_url|escape }}" class="ajax-menu center-block
+     post-title" single_page="" url="{{ post.get_url }}">
+      <h2 class="center">
+      {{ post.title }}</h2></a>
+
+  {% post_header %}
+
+    {% if post.main_image_srcset %}
+    <div class="post-thumbnail center-align">
+
+        {{ post.main_image_srcset }}
+
+    </div>
+    {% endif %}
+
+    <div class="flow-text post-description">
+    {% if post.description %}
+      {{ post.description }}
+    {% endif %}
+    </div>
 
 
-      {% if post.post_image %}
+<div class="row post-footer">
+  <div class="col s3 m3 l3 center">
+    <div class="rating valign-wrapper" post={{ post.id }}>
+      <div class="rate-score valign">
+        <p>{% if post.rating %}
+          {{ post.rating|floatformat:2 }}
+        {% else %}
+          0
+        {% endif %}
+        </p>
+      </div>
+    </div>
 
-        <img src="{{ post.post_image.url }}"
-        class="post-thumb-small responsive-img" >
+  </div>
 
-      {% endif %}
+  <div class="comments-count col s3 m3 l3 offset-m2 offset-l2 offset-s2 center">
+    <i class="material-icons">comment</i>{{ post.get_comments_count }}
+  </div>
 
-      <p class="post-description">{% autoescape off %}
-        {{ post.description }}{% endautoescape %}</p>
+  <div class="col s3 m3 l3 offset-m1 offset-l1 offset-s1">
+    <div class="post-date right">
+      {{ post.created|date:"Y.m.d" }}
+      <br />
+      {{ post.created|date:"H:i"}}
+    </div>
+  </div>
 
-    {% endfor %}
+  </div>
+</div>
 
-{% else %}
-
-<p>
-  No posts yet!
-</p>
+{% empty %}
+<div class="posts">
+    <h3>You don't have posts yet...</h3>
+</div>
+{% endfor %}
 
 {% endif %}
+
+{% endautoescape %}

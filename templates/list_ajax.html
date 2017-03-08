@@ -16,8 +16,8 @@ if ( $("a.menu.active[cat]").length ) {
 } else {
   category = "";
 }
-
 </script>
+
 {% if category %}
 <h2>List Posts from {{ category }}</h1>
   {% if category.description %}
@@ -60,7 +60,7 @@ if ( $("a.menu.active[cat]").length ) {
 
 
 <div class="row post-footer">
-  <div class="col s3 m3 l3">
+  <div class="col s3 m3 l3 center">
     <div class="rating valign-wrapper" post={{ post.id }}>
       <a href="#" class="rate-icon rate-up" rate=1><i class="medium material-icons"
         >thumb_up</i></a>

@@ -5,29 +5,29 @@
 
 <div class="sidebar-inner" cat={{category}}>
 <h3>Best posts for 2 weeks</h3>
-{% for post in good_posts %}
+{% for gpost in good_posts %}
 
-  <div class="post z-depth-1">
-    <a href="{{ post.get_absolute_url|escape }}" class="ajax-menu center-block"
-    single_page="" url="{{ post.get_url }}">
+  <div class="post-sidebar z-depth-1">
+    <a href="{{ gpost.get_absolute_url|escape }}" class="ajax-menu center-block"
+    single_page="" url="{{ gpost.get_url }}">
       <h4 class="post-title-sidebar center">
-      {{ post.title }}</h4></a>
+      {{ gpost.title }}</h4></a>
 
     <div class="row valign-wrapper">
       <div class="col m5 l5 valign">
-        {% if post.post_thumbnail %}
+        {% if gpost.post_thumbnail %}
         <div class="post-thumbnail-small">
 
             <img class="responsive-img post-image"
-            src="/media/{{ post.post_thumbnail }}" />
+            src="/media/{{ gpost.post_thumbnail }}" />
 
         </div>
         {% endif %}
     </div>
     <div class="col m7 l7 valign">
-      {% if post.description %}
+      {% if gpost.description %}
         <div>
-          {{ post.description|truncatewords:25 }}
+          {{ gpost.description|truncatewords:25 }}
         </div>
       {% endif %}
     </div>
@@ -41,9 +41,9 @@
   </div>
     <div class="col s3 m3 l3 offset-m6 offset-l6 offset-s6">
       <div class="post-date right">
-        {{ post.created|date:"Y.m.d" }}
+        {{ gpost.created|date:"Y.m.d" }}
         <br />
-        {{ post.created|date:"H:i"}}
+        {{ gpost.created|date:"H:i"}}
       </div>
     </div>
 

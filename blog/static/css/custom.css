@@ -25,14 +25,14 @@ h4, h4:hover {
 }
 
 .categories .tab, .pop-tabs .tab, .post.post {
-background-color: rgba(250, 250, 250, 1);
+    background-color: rgba(250, 250, 250, 1);
 }
 
 form.signup {
 	padding: 0.1rem 1rem 2rem 1rem;
 }
 
-.post {
+.post, .post-sidebar {
 	margin-bottom: 20px;
 }
 
@@ -70,7 +70,7 @@ div.username {
 }
 
 #user-menu {
-	margin-right: 7%;
+	margin-right: 3%;
 }
 
 #user-menu-list > li > a {
@@ -110,7 +110,7 @@ font-weight: 600!important;
 margin-top: 1px;
 }
 
-.post:after {
+.post:after, .post-sidebar:after {
     clear: both;
 		content: ".";
 		display: block;

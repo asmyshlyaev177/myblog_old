@@ -4,11 +4,6 @@
 
 {% cache 60 single_moder request.path request.user|is_moderator:post %}
 
-<script>processing = true;
-wsConnect();
-$(".pop-tabs").hide();
-</script>
-
 {% autoescape off %}
 <div class="post z-depth-1">
 <h1 class="center-align post-title">{{ post.title }}</h1>
@@ -21,17 +16,6 @@ $(".pop-tabs").hide();
 <p class="post-image center-align">
     {{ post.main_image_srcset }}
 </p>
-{% endif %}
-
-{% if not request.user.is_anonymous %}
-  {% if request.user|is_moderator:post %}
-  <div>
-    USER IS MODERATOR
-    <a href="/edit-post-{{post.id}}" one_col single_page
-    url="edit-post-{{post.id}}" class="ajax-menu btn btn-small">
-      <span>Редактировать</span></a>
-  </div>
-  {% endif %}
 {% endif %}
 
 <!-- <div class="row"> -->
@@ -63,7 +47,9 @@ id = "def_form_place">
 <div id="Comments_title">Комментарии</div>
 
 <script>
+processing = true;
 Comments();
+wsConnect();
 </script>
 
 {% endautoescape %}
