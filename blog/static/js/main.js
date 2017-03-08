@@ -19,10 +19,10 @@ $(window).load(function(){
 	Scroll();
 
 	ClickAjaxMenu();
-  BackForwardButtons();
+    BackForwardButtons();
 	//GifPlay();
 	rate();
-  ReplyBtn();
+    ReplyBtn();
 	AddCommentBtn();
 	//setTimeout( stubImgs(), 0 );
 	hideBanner();
@@ -34,13 +34,12 @@ $(window).load(function(){
 });
 
 function userMenu() {
-$('.button-collapse').sideNav({
-      menuWidth: 300, // Default is 300
-      edge: 'right', // Choose the horizontal origin
-      closeOnClick: true, // Closes side-nav on <a> clicks, useful for Angular/Meteor
-      draggable: true // Choose whether you can drag to open on touch screens
-    }
-  );
+    $(document).on('click', '#user-menu-list > li > a', function(e) {
+       $("#user-menu").dropdown('close');
+    });
+    $(document).on('click', '#user-menu', function(e) {
+        return false;
+    });
 }
 
 function hideBanner() {

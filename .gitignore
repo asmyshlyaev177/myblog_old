@@ -6,3 +6,4 @@ celerybeat-schedule.*
 /celerybeat-schedule.bak
 /celerybeat-schedule.dir
 /celerybeat-schedule.dat
+/blog/static/CACHE/

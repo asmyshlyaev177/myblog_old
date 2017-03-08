@@ -3,7 +3,8 @@ body {
 }
 
 .side-nav a:hover, a.chip:hover, h2:hover,
-h4:hover, a.back-to-top:hover, .tab a:hover {
+h4:hover, a.back-to-top:hover, .tab a:hover,
+#user-menu-list > li > a:hover {
 	color: #039be5;
 }
 
@@ -11,7 +12,7 @@ h2, h2:hover, .sidebar-inner, .sidebar-inner:hover,
 a, a:hover, .rate-icon.rate-up, .rate-icon.rate-up:hover,
 .rate-icon.rate-down, .rate-icon.rate-down:hover,
 .side-nav a, .side-nav a:hover, h3, h3:hover,
-h4, h4:hover  {
+h4, h4:hover {
 	transition-duration: 0.3s;
 }
 
@@ -70,6 +71,10 @@ div.username {
 
 #user-menu {
 	margin-right: 7%;
+}
+
+#user-menu-list > li > a {
+ color: black;
 }
 
 .slide-nav {
