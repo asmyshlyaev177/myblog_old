@@ -5,7 +5,7 @@
 
 {% if page == None %}
 
-<script>processing = false;
+<script>
 path = window.location.pathname.split('/');
 link = $('a[href="/' + path[1] + '/' + path[2] + '"');
 link.addClass('active').parent().addClass('active');

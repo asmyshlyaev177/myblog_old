@@ -3,14 +3,11 @@ from celery import Celery
 from datetime import timedelta
 import os, datetime, json, re
 from blog.models import (myUser, Post, Tag, Category, Comment)
-##from slugify import slugify, SLUG_OK
 from django.utils.text import slugify
 from bs4 import BeautifulSoup
 from PIL import Image
 from urllib.parse import urlparse, urlencode
 import datetime, pytz
-# from django.utils import timezone
-# from django.http import (HttpResponse,JsonResponse)
 from urllib.request import urlopen, Request
 from blog.functions import srcsets, srcsetThumb
 from django.core.cache import cache
@@ -194,7 +191,7 @@ def commentImage(comment_id):
 
 @app.task(name="addPost")
 def addPost(post_id, tag_list, moderated):
-    data = Post.objects.get(id=post_id)
+    data = Post.objects.select_related().prefetch_related().get(id=post_id)
     nsfw = data.private
     have_new_tags = False
     data.tags.clear()
@@ -282,11 +279,21 @@ def addPost(post_id, tag_list, moderated):
     if data.post_image:
         data.main_image_srcset = srcsetThumb(data.post_image, post_id=post_id)
         #data.post_image.delete()
-        # data.image_url = srcsetThumb(data.post_image)
 
     if not moderated:
         data.status = "P"
     data.save()
+
+    post = {}
+    post['title'] = data.title
+    post['url'] = data.get_absolute_url()
+    post['author'] = data.author.id
+    post['post'] = 1
+
+    group = "add-post"
+    Group(group).send({
+        "text": json.dumps(post) })
+
     cache_str = "*page_" + str(data.category) + "*"
     cache.delete_pattern(cache_str)
     cache_str = "*post_single_" + str(data.id)

@@ -235,7 +235,6 @@ def edit_post(request, postid):
                         moderated = True
                     else:
                         moderated = False
-                    ##data.author = request.user
                     data.url = slugify(data.title, allow_unicode=True)
                     title = data.title
                     tag_list = request.POST['hidden_tags'].split(',')  # tags list
@@ -293,7 +292,8 @@ def add_post(request):
 
             data.save()
             post_id = data.id
-            addPost.delay(post_id, tag_list, moderated)
+            #addPost.delay(post_id, tag_list, moderated)
+            addPost.apply_async(args=[post_id, tag_list, moderated], countdown=12)
 
             return render(request, 'added-post.html',
                           {'title': title,

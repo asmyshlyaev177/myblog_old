@@ -13,28 +13,34 @@ var single_page = false;
 var one_col= false;
 
 $(window).load(function(){
-	if ( loader == undefined) {
-		loader = $("#load_circle");
+	if ( loader == undefined || loader == "" ) {
+		loader = $("#loader");
 	}
-
+    checkUserAuth();
+    processingCheck();
 	TopButtonScroll();
 	ToTop();
 	Scroll();
-
 	ClickAjaxMenu();
     BackForwardButtons();
-	//GifPlay();
 	rate();
     ReplyBtn();
 	AddCommentBtn();
-	//setTimeout( stubImgs(), 0 );
 	hideBanner();
-	setTimeout( wsConnect(), 0 );
 	playPause();
 	userMenu();
 	rateHoverClick();
-	checkUserAuth();
+    wsConnect();
+
 });
+
+function processingCheck() {
+    if ( $("div.post").length < 2) {
+        processing = true;
+        } else {
+            processing = false
+        }
+}
 
 function userMenu() {
     $(document).on('click', '#user-menu-list > li > a', function(e) {
@@ -53,30 +59,6 @@ function hideBanner() {
   });
 }
 
-function stubImgs() {
-	img_new = [];
-	imgs = $('img[src_real]');
-	for ( var i = 0; i < imgs.length; i++ ) {
-		srcset = $(imgs[i]).attr('srcset_real');
-		src = $(imgs[i]).attr('src');
-		//$(imgs[i]).css('min-height', $(imgs[i]).height()+'px');
-
-		$(imgs[i]).css('opacity', 0.5);
-		img_new[i] = new Image();
-		img_new[i].onload = function() {
-			current_img = $(imgs[ img_new.indexOf(this) ])
-			$(current_img).attr('srcset', this.srcset)
-				.removeAttr('srcset_real')
-				.attr('src', this.src)
-			 	.removeAttr('src_real').css('opacity', 1);
-			 	//.next('.loader').remove();
-			//$(current_img).css('min-height', '');
-		}
-		img_new[i].srcset = srcset;
-		img_new[i].src = src;
-		}
-	}
-
 function Comments() {
 	$(document).ready(function(){
 	postid = parseInt( $(".post_header").attr("postid") );
@@ -85,11 +67,10 @@ function Comments() {
 		  type: "GET",
 		  cache : false,
 		  url: link,
-      success:function(data){
+        success:function(data){
 		 $(data).appendTo( $("#Comments_title") );
-		 //stubImgs();
         }
-     });
+        });
 	 });
 }
 
@@ -275,7 +256,7 @@ function Scroll() {
   if ( $(document).scrollTop() > ( ($(document).height() - $(window).height())-300  )) {
 	  processing = true; //prevent multiple scrolls once first is hit
 	  if ( $( "#last_page" ).length == 0 ) {
-			loader.css('top', '').css('left', '').css('position', 'static').show();
+			loader.css('top', '39%').css('left', '45%').show();
 			page += 1;
 			loadMore();
 		}
@@ -290,17 +271,17 @@ function loadMore(){
 		  //cache : false,
       url:myurl+"?page="+page,
       success:function(data){
-							 if ( data != 'last_page') {
-								 $('.content').append(data); //adds data to the end of the table
-								 //console.log(data);
-	               processing = false; // the processing variable prevents
-								  									 //multiple ajax calls when scrolling
-							 } else {
-								 $('.content').append('<p id="last_page"></p>')
-							 }
+         if ( data != 'last_page') {
+             $('.content').append(data); //adds data to the end of the table
+             //console.log(data);
+               processing = false; // the processing variable prevents
+                                                 //multiple ajax calls when scrolling
+         } else {
+             $('.content').append('<p id="last_page"></p>')
+         }
 
-							 loader.hide();
-							 disableRate();
+         loader.hide();
+         disableRate();
           }
      });
 
@@ -382,7 +363,7 @@ function ClickAjaxMenu() {
 	} else {
 		url = myurl;
 	}
-
+        loader.css('top', '39%').css('left', '45%').show();
 		window.history.pushState({state:'new'}, "",  url);
 		ChangePageNew( url );
 		return false;
@@ -406,43 +387,40 @@ function ChangePageNew( link ) {
 		//try {
 			for ( socket in sockets ) {
 				sockets[socket].close();
-				//delete sockets[socket];
+				delete sockets[socket];
 			}
 		//} catch(err) {}
 
-		loader.css('top', '120px').css('left', '50%').css('position', 'absolute').show();
 		$.ajax({
 	      type:"GET",
 			  //cache : false,
 			  url: link,
 	      success:function(data){
-					content.fadeTo(0, 1);
-					$('#load_circle').hide();
-					disableRate();
-					$("#login-link").attr("href", "/login?next=" + window.location.pathname);
-					$("#logout-link").attr("href", "/logout?next=" + window.location.pathname);
-					if ( one_col ) { oneCol(); } else { twoCol(); }
-					data2 = ('<div class="content">' + data + '</div>');
-					$(data2).replaceAll('.content');
-
-					if ( $("div.post").length < 2) {
-                         processing = true;
-                            if ( single_page ) {
-                             $('.top-menu').hide()
-                            }
+                content.fadeTo(0, 1);
+                disableRate();
+                $("#login-link").attr("href", "/login?next=" + window.location.pathname);
+                $("#logout-link").attr("href", "/logout?next=" + window.location.pathname);
+                if ( one_col ) { oneCol(); } else { twoCol(); }
+                data2 = ('<div class="content">' + data + '</div>');
+                $(data2).replaceAll('.content');
+                processingCheck();
+                wsConnect();
+                loader.hide();
+                if ( processing ) {
+                        if ( single_page ) {
+                         $('.top-menu').hide()
                         }
-
-                    else {
-                            $('.top-menu').show()
-                            processing = false;
-                        }
+                    }
+                else {
+                        $('.top-menu').show()
+                    }
 
 	          }
 	     });
         if ( sidebarUrl != "" ) {
             $.ajax({
               type:"GET",
-                  cache : false,
+                  //cache : false,
                   url: sidebarUrl,
                    success:function(data){
                     $(data).replaceAll(".sidebar-inner");
@@ -517,18 +495,27 @@ function wsConnect() {
 			"ws://" + window.location.host + '/ws/' +
 			decodeURIComponent(window.location.pathname).split('/').filter(Boolean).slice(-1)[0], null,
 			{maxReconnectInterval: 2000, maxReconnectAttempts: 10});
+
 		socket.onmessage = function(e) {
-			try {
+
 				var elem = JSON.parse(e.data);
 				if ( elem['comment'] ) {
 					cloneComment(elem);
-				}
-			} catch(err) {};
-
+				} else if (elem['post'] ) {
+                    //console.log(elem);
+                    if ( parseInt($("#user_auth").attr('user')) == parseInt(elem['author']) ) {
+                        $("#post-link").attr('href', elem['url']);
+                        $("#post-link").attr('url', elem['url'].slice(1));
+                        $("#post-adding").hide();
+                        $("#post-added-link").show();
+                        loader.hide();
+                    }
+                }
 		}
+
 		socket.onopen = function() {
 			//socket.send("hello world");
-			sockets[window.location.pathname] = socket;
+			sockets[(window.location.pathname).split('/').filter(Boolean).slice(-1)[0]] = socket;
 		}
 		//socket.onclose = function() {
 			//socket.send("disconnect");
@@ -587,7 +574,6 @@ function Preview( files, el_id, height ) {
   }
 
 
-//
 function playPause() {
 	$(document).on('click', 'video', function(e) {
 		if ( this.paused ) {

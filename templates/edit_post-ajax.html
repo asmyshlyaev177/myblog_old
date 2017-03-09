@@ -1,12 +1,14 @@
 {% load is_moderator %}
 
 {% block content %}
-<div class="post z-depth-1">
+
 <script>
-processing = true;
 $('.top-menu').hide()
 oneCol();
 </script>
+
+<div class="post z-depth-1">
+
 <h1>Edit post</h1>
 
 <form action="{% url 'edit_post' post.id %}" method="post" enctype="multipart/form-data">

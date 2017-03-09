@@ -1,16 +1,17 @@
 from channels import Group
 from channels.sessions import channel_session
-
+import json
 
 # Connected to websocket.connect
 @channel_session
 def ws_add(message):
     path = message.content['path'].strip('/').split('/')[-1]
-    print("************************")
-    print(str(path))
-    print("************************")
+    #print("************************")
+    #print(str(path))
+    #print("************************")
+    hello = {'hello': 1}
     message.reply_channel.send({
-        "text": "hello",
+        "text": json.dumps(hello),
     })
     Group(path).add(message.reply_channel)
 
@@ -20,8 +21,8 @@ def ws_add(message):
 def ws_message(message):
     # print("**********ONMESSAGE**************")
     # print(str(message.content['path'].strip('/').split('/')[-1]))
-    print("**********TEXT**************")
-    print(str(message.content['text']))
+    #print("**********TEXT**************")
+    #print(str(message.content['text']))
 
     group = message.content['path'].strip('/').split('/')[-1]
     Group(group).send({

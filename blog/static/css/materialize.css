@@ -4242,6 +4242,7 @@ nav .input-field label.active {
   font-weight: 700;
 }
 
+
 html {
   line-height: 1.4;
   font-family: "Roboto", sans-serif;
@@ -4333,7 +4334,7 @@ small {
 }
 
 .flow-text {
-  font-weight: 300;
+  font-weight: 400;
 }
 
 @media only screen and (min-width: 360px) {
@@ -4392,73 +4393,73 @@ small {
 
 @media only screen and (min-width: 630px) {
   .flow-text {
-    font-size: 1.316rem;
+    font-size: 1.216rem;
   }
 }
 
 @media only screen and (min-width: 660px) {
   .flow-text {
-    font-size: 1.34rem;
+    font-size: 1.24rem;
   }
 }
 
 @media only screen and (min-width: 690px) {
   .flow-text {
-    font-size: 1.364rem;
+    font-size: 1.264rem;
   }
 }
 
 @media only screen and (min-width: 720px) {
   .flow-text {
-    font-size: 1.388rem;
+    font-size: 1.288rem;
   }
 }
 
 @media only screen and (min-width: 750px) {
   .flow-text {
-    font-size: 1.412rem;
+    font-size: 1.212rem;
   }
 }
 
 @media only screen and (min-width: 780px) {
   .flow-text {
-    font-size: 1.436rem;
+    font-size: 1.236rem;
   }
 }
 
 @media only screen and (min-width: 810px) {
   .flow-text {
-    font-size: 1.46rem;
+    font-size: 1.26rem;
   }
 }
 
 @media only screen and (min-width: 840px) {
   .flow-text {
-    font-size: 1.484rem;
+    font-size: 1.254rem;
   }
 }
 
 @media only screen and (min-width: 870px) {
   .flow-text {
-    font-size: 1.508rem;
+    font-size: 1.258rem;
   }
 }
 
 @media only screen and (min-width: 900px) {
   .flow-text {
-    font-size: 1.532rem;
+    font-size: 1.212rem;
   }
 }
 
 @media only screen and (min-width: 930px) {
   .flow-text {
-    font-size: 1.556rem;
+    font-size: 1.256rem;
   }
 }
 
 @media only screen and (min-width: 960px) {
   .flow-text {
-    font-size: 1.58rem;
+    font-size: 1.28rem;
   }
 }
 

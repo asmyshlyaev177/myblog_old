@@ -96,7 +96,7 @@
                data-beloworigin="true" class="dropdown-button right user-menu">
 
               {% if user.is_authenticated %}
-                <p id="user_auth"style="display: none;"></p>
+                <p id="user_auth"style="display: none;" user={{request.user.id}}></p>
                   {% if user.avatar %}
                             <p><img src="{{ user.avatar.url }}"
                             width="50px"
@@ -159,12 +159,62 @@
     <a href="#" class="back-to-top"><i class="medium material-icons">navigation</i></a>
 
     <div class="main col s12 m10 l6 offset-m1 offset-l1">
+
+        <div id="loader" class="loader center" style="
+            position: absolute; left: 45%; top: 39%;
+            display: none;">
+        <div class="preloader-wrapper big active">
+
+        <div class="preloader-wrapper big active">
+          <div class="spinner-layer spinner-blue">
+            <div class="circle-clipper left">
+              <div class="circle"></div>
+            </div><div class="gap-patch">
+              <div class="circle"></div>
+            </div><div class="circle-clipper right">
+              <div class="circle"></div>
+            </div>
+          </div>
+
+          <div class="spinner-layer spinner-red">
+            <div class="circle-clipper left">
+              <div class="circle"></div>
+            </div><div class="gap-patch">
+              <div class="circle"></div>
+            </div><div class="circle-clipper right">
+              <div class="circle"></div>
+            </div>
+          </div>
+
+          <div class="spinner-layer spinner-yellow">
+            <div class="circle-clipper left">
+              <div class="circle"></div>
+            </div><div class="gap-patch">
+              <div class="circle"></div>
+            </div><div class="circle-clipper right">
+              <div class="circle"></div>
+            </div>
+          </div>
+
+          <div class="spinner-layer spinner-green">
+            <div class="circle-clipper left">
+              <div class="circle"></div>
+            </div><div class="gap-patch">
+              <div class="circle"></div>
+            </div><div class="circle-clipper right">
+              <div class="circle"></div>
+            </div>
+          </div>
+          </div>
+         </div>
+        </div>
+
       <div class="content">
       {% block content %}{% endblock %}
       </div>
     </div>
 
-    <div class="sidebar col l4 offset-l1">
+    <div class="sidebar col l4 offset-l1 hide-on-med-and-down">
         <div class="sidebar-inner">
             {% block sidebar %}{% endblock %}
         </div>
@@ -226,52 +276,6 @@
 
   </ul>
 
-<div id="loader" class="loader" style="
-    /* width: 60%; */
-    position: absolute;
-	display: none;
-">   <div class="preloader-wrapper big active">
-      <div class="spinner-layer spinner-blue">
-        <div class="circle-clipper left">
-          <div class="circle"></div>
-        </div><div class="gap-patch">
-          <div class="circle"></div>
-        </div><div class="circle-clipper right">
-          <div class="circle"></div>
-        </div>
-      </div>
-
-      <div class="spinner-layer spinner-red">
-        <div class="circle-clipper left">
-          <div class="circle"></div>
-        </div><div class="gap-patch">
-          <div class="circle"></div>
-        </div><div class="circle-clipper right">
-          <div class="circle"></div>
-        </div>
-      </div>
-
-      <div class="spinner-layer spinner-yellow">
-        <div class="circle-clipper left">
-          <div class="circle"></div>
-        </div><div class="gap-patch">
-          <div class="circle"></div>
-        </div><div class="circle-clipper right">
-          <div class="circle"></div>
-        </div>
-      </div>
-
-      <div class="spinner-layer spinner-green">
-        <div class="circle-clipper left">
-          <div class="circle"></div>
-        </div><div class="gap-patch">
-          <div class="circle"></div>
-        </div><div class="circle-clipper right">
-          <div class="circle"></div>
-        </div>
-      </div>
-    </div>
-</div>
 
 </body>
 
