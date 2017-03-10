@@ -8,9 +8,11 @@ from bs4 import BeautifulSoup
 from PIL import Image
 from urllib.parse import urlparse, urlencode
 import datetime, pytz
+from django.utils.encoding import uri_to_iri, iri_to_uri
 from urllib.request import urlopen, Request
-from blog.functions import (srcsets, srcsetThumb,
-                            sidebarThumbnail, stripMediaFromPath)
+from blog.functions import (srcsets, srcsetThumb, saveImage,
+                            stripMediaFromPath,
+                           findLink, findFile)
 from django.core.cache import cache
 from channels import Group
 from myblog.celery import app
@@ -278,18 +280,17 @@ def addPost(post_id, tag_list, moderated):
         data.image_url = ""
 
     if data.post_image:
-
-        post_image_file = sidebarThumbnail(data.post_image.path, data.id)
-        data.post_thumbnail = stripMediaFromPath(post_image_file)
-
         data.main_image_srcset = srcsetThumb(data.post_image, post_id=data.id)
         # change post_image link to webm
         if not BeautifulSoup(data.main_image_srcset, "html5lib").video == None:
             post_image_file = BeautifulSoup(data.main_image_srcset, "html5lib")\
                                         .video.source['src']
         else:
-            post_image_file = BeautifulSoup(data.main_image_srcset, "html5lib")\
-                                        .img['src']
+            soup = BeautifulSoup(data.main_image_srcset, "html5lib")\
+                    .img['src']
+            link = findLink(iri_to_uri(soup))
+            file = uri_to_iri(findFile(link))
+            post_image_file = saveImage(link, file, 150, h=150)
         data.post_image = stripMediaFromPath(post_image_file)
 
     if not moderated:

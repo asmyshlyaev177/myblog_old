@@ -55,7 +55,7 @@ def findFile(link):
         return ""
 
 
-def sidebarThumbnail(file_link, post_id):
+"""def sidebarThumbnail(file_link, post_id):
     ext = file_link.split('.')[-1].lower()
     link = findLink(iri_to_uri(file_link))
     file = uri_to_iri(findFile(link))
@@ -63,7 +63,7 @@ def sidebarThumbnail(file_link, post_id):
         file_out = uri_to_iri("/root/myblog/myblog/blog/static/media/{}/{}/{}/{}-{}-thumb.webm"\
                     .format(link.group("year"), link.group("month"),
                         link.group("day"), link.group("file"), str(post_id)))
-        file_out_gif = uri_to_iri("/tmp{}-{}-thumb.gif"\
+        file_out_gif = uri_to_iri("/tmp/{}-{}-thumb.gif"\
                     .format(link.group("file"), str(post_id)))
         link_out = uri_to_iri('/media/{}/{}/{}/{}-{}-thumb.webm'\
                 .format(link.group("year"), link.group("month"),
@@ -71,12 +71,12 @@ def sidebarThumbnail(file_link, post_id):
         resize_gif(file, save_as=file_out_gif, resize_to=(150,150))
         clip = VideoFileClip(file_out_gif)
         video = CompositeVideoClip([clip])
-        video.write_videofile(file_out, codec='libvpx',
+        video.write_videofile(file_out, codec='libvpx', fps=10,
                                             audio=False, preset='superslow')
         os.remove(file_out_gif)
         return link_out
     else:
-        return saveImage(link, file, 150, h=150)
+        return saveImage(link, file, 150, h=150)"""
 
 
 
@@ -338,7 +338,7 @@ def extract_and_resize_frames(path, resize_to=None):
 
 def stripMediaFromPath(file):
     """
-    Strip media/ from file's path
+    Strip "media/" from file's path
     """
     path = file.split(os.sep)[2:]
     new_path=""

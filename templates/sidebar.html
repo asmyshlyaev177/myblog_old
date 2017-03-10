@@ -15,14 +15,14 @@
 
     <div class="row valign-wrapper">
       <div class="col m5 l5 valign">
-        {% if gpost.post_thumbnail %}
+        {% if gpost.post_image %}
         <div class="post-thumbnail-small">
             {% if gpost.post_image_ext in "jpegjpggifbmppng" %}
                 <img class="responsive-img post-image"
-                src="/media/{{gpost.post_thumbnail}}" />
+                src="/media/{{gpost.post_image}}" />
             {% elif gpost.post_image_ext in "webm" %}
                 <video autoplay="" loop="" style="max-width: 150px;">
-                 <source src="/media/{{gpost.post_thumbnail}}" type="video/webm">
+                 <source src="/media/{{gpost.post_image}}" type="video/webm">
                 </video>
             {% endif %}
 
