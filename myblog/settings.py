@@ -151,7 +151,7 @@ INSTALLED_APPS = [
     'blog',
     'froala_editor',
     'compressor',
-    'django_cleanup',
+    #'django_cleanup',
     'django_extensions',
     'mptt',
     'channels',

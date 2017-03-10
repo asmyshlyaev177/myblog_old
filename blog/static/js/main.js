@@ -234,26 +234,12 @@ function getCookie(name) {
     return cookieValue;
 }
 
-// есть webm так что не нужно
-function GifPlay() {
-	$(document).on('click', '.gif', function() {
-		img = $(this).parent().children("img");
-		span = $(this).children(".play");
-		src = img.attr('src');
-		dataalt = img.attr('dataalt');
-		img.attr('src', dataalt);
-		img.attr('dataalt', src);
-		span.toggle();
-		return false;
-	});
-}
-
 function Scroll() {
  $(document).scroll( function() {
   if (processing){
 	  return false;
   }
-  if ( $(document).scrollTop() > ( ($(document).height() - $(window).height())-300  )) {
+  if ( $(document).scrollTop() > ( ($(document).height() - $(window).height())-400  )) {
 	  processing = true; //prevent multiple scrolls once first is hit
 	  if ( $( "#last_page" ).length == 0 ) {
 			loader.css('top', '39%').css('left', '45%').show();

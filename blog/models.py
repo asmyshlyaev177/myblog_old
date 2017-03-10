@@ -276,23 +276,22 @@ class Post(models.Model):
             cache.set(cache_str, count, 120)
         return count
 
-    def post_image_gif(self):
+    def post_image_ext(self):
         if self.post_image:
             ext = []
-            ext = self.post_image.path.split('.')
-            if ext[-1] == "gif" or ext[-1] == "webm":
-                return True
-            else:
-                return False
+            ext = self.post_image.path.split('.')[-1]
+            return ext
         else:
             return False
 
     post_image.short_description = 'Image'
-    post_thumbnail = ImageSpecField(source='post_image',
-                                processors=[ResizeToFit(150, 150)],
-                                format='JPEG',
-                                options={'quality': 85})
-    #post_thumbnail = models.ImageField(upload_to=upload_path, blank=True)
+    #post_thumbnail = ImageSpecField(source='post_image',
+    #                            processors=[ResizeToFit(150, 150)],
+    #                            format='JPEG',
+    #                            options={'quality': 85})
+    post_thumbnail = models.ImageField(upload_to=upload_path,
+                                       blank=True, null=True,
+                                      max_length=500)
 
     def get_image(self):
         return mark_safe('<img src="%s" class ="responsive-img center-align"/>'
