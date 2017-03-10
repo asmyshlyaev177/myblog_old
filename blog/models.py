@@ -240,7 +240,7 @@ class Post(models.Model):
     ["id", "author", "category", "tags", "rating",
         "published", "private", "status", "main_tag"],
     ]
-    title = models.CharField("Заголовок", max_length=100)
+    title = models.CharField("Заголовок", max_length=150)
     # description = RichTextField(max_length = 500, config_name = "description",
     #                            blank=True)
     private = models.BooleanField('NSFW', default=False)
@@ -261,9 +261,11 @@ class Post(models.Model):
     today = datetime.date.today()
     upload_path = str(today.year) + '/' + str(today.month)\
                                 + '/' + str(today.day) + '/'
-    post_image = models.ImageField(upload_to=upload_path, blank=True, null=True)
+    post_image = models.ImageField(upload_to=upload_path, blank=True,
+                                   null=True, max_length=400)
     image_url = models.URLField(null=True, blank=True, max_length=1000)
-    main_image_srcset = models.TextField(null=True, blank=True)
+    main_image_srcset = models.TextField(null=True, blank=True,
+                                        max_length=800)
 
     def get_comments_count(self):
         cache_str = "count_comments_" + str(self.id)

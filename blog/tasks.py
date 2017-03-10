@@ -278,7 +278,14 @@ def addPost(post_id, tag_list, moderated):
 
     if data.post_image:
         data.main_image_srcset = srcsetThumb(data.post_image, post_id=post_id)
-        #data.post_image.delete()
+        # change post_image link to webm
+        post_image_file = BeautifulSoup(data.main_image_srcset, "html5lib")\
+                                                        .video.source['src']
+        path = post_image_file.split(os.sep)[2:]
+        new_path=""
+        for i in path:
+            new_path = os.path.join(new_path, i)
+        data.post_image = new_path
 
     if not moderated:
         data.status = "P"

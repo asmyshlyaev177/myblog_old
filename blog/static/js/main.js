@@ -63,13 +63,15 @@ function Comments() {
 	$(document).ready(function(){
 	postid = parseInt( $(".post_header").attr("postid") );
 	link = "/comments/" + postid + "/"
-	$.ajax({
-		  type: "GET",
-		  cache : false,
-		  url: link,
-        success:function(data){
-		 $(data).appendTo( $("#Comments_title") );
-        }
+        $.ajax({
+          type: "GET",
+          cache : false,
+          url: link,
+          async: false,
+          timeout: 5000,
+        success: function(data){
+         $(data).appendTo( $("#Comments_title") );
+        },
         });
 	 });
 }
@@ -96,6 +98,7 @@ function AddCommentBtn() {
 		  cache : false,
 		  data: $(form).serialize(),
 		  url: link,
+          timeout: 5000,
       success:function(data){
 			form.hide();
         }
@@ -196,17 +199,14 @@ function rate() {
 	      type:"POST",
 		  //cache : false,
 	      url: r_url,
-				success:function(data){
-					if (data == "no votes") {
-						votes = false;
-						disableRate();
-						console.log(data);
-					}
-					else {
-						//$(vote_btn).animate({opacity: "toggle"}, 300)
-						//.animate({opacity: "toggle"}, 200);
-					}
-				}
+          timeout: 5000,
+            success:function(data){
+                if (data == "no votes") {
+                    votes = false;
+                    disableRate();
+                    console.log(data);
+                }
+            }
 	     });
 	return false;
 	})
@@ -270,6 +270,7 @@ function loadMore(){
       type:"GET",
 		  //cache : false,
       url:myurl+"?page="+page,
+      timeout: 5000,
       success:function(data){
          if ( data != 'last_page') {
              $('.content').append(data); //adds data to the end of the table
@@ -395,6 +396,7 @@ function ChangePageNew( link ) {
 	      type:"GET",
 			  //cache : false,
 			  url: link,
+              timeout: 5000,
 	      success:function(data){
                 content.fadeTo(0, 1);
                 disableRate();
@@ -422,6 +424,7 @@ function ChangePageNew( link ) {
               type:"GET",
                   //cache : false,
                   url: sidebarUrl,
+                  timeout: 5000,
                    success:function(data){
                     $(data).replaceAll(".sidebar-inner");
                    }
