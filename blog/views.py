@@ -42,7 +42,7 @@ def get_good_posts(category=None, private=None):
                 .filter(rating__gte=0)\
                 .order_by("-rating")\
                 .prefetch_related("tags", "category", "author", "main_tag")\
-                .only("id", "title", "description", "url", "category",
+                .only("id", "title", "description", "url", "category", "post_image",
                         "main_tag", "main_image_srcset", "rating", "created")
         if category:
             posts = posts.filter(category__slug=category)
@@ -242,7 +242,8 @@ def edit_post(request, postid):
                     have_new_tags = False
                     data.save()
                     post_id = data.id
-                    addPost.delay(post_id, tag_list, moderated)
+                    group = "edit-post-" + str(post_id)
+                    addPost.apply_async(args=[post_id, tag_list, moderated], kwargs={'group': group}, countdown=12)
 
                     return render(request, 'added-post.html',
                                   {'title': title,

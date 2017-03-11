@@ -29,14 +29,27 @@ oneCol();
 <p>{{ form.post_image.label_tag }}</p>
 
 {% if post.post_image %}
-<p>
-    <img src="{{ post.post_image.url }}"
-    id = "preview" class="responsive-img post-image">
-</p>
-{% else %}
-<p>
-  <img id="preview" />
-</p>
+    <video autoplay="" controls="" loop="" style="display: none!important;
+        max-height: 300px;" id = "preview-template-webm">
+        <source src="" type="video/webm">
+    </video>
+    <img src="" style="display: none;"
+    id = "preview-template" class="responsive-img">
+
+    <p class="center">
+        {% if post.post_thumb_ext == "webm" %}
+            <video autoplay="" controls="" loop="" style="max-height: 300px;" id = "preview">
+            <source src="{{post.post_image.url}}" type="video/webm">
+            </video>
+        {% else %}
+            <img src="{{ post.post_image.url }}"
+            id = "preview" class="responsive-img post-image">
+        {% endif %}
+    </p>
+    {% else %}
+    <p>
+      <img id="preview" />
+    </p>
 {% endif %}
 
 <div class="row">
@@ -212,6 +225,7 @@ border-color: #84c7c1;
 
 <div style="height: 100px"></div>
 <script>
+processing = true;
 $(document).ready(function(){
   $post_image_url = $('#id_image_url');
   $preview = $('#preview');

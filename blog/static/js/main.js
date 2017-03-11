@@ -479,11 +479,11 @@ function checkUserAuth() {
 
 function wsConnect() {
 	if ( $(".socket").length > 0 && userAuth ) {
+        var socket_path = "ws://" + window.location.host + '/ws/';
+        socket_path += decodeURIComponent(window.location.pathname).split('/').filter(Boolean).slice(-1)[0];
 
 		var socket = new ReconnectingWebSocket(
-			"ws://" + window.location.host + '/ws/' +
-			decodeURIComponent(window.location.pathname).split('/').filter(Boolean).slice(-1)[0], null,
-			{maxReconnectInterval: 2000, maxReconnectAttempts: 10});
+			socket_path, null, {maxReconnectInterval: 2000, maxReconnectAttempts: 10});
 
 		socket.onmessage = function(e) {
 
@@ -491,8 +491,11 @@ function wsConnect() {
 				if ( elem['comment'] ) {
 					cloneComment(elem);
 				} else if (elem['post'] ) {
+                    postId = socket_path.split('-').filter(Boolean).slice(-1)[0];
                     //console.log(elem);
-                    if ( parseInt($("#user_auth").attr('user')) == parseInt(elem['author']) ) {
+                    if ( parseInt($("#user_auth").attr('user')) == parseInt(elem['author']) ||
+                       ( socket_path != "ws://192.168.1.70/ws/add-post" &&
+                                String(elem['id']) == String(postId)) )  {
                         $("#post-link").attr('href', elem['url']);
                         $("#post-link").attr('url', elem['url'].slice(1));
                         $("#post-adding").hide();
@@ -557,8 +560,17 @@ function HideHint() {
 }
 
 function Preview( files, el_id, height ) {
-	preview = document.getElementById(el_id)
-	preview.src = window.URL.createObjectURL(files);
+    if ( files['name'].split('.').slice(-1)[0] == "webm" ) {
+        var preview = $("#preview-template-webm").clone();
+        preview.children().attr('src', window.URL.createObjectURL(files));
+    } else {
+        var preview = $("#preview-template").clone();
+        preview.attr('src', window.URL.createObjectURL(files));
+    }
+
+    preview.attr('id', 'preview');
+    preview.attr('style', 'max-height: 300px;');
+    $("#preview").replaceWith(preview);
 	preview.height = height;
   }
 

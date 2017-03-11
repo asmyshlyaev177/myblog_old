@@ -2,7 +2,6 @@
 from django.db import models
 from django.contrib.auth.models import (AbstractBaseUser,
                                         BaseUserManager, PermissionsMixin)
-#from slugify import slugify   #####can't install
 from django.utils.text import slugify
 
 from django.utils import timezone
@@ -10,29 +9,22 @@ import datetime, re, os, datetime
 from time import gmtime, strftime
 from imagekit.models import ImageSpecField, ProcessedImageField
 from imagekit.processors import ResizeToFit
-# from imagekit import ImageSpec, register
 from django.utils.safestring import mark_safe
 from django.dispatch import receiver
 from django.conf import settings
 from bs4 import BeautifulSoup
 from PIL import Image
-# from unidecode import unidecode
 from urllib.parse import urlparse, urlencode
 from urllib.request import urlopen, urlretrieve, Request
-from blog.functions import (srcsets, findFile, findLink,
-                            srcsetThumb, deleteThumb)
 from django.conf import settings
-from blog.functions import findLink, findFile, saveImage, srcsets
 from froala_editor.fields import FroalaField
 from django.utils.encoding import uri_to_iri, iri_to_uri
 from django.core.cache import cache
-# import mptt
-# from mptt.fields import TreeForeignKey
 from mptt.models import MPTTModel, TreeForeignKey
 from django.contrib.auth.models import Group
-# import socket #timeout just for test
-# socket.setdefaulttimeout(10)
 from celery import Celery
+from blog.functions import (srcsets, findFile, findLink, saveImage,
+                            srcsetThumb, deleteThumb, validate_post_image)
 
 app = Celery('tasks', broker='pyamqp://guest@localhost//')
 
@@ -261,8 +253,9 @@ class Post(models.Model):
     today = datetime.date.today()
     upload_path = str(today.year) + '/' + str(today.month)\
                                 + '/' + str(today.day) + '/'
-    post_image = models.ImageField(upload_to=upload_path, blank=True,
-                                   null=True, max_length=400)
+    post_image = models.FileField(upload_to=upload_path, blank=True,
+                                   null=True, max_length=500,
+                                  validators=[validate_post_image])
     image_url = models.URLField(null=True, blank=True, max_length=1000)
     main_image_srcset = models.TextField(null=True, blank=True,
                                         max_length=800)
@@ -276,10 +269,10 @@ class Post(models.Model):
             cache.set(cache_str, count, 120)
         return count
 
-    def post_image_ext(self):
-        if self.post_image:
+    def post_thumb_ext(self):
+        if self.post_thumbnail:
             ext = []
-            ext = self.post_image.path.split('.')[-1]
+            ext = self.post_thumbnail.path.split('.')[-1]
             return ext
         else:
             return False

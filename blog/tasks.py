@@ -193,7 +193,7 @@ def commentImage(comment_id):
 
 
 @app.task(name="addPost")
-def addPost(post_id, tag_list, moderated):
+def addPost(post_id, tag_list, moderated, group=None):
     data = Post.objects.select_related().prefetch_related().get(id=post_id)
     nsfw = data.private
     have_new_tags = False
@@ -285,13 +285,14 @@ def addPost(post_id, tag_list, moderated):
         if not BeautifulSoup(data.main_image_srcset, "html5lib").video == None:
             post_image_file = BeautifulSoup(data.main_image_srcset, "html5lib")\
                                         .video.source['src']
+            data.post_image = stripMediaFromPath(post_image_file)
         else:
             soup = BeautifulSoup(data.main_image_srcset, "html5lib")\
                     .img['src']
             link = findLink(iri_to_uri(soup))
             file = uri_to_iri(findFile(link))
             post_image_file = saveImage(link, file, 150, h=150)
-        data.post_image = stripMediaFromPath(post_image_file)
+        data.post_thumbnail = stripMediaFromPath(post_image_file)
 
     if not moderated:
         data.status = "P"
@@ -301,13 +302,19 @@ def addPost(post_id, tag_list, moderated):
     post['title'] = data.title
     post['url'] = data.get_absolute_url()
     post['author'] = data.author.id
+    post['id'] = data.id
     post['post'] = 1
 
-    group = "add-post"
+    if not group:
+        group = "add-post"
     Group(group).send({
         "text": json.dumps(post) })
 
-    cache_str = "*page_" + str(data.category) + "*"
-    cache.delete_pattern(cache_str)
-    cache_str = "*post_single_" + str(data.id)
-    cache.delete(cache_str)
+    cache_str = ["page_" + str(data.category) + "*",
+                 "page_None*",
+                "good_posts_" + str(data.category) + "_*",
+                 "good_posts_None_*",
+                 "post_single_" + str(data.id)
+                ]
+    for i in cache_str:
+        cache.delete_pattern(i)
