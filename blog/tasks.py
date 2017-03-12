@@ -111,6 +111,8 @@ def CalcRating():
     comments = Comment.objects.filter(id__in=(comments_rates))
     for i in comments_rates:  # update rating on comments
         com = comments.get(id=i)
+        cache_str = "comment_" + str(com.post.id)
+        cache.delete(cache_str)
         com.rating += comments_rates[i]['rate']
         com.save()
 
@@ -136,6 +138,10 @@ def CalcRating():
         post.author.rating += posts_rates[i]['rate'] / 30
         post.save()
         post.author.save()
+    cache_str = "page_" + str(post.category.slug) + "_*"
+    cache.delete_pattern(cache_str)
+    cache.delete_pattern("page_None_*")
+    cache.delete_pattern("good_posts_*")
 
 
 @app.task(name="commentImage")
@@ -162,6 +168,8 @@ def commentImage(comment_id):
     data.save()
 
     cache_str = "comment_" + str(data.post.id)
+    cache.delete(cache_str)
+    cache_str= "count_comments_" + str(data.post.id)
     cache.delete(cache_str)
 
     c = {}
@@ -310,11 +318,11 @@ def addPost(post_id, tag_list, moderated, group=None):
     Group(group).send({
         "text": json.dumps(post) })
 
-    cache_str = ["page_" + str(data.category) + "*",
-                 "page_None*",
-                "good_posts_" + str(data.category) + "_*",
-                 "good_posts_None_*",
-                 "post_single_" + str(data.id)
+    cache_str = ["*page_" + str(data.category) + "*",
+                 "*page_None*",
+                "*good_posts_" + str(data.category) + "_*",
+                 "*good_posts_None_*",
+                 "*post_single_" + str(data.id)+"*"
                 ]
     for i in cache_str:
         cache.delete_pattern(i)

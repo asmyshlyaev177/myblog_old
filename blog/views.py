@@ -49,7 +49,7 @@ def get_good_posts(category=None, private=None):
         if not private:
             posts = posts.exclude(private=True)
         posts = posts[0:4]
-        cache.set(cache_str, posts, 3600)
+        cache.set(cache_str, posts, 7200)
     return posts
 
 
@@ -72,8 +72,8 @@ def get_cat_list():
     return cat_list
 
 
-@cache_page(3)
-@cache_control(max_age=3)
+@cache_page(3600)
+@cache_control(max_age=3600)
 @vary_on_headers('X-Requested-With', 'Cookie')
 def login(request, *args, **kwargs):
     if request.is_ajax():
@@ -85,8 +85,8 @@ def login(request, *args, **kwargs):
                                 extra_context={'cat_list': get_cat_list()})
 
 
-@cache_page(30)
-@cache_control(max_age=30)
+@cache_page(7200)
+@cache_control(max_age=7200)
 def comments(request, postid):
     cache_str = "comment_" + str(postid)
     if cache.ttl(cache_str):
@@ -94,7 +94,7 @@ def comments(request, postid):
     else:
         comments = Comment.objects.filter(post=postid)\
             .prefetch_related("author")
-        cache.set(cache_str, comments, timeout=3)
+        cache.set(cache_str, comments, timeout=7200)
 
     template = 'comments-ajax.html'
     return render(request, template,
@@ -138,8 +138,8 @@ def tags(request):
 
 
 @csrf_protect
-@cache_page(30)
-@cache_control(max_age=30)
+@cache_page(7200)
+@cache_control(max_age=7200)
 @vary_on_headers('X-Requested-With')
 def signup(request):
     if request.is_ajax():
@@ -264,8 +264,8 @@ def edit_post(request, postid):
 
 
 @login_required(redirect_field_name='next', login_url='/login')
-@cache_page(30)
-@cache_control(max_age=30)
+@cache_page(3)
+@cache_control(max_age=3)
 @vary_on_headers('X-Requested-With')
 def add_post(request):
     if request.is_ajax():
@@ -377,7 +377,7 @@ def list(request, category=None, tag=None, pop=None):
             posts = paginator.page(1).object_list
         except EmptyPage:
             posts = None
-        cache.set(cache_str, posts, 180)
+        cache.set(cache_str, posts, 7200)
     good_posts = get_good_posts(category=category, private=user_known)
 
     context['good_posts'] = good_posts
@@ -417,7 +417,7 @@ def single_post(request, tag, title, id):
         post = Post.objects\
             .prefetch_related("tags", "category", "author", "main_tag")\
             .get(pk=id)
-        cache.set(cache_str, post, 1800)
+        cache.set(cache_str, post, 7200)
 
     if post.private and not request.user.is_authenticated:
         return HttpResponseNotFound()
@@ -443,8 +443,8 @@ def single_post(request, tag, title, id):
     return render(request, template, context)
 
 
-@cache_page(30)
-@cache_control(max_age=30)
+@cache_page(7200)
+@cache_control(max_age=7200)
 @vary_on_headers('X-Requested-With')
 def password_change(request, *args, **kwargs):
     if request.is_ajax():

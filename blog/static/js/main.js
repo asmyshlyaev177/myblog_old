@@ -1,3 +1,5 @@
+"use strict";
+
 var processing = false;
 var amountScrolled = 500;
 var page = 1;
@@ -52,7 +54,7 @@ function userMenu() {
 }
 
 function hideBanner() {
-  froalaBanner = $('a[href="https://froala.com/wysiwyg-editor"');
+  var froalaBanner = $('a[href="https://froala.com/wysiwyg-editor"');
   froalaBanner.hide();
   $('body').bind("DOMSubtreeModified",function(){
       $('a[href="https://froala.com/wysiwyg-editor"').hide();
@@ -61,8 +63,8 @@ function hideBanner() {
 
 function Comments() {
 	$(document).ready(function(){
-	postid = parseInt( $(".post_header").attr("postid") );
-	link = "/comments/" + postid + "/"
+	var postid = parseInt( $(".post_header").attr("postid") );
+	var link = "/comments/" + postid + "/"
         $.ajax({
           type: "GET",
           cache : false,
@@ -117,7 +119,7 @@ function ReplyBtn() {
 	var btn = $(this);
 	var comment = $(btn).parents("div.comment");
   $("#comment-form-sample").attr("id", "comment-form");
-	form = $("#comment-form").detach();
+	var form = $("#comment-form").detach();
 	form.attr("comment_id", $(comment).attr("comment_id")) ;
   $(".fr-view").html("");
 	//form.appendTo(comment);
@@ -181,19 +183,19 @@ function rate() {
 		return false;
 	 }
 
-	vote_btn = this;
+	var vote_btn = this;
 	var el_type = "";
 	if ( $(vote_btn).parent().is("[comment]") ) {
 		el_type = "comment";
-		id = $(vote_btn).parent().attr('comment');
+		var id = $(vote_btn).parent().attr('comment');
 	} else {
 		el_type = "post";
-		id = $(vote_btn).parent().attr('post');
+		var id = $(vote_btn).parent().attr('post');
 	}
 
-	rate = $(vote_btn).attr('rate');
-	r_url = "/rate/" + el_type +"/"+id+"-rate-"+rate;
-	csrf = getCookie('csrftoken');
+	var rate = $(vote_btn).attr('rate');
+	var r_url = "/rate/" + el_type +"/"+id+"-rate-"+rate;
+	var csrf = getCookie('csrftoken');
 	$.ajax({
 		  headers: {'X-CSRFToken': csrf},
 	      type:"POST",
@@ -298,8 +300,8 @@ function ClickAjaxMenu() {
 	$(document).on('click', '.ajax-menu', function() {
 	$(".menu").removeClass('active');
 	$(this).addClass('active');
-	pop = "";
-	ajax_menu = $(this);
+	var pop = "";
+	var ajax_menu = $(this);
 	if ( ajax_menu.is('[single_page]' ) ) { // if it is menu don't load on scroll
 		single_page = true;
 	} else { // if it is list page load on scroll
@@ -343,12 +345,12 @@ function ClickAjaxMenu() {
 	//Change Page
 	if ( pop ) {
 		if ( myurl == "/" ) {
-			url = myurl + pop;
+			var url = myurl + pop;
 		} else {
-			url = myurl + '/' + pop;
+			var url = myurl + '/' + pop;
 		}
 	} else {
-		url = myurl;
+		var url = myurl;
 	}
         loader.css('top', '39%').css('left', '45%').show();
 		window.history.pushState({state:'new'}, "",  url);
@@ -369,10 +371,10 @@ function twoCol() {
 }
 
 function ChangePageNew( link ) {
-		content = $(".content")
+		var content = $(".content");
 		content.fadeTo(0, 0.1);
 		//try {
-			for ( socket in sockets ) {
+			for ( var socket in sockets ) {
 				sockets[socket].close();
 				delete sockets[socket];
 			}
@@ -389,7 +391,7 @@ function ChangePageNew( link ) {
                 $("#login-link").attr("href", "/login?next=" + window.location.pathname);
                 $("#logout-link").attr("href", "/logout?next=" + window.location.pathname);
                 if ( one_col ) { oneCol(); } else { twoCol(); }
-                data2 = ('<div class="content">' + data + '</div>');
+                var data2 = ('<div class="content">' + data + '</div>');
                 $(data2).replaceAll('.content');
                 processingCheck();
                 wsConnect();
@@ -421,8 +423,8 @@ function ChangePageNew( link ) {
 
 	 	if ( shortLink != "" && single_page == false) {
 					link = link.split('/');
-					pop = link.pop();
-					cat = link.pop();
+					var pop = link.pop();
+					var cat = link.pop();
 					if ( pop == "pop-all" || pop == "pop-best") {
 									$('.menu').filter( $('#'+pop ) ).parent().addClass('active');
 									$('.menu').filter( $('#'+cat ) ).parent().addClass('active');
@@ -445,11 +447,12 @@ function cloneComment( data ) {
 			com.find('.comment_user_avatar').children().attr('src', '/static' + comment['avatar']);
 			com.find('.comment_username').html( comment['author'] );
 			com.find('.comment-date').html( comment['created'] );
-
+    var last_child = "";
+    var parent = "";
 	if ( parseInt(comment['level']) > 0 ) {
 		var p_str = "[comment_id="+parseInt(comment['parent']) +"]" ;
-		var parent = $( p_str );
-		var last_child = $("[parent="+parseInt(comment['parent']) +"]").last();
+		parent = $( p_str );
+		last_child = $("[parent="+parseInt(comment['parent']) +"]").last();
 	} else {
 		$(".comments").append( com );
 		com.wrap('<ul><li></li></ul>');
@@ -491,7 +494,7 @@ function wsConnect() {
 				if ( elem['comment'] ) {
 					cloneComment(elem);
 				} else if (elem['post'] ) {
-                    postId = socket_path.split('-').filter(Boolean).slice(-1)[0];
+                    var postId = socket_path.split('-').filter(Boolean).slice(-1)[0];
                     //console.log(elem);
                     if ( parseInt($("#user_auth").attr('user')) == parseInt(elem['author']) ||
                        ( socket_path != "ws://192.168.1.70/ws/add-post" &&
@@ -519,7 +522,7 @@ function wsConnect() {
 
 function BackForwardButtons() {
 	window.onpopstate = function(event) {
-		url = document.location.pathname;
+		var url = document.location.pathname;
         myurl = "";
         one_col = false;
 	  ChangePageNew(url);
@@ -559,19 +562,29 @@ function HideHint() {
   $('.tt-menu').hide();
 }
 
-function Preview( files, el_id, height ) {
-    if ( files['name'].split('.').slice(-1)[0] == "webm" ) {
-        var preview = $("#preview-template-webm").clone();
-        preview.children().attr('src', window.URL.createObjectURL(files));
-    } else {
-        var preview = $("#preview-template").clone();
-        preview.attr('src', window.URL.createObjectURL(files));
+function Preview( files, el_id, url ) {
+    if ( files ) {
+        if ( files['name'].split('.').slice(-1)[0] == "webm" ) {
+            var preview = $("#preview-template-webm").clone();
+            preview.children().attr('src', window.URL.createObjectURL(files));
+        } else {
+            var preview = $("#preview-template").clone();
+            preview.attr('src', window.URL.createObjectURL(files));
+        }
+    } else if ( url ) {
+        if ( url.split('.').slice(-1)[0] == "webm" ) {
+            var preview = $("#preview-template-webm").clone();
+            preview.children().attr('src', $("#id_image_url").val());
+        } else {
+            var preview = $("#preview-template").clone();
+            preview.attr('src', $("#id_image_url").val());
+        }
     }
+
 
     preview.attr('id', 'preview');
     preview.attr('style', 'max-height: 300px;');
     $("#preview").replaceWith(preview);
-	preview.height = height;
   }
 
 

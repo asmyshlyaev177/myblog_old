@@ -129,20 +129,25 @@ class myUser(AbstractBaseUser, PermissionsMixin):
     def is_moderator(self, obj):
         result = False
         #obj = Post.objects.get(id=obj)
-        if type(obj) == Post:
-            post = obj
-            #user = myUser.objects.select_related().prefetch_related()\
-            #                                        .get(id=user.id)
-            user = self
-            post_tags = set(tag for tag in post.tags.values_list('id', flat=True))
-            user_moder_tags = \
-            set(t for t in user.moder_tags.values_list('id', flat=True))
+        cache_str = "is_moderator_" + str(self.id) + "_" + str(obj)
+        if cache.ttl(cache_str):
+            result = cache.get(cache_str)
+        else:
+            if type(obj) == Post:
+                post = obj
+                #user = myUser.objects.select_related().prefetch_related()\
+                #                                        .get(id=user.id)
+                user = self
+                post_tags = set(tag for tag in post.tags.values_list('id', flat=True))
+                user_moder_tags = \
+                set(t for t in user.moder_tags.values_list('id', flat=True))
 
-            if len(post_tags & user_moder_tags) > 0\
-                    or post.category.id in \
-                    user.moder_cat.values_list('id', flat=True)\
-                    or user.is_superuser:
-                result = True
+                if len(post_tags & user_moder_tags) > 0\
+                        or post.category.id in \
+                        user.moder_cat.values_list('id', flat=True)\
+                        or user.is_superuser:
+                    result = True
+            cache.set(cache_str, result, timeout=900)
         return result
 
     #def has_perm(self, perm, obj=None):
@@ -219,12 +224,6 @@ class UserVotes(models.Model):
     user = models.ForeignKey('myUser', db_index=True)
 
 
-"""class Thumbnail(ImageSpec):
-    processors = [ResizeToFit(800, 600)]
-    format = 'JPEG'
-    options = {'quality': 100}
-
-register.generator('blog:thumbnail', Thumbnail) """
 
 
 class Post(models.Model):
@@ -266,7 +265,7 @@ class Post(models.Model):
             count = cache.get(cache_str)
         else:
             count = self.comment_set.count()
-            cache.set(cache_str, count, 120)
+            cache.set(cache_str, count, 7200)
         return count
 
     def post_thumb_ext(self):

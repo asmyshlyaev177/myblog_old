@@ -28,27 +28,27 @@ oneCol();
 
 <p>{{ form.post_image.label_tag }}</p>
 
-{% if post.post_image %}
     <video autoplay="" controls="" loop="" style="display: none!important;
         max-height: 300px;" id = "preview-template-webm">
         <source src="" type="video/webm">
     </video>
-    <img src="" style="display: none;"
+    <img src="" style="display: none; max-height: 300px;"
     id = "preview-template" class="responsive-img">
 
+{% if post.post_image %}
     <p class="center">
         {% if post.post_thumb_ext == "webm" %}
             <video autoplay="" controls="" loop="" style="max-height: 300px;" id = "preview">
             <source src="{{post.post_image.url}}" type="video/webm">
             </video>
         {% else %}
-            <img src="{{ post.post_image.url }}"
-            id = "preview" class="responsive-img post-image">
+            <img src="{{ post.post_image.url }}" style="max-height: 300px;"
+            id = "preview" class="responsive-img">
         {% endif %}
     </p>
     {% else %}
     <p>
-      <img id="preview" />
+      <img id="preview" class="responsive-img"/>
     </p>
 {% endif %}
 
@@ -65,7 +65,7 @@ oneCol();
     <div class="btn">
           <span>File</span>
       <input id="id_post_image" name="post_image" type="file"
-      onchange="Preview(this.files[0], 'preview', 300); $('#id_image_url').val(null)">
+      onchange="Preview(this.files[0], 'preview', null); $('#id_image_url').val(null)">
     </div>
     <input class="file-path validate" type="text">
   </div>
@@ -80,7 +80,7 @@ oneCol();
         <span>URL</span>
   </div>
   <input id="id_image_url" maxlength="490" name="image_url" type="text"
-  onfocusout="ClearInput('id_post_image')">
+  onchange="Preview(null, 'preview', this.value); $('.file-path.validate.valid').val(null);">
 </div>
 
 <div class="input-field">
@@ -227,32 +227,16 @@ border-color: #84c7c1;
 <script>
 processing = true;
 $(document).ready(function(){
-  $post_image_url = $('#id_image_url');
-  $preview = $('#preview');
+  post_image_url = $('#id_image_url');
+  preview = $('#preview');
 
 	SelectHint();
 
   $('select').material_select();
 
-  $('#id_image_url').on('click', function() {
-    ClearInput('id_post_image');
-  });
   $('ul.tabs').tabs();
 });
 
-
-
-
-
-function ClearInput(id) {
-  $preview.attr( 'src', '' );
-  $preview.attr( 'src', $post_image_url.val() );
-   if ( $post_image_url.val().length > 8 ) {
-    $('#' +id).val(null);
-    $('.file-path.validate.valid').val(null);
-  }
-
-}
 
 var tagging_options = {
   "no-duplicate": true,

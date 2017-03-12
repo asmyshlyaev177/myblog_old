@@ -1,6 +1,6 @@
 {% extends "index.html" %}
 {% load cache %}
-{% cache 1800 single request.user.is_anonymous request.path %}
+{% cache 7200 single request.user.is_anonymous request.path %}
 
 {% block title %}{{ post.title }}{% endblock %}
 

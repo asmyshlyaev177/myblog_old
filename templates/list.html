@@ -1,6 +1,6 @@
 {% extends "index.html" %}
 {% load cache %}
-{% cache 3 list request.user.is_anonymous request.path page %}
+{% cache 60 list request.user.is_anonymous request.path page %}
 
 {% block title %}My blog!{% endblock %}
 
