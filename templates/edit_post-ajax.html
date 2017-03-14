@@ -225,10 +225,10 @@ border-color: #84c7c1;
 
 <div style="height: 100px"></div>
 <script>
-processing = true;
+scrollProcessing = true;
 $(document).ready(function(){
-  post_image_url = $('#id_image_url');
-  preview = $('#preview');
+  var post_image_url = $('#id_image_url');
+  var preview = $('#preview');
 
 	SelectHint();
 
@@ -254,7 +254,7 @@ var tagging_options = {
 	"forbidden-words": [],
 };
 
-TagBox = $("#tagBox");
+var TagBox = $("#tagBox");
 TagBox.tagging( tagging_options);
 
 var taglist = new Bloodhound({
@@ -295,8 +295,6 @@ $(document).on('click', '.tt-suggestion', function() {
 
 $('html, body').scrollTop( 0 );
 $('#id_title').focus();
-
-$(".menu").removeClass('active').parent().removeClass('active');
 
 </script>
 </div>

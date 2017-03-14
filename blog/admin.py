@@ -23,7 +23,7 @@ class UserAdmin(BaseUserAdmin):
         (None, {'fields': ('username', 'get_avatar', 'avatar',
                            'email', 'is_active', 'moderated',
                            'is_staff', 'moderator',
-                           'moder_tags', 'moder_cat')}),
+                           'moderator_of_tags', 'moderator_of_categories')}),
     )
 
     #add_fieldsets = (

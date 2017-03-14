@@ -1,7 +1,7 @@
 from .models import myUser as User
 from django.conf import settings
 
-
+# Бэкэнды авторизации по логину и емайлу
 class UsernameAuthBackend(object):
     def authenticate(self, username=None, password=None):
         try:

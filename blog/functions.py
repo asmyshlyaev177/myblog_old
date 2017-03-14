@@ -8,18 +8,25 @@ from moviepy.editor import *
 src_szs = [480, 800, 1366, 1600, 1920]
 
 def validate_post_image(value):
-  ext = os.path.splitext(value.name)[1]
-  valid_extensions = ['.jpeg','.jpg','.bmp', '.png', '.tiff', '.gif', '.webm']
-  if not ext in valid_extensions:
+    """ 
+    Проверка что загружаемая картинка разрешенного типа
+    принимает аргументом ссылку или путь к файлу
+    """
+    ext = os.path.splitext(value.name)[1]
+    valid_extensions = ['.jpeg','.jpg','.bmp', '.png', '.tiff', '.gif', '.webm']
+    if not ext in valid_extensions:
     raise ValidationError(u'File not supported!')
 
 
 def deleteThumb(text):
-    # удаляем файлы картинок при удалении поста
+    """
+    удаляем картинки при удалении поста 
+    """
     img_links = re.findall\
         (r"/(?P<year>\d{4})/(?P<month>\d{1,2})/(?P<day>\d{1,2})/(?P<file>\S*)\
          -(?P<res>\d{3,4})\.(?P<ext>\S*)", str(text))
     img_path = []
+    # ищем полные пути до картинок
     for img in img_links:
         img_path.append(uri_to_iri('/root/myblog/myblog/blog/static/media/\
                                                 {}/{}/{}/{}{}.{}'
@@ -29,12 +36,16 @@ def deleteThumb(text):
                                                 {}/{}/{}/{}.{}'
                                    .format(img[0], img[1], img[2], img[3],
                                                                     img[5])))
-    for i in img_path:
-        if os.path.isfile(i):
-            os.remove(i)
+    for img in img_path:
+        if os.path.isfile(img):
+            os.remove(img)
 
 
 def srcsetThumb(data, post_id=None):
+    """ 
+    Конвертим картинки для главной страницы
+    Принимает ссылку на файл и отдаёт готовый html код
+    """
     thumb = BeautifulSoup("html5lib").new_tag("img")
     thumb['src'] = "/" + str(data)
     if post_id:
@@ -49,10 +60,16 @@ def srcsetThumb(data, post_id=None):
 
 
 def findLink(text):
+    """
+    Парсим ссылку на файл
+    """
     return re.search(r"/(?P<year>\d{4})/(?P<month>\d{1,2})/(?P<day>\d{1,2})/(?P<file>\S*)\.(?P<ext>\w*)", str(text))
 
 
 def findFile(link):
+    """
+    Парсим ссылку на файл и возвращаем полный путь до него
+    """
     if link:
         return '/root/myblog/myblog/blog/static/media/{}/{}/{}/{}.{}'\
             .format(link.group("year"), link.group("month"), link.group("day"),
@@ -62,6 +79,9 @@ def findFile(link):
 
 
 def saveImage(link, file, w, h=3500):
+    """
+    Сохраняем файл из ссылки, возвращает сслыку на картинку
+    """
 
     file_out = '/root/myblog/myblog/blog/static/media/{}/{}/{}/{}-{}.{}'\
                         .format(link.group("year"), link.group("month"),
@@ -81,30 +101,33 @@ def saveImage(link, file, w, h=3500):
 
 
 def srcsets(text, wrap_a, post_id=None):
-    """Make few srcsets"""
+    """
+    Создаём srcsetы из картинок
+    Принимает текст поста, оборачивать ли картинку в ссылку и опционально id поста
+    Возвращает готовый html код
+    """
     soup = BeautifulSoup(uri_to_iri(text), "html5lib")  # текст поста
 
-    img_links_raw = soup.find_all("img")  # ищем все картинки
-    #img_links_raw = soup.find_all(not_processed_imgs)
+    # ищем все картинки
+    img_links_raw = soup.find_all("img")  
     print("***************************")
     print('img_links_raw ', str(img_links_raw))
     img_links = []
-    for i in img_links_raw:  # фильтруем без srcset, ещё не обработанные
-        # i['class'].remove('fr-dii fr-draggable')
-        if not i.has_attr('srcset'):
-            img_links.append(i)
+    for img in img_links_raw:  # фильтруем без srcset, ещё не обработанные
+        if not img.has_attr('srcset'):
+            img_links.append(img)
 
     print("***************************")
     print('img_links ', str(img_links))
     if len(img_links) != 0:
-        for i in img_links:  # для каждой
+        for img in img_links:
             srcset = {}
             notgif = False
 
             # находим ссылку и файл и вых. файл
-            del i['style']  # удаляем стиль
+            del img['style']  # удаляем стиль
 
-            link = findLink(iri_to_uri(i))
+            link = findLink(iri_to_uri(img))
             print("***************************")
             print('link ', str(link))
             file = uri_to_iri(findFile(link))
@@ -121,9 +144,8 @@ def srcsets(text, wrap_a, post_id=None):
 
             if os.path.isfile(file):
 
-                i['class'] = 'responsive-img post-image'
-                # если картинка больше нужного размера создаём миниатюру
-                ext = i['src'].split('.')[-1].lower()
+                img['class'] = 'responsive-img post-image'
+                ext = img['src'].split('.')[-1].lower()
 
                 if ext == "gif" or ext == "webm":
                     notgif = False
@@ -134,15 +156,16 @@ def srcsets(text, wrap_a, post_id=None):
                     w, h = Image.open(file).size
 
                 if notgif:
+                    # если картинка больше нужного размера создаём миниатюру
                     for sz in reversed(src_szs):
                         if w > sz:
                             srcset[sz] = saveImage(link, file, sz)
 
                     if 1600 in srcset:
-                        alt = srcset[1366]   # дефолт
+                        alt = srcset[1366]   # дефолт img src
+                        # проверка пуст ли элемент
                         if 1920 not in srcset:
                             srcset[1920] = saveImage(link, file, 1920)
-                            # проверка пуст ли элемент
 
                     elif 1366 in srcset:
                         if 1600 not in srcset:
@@ -173,9 +196,9 @@ def srcsets(text, wrap_a, post_id=None):
                     src_str = src_str.rstrip(', ')
                     print("***************************")
                     print('src_str ', str(src_str))
-                    i['srcset'] = src_str
-                    i['src'] = alt
-                    i['sizes'] = "60vw"
+                    img['srcset'] = src_str
+                    img['src'] = alt
+                    img['sizes'] = "60vw"
 
                 else:  # конвертим гифки в webm
                     webm = BeautifulSoup("", "html5lib").new_tag("video")
@@ -203,20 +226,20 @@ def srcsets(text, wrap_a, post_id=None):
                         source['src'] = link_out
                     source['type'] = "video/webm"
                     webm.insert(0, source)
-                    i.replaceWith(webm)
+                    img.replaceWith(webm)
 
                 if wrap_a and notgif:
                     a_tag = soup.new_tag("a")
                     # оборачиваем в ссылку на оригинал
                     a_tag['href'] = original_pic
                     a_tag['data-gallery'] = ""
-                    i = i.wrap(a_tag)
+                    img = img.wrap(a_tag)
     return soup
 
 
 def stripMediaFromPath(file):
     """
-    Strip "media/" from file's path
+    Удаляем "media/" из путей к файлам
     """
     if re.search(r"^/media/", file):
         path = file.split(os.sep)[2:]

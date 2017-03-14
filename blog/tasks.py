@@ -17,15 +17,15 @@ from django.core.cache import cache
 from channels import Group
 from myblog.celery import app
 
-#app = Celery('myblog', broker='amqp://django:Qvjuzowu177Qvjuzowu177Qvjuzowu177@rabbitmq:5672//')
-
 delta_tz = datetime.timedelta(hours=+3)
 tz = datetime.timezone(delta_tz)
 
 
 @app.task(name="Rate")
-def Rate(userid, date_joined, votes_count, type, elem_id, vote):
-
+def Rate(userid, date_joined, votes_type, type, elem_id, vote):
+"""
+Оценка постов и комментов
+"""
     if type == "post":
         element = Post.objects.only('id', 'rateable', 'category')\
             .select_related('category').get(id=elem_id)
@@ -65,7 +65,7 @@ def Rate(userid, date_joined, votes_count, type, elem_id, vote):
         else:
             p_data['rate'] = -uv['weight']
         p_data['elem_id'] = element.id
-        if votes_count == "N":
+        if votes_type == "N":
             # уменьшаем кол-во голосов у пользователя
             uv['votes'] -= 1
         r_key = 'vote_' + type + '_' + today
@@ -91,6 +91,9 @@ def Rate(userid, date_joined, votes_count, type, elem_id, vote):
 
 @app.task(name="CalcRating")
 def CalcRating():
+    """
+    Подсчёт рейтинга постов, комментов и юзеров
+    """
     # hot_rating = 1.0
     # cat_list = Category.objects.all()
     # today = datetime.datetime.today().strftime('%H')
@@ -110,11 +113,11 @@ def CalcRating():
     del votes_comment
     comments = Comment.objects.filter(id__in=(comments_rates))
     for i in comments_rates:  # update rating on comments
-        com = comments.get(id=i)
-        cache_str = "comment_" + str(com.post.id)
+        comment = comments.get(id=i)
+        cache_str = "comment_" + str(comment.post.id)
         cache.delete(cache_str)
-        com.rating += comments_rates[i]['rate']
-        com.save()
+        comment.rating += comments_rates[i]['rate']
+        comment.save()
 
     votes_post = cache.iter_keys('vote_post_*')
     posts_rates = {}
@@ -132,10 +135,10 @@ def CalcRating():
     # cache.set('rating_post_day_' + today, posts, timeout=88000)
     del votes_post
     posts = Post.objects.filter(id__in=(posts_rates)).select_related('author')
-    for i in posts_rates:  # update rating on posts
-        post = posts.get(id=i)
-        post.rating += posts_rates[i]['rate']
-        post.author.rating += posts_rates[i]['rate'] / 30
+    for post_id in posts_rates:  # update rating on posts
+        post = posts.get(id=post_id)
+        post.rating += posts_rates[post_id]['rate']
+        post.author.rating += posts_rates[post_id]['rate'] / 30
         post.save()
         post.author.save()
     cache_str = "page_" + str(post.category.slug) + "_*"
@@ -146,10 +149,11 @@ def CalcRating():
 
 @app.task(name="commentImage")
 def commentImage(comment_id):
-    data = Comment.objects.select_related('author').get(id=comment_id)
-
-    # создаём картинки из текста
-    soup = srcsets(data.text, True)
+    """
+    Конвертирование картинок в комментах
+    """
+    comment_raw = Comment.objects.select_related('author').get(id=comment_id)
+    soup = srcsets(comment_raw.text, True)
     # выравниваем видео по центру
     ifr_links = soup.find_all("iframe")
     ifr_class = []
@@ -164,48 +168,54 @@ def commentImage(comment_id):
     soup.html.unwrap()
     # soup.head.unwrap()
     soup.body.unwrap()
-    data.text = soup.prettify()
-    data.save()
+    comment_raw.text = soup.prettify()
+    comment_raw.save()
 
-    cache_str = "comment_" + str(data.post.id)
+    cache_str = "comment_" + str(comment_raw.post.id)
     cache.delete(cache_str)
-    cache_str= "count_comments_" + str(data.post.id)
+    cache_str= "count_comments_" + str(comment_raw.post.id)
     cache.delete(cache_str)
 
-    c = {}
-    c['id'] = data.id
-    if data.parent:
-        c['parent'] = data.parent.id
-    c['author'] = data.author.username
-    if data.author.avatar:
-        c['avatar'] = data.author.avatar.url
+    comment = {}
+    comment['id'] = comment_raw.id
+    if comment_raw.parent:
+        comment['parent'] = comment_raw.parent.id
+    comment['author'] = comment_raw.author.username
+    if comment_raw.author.avatar:
+        comment['avatar'] = comment_raw.author.avatar.url
     else:
-        c['avatar'] = "/media/avatars/admin/avatar.jpg"
+        comment['avatar'] = "/media/avatars/admin/avatar.jpg"
 
-    if data.level != 0:
-        c['parent'] = data.parent.id
+    if comment_raw.level != 0:
+        comment['parent'] = comment_raw.parent.id
     else:
-        c['parent'] = 0
-    c['text'] = data.text
-    c['level'] = data.level
-    c['comment'] = 1
-    c['created'] = (data.created + delta_tz).strftime('%Y.%m.%d %H:%M')
-    group = data.post.get_absolute_url().strip('/').split('/')[-1]
+        comment['parent'] = 0
+    comment['text'] = comment_raw.text
+    comment['level'] = comment_raw.level
+    comment['comment'] = 1
+    comment['created'] = (comment_raw.created + delta_tz).strftime('%Y.%m.%d %H:%M')
+    group = comment_raw.post.get_absolute_url().strip('/').split('/')[-1]
     Group(group).send({
         # "text": "[user] %s" % message.content['text'],
         "text": json.dumps(c),
                         })
     return "Comment with id {} from user {} \
         proccessed".format(str(comment_id),
-        str(data.author.username))
+        str(comment_raw.author.username))
 
 
 @app.task(name="addPost")
 def addPost(post_id, tag_list, moderated, group=None):
-    data = Post.objects.select_related().prefetch_related().get(id=post_id)
-    nsfw = data.private
+    """
+    Обработка поста при добавлении
+    Тэги, сжатие и конвертация изображений и т.д.
+    Пост_id, лист тэгов, разрешение добавлять посты без проверки
+    и группу куда прислать уведомление о добавлении через сокет(при редактировании)
+    """
+    post_raw = Post.objects.select_related().prefetch_related().get(id=post_id)
+    nsfw = post_raw.private
     have_new_tags = False
-    data.tags.clear()
+    post_raw.tags.clear()
     tag = None
     for i in tag_list:
         if len(i) > 2:
@@ -226,22 +236,22 @@ def addPost(post_id, tag_list, moderated, group=None):
 
             if have_new_tags:
                 tag.save()
-            data.tags.add(tag)
+            post_raw.tags.add(tag)
     if have_new_tags:
         cache.delete_pattern("taglist")
 
     if tag:
-        data.main_tag = tag
+        post_raw.main_tag = tag
     else:
         #tag = Tag.objects.get(id=8)
         tag, _ = Tag.objects.get_or_create(name="Разное")
         if _:
             tag.url = "others"
             tag.save()
-        data.main_tag = tag
+        post_raw.main_tag = tag
 
     # ищем картинки в тексте
-    soup = srcsets(data.text, True, post_id=post_id)
+    soup = srcsets(post_raw.text, True, post_id=post_id)
 
     # выравниваем видео по центру
     ifr_links = soup.find_all("iframe")
@@ -257,60 +267,60 @@ def addPost(post_id, tag_list, moderated, group=None):
     soup.html.unwrap()
     soup.head.unwrap()
     soup.body.unwrap()
-    data.text = soup.prettify()
+    post_raw.text = soup.prettify()
 
     # image from url
 
-    if data.image_url:
+    if post_raw.image_url:
         today = datetime.date.today()
         upload_path1 = '/root/myblog/myblog/blog/static/media/' + \
         str(today.year) + '/' + str(today.month) + '/' + str(today.day) + '/'
         upload_path = str(today.year) + '/' + str(today.month) + \
                                         '/' + str(today.day) + '/'
-        filename = urlparse(data.image_url).path.split('/')[-1]
+        filename = urlparse(post_raw.image_url).path.split('/')[-1]
         save_path = os.path.join(upload_path1, filename)
         user_agent = 'Mozilla/5.0 (Windows NT 6.1; Win64; x64)'
         headers = {'User-Agent': user_agent}
-        values = {'name': 'Alex',
+        browser_headers = {'name': 'Alex',
                       'location': 'Moscow', }
-        data2 = urlencode(values)
-        data2 = data2.encode('ascii')
+        data = urlencode(browser_headers)
+        data = data.encode('ascii')
 
         try:
-            req = Request(data.image_url, data2, headers, method="GET")
+            req = Request(post_raw.image_url, data, headers, method="GET")
             os.makedirs(os.path.dirname(upload_path), exist_ok=True)
             with urlopen(req, timeout=7) as response, open(save_path, 'wb') as out_file:
-                data2 = response.read()
-                out_file.write(data2)
-            data.post_image = os.path.join(upload_path, filename)
+                data = response.read()
+                out_file.write(data)
+            post_raw.post_image = os.path.join(upload_path, filename)
         except:
             pass
-        data.image_url = ""
+        post_raw.image_url = ""
 
-    if data.post_image:
-        data.main_image_srcset = srcsetThumb(data.post_image, post_id=data.id)
+    if post_raw.post_image:
+        post_raw.main_image_srcset = srcsetThumb(post_raw.post_image, post_id=post_raw.id)
         # change post_image link to webm
-        if not BeautifulSoup(data.main_image_srcset, "html5lib").video == None:
-            post_image_file = BeautifulSoup(data.main_image_srcset, "html5lib")\
+        if not BeautifulSoup(post_raw.main_image_srcset, "html5lib").video == None:
+            post_image_file = BeautifulSoup(post_raw.main_image_srcset, "html5lib")\
                                         .video.source['src']
-            data.post_image = stripMediaFromPath(post_image_file)
+            post_raw.post_image = stripMediaFromPath(post_image_file)
         else:
-            soup = BeautifulSoup(data.main_image_srcset, "html5lib")\
+            soup = BeautifulSoup(post_raw.main_image_srcset, "html5lib")\
                     .img['src']
             link = findLink(iri_to_uri(soup))
             file = uri_to_iri(findFile(link))
             post_image_file = saveImage(link, file, 150, h=150)
-        data.post_thumbnail = stripMediaFromPath(post_image_file)
+        post_raw.post_thumbnail = stripMediaFromPath(post_image_file)
 
     if not moderated:
-        data.status = "P"
-    data.save()
+        post_raw.status = "P"
+    post_raw.save()
 
     post = {}
-    post['title'] = data.title
-    post['url'] = data.get_absolute_url()
-    post['author'] = data.author.id
-    post['id'] = data.id
+    post['title'] = post_raw.title
+    post['url'] = post_raw.get_absolute_url()
+    post['author'] = post_raw.author.id
+    post['id'] = post_raw.id
     post['post'] = 1
 
     if not group:
@@ -318,11 +328,11 @@ def addPost(post_id, tag_list, moderated, group=None):
     Group(group).send({
         "text": json.dumps(post) })
 
-    cache_str = ["*page_" + str(data.category) + "*",
+    cache_str = ["*page_" + str(post_raw.category) + "*",
                  "*page_None*",
-                "*good_posts_" + str(data.category) + "_*",
+                "*good_posts_" + str(post_raw.category) + "_*",
                  "*good_posts_None_*",
-                 "*post_single_" + str(data.id)+"*"
+                 "*post_single_" + str(post_raw.id)+"*"
                 ]
     for i in cache_str:
         cache.delete_pattern(i)

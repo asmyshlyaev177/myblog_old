@@ -97,16 +97,16 @@ class myUser(AbstractBaseUser, PermissionsMixin):
     date_joined = models.DateTimeField(auto_now_add=True)
     REQUIRED_FIELDS = ['email', ]
     USERNAME_FIELD = 'username'
-    VOTES_COUNT = (
+    VOTES_AMOUNT = (
                     ("U", "Unlimited"),
                     ("N", "Normal"),
                     ("B", "Blocked"),
     )
     rating = models.FloatField('Рейтинг', default=0.0)
-    votes_count = models.CharField(max_length=1, choices=VOTES_COUNT, default="N")
-    moder_tags = models.ManyToManyField('Tag', blank=True, null=True,
+    votes_amount = models.CharField(max_length=1, choices=VOTES_AMOUNT, default="N")
+    moderator_of_tags = models.ManyToManyField('Tag', blank=True, null=True,
                 verbose_name="Модерирует тэги")
-    moder_cat = models.ManyToManyField('Category', blank=True, null=True,
+    moderator_of_categories = models.ManyToManyField('Category', blank=True, null=True,
                 verbose_name="Модерирует категории")
     can_post = models.BooleanField("Может добавлять посты", default=True)
     can_comment = models.BooleanField("Может комментировать", default=True)
@@ -115,7 +115,7 @@ class myUser(AbstractBaseUser, PermissionsMixin):
     def get_avatar(self):
         return mark_safe('<img src="%s" class ="responsive-img"/>'
                          % (self.avatar.url))
-    get_avatar.short_description = 'Current avatar'
+    get_avatar.short_description = 'Текущий аватар'
 
     def __str__(self):
         return self.username.lower()
@@ -140,11 +140,11 @@ class myUser(AbstractBaseUser, PermissionsMixin):
                 user = self
                 post_tags = set(tag for tag in post.tags.values_list('id', flat=True))
                 user_moder_tags = \
-                set(t for t in user.moder_tags.values_list('id', flat=True))
+                set(t for t in user.moderator_of_tags.values_list('id', flat=True))
 
                 if len(post_tags & user_moder_tags) > 0\
                         or post.category.id in \
-                        user.moder_cat.values_list('id', flat=True)\
+                        user.moderator_of_categories.values_list('id', flat=True)\
                         or user.is_superuser:
                     result = True
             cache.set(cache_str, result, timeout=900)
@@ -158,7 +158,7 @@ class myUser(AbstractBaseUser, PermissionsMixin):
     #    return True
 
     class Meta:
-        verbose_name_plural = "users"
+        verbose_name_plural = "Пользователи"
 
     #@property
     #def is_superuser(self):
@@ -175,7 +175,7 @@ class myUser(AbstractBaseUser, PermissionsMixin):
 
 @receiver(models.signals.post_delete, sender=myUser)
 def _post_delete(sender, instance, **kwargs):
-    """delete avatar when delete user"""
+    """Удаляем аватар когда удалён пользователь"""
     cache.delete_pattern("post_list_*")
     if instance.avatar:
         if os.path.isfile(instance.avatar.path):
@@ -211,14 +211,17 @@ def _pre_save(sender, instance, **kwargs):
 
 
 class UserVotes(models.Model):
-    votes = models.IntegerField(default=10)
+    """
+    Количество голосов и их вес для юзера
+    """
+    votes_amount = models.IntegerField(default=10)
     weight = models.FloatField(default=0.25)
-    COUNT = (
+    VOTE_TYPE = (
                 ("U", "Unlimited"),
                 ("N", "Normal"),
                 ("B", "Blocked"),
     )
-    count = models.CharField(max_length=1, choices=COUNT, default="N")
+    vote_type = models.CharField(max_length=1, choices=VOTE_TYPE, default="N")
     block_date = models.DateTimeField(blank=True, null=True)
     manual = models.BooleanField(default=False)
     user = models.ForeignKey('myUser', db_index=True)
@@ -227,13 +230,14 @@ class UserVotes(models.Model):
 
 
 class Post(models.Model):
+    """
+    Модель поста
+    """
     index_together = [
     ["id", "author", "category", "tags", "rating",
         "published", "private", "status", "main_tag"],
     ]
     title = models.CharField("Заголовок", max_length=150)
-    # description = RichTextField(max_length = 500, config_name = "description",
-    #                            blank=True)
     private = models.BooleanField('NSFW', default=False)
     rateable = models.BooleanField("Разрешено голосовать", default=True)
     comments = models.BooleanField("Разрешено комментировать", default=True)
@@ -246,7 +250,7 @@ class Post(models.Model):
         return self.comments
     def is_locked(self):
         return self.locked
-    description = models.CharField(max_length=700)
+    description = models.CharField("Описание", max_length=700)
     # text = RichTextUploadingField(config_name = "post")
     text = models.TextField()
     today = datetime.date.today()
@@ -288,7 +292,7 @@ class Post(models.Model):
     def get_image(self):
         return mark_safe('<img src="%s" class ="responsive-img center-align"/>'
                          % (self.post_thumbnail.url))
-    get_image.short_description = 'Thumbnail'
+    get_image.short_description = 'Миниатюра'
 
     created = models.DateTimeField(auto_now_add=True)
     edited = models.DateTimeField(auto_now=True)
@@ -412,6 +416,9 @@ def _post_save(sender, instance, **kwargs):
 
 
 class Category(models.Model):
+    """
+    Категории
+    """
     index_together = [
         ["id", "name", "slug"],
     ]
@@ -453,6 +460,9 @@ def _post_save(sender, instance, **kwargs):
 
 
 class Tag(models.Model):
+    """
+    Тэги
+    """
     index_together = [
         ["id", "name", "rating"],
     ]
@@ -498,6 +508,9 @@ def delete_old_image_and_thumb(sender, instance, **kwargs):
 
 
 class Comment(MPTTModel):
+    """
+    Комментарии
+    """
     index_together = [
         ["id", "post", "rating", "author"],
     ]

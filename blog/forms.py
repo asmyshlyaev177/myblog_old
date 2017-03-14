@@ -7,8 +7,8 @@ from django.conf import settings
 from froala_editor.widgets import FroalaEditor
 
 
-# forms for users
 class SignupForm(forms.ModelForm):
+    """Форма регистрации"""
     password1 = forms.CharField(label='Пароль', widget=forms.PasswordInput)
     password2 = forms.CharField(label='Пароль ещё раз',
                                 widget=forms.PasswordInput)
@@ -36,9 +36,9 @@ class SignupForm(forms.ModelForm):
         return user
 
 
-# forms for users
+#
 class MyUserChangeForm(forms.ModelForm):
-
+""" редактирование инфы о пользователе в дашборде"""
     class Meta:
         model = myUser
         fields = ('username', 'email', 'avatar')
@@ -104,6 +104,7 @@ class CommentForm(forms.ModelForm):
 
 
 class AddPostForm(forms.ModelForm):
+    """ форма добавления поста"""
     tags_new = forms.CharField(label="Тэги", required=False,
                                widget=forms.TextInput(
                                    attrs={'class': 'tm-input tm-input-typeahead tt-input'})
@@ -127,7 +128,6 @@ class AddPostForm(forms.ModelForm):
         }
 
         widgets = {
-            # 'text': SummernoteInplaceWidget(),
             'text': FroalaEditor(
 
                                 options={'toolbarInline': False,
@@ -227,6 +227,3 @@ class AddPostForm(forms.ModelForm):
                                             'clearFormatting'
                                         ]})
         }
-    # def save(self, commit=True):
-        # do something with self.cleaned_data['temp_id']
-        # return super(AddPostForm, self).save(commit=commit)

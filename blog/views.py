@@ -22,6 +22,9 @@ hot_rating = 3
 
 
 def clear_cache(request):
+    """
+    Внешний скрипт для админки для очистки кэша
+    """
     if request.user.is_superuser:
         os.system("/root/myblog/myblog/clear_cache.sh")
         return HttpResponseRedirect('/admin/')
@@ -30,6 +33,9 @@ def clear_cache(request):
 
 
 def get_good_posts(category=None, private=None):
+    """
+    Популярные посты для сайдбара
+    """
     cache_str = "good_posts_" + str(category) + "_" + str(private)
     if cache.ttl(cache_str):
         posts = cache.get(cache_str)
@@ -54,6 +60,9 @@ def get_good_posts(category=None, private=None):
 
 
 def sidebar(request, category=None):
+    """
+    Вьюшка для сайдбара
+    """
     template = "sidebar.html"
     if request.user.is_authenticated:
         user_known = True
@@ -64,6 +73,9 @@ def sidebar(request, category=None):
 
 
 def get_cat_list():
+    """
+    Лист категорий
+    """
     if cache.ttl("cat_list"):
         cat_list = cache.get("cat_list")
     else:
@@ -76,6 +88,7 @@ def get_cat_list():
 @cache_control(max_age=3600)
 @vary_on_headers('X-Requested-With', 'Cookie')
 def login(request, *args, **kwargs):
+    """Логин"""
     if request.is_ajax():
         template = 'registration/login_ajax.html'
     else:
@@ -88,6 +101,9 @@ def login(request, *args, **kwargs):
 @cache_page(7200)
 @cache_control(max_age=7200)
 def comments(request, postid):
+    """ 
+    Комментарии для поста
+    """
     cache_str = "comment_" + str(postid)
     if cache.ttl(cache_str):
         comments = cache.get(cache_str)
@@ -104,6 +120,9 @@ def comments(request, postid):
 @never_cache
 @login_required(login_url='/login')
 def addComment(request, postid, parent=0):
+    """
+    Добавление поста
+    """
     if request.method == "POST":
         comment_form = CommentForm(request.POST, request.FILES)
         if comment_form.is_valid():
@@ -123,6 +142,9 @@ def addComment(request, postid, parent=0):
 
 @never_cache
 def tags(request):
+    """
+    Список тэгов для добавления/редактирования поста
+    """
     # tags = Tag.objects.all().values().cache()
 
     if cache.ttl("taglist"):
@@ -142,6 +164,7 @@ def tags(request):
 @cache_control(max_age=7200)
 @vary_on_headers('X-Requested-With')
 def signup(request):
+    """Регистрация"""
     if request.is_ajax():
         template = 'registration/signup-ajax.html'
     else:
@@ -157,6 +180,7 @@ def signup(request):
 
 
 def signup_success(request):
+    """Заглушка при успешной регистрации"""
     return render(request, 'registration/signup_success.html')
 
 
@@ -167,6 +191,9 @@ def signup_success(request):
 # @never_cache
 @never_cache
 def dashboard(request):
+    """
+    Данные о пользователи, мэйл, аватар и т.д.
+    """
     if request.is_ajax():
         template = 'dashboard-ajax.html'
     else:
@@ -191,6 +218,9 @@ def dashboard(request):
 # @vary_on_headers('X-Requested-With','Cookie')
 @never_cache
 def my_posts(request):
+    """
+    Страница с постами пользователя
+    """
     if request.is_ajax():
         template = 'dash-my-posts-ajax.html'
     else:
@@ -216,6 +246,9 @@ def my_posts(request):
 
 @never_cache
 def edit_post(request, postid):
+    """
+    Редактирование постов
+    """
     if request.is_ajax():
         template = 'edit_post-ajax.html'
     else:
@@ -268,6 +301,9 @@ def edit_post(request, postid):
 @cache_control(max_age=3)
 @vary_on_headers('X-Requested-With')
 def add_post(request):
+    """
+    Добавление постов
+    """
     if request.is_ajax():
         template = 'add_post-ajax.html'
     else:
@@ -311,16 +347,17 @@ def add_post(request):
 @login_required(redirect_field_name='next', login_url='/login')
 @never_cache
 def rate_elem(request, type, id, vote):
+    """Голосование"""
     if request.method == 'POST':
 
         user = request.user
         uv = cache.get('user_votes_' + str(user.id))
-        votes_count = user.votes_count
+        votes_amount = user.votes_amount
 
-        if ((uv is None and votes_count != "B") or
-        (uv['votes'] > 0 and votes_count != "B")):
+        if ((uv is None and votes_amount != "B") or
+        (uv['votes'] > 0 and votes_amount != "B")):
             date_joined = str(user.date_joined.strftime('%Y_%m_%d'))
-            Rate.delay(user.id, date_joined, votes_count, type, id, vote)
+            Rate.delay(user.id, date_joined, votes_amount, type, id, vote)
         else:
             return HttpResponse("no votes")
 
@@ -332,6 +369,11 @@ def rate_elem(request, type, id, vote):
 #@vary_on_headers('X-Requested-With', 'Cookie')
 @never_cache
 def list(request, category=None, tag=None, pop=None):
+    """
+    Лист постов
+    Категория/тэг и популярность опциональна
+    Пожалуй самая часто используемая вьюшка
+    """
     context = {}
 
     if request.is_ajax():
@@ -396,6 +438,9 @@ def list(request, category=None, tag=None, pop=None):
 #@vary_on_headers('X-Requested-With', 'Cookie')
 @never_cache
 def single_post(request, tag, title, id):
+    """
+    Вьюшка для отдельного поста
+    """
 
     if request.is_ajax():
         template = 'single_ajax.html'
@@ -424,8 +469,6 @@ def single_post(request, tag, title, id):
 
     comment_form = CommentForm()
 
-    # comments = Comment.objects.filter(post=post)
-
     comments = Comment.objects.filter(post=post)
 
     if request.user.is_authenticated:
@@ -447,6 +490,9 @@ def single_post(request, tag, title, id):
 @cache_control(max_age=7200)
 @vary_on_headers('X-Requested-With')
 def password_change(request, *args, **kwargs):
+    """
+    Смена пароля
+    """
     if request.is_ajax():
         template = 'registration/password_change_form-ajax.html'
     else:
