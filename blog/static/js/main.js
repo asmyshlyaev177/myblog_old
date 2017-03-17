@@ -259,7 +259,7 @@ function Scroll() {
   if ( $(document).scrollTop() > ( ($(document).height() - $(window).height())-400  )) {
 	  scrollProcessing = true; // чтобы не срабатывало несколько раз
 	  if ( $( "#last_page" ).length == 0 ) {
-			loader.css('top', '39%').css('left', '45%').show();
+			loader.css('top', '90%').css('left', '45%').css('position', 'fixed').show();
 			page += 1;
 			loadMore();
 		}
@@ -370,7 +370,7 @@ function ClickAjaxMenu() {
 	} else {
 		var url = myurl;
 	}   
-        loader.css('top', '39%').css('left', '45%').show(); // показываем кольцо загрузки
+        loader.css('top', '39%').css('left', '45%').css('position', 'absolute').show(); // показываем кольцо загрузки
 		window.history.pushState({state:'new'}, "",  url); // добавляем новый адрес в историю
 		ChangePageNew( url );
 		return false;

@@ -25,7 +25,6 @@ from django.contrib.auth.models import Group
 from celery import Celery
 from blog.functions import (srcsets, findFile, findLink, saveImage,
                             srcsetThumb, deleteThumb, validate_post_image)
-
 app = Celery('tasks', broker='pyamqp://guest@localhost//')
 
 
@@ -265,11 +264,8 @@ class Post(models.Model):
 
     def get_comments_count(self):
         cache_str = "count_comments_" + str(self.id)
-        if cache.ttl(cache_str):
-            count = cache.get(cache_str)
-        else:
-            count = self.comment_set.count()
-            cache.set(cache_str, count, 7200)
+        query = self.comment_set.count()
+        count = cache.get_or_set(cache_str, query, 7200)
         return count
 
     def post_thumb_ext(self):

@@ -160,8 +160,7 @@ INSTALLED_APPS = [
     'social_django',
     # 'silk',
 ]
-
-
+ 
 CELERY_BROKER_URL = 'amqp://django:Qvjuzowu177Qvjuzowu177Qvjuzowu177@127.0.0.1:5672//'
 
 
@@ -245,7 +244,7 @@ DATABASES = {
         'USER': 'mybloguser',
         'PASSWORD': 'Qvjuzowu177Qvjuzowu177Qvjuzowu177',
         'HOST': '/var/run/postgresql',
-        'CONN_MAX_AGE': None,
+        'CONN_MAX_AGE': 0, #none for production
         #'PORT': '6432',
     }
 }

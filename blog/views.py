@@ -6,7 +6,7 @@ from django.utils.text import slugify
 from blog.forms import SignupForm, MyUserChangeForm, AddPostForm, CommentForm
 from django.http import (HttpResponseRedirect, HttpResponseForbidden,
                         HttpResponse, HttpResponseNotFound)
-from django.views.decorators.csrf import csrf_protect
+from django.views.decorators.csrf import csrf_protect, csrf_exempt
 from django.contrib.auth.decorators import login_required
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 import json, sys, os, datetime
@@ -43,13 +43,14 @@ def get_good_posts(category=None, private=None):
         cur_date = datetime.datetime.now()
         delta = datetime.timedelta(days=14)
         start_date = cur_date - delta
-        posts = Post.objects.filter(published__range=(start_date, cur_date))\
+        posts = Post.objects\
                 .filter(status="P")\
                 .filter(rating__gte=0)\
                 .order_by("-rating")\
                 .prefetch_related("tags", "category", "author", "main_tag")\
                 .only("id", "title", "description", "url", "category", "post_image",
-                        "main_tag", "main_image_srcset", "rating", "created")
+                    "main_tag", "main_image_srcset", "private", "rating", "created")
+                #.filter(published__range=(start_date, cur_date))\
         if category:
             posts = posts.filter(category__slug=category)
         if not private:
@@ -76,12 +77,7 @@ def get_cat_list():
     """
     Лист категорий
     """
-    if cache.ttl("cat_list"):
-        cat_list = cache.get("cat_list")
-    else:
-        cat_list = Category.objects.all()
-        cache.set("cat_list", cat_list, 36000)
-    return cat_list
+    return cache.get_or_set("cat_list", Category.objects.all(), 36000)
 
 
 @cache_page(3600)
@@ -105,12 +101,9 @@ def comments(request, postid):
     Комментарии для поста
     """
     cache_str = "comment_" + str(postid)
-    if cache.ttl(cache_str):
-        comments = cache.get(cache_str)
-    else:
-        comments = Comment.objects.filter(post=postid)\
+    query = Comment.objects.filter(post=postid)\
             .prefetch_related("author")
-        cache.set(cache_str, comments, timeout=7200)
+    comments = cache.get_or_set(cache_str, query, 7200)
 
     template = 'comments-ajax.html'
     return render(request, template,
@@ -146,15 +139,11 @@ def tags(request):
     Список тэгов для добавления/редактирования поста
     """
     # tags = Tag.objects.all().values().cache()
-
-    if cache.ttl("taglist"):
-        data = cache.get("taglist")
-    else:
-        tags = Tag.objects.all().values("name")
-        data = []
-        for i in tags:
-            data.append(i['name'])
-        cache.set("taglist", data, 36000)
+    query = Tag.objects.all().values("name")
+    tags = cache.get_or_set("taglist", query, 36000)
+    data = []
+    for tag in tags:
+        data.append(tag['name'])
 
     return HttpResponse(json.dumps(data), content_type="application/json")
 
@@ -456,13 +445,10 @@ def single_post(request, tag, title, id):
                 template = 'single_moder.html'
 
     cache_str = "post_single_" + str(id)
-    if cache.ttl(cache_str):
-        post = cache.get(cache_str)
-    else:
-        post = Post.objects\
+    query = Post.objects\
             .prefetch_related("tags", "category", "author", "main_tag")\
             .get(pk=id)
-        cache.set(cache_str, post, 7200)
+    post = cache.get_or_set(cache_str, query, 7200)
 
     if post.private and not request.user.is_authenticated:
         return HttpResponseNotFound()

@@ -38,7 +38,7 @@ class SignupForm(forms.ModelForm):
 
 #
 class MyUserChangeForm(forms.ModelForm):
-""" редактирование инфы о пользователе в дашборде"""
+    """ редактирование инфы о пользователе в дашборде"""
     class Meta:
         model = myUser
         fields = ('username', 'email', 'avatar')

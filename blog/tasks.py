@@ -23,9 +23,9 @@ tz = datetime.timezone(delta_tz)
 
 @app.task(name="Rate")
 def Rate(userid, date_joined, votes_type, type, elem_id, vote):
-"""
-Оценка постов и комментов
-"""
+    """
+    Оценка постов и комментов
+    """
     if type == "post":
         element = Post.objects.only('id', 'rateable', 'category')\
             .select_related('category').get(id=elem_id)
@@ -141,8 +141,8 @@ def CalcRating():
         post.author.rating += posts_rates[post_id]['rate'] / 30
         post.save()
         post.author.save()
-    cache_str = "page_" + str(post.category.slug) + "_*"
-    cache.delete_pattern(cache_str)
+        cache_str = "page_" + str(post.category.slug) + "_*"
+        cache.delete_pattern(cache_str)
     cache.delete_pattern("page_None_*")
     cache.delete_pattern("good_posts_*")
 
