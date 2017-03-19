@@ -247,7 +247,7 @@ def edit_post(request, postid):
     if request.user.is_authenticated:
         if request.user.is_superuser\
                 or request.user.is_moderator(post)\
-                or user.id == post.author.id:
+                or request.user.id == post.author.id:
 
             if request.method == 'POST':
                 form = AddPostForm(request.POST, request.FILES, instance=post)
@@ -265,7 +265,7 @@ def edit_post(request, postid):
                     data.save()
                     post_id = data.id
                     group = "edit-post-" + str(post_id)
-                    addPost.apply_async(args=[post_id, tag_list, moderated], kwargs={'group': group}, countdown=12)
+                    addPost.apply_async(args=[post_id, tag_list, moderated], kwargs={'group': group}, countdown=7)
 
                     return render(request, 'added-post.html',
                                   {'title': title,
@@ -286,8 +286,8 @@ def edit_post(request, postid):
 
 
 @login_required(redirect_field_name='next', login_url='/login')
-@cache_page(3)
-@cache_control(max_age=3)
+@cache_page(9)
+@cache_control(max_age=9)
 @vary_on_headers('X-Requested-With')
 def add_post(request):
     """
@@ -302,7 +302,6 @@ def add_post(request):
         form = AddPostForm(request.POST, request.FILES)
         form.data['status'] = 'D'
 
-        print("before from validation")
         if form.is_valid():
 
             data = form.save(commit=False)

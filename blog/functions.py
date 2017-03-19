@@ -130,9 +130,9 @@ def convertImgToSrcset(link, file, original_pic, src_szs):
             srcset[1600] = saveImage(link, file, 1600)
 
     elif 800 in srcset:
-        alt = srcset[1366]
         if 1366 not in srcset:
             srcset[1366] = saveImage(link, file, 1366)
+        alt = srcset[1366]
 
     elif 480 in srcset:
         alt = original_pic
