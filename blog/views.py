@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 from django.shortcuts import render
-from blog.models import (Post, Category, Tag, Comment, myUser)
+from blog.models import (Post, Category, Tag, Comment, myUser, Complain)
 #  from slugify import slugify
 from django.utils.text import slugify
 from blog.forms import SignupForm, MyUserChangeForm, AddPostForm, CommentForm
@@ -14,12 +14,25 @@ from django.views.decorators.cache import cache_page, never_cache
 from django.views.decorators.vary import vary_on_headers
 from django.views.decorators.cache import cache_control
 from django.core.cache import cache
-from blog.tasks import addPost, Rate, commentImage
+from blog.tasks import addPost, Rate, commentImage, ComplainObj
 from django.contrib.auth.views import (login as def_login,
                                 password_change as def_password_change)
 
 hot_rating = 3
 
+@never_cache
+def test_view(request):
+    """
+    Тестовая вьюшка для отдельного поста
+    """
+
+    template = 'test.html'
+
+    context = {}
+    context['post'] = Post.objects.get(id=6520)
+    context['cat_list'] = get_cat_list()
+
+    return render(request, template, context)
 
 def clear_cache(request):
     """
@@ -222,15 +235,20 @@ def my_posts(request):
     page = request.GET.get('page')
 
     try:
-        posts = paginator.page(page)
+        posts = paginator.page(page).object_list
     except PageNotAnInteger:
-        posts = paginator.page(1)
+        posts = paginator.page(1).object_list
     except EmptyPage:
-        # posts = paginator.page(paginator.num_pages)
-        return HttpResponse('')
+        posts = None
+    
+    context = {}
+    context['posts'] = posts
+    context['cat_list'] = get_cat_list()
 
-    return render(request, template, {'posts': posts,
-                                              'cat_list': get_cat_list()})
+    if not posts and page:
+        return HttpResponse('last_page')
+    else:
+        return render(request, template, context)
 
 
 @never_cache
@@ -275,8 +293,8 @@ def edit_post(request, postid):
                 form = AddPostForm(instance=post)
 
             tags_list = []
-            for i in post.tags.all():
-                tags_list.append(i.name)
+            for tag in post.tags.all():
+                tags_list.append(tag.name)
             return render(request, template,
                         {'form': form, 'post': post,
                          'cat_list': get_cat_list(), 'tags_list': tags_list})
@@ -351,6 +369,14 @@ def rate_elem(request, type, id, vote):
 
         return HttpResponse("accepted")
 
+@login_required(redirect_field_name='next', login_url='/login')
+def complain_elem(request, type, objid, reason):
+    if request.method == 'POST' and request.user.can_complain:
+        userid = request.user.id
+        ComplainObj.delay(type, objid, userid, reason)
+        return HttpResponse("Complain accepted")
+    else:
+        return HttpResponse("Complain not accepted")
 
 #@cache_page(30)
 #@cache_control(max_age=30)

@@ -3,8 +3,10 @@
 var scrollProcessing = false;
 var amountScrolled = 500;
 var page = 1;
-var shortLink = "";
-var myurl = "";
+var pageUrl = "";
+var catUrl = "";
+var catTab = "";
+var pop = "";
 var loader;
 var noVotes = true;
 var sockets = {};
@@ -18,6 +20,9 @@ $(window).load(function(){
 	if ( loader == undefined || loader == "" ) {
 		loader = $("#loader");
 	}
+    detectPageUrl();
+    selectActiveTabs();
+    toggleTopMenu();
     checkUserAuth();
     scrollProcessingCheck();
 	TopButtonScroll();
@@ -33,7 +38,7 @@ $(window).load(function(){
 	userMenu();
 	rateHoverClick();
     wsConnect();
-
+    Comments();
 });
 
 function scrollProcessingCheck() {
@@ -67,18 +72,21 @@ function hideBanner() {
 function Comments() {
     /* Берём пост ид и загружаем комменты для него */
 	$(document).ready(function(){
-	var postid = parseInt( $(".post_header").attr("postid") );
-	var link = "/comments/" + postid + "/"
+    if ( $("#Comments_title").length > 0 ) {
+        var postid = parseInt( $(".post_header").attr("postid") );
+        var link = "/comments/" + postid + "/"
         $.ajax({
-          type: "GET",
-          cache : false,
-          url: link,
-          async: false,
-          timeout: 5000,
-        success: function(data){
-         $(data).appendTo( $("#Comments_title") );
-        },
+            type: "GET",
+            cache : false,
+            url: link,
+            async: false,
+            timeout: 5000,
+            success: function(data){
+            $(data).appendTo( $("#Comments_title") );
+            },
         });
+    }
+	
 	 });
 }
 
@@ -269,11 +277,11 @@ function Scroll() {
 
 function loadMore(){
     /* функция загрузки страниц для скролла */
-	console.log("load url " + myurl+ "?page=" +page);
+	console.log("load url " + pageUrl+ "?page=" +page);
      $.ajax({
       type:"GET",
 		  //cache : false,
-      url:myurl+"?page="+page,
+      url:pageUrl+"?page="+page,
       timeout: 5000,
       success:function(data){
          if ( data != 'last_page') {
@@ -331,27 +339,30 @@ function ClickAjaxMenu() {
 	} else {
 		one_col = false;
 	}
-	shortLink = ajax_menu.attr('url');
 
 	if ( ajax_menu.attr("url") != undefined &&
 				ajax_menu.attr("url") != "" )
 			{ // url для запроса
-				//debugger;
 			if ( ajax_menu.is("[cat]") ) {
-				myurl = "/cat/" + shortLink;
-				sidebarUrl = "/sidebar/" + shortLink;
+                catUrl = ajax_menu.attr('url');
+				pageUrl = "/cat/" + catUrl;
+				sidebarUrl = "/sidebar/" + catUrl;
 			} else if ( ajax_menu.is("[pop]") ) {
-				pop = shortLink;
+                pop = ajax_menu.attr('url');
+                if (catUrl == "" ) {
+                    pageUrl = "/" + pop;
+                } else {
+                    pageUrl = "/cat/" + catUrl + '/' + pop;
+                }
+                    
 			} else {
-				myurl = '/' + shortLink;
-			}
-	}
-	else {
-		myurl = "/";
-		shortLink = ""
-	}
+                pageUrl = ajax_menu.attr('url');
+            }
+	} 
     if ( ajax_menu.is(".brand-logo") ) {
-        sidebarUrl = "/sidebar/" + shortLink
+        sidebarUrl = "/sidebar/";
+        pageUrl = "/";
+		catUrl = ""
     }
 
 	$('html, body').scrollTop( 0 );
@@ -359,21 +370,13 @@ function ClickAjaxMenu() {
 	if ( ajax_menu.text().replace(/\s/g, '') != "" ) {
 		document.title = ajax_menu.text();}
 	else {
-		document.title = "My blog!";}
+    document.title = "My blog!";}
 
-	if ( pop ) {
-		if ( myurl == "/" ) {
-			var url = myurl + pop;
-		} else {
-			var url = myurl + '/' + pop;
-		}
-	} else {
-		var url = myurl;
-	}   
-        loader.css('top', '39%').css('left', '45%').css('position', 'absolute').show(); // показываем кольцо загрузки
-		window.history.pushState({state:'new'}, "",  url); // добавляем новый адрес в историю
-		ChangePageNew( url );
-		return false;
+    window.history.pushState({state:'new'}, "",  pageUrl); // добавляем новый адрес в историю
+    detectPageUrl();
+    selectActiveTabs();
+    ChangePageNew( pageUrl );
+    return false;
 
 	});
 	}
@@ -392,6 +395,7 @@ function twoCol() {
 
 function ChangePageNew( link ) {
     /* смена страницы через ajax */
+        loader.css('top', '39%').css('left', '45%').css('position', 'absolute').show(); // показываем кольцо загрузки
 		var content = $(".content");
 		content.fadeTo(0, 0.1);
 		//try {
@@ -410,22 +414,15 @@ function ChangePageNew( link ) {
                 content.fadeTo(0, 1);
                 disableRate();
                 /* добавляем адрес следующего перехода в ссылку авторизации */
-                $("#login-link").attr("href", "/login?next=" + window.location.pathname);
-                $("#logout-link").attr("href", "/logout?next=" + window.location.pathname);
+                $("#login-link").attr("href", "/login?next=" + pageUrl);
+                $("#logout-link").attr("href", "/logout?next=" + pageUrl);
                 if ( one_col ) { oneCol(); } else { twoCol(); }
                 var data2 = ('<div class="content">' + data + '</div>');
                 $(data2).replaceAll('.content');
                 scrollProcessingCheck();
                 wsConnect();
                 loader.hide();
-                if ( scrollProcessing ) {
-                        if ( single_page ) {
-                         $('.top-menu').hide()
-                        }
-                    }
-                else {
-                        $('.top-menu').show()
-                    }
+                toggleTopMenu();
 
 	          }
 	     });
@@ -442,22 +439,47 @@ function ChangePageNew( link ) {
             });
         }
 	   page = 1;
-		$(".menu").parent().removeClass('active');
-
-	 	if ( shortLink != "" && single_page == false) {
-					link = link.split('/');
-					var pop = link.pop();
-					var cat = link.pop();
-                    /* добавляем класс active к менюшкам */
-					if ( pop == "pop-all" || pop == "pop-best") {
-									$('.menu').filter( $('#'+pop ) ).parent().addClass('active');
-									$('.menu').filter( $('#'+cat ) ).parent().addClass('active');
-								} //else {
-									//$('.menu').filter( $('#'+shortLink ) ).parent().addClass('active');
-								//}
-	    }
 
 		};
+
+function detectPageUrl() {
+    var path = window.location.pathname.split('/');
+	if (path.indexOf('cat') != -1) {
+		catTab = $('a[href="/' + path[1] + '/' + path[2] + '"');
+		catUrl = path[2];
+        sidebarUrl = "/sidebar/" + catUrl;
+	} else {
+        catTab = "";
+    }
+    pageUrl = window.location.pathname;
+    if ( pageUrl == '/' ) {
+        sidebarUrl = "/sidebar/";
+    }
+	if ( path.indexOf('pop-all') || path.indexOf('pop-best') ) {
+		pop = path[path.length-1];
+	} else {
+        pop = "";
+    }
+    return false;
+}
+
+function selectActiveTabs() {
+    $(".menu").removeClass('active').parent().removeClass('active');
+    if ( catTab.length > 0 ) {
+        catTab.addClass('active').parent().addClass('active');
+    } 
+    if ( pop.length > 0 ) {
+        $("#" + pop).addClass('active').parent().addClass('active');
+    }
+}
+
+function toggleTopMenu() {
+    if ( single_page || pageUrl == "/dashboard/my-posts" ) {
+        $('.top-menu').hide();
+    } else {
+        $('.top-menu').show();
+    }
+}
 
 function cloneComment( data ) {
     /* клонируем шаблон коммента и меняем значения на присланные из сокета */
@@ -552,8 +574,8 @@ function BackForwardButtons() {
     /* при нажатии кнопок назад/вперёд в браузере */
 	window.onpopstate = function(event) {
 		var url = document.location.pathname;
-        myurl = "";
-        one_col = false;
+        detectPageUrl();
+        selectActiveTabs();
 	  ChangePageNew(url);
 	};
 
@@ -575,6 +597,15 @@ function HintPos() {
 function CopyTags() {
     /* копируем тэги из видимого поля в скрытое джанговское */
 	$(".hidden_tags").val($("#tagBox").tagging( "getTags" ).toString());
+}
+
+function loadTags( tagBox ) {
+    /* Загружаем тэги при редактировании поста в тэгбокс*/
+    var tags_list = $("#tags_list").attr('tags').replace(/'/g, '"');
+    tags_list = JSON.parse(tags_list);
+    for ( var i in tags_list ) { 
+        $( tagBox ).tagging( "add", tags_list[i] );
+    };
 }
 
 function SelectHint() {

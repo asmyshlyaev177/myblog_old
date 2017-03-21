@@ -12,7 +12,7 @@ https://docs.djangoproject.com/en/1.10/ref/settings/
 import os
 import datetime
 
-CELERY_RESULT_BACKEND = 'django-db'  # for testing
+#CELERY_RESULT_BACKEND = 'django-db'  # for testing
 
 CHANNEL_LAYERS = {
     "default": {
@@ -155,7 +155,7 @@ INSTALLED_APPS = [
     'django_extensions',
     'mptt',
     'channels',
-    'django_celery_results',
+    #'django_celery_results',
     #'django_celery_beat',
     'social_django',
     # 'silk',
@@ -182,7 +182,7 @@ STATICFILES_FINDERS = (
 
 # COMPRESS_ROOT = STATIC_URL
 # COMPRESS_OFFLINE = True
-COMPRESS_ENABLED = True  # удобней выключить потом включу
+COMPRESS_ENABLED = False  # удобней выключить потом включу
 COMPRESS_CSS_FILTERS = ['compressor.filters.css_default.CssAbsoluteFilter',
                         'compressor.filters.cssmin.rCSSMinFilter']
 # IMAGEKIT_DEFAULT_CACHEFILE_STRATEGY = 'imagekit.cachefiles.strategies.JustInTime'

@@ -35,46 +35,6 @@
     <link href="/static/css/jquery.modal.css" type="text/css" media="all" rel="stylesheet" />
     {% endcompress %}
 
-    {% compress js %}
-        <!--<script src="/static/js/jquery-3.1.1.min.js"></script>
-        <script src="/static/js/jquery-migrate-3.0.0.min.js"></script> -->
-
-        <script src="/static/js/jquery-2.2.4.min.js"></script>
-        <!-- <script src="/static/js/jquery.fix.clone.js"></script> -->
-        <script src="/static/js/reconnecting-websocket.js"></script>
-
-        <script src="/static/js/jquery.ui.widget.js"></script>
-        <script src="/static/js/jquery.iframe-transport.js"></script>
-        <script src="/static/js/jquery.fileupload.js"></script>
-        <script src="/static/js/typeahead.bundle.js"></script>
-        <script src="/static/js/tagging.js"></script>
-        <script src="/static/js/main.js"></script>
-        <script src="/static/js/jquery.blueimp-gallery.min.js"></script>
-        <!-- <script src="/static/js/js.cookie.js"></script> -->
-
-        <script src="/static/js/materialize.js"></script>
-        <script type="text/javascript" src="/static/froala_editor/js/froala_editor.min.js"></script>
-        <script type="text/javascript" src="/static/froala_editor/js/languages/ru.js"></script>
-
-        <script type="text/javascript" src="/static/froala_editor/js/plugins/align.min.js"></script>
-        <script type="text/javascript" src="/static/froala_editor/js/plugins/font_size.min.js"></script>
-        <script type="text/javascript" src="/static/froala_editor/js/plugins/fullscreen.min.js"></script>
-        <script type="text/javascript" src="/static/froala_editor/js/plugins/image.min.js"></script>
-        <script type="text/javascript" src="/static/froala_editor/js/plugins/line_breaker.min.js"></script>
-        <script type="text/javascript" src="/static/froala_editor/js/plugins/link.min.js"></script>
-        <script type="text/javascript" src="/static/froala_editor/js/plugins/lists.min.js"></script>
-        <script type="text/javascript" src="/static/froala_editor/js/plugins/paragraph_format.min.js"></script>
-        <script type="text/javascript" src="/static/froala_editor/js/plugins/paragraph_style.min.js"></script>
-        <script type="text/javascript" src="/static/froala_editor/js/plugins/quote.min.js"></script>
-        <script type="text/javascript" src="/static/froala_editor/js/plugins/save.min.js"></script>
-        <script type="text/javascript" src="/static/froala_editor/js/plugins/table.min.js"></script>
-        <script type="text/javascript" src="/static/froala_editor/js/plugins/url.min.js"></script>
-        <script type="text/javascript" src="/static/froala_editor/js/plugins/video.min.js"></script>
-        <script type="text/javascript" src="/static/froala_editor/js/plugins/char_counter.min.js"></script>
-        <script type="text/javascript" src="/static/froala_editor/js/plugins/draggable.min.js"></script>
-
-        <script type="text/javascript" src="/static/js/jquery.modal.js"></script>
-    {% endcompress %}
 </head>
 
 
@@ -96,19 +56,20 @@
                data-beloworigin="true" class="dropdown-button right user-menu">
 
               {% if user.is_authenticated %}
-                <p id="user_auth"style="display: none;" user={{request.user.id}}></p>
+                <p id="user_auth" style="display: none;" user={{request.user.id}}></p>
                   {% if user.avatar %}
                             <p><img src="{{ user.avatar.url }}"
-                            width="50px"
-                            height="50px"
+                            alt="Avatar"
+                            width="50"
+                            height="50"
                             class = "img-avatar circle z-depth-2 hoverable"></p>
                   {% else %}
                   <p><img src="/static/img/avatar.jpg"
                     class ="hoverable img-avatar circle"
-                    width="50px" height="50px"/></p>
+                    width="50" height="50"/></p>
                   {% endif %}
               {% else %}
-                <p><img src="/static/img/avatar.jpg" width="50px" height="50px"
+                <p><img src="/static/img/avatar.jpg" width="50" height="50"
                   class ="img-avatar circle z-depth-2 hoverable"/></p>
               {% endif %}
             </a>
@@ -152,17 +113,17 @@
     </div>
 </nav>
 
-  <div class="row">
+<div class="row">
 
     <h1 class="text-center">{% block title2 %}{% endblock %}</h1>
 
     <a href="#" class="back-to-top"><i class="medium material-icons">navigation</i></a>
 
-    <div class="main col s12 m10 l6 offset-m1 offset-l1">
+<div class="main col s12 m10 l6 offset-m1 offset-l1">
 
-        <div id="loader" class="loader center" style="
-            position: absolute; left: 45%; top: 39%;
-            display: none;">
+    <div id="loader" class="loader center" style="
+        position: absolute; left: 45%; top: 39%;
+        display: none;">
         <div class="preloader-wrapper big active">
 
         <div class="preloader-wrapper big active">
@@ -207,76 +168,116 @@
           </div>
           </div>
          </div>
-        </div>
-
-      <div class="content">
-      {% block content %}{% endblock %}
-      </div>
     </div>
 
-    <div class="sidebar col l4 offset-l1 hide-on-med-and-down">
-        <div class="sidebar-inner">
-            {% block sidebar %}{% endblock %}
-        </div>
-    </div>
+     <ul id="user-menu-list" class="dropdown-content">
 
+              {% if not user.is_authenticated %}
+                <li><a href="{% url 'signup' %}" single_page
+                  class="ajax-menu" url="/signup" one_col>Register</a>
+                </li>
+                <li class="divider"></li>
 
-  <ul id="user-menu-list" class="dropdown-content">
+                <li><a href="{% url 'login' %}?next={{request.path}}"
+                  id="login-link" rel="modal:open">log-in modal</a>
+                </li>
 
-          {% if not user.is_authenticated %}
-            <li><a href="{% url 'signup' %}" single_page
-              class="ajax-menu" url="signup" one_col>Register</a>
+              <li>
+                <a href="{% url 'social:begin' 'google-oauth2' %}?next={{ request.path }}">Login with google</a>
+              </li>
+              <li>
+                <a href="{% url 'social:begin' 'facebook' %}?next={{ request.path }}">Login with facebook</a>
+              </li>
+              <li>
+                <a href="{% url 'social:begin' 'vk-oauth2' %}?next={{ request.path }}">Login with VK</a>
+              </li>
+              {% else %}
+
+            <li><a href="{% url 'add_post' %}" single_page one_col
+              url = "/add-post" class="ajax-menu">Add Post</a>
             </li>
+
             <li class="divider"></li>
 
-            <li><a href="{% url 'login' %}?next={{request.path}}"
-              id="login-link" rel="modal:open">log-in modal</a>
+            <li><a href="{% url 'password_change' %}"
+              rel="modal:open">Change password modal</a>
             </li>
 
-          <li>
-            <a href="{% url 'social:begin' 'google-oauth2' %}?next={{ request.path }}">Login with google</a>
-          </li>
-          <li>
-            <a href="{% url 'social:begin' 'facebook' %}?next={{ request.path }}">Login with facebook</a>
-          </li>
-          <li>
-            <a href="{% url 'social:begin' 'vk-oauth2' %}?next={{ request.path }}">Login with VK</a>
-          </li>
-          {% else %}
+            <li>
+              <a href="{% url 'dashboard' %}" single_page
+              url = "/dashboard" class="ajax-menu">Dashboard</a>
 
-          <p id="user_auth"></p>
-        <li><a href="{% url 'add_post' %}" single_page one_col
-          url = "add-post" class="ajax-menu">Add Post</a>
-        </li>
+            </li>
 
-        <li class="divider"></li>
+            <li><a href="{% url 'my_posts' %}" one_col
+                class="ajax-menu" url = "/dashboard/my-posts"
+                >My Posts</a>
+            </li>
 
-        <li><a href="{% url 'password_change' %}"
-          rel="modal:open">Change password modal</a>
-        </li>
+            <li class="divider"></li>
 
-        <li>
-          <a href="{% url 'dashboard' %}" single_page
-          url = "dashboard" class="ajax-menu">Dashboard</a>
+            <li><a href="{% url 'logout' %}?next=/"
+              id="logout-link" >Logout</a>
+            </li>
 
-        </li>
+            {% endif %}
 
-        <li><a href="{% url 'my_posts' %}" one_col
-            class="ajax-menu" url = "dashboard/my-posts"
-            >My Posts</a>
-        </li>
+      </ul>
 
-        <li class="divider"></li>
+          <div class="content">
+            {% block content %}{% endblock %}
+          </div>
+</div>
+    
 
-        <li><a href="{% url 'logout' %}?next=/"
-          id="logout-link" >Logout</a>
-        </li>
-
-        {% endif %}
-
-  </ul>
+<div class="sidebar col l4 offset-l1 hide-on-med-and-down right">
+    <div class="sidebar-inner">
+        {% block sidebar %}{% endblock %}
+    </div>
+</div>
 
 
+</div>
+
+    {% compress js %}
+        <!--<script src="/static/js/jquery-3.1.1.min.js"></script>
+        <script src="/static/js/jquery-migrate-3.0.0.min.js"></script> -->
+
+        <script src="/static/js/jquery-2.2.4.min.js"></script>
+        <!-- <script src="/static/js/jquery.fix.clone.js"></script> -->
+        <script src="/static/js/reconnecting-websocket.js"></script>
+
+        <script src="/static/js/jquery.ui.widget.js"></script>
+        <script src="/static/js/jquery.iframe-transport.js"></script>
+        <script src="/static/js/jquery.fileupload.js"></script>
+        <script src="/static/js/typeahead.bundle.js"></script>
+        <script src="/static/js/tagging.js"></script>
+        <script src="/static/js/main.js"></script>
+        <script src="/static/js/jquery.blueimp-gallery.min.js"></script>
+        <!-- <script src="/static/js/js.cookie.js"></script> -->
+
+        <script src="/static/js/materialize.js"></script>
+        <script type="text/javascript" src="/static/froala_editor/js/froala_editor.min.js"></script>
+        <script type="text/javascript" src="/static/froala_editor/js/languages/ru.js"></script>
+        <script type="text/javascript" src="/static/froala_editor/js/plugins/align.min.js"></script>
+        <script type="text/javascript" src="/static/froala_editor/js/plugins/font_size.min.js"></script>
+        <script type="text/javascript" src="/static/froala_editor/js/plugins/image.min.js"></script>
+        <script type="text/javascript" src="/static/froala_editor/js/plugins/line_breaker.min.js"></script>
+        <script type="text/javascript" src="/static/froala_editor/js/plugins/link.min.js"></script>
+        <script type="text/javascript" src="/static/froala_editor/js/plugins/lists.min.js"></script>
+        <script type="text/javascript" src="/static/froala_editor/js/plugins/paragraph_format.min.js"></script>
+        <script type="text/javascript" src="/static/froala_editor/js/plugins/paragraph_style.min.js"></script>
+        <script type="text/javascript" src="/static/froala_editor/js/plugins/quote.min.js"></script>
+        <script type="text/javascript" src="/static/froala_editor/js/plugins/save.min.js"></script>
+        <script type="text/javascript" src="/static/froala_editor/js/plugins/table.min.js"></script>
+        <script type="text/javascript" src="/static/froala_editor/js/plugins/url.min.js"></script>
+        <script type="text/javascript" src="/static/froala_editor/js/plugins/video.min.js"></script>
+        <script type="text/javascript" src="/static/froala_editor/js/plugins/char_counter.min.js"></script>
+        <script type="text/javascript" src="/static/froala_editor/js/plugins/draggable.min.js"></script>
+
+        <script type="text/javascript" src="/static/js/jquery.modal.js"></script>
+    {% endcompress %}
+    
 </body>
 
 </html>

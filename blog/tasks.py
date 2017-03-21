@@ -2,7 +2,7 @@
 from celery import Celery
 from datetime import timedelta
 import os, datetime, json, re
-from blog.models import (myUser, Post, Tag, Category, Comment)
+from blog.models import (myUser, Post, Tag, Category, Comment, Complain)
 from django.utils.text import slugify
 from bs4 import BeautifulSoup
 from PIL import Image
@@ -12,7 +12,7 @@ from django.utils.encoding import uri_to_iri, iri_to_uri
 from urllib.request import urlopen, Request
 from blog.functions import (srcsets, srcsetThumb, saveImage,
                             stripMediaFromPath,
-                           findLink, findFile)
+                           findLink, findFile, cleanTagsFromSoup)
 from django.core.cache import cache
 from channels import Group
 from myblog.celery import app
@@ -49,8 +49,6 @@ def Rate(userid, date_joined, votes_type, type, elem_id, vote):
             votes['votes'] = 100
 
         votes['weight'] = 0.25 + coef + user_rating.rating / 50
-        print("REDIS User: " + str(userid) + " weight " + str(votes['weight']) +
-                                                " votes " + str(votes['votes']))
 
         cache.set('user_votes_' + str(userid), votes, timeout=150)  # 86400 -1 day
         uv = votes
@@ -88,6 +86,32 @@ def Rate(userid, date_joined, votes_type, type, elem_id, vote):
             type {} with id {} rated"\
             .format(str(user_id), str(type), str(elem_id))
 
+
+@app.task(name='ComplainObj')
+def ComplainObj(type, objid, userid, reason):
+    """
+    При жалобе создаём новый объект или обновляем существующий
+    """
+    if type == "comment":
+        obj = Comment.objects.only('id', 'can_complain').get(id=objid)
+    else:
+        obj = Post.objects.only('id', 'can_complain').get(id=objid)
+
+    user = myUser.objects.only('id', 'rating', 'email').get(id=userid)
+    if obj.can_complain:
+        if type =="comment":
+            complain, new = Complain.objects.get_or_create(comment=obj)
+        else:
+            complain, new = Complain.objects.get_or_create(post=obj)
+        
+        if not user.email in complain.users_complained:
+            complain_raw=json.loads(complain.users_complained)
+            complain_raw[user.email] = reason
+            complain.users_complained = json.dumps(complain_raw)
+            complain.score += user.rating
+            complain.save()
+    
+    
 
 @app.task(name="CalcRating")
 def CalcRating():
@@ -165,10 +189,7 @@ def commentImage(comment_id):
             ifr_class.append('center-align')
             i['class'] = ifr_class
 
-    soup.html.unwrap()
-    # soup.head.unwrap()
-    soup.body.unwrap()
-    comment_raw.text = soup.prettify()
+    comment_raw.text = cleanTagsFromSoup(soup)
     comment_raw.save()
 
     cache_str = "comment_" + str(comment_raw.post.id)
@@ -264,10 +285,7 @@ def addPost(post_id, tag_list, moderated, group=None):
             ifr_class.append('center-align')
             i['class'] = ifr_class
 
-    soup.html.unwrap()
-    soup.head.unwrap()
-    soup.body.unwrap()
-    post_raw.text = soup.prettify()
+    post_raw.text = cleanTagsFromSoup(soup)
 
     # image from url
 
@@ -328,11 +346,11 @@ def addPost(post_id, tag_list, moderated, group=None):
     Group(group).send({
         "text": json.dumps(post) })
 
-    cache_str = ["*page_" + str(post_raw.category) + "*",
-                 "*page_None*",
-                "*good_posts_" + str(post_raw.category) + "_*",
-                 "*good_posts_None_*",
-                 "*post_single_" + str(post_raw.id)+"*"
+    cache_str = ["page_" + str(post_raw.category) + "*",
+                 "page_None*",
+                "good_posts_" + str(post_raw.category) + "_*",
+                 "good_posts_None_*",
+                 "post_single_" + str(post_raw.id)+"*"
                 ]
     for i in cache_str:
         cache.delete_pattern(i)

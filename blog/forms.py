@@ -135,9 +135,11 @@ class AddPostForm(forms.ModelForm):
                                         'toolbarSticky': False,
                                         'imageDefaultWidth': 800,
                                         'language': 'ru',
+                                        'imageResize': 'false',
+                                        'imagePasteProcess': 'true',
                                         'placeholderText': '''Напишите что-нибудь
                                         или перетащите изображение''',
-                                        'imageMaxSize': 1024 * 1024 * 19,
+                                        'imageMaxSize': 1024 * 1024 * 50,
                                         'pasteDeniedTags': ['script'],
                                         'imageEditButtons': [
                                             'imageAlign', 'imageRemove',
@@ -185,12 +187,14 @@ class AddPostForm(forms.ModelForm):
                                         'iframe': False,
                                         'toolbarSticky': False,
                                         'language': 'ru',
+                                        'imageResize': 'false',
+                                        'imagePasteProcess': 'true',
                                         'placeholderText': '''Короткое описание
                                          для главной''',
                                         'charCounterCount': True,
                                         'charCounterMax': 500,
                                         'pasteDeniedTags': ['script'],
-                                        'imageMaxSize': 1024 * 1024 * 19,
+                                        'imageMaxSize': 1024 * 1024 * 50,
 
                                         'toolbarButtons': [
                                             'bold', 'italic',

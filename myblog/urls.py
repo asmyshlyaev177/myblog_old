@@ -27,6 +27,9 @@ from django.contrib.auth import views as auth_views
 urlpatterns = [
     #url(r'^silk/', include('silk.urls', namespace='silk')),
     url(r'^clear-cache\/?', views.clear_cache, name='clear_cache'),
+    
+    #url(r'^test\/?$', views.test_view, name='test_view'),
+    
     url(r'sidebar/(?P<category>([^\/]+))?\/?', views.sidebar, name='sidebar'),
     url(r'^add-comment/(?P<postid>[-vi\d]+)/(?P<parent>[-vi\d]+)\/?',
         views.addComment, name='add-comment'),
@@ -65,6 +68,8 @@ urlpatterns = [
 
     url(r'^rate/(?P<type>[-\w]+)/(?P<id>[-vi\d]+)-rate-(?P<vote>[-vi\d])\/?$',
             views.rate_elem, name='rate_elem'),
+    url(r'^complain/(?P<type>[-\w]+)/(?P<objid>[-vi\d]+)/(?P<reason>([^\/]+))\/?$',
+        views.complain_elem, name='complain'),
 
     url(r'^cat/(?P<category>([^\/]+))\/?$', views.list, name='category'),
     url(r'^cat/(?P<category>([^\/]+))/pop-(?P<pop>[-\w]+)\/?$', views.list, name='category_pop'),

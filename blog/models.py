@@ -3,11 +3,11 @@ from django.db import models
 from django.contrib.auth.models import (AbstractBaseUser,
                                         BaseUserManager, PermissionsMixin)
 from django.utils.text import slugify
-
 from django.utils import timezone
-import datetime, re, os, datetime
+import datetime, re, os, datetime, json
 from time import gmtime, strftime
 from imagekit.models import ImageSpecField, ProcessedImageField
+from django.contrib.postgres.fields import JSONField
 from imagekit.processors import ResizeToFit
 from django.utils.safestring import mark_safe
 from django.dispatch import receiver
@@ -26,8 +26,7 @@ from celery import Celery
 from blog.functions import (srcsets, findFile, findLink, saveImage,
                             srcsetThumb, deleteThumb, validate_post_image)
 app = Celery('tasks', broker='pyamqp://guest@localhost//')
-
-
+    
 class MyUserManager(BaseUserManager):
     def create_user(self, username, email, password=None):
         if not email:
@@ -109,6 +108,7 @@ class myUser(AbstractBaseUser, PermissionsMixin):
                 verbose_name="Модерирует категории")
     can_post = models.BooleanField("Может добавлять посты", default=True)
     can_comment = models.BooleanField("Может комментировать", default=True)
+    can_complain = models.BooleanField("Может жаловаться", default=True)
     objects = MyUserManager()
 
     def get_avatar(self):
@@ -240,6 +240,7 @@ class Post(models.Model):
     private = models.BooleanField('NSFW', default=False)
     rateable = models.BooleanField("Разрешено голосовать", default=True)
     comments = models.BooleanField("Разрешено комментировать", default=True)
+    can_complain = models.BooleanField("Разрешено жаловаться", default=True)
     locked = models.BooleanField("Не разрешать редактировать автору", default=False)
     def is_private(self):
         return self.private
@@ -250,7 +251,6 @@ class Post(models.Model):
     def is_locked(self):
         return self.locked
     description = models.CharField("Описание", max_length=700)
-    # text = RichTextUploadingField(config_name = "post")
     text = models.TextField()
     today = datetime.date.today()
     upload_path = str(today.year) + '/' + str(today.month)\
@@ -261,6 +261,7 @@ class Post(models.Model):
     image_url = models.URLField(null=True, blank=True, max_length=1000)
     main_image_srcset = models.TextField(null=True, blank=True,
                                         max_length=800)
+    #main_image = JSONField(null = True, blank = True, max_length=1000)
 
     def get_comments_count(self):
         cache_str = "count_comments_" + str(self.id)
@@ -277,10 +278,6 @@ class Post(models.Model):
             return False
 
     post_image.short_description = 'Image'
-    #post_thumbnail = ImageSpecField(source='post_image',
-    #                            processors=[ResizeToFit(150, 150)],
-    #                            format='JPEG',
-    #                            options={'quality': 85})
     post_thumbnail = models.ImageField(upload_to=upload_path,
                                        blank=True, null=True,
                                       max_length=500)
@@ -318,12 +315,10 @@ class Post(models.Model):
         return self.title
 
     def get_absolute_url(self):
-        cat_url = self.main_tag.url
-        return "/%s/%s-%i/" % (cat_url, self.url, self.id)
+        return "/%s/%s-%i/" % (self.main_tag.url, self.url, self.id)
 
     def get_url(self):
-        cat_url = self.main_tag.url
-        return "%s/%s-%i/" % (cat_url, self.url, self.id)
+        return "%s/%s-%i/" % (self.main_tag.url, self.url, self.id)
 
     def get_category(self):
         return self.category.get_url
@@ -338,77 +333,20 @@ class Post(models.Model):
 
 @receiver(models.signals.pre_delete, sender=Post)
 def _post_delete(sender, instance, **kwargs):
-
-    deleteThumb(instance.text)
-    deleteThumb(instance.main_image_srcset)
-
     cache_str = "post_single_" + str(instance.id)
     cache.delete(cache_str)
     cache_str = "page_" + str(instance.category) + "*"
-    cache.delete(cache_str)
-    try:
-        if instance.post_image:
-            file = instance.post_image
-            if os.path.isfile(file.path):
-                os.remove(file.path)
-    except:
-        pass
+    cache.delete_pattern(cache_str)
+    cache.delete_pattern("page_None_*")
 
 
 @receiver(models.signals.pre_save, sender=Post)
 def _post_save(sender, instance, **kwargs):
-    """delete old file when thumbnail changed"""
-
     cache_str = "post_single_" + str(instance.id)
-    cache.delete(cache_str)
-    cache_str = "page_" + str(instance.category) + "*"
-    cache.delete(cache_str)
-    if not instance.pk:
-        return False
+    cache.delete_pattern(cache_str)
+    cache_str = "page_" + str(instance.category) + "_*"
+    cache.delete_pattern(cache_str)
 
-    try:
-        old_file = Post.objects.get(pk=instance.pk).post_image
-    except Post.DoesNotExist:
-        return False
-
-    new_file = instance.post_image
-
-    if not old_file == new_file and old_file:
-        if os.path.isfile(old_file.path):
-            deleteThumb(instance.post_url)
-            thumb = srcsetThumb(instance.post_image)
-            instance.post_image = thumb
-            os.remove(old_file.path)
-
-    try:
-        old_file = Post.objects.get(pk=instance.pk).post_thumbnail
-    except Post.DoesNotExist:
-        return False
-
-    new_file = instance.post_thumbnail
-    if not old_file == new_file and old_file:
-        if os.path.isfile(old_file.path):
-            os.remove(old_file.path)
-
-
-@receiver(models.signals.post_save, sender=Post)
-def _post_save(sender, instance, **kwargs):
-    # thumb for gifs
-    if instance.post_image_gif():
-        file = instance.post_image.path.split('.gif')[0]
-        im = Image.open(instance.post_image.path).convert('RGB')
-        size = (im.width, im.height)
-        im.thumbnail(size)
-        im.save(file + "-thumbnail.jpeg", "JPEG")
-        file_new = file.split(settings.MEDIA_ROOT)[1] + "-thumbnail"
-        try:
-            file_orig = instance.post_thumbnail.path.split('.')[0].split(settings.MEDIA_ROOT)[1]
-        except:
-            file_orig = ""
-        instance.post_thumbnail = file_new + ".jpeg"
-
-        if file_orig != file_new:
-            instance.save()
 
 
 class Category(models.Model):
@@ -472,7 +410,7 @@ class Tag(models.Model):
     category = models.ForeignKey('Category', blank=True, null=True)
 
     class Meta:
-        verbose_name_plural = "tags"
+        verbose_name_plural = "Тэги"
         ordering = ['name']
 
     def __str__(self):
@@ -486,22 +424,8 @@ class Tag(models.Model):
 
 
 @receiver(models.signals.pre_delete, sender=Tag)
-def delete_image_and_thumb(sender, instance, **kwargs):
+def post_delete(sender, instance, **kwargs):
     cache.delete("taglist")
-    deleteThumb(instance.description)
-
-
-@receiver(models.signals.post_save, sender=Tag)
-def delete_old_image_and_thumb(sender, instance, **kwargs):
-    """delete old file when thumbnail changed"""
-    if not instance.pk:
-        return False
-
-    cache.delete("taglist")
-    deleteThumb(instance.description)
-    if instance.description is not None:
-        instance.description = str(srcsets(instance.description, False))
-
 
 class Comment(MPTTModel):
     """
@@ -518,6 +442,7 @@ class Comment(MPTTModel):
     parent = TreeForeignKey('self', null=True, blank=True,
                             related_name='children')
     rating = models.FloatField('Рейтинг', default=0.0)
+    can_complain = models.BooleanField("Разрешено жаловаться", default=True)
 
     def __str__(self):
         return self.text
@@ -531,9 +456,36 @@ class Comment(MPTTModel):
 def _post_delete(sender, instance, **kwargs):
     cache_str = "comment_" + str(instance.post.id)
     cache.delete(cache_str)
-    deleteThumb(instance.text)
 
 
-@receiver(models.signals.post_save, sender=Comment)
-def _post_save(sender, instance, **kwargs):
-    pass
+class Complain(models.Model):
+    """
+    Жалоба на пост или коммент
+    """
+    index_together = [
+        ['score', 'users_complained']
+    ]
+    edited = models.DateTimeField(auto_now=True)
+    post = models.ForeignKey('Post', blank=True, null=True,
+                            on_delete=models.SET_NULL)
+    comment = models.ForeignKey('Comment', blank=True, null=True,
+                               on_delete=models.SET_NULL)
+    score = models.FloatField(default=0, blank=True, null=True)
+    users_complained = models.TextField(default='{}', max_length=2000, blank=True, null=True)
+    
+    def did_user_vote(self, user):
+        if user.email in self.users_complained:
+            return True
+        else:
+            return False
+
+    class Meta:
+        verbose_name_plural = "Жалобы"
+        ordering = ['edited']
+        
+    def __str__(self):
+        if self.post:
+            return "{} - {}".format(self.post, self.id,)
+        else:
+            return "{} - {}".format(self.comment, self.id)
+    

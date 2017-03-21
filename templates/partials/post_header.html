@@ -1,6 +1,6 @@
 {% load is_moderator %}
 
-<div class="container">
+<div class="container-fluid">
 <div class="row post_header valign-wrapper" postid={{ post.id }}>
 
   <div class="col s3 m3 l3 pre-post-header center">
@@ -11,6 +11,7 @@
         {% if post.author.avatar %}
 
           <img src="{{ post.author.avatar.url }}"
+          alt="Avatar"
           width="{{ post.author.avatar.width }}"
           height="{{ post.author.avatar.height }}"
           class="img-responsive">

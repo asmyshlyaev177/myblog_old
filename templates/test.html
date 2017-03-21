@@ -1,0 +1,53 @@
+{% extends "index.html" %}
+
+{% block title %}{{ post.title }}{% endblock %}
+
+
+{% block content %}
+
+    {% autoescape off %}
+    <div class="post z-depth-1">
+    <h1 class="center-align post-title">{{ post.title }}</h1>
+
+    <div class="clearfix"></div>
+
+    {% if post.main_image %}
+    <p class="post-image center-align">
+        
+        {% if post.main_image.type == "img" %}
+            <img class="responsive-img post-image" sizes="60vw" 
+            src="{{post.main_image.src}}"
+            srcset="
+            {% if post.main_image.src480 %}
+                {{post.main_image.src480}} 480w,
+            {% endif %}
+            {% if post.main_image.src800 %}
+                {{post.main_image.src800}} 800w,
+            {% endif %}
+            {% if post.main_image.src1366 %}
+                {{post.main_image.src1366}} 1366w,
+            {% endif %}
+            {% if post.main_image.src1600 %}
+                {{post.main_image.src1600}} 1600w,
+            {% endif %}
+            {% if post.main_image.src1920 %}
+                {{post.main_image.src1920}} 1920w
+            {% endif %}">
+        
+        {% endif %}
+
+    </p>
+    {% endif %}
+
+    <!-- <div class="row"> -->
+      <div class="flow-text">
+        {{ post.description }}
+        {{ post.text }}
+      </div>
+    <!--</div> -->
+
+    </div>
+    {% endautoescape %}
+
+
+{% endblock %}

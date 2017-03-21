@@ -153,7 +153,7 @@ def convertImgToSrcset(link, file, original_pic, src_szs):
     return src_str, alt
 
 
-def convertGifToWebm(link, file, ext):
+def convertGifToWebm(link, file, ext, post_id):
     """
     Конвертим гифки в webm
     """
@@ -228,9 +228,10 @@ def srcsets(text, wrap_a, post_id=None):
                 ext = img['src'].split('.')[-1].lower()
 
                 if ext == "gif" or ext == "webm":
-                    webm = convertGifToWebm(link, file, ext)
+                    webm = convertGifToWebm(link, file, ext, post_id)
                     img.replaceWith(webm)  
-                    os.remove(file)
+                    if ext == "gif":
+                        os.remove(file)
                 else:
                     # если картинка больше нужного размера создаём миниатюру
                     srcset, alt = convertImgToSrcset(link, file, original_pic, src_szs)
