@@ -14,13 +14,15 @@ var isTouch =  !!("ontouchstart" in window) || window.navigator.msMaxTouchPoints
 var userAuth = false;
 var sidebarUrl = "/sidebar/";
 var single_page = false;
-var one_col= false;
+var main = $(".main");
+var sidebar = $(".sidebar");
 
 $(window).load(function(){
 	if ( loader == undefined || loader == "" ) {
 		loader = $("#loader");
 	}
     detectPageUrl();
+    toggleCol();
     selectActiveTabs();
     toggleTopMenu();
     checkUserAuth();
@@ -39,6 +41,8 @@ $(window).load(function(){
 	rateHoverClick();
     wsConnect();
     Comments();
+    editorInit();
+    tagBoxInit();
 });
 
 function scrollProcessingCheck() {
@@ -71,7 +75,7 @@ function hideBanner() {
 
 function Comments() {
     /* Берём пост ид и загружаем комменты для него */
-	$(document).ready(function(){
+	$(document).ready(function() {
     if ( $("#Comments_title").length > 0 ) {
         var postid = parseInt( $(".post_header").attr("postid") );
         var link = "/comments/" + postid + "/"
@@ -334,11 +338,6 @@ function ClickAjaxMenu() {
 	} else { 
 		single_page = false;
 	}
-	if ( ajax_menu.is('[one_col]' ) ) { // одна или две колонки на странице
-		one_col = true;
-	} else {
-		one_col = false;
-	}
 
 	if ( ajax_menu.attr("url") != undefined &&
 				ajax_menu.attr("url") != "" )
@@ -381,16 +380,25 @@ function ClickAjaxMenu() {
 	});
 	}
 
+function toggleCol() {
+    /* Переключает между видом с 1 и 2 колонками */
+    if ($("#one-col").length && $(sidebar).css('display') != 'none' ) { 
+         oneCol()
+    } else if ( $(sidebar).css('display') == 'none' ){
+        twoCol()
+    }
+}
+
 function oneCol() {
     /* форматируем вид в одну колонку */
-    $(".main").attr('class', 'main col s12 m12 l12');
-	$(".sidebar").hide();
+    $(main).attr('class', 'main col s12 m12 l12');
+	$(sidebar).hide();
 }
 
 function twoCol() {
     /* в две колонки */
-    $(".main").attr('class', 'main col s12 m10 l6 offset-m1 offset-l1');
-	$(".sidebar").show();
+    $(main).attr('class', 'main col s12 m10 l6 offset-m1 offset-l1');
+	$(sidebar).show();
 }
 
 function ChangePageNew( link ) {
@@ -416,14 +424,16 @@ function ChangePageNew( link ) {
                 /* добавляем адрес следующего перехода в ссылку авторизации */
                 $("#login-link").attr("href", "/login?next=" + pageUrl);
                 $("#logout-link").attr("href", "/logout?next=" + pageUrl);
-                if ( one_col ) { oneCol(); } else { twoCol(); }
                 var data2 = ('<div class="content">' + data + '</div>');
                 $(data2).replaceAll('.content');
                 scrollProcessingCheck();
+                toggleCol();
                 wsConnect();
                 loader.hide();
                 toggleTopMenu();
-
+                tagBoxInit();
+                editorInit();
+                Comments();
 	          }
 	     });
         /* запрос сайдбара */
@@ -601,11 +611,14 @@ function CopyTags() {
 
 function loadTags( tagBox ) {
     /* Загружаем тэги при редактировании поста в тэгбокс*/
-    var tags_list = $("#tags_list").attr('tags').replace(/'/g, '"');
-    tags_list = JSON.parse(tags_list);
-    for ( var i in tags_list ) { 
-        $( tagBox ).tagging( "add", tags_list[i] );
-    };
+    var tagsListElem = $("#tags_list");
+    if ( tagsListElem.length ) {
+        var tags_list = tagsListElem.attr('tags').replace(/'/g, '"');
+        tags_list = JSON.parse(tags_list);
+        for ( var tag in tags_list ) { 
+            $( tagBox ).tagging( "add", tags_list[tag] );
+        }; 
+    }
 }
 
 function SelectHint() {
@@ -652,6 +665,154 @@ function Preview( files, el_id, url ) {
     $("#preview").replaceWith(preview);
   }
 
+function editorInit() {
+    
+    var description = $('#id_description');
+    var text = $('#id_text');
+    if ( description .length || text.length ) {
+        function imageLink(arr, action) {
+        if ( action == "insert" ) {
+           var index = arr.indexOf('insertLink');
+            if (arr.indexOf('insertLink') != -1) {
+                arr.splice(index + 1, 0, 'insertImage');
+        } else if ( action == "remove") {
+            var index = arr.indexOf('insertImage');
+            if ( index != -1 ) {
+                 arr.splice(index, 1);
+                }
+            }
+        }
+        return arr;
+        }
+
+        var toolbarButtons = [
+        "bold", "italic", "underline", "strikeThrough", 
+        "fontSize", "|", "align", "quote", "|", "-", "insertLink",
+        "insertVideo", "|", "insertTable", "-", "undo", "redo",
+        "clearFormatting"
+        ];
+        var toolbarButtonsMD = [
+        "bold", "italic", "underline", "strikeThrough", 
+        "fontSize", "|", "align", "quote", "|", "-", "insertLink",
+        "insertVideo", "|", "insertTable", "-", "undo", "redo", "clearFormatting"
+        ];
+        var toolbarButtonsSM = [
+        "bold", "italic", "underline", "strikeThrough", 
+        "|", "align", "quote", "insertLink", "insertVideo", "undo", 
+        "redo", "clearFormatting"
+        ];
+        var toolbarButtonsXS = [
+        "align", "quote", "insertLink", "insertVideo", "undo", "redo", "clearFormatting"
+        ];
+
+        var params = {"fileUploadParams": {"csrfmiddlewaretoken": getCookie("csrftoken")},
+            "imageMaxSize": 52428800, "inlineMode": false, 
+            "imageUploadParams": {"csrfmiddlewaretoken": getCookie("csrftoken")},
+            "charCounterMax": 500, "toolbarSticky": false,
+            "placeholderText": "Короткое описание для главной", 
+            "language": "ru",
+            "imageResize": "false", "pasteDeniedTags": ["script"],
+            "charCounterCount": true, "imagePasteProcess": "true",
+            "fileUploadURL": "/froala_editorfile_upload/",
+            "imageUploadURL": "/froala_editorimage_upload/", "toolbarInline": false,
+            "iframe": false};
+        params.toolbarButtons = toolbarButtons;
+        params.toolbarButtonsMD = toolbarButtonsMD;
+        params.toolbarButtonsSM = toolbarButtonsSM;
+        params.toolbarButtonsXS = toolbarButtonsXS;
+
+        var placeholderText = "Напишите что-нибудь или перетащите изображение";
+
+        if ( description.length > 0 ) {
+            params.toolbarButtons = imageLink(toolbarButtons, "remove");
+            params.toolbarButtonsMD = imageLink(toolbarButtonsMD, "remove");
+            params.toolbarButtonsSM = imageLink(toolbarButtonsSM, "remove");
+            params.toolbarButtonsXS = imageLink(toolbarButtonsXS, "remove");
+            $(description).froalaEditor(params);
+        }
+        if ( text.length > 0 ) {
+            params.placeholderText = placeholderText;
+            params.toolbarButtons = imageLink(toolbarButtons, "insert");
+            params.toolbarButtonsMD = imageLink(toolbarButtonsMD, "insert");
+            params.toolbarButtonsSM = imageLink(toolbarButtonsSM, "insert");
+            params.toolbarButtonsXS = imageLink(toolbarButtonsXS, "insert");
+            $(text).froalaEditor(params);
+        }
+    }
+    
+
+    
+    return false;
+}
+
+function tagBoxInit() {
+    var TagBox = $("#tagBox");
+    
+    if ( TagBox.length ) {
+        var tagging_options = {
+        "no-duplicate": true,
+        "no-comma": false,
+        "no-duplicate-callback": HideHint,
+        "forbidden-chars-callback": null,
+        "tag-on-blur": false,
+        "no-spacebar": true,
+        "case-sensitive": true,
+        //"close-char": "X",
+        "close-class": "material-icons close",
+        "tag-class": "chip",
+        "close-char": "close",
+        "forbidden-chars": [],
+        "forbidden-words": [],
+        };
+
+        TagBox.tagging( tagging_options);
+
+        var taglist = new Bloodhound({
+          datumTokenizer: Bloodhound.tokenizers.whitespace,
+          queryTokenizer: Bloodhound.tokenizers.whitespace,
+          prefetch: {
+          url: '/tags.json',
+          cache: false
+          }
+        });
+
+        $('.type-zone').typeahead(null, {
+          name: 'taglist',
+          source: taglist,
+          hint: true,
+          highlight: true,
+          minLength: 2,
+          limit: 10
+        });
+
+        TagBox.on( "add:after", function (el, tagging){
+            HintPos();
+            CopyTags();
+            TagBox.tagging( "emptyInput" );
+            HideHint()
+        } );
+
+        TagBox.on( "remove:after", function (el, tagging){
+            HintPos();
+            CopyTags();
+        } );
+
+        $(document).on('click', '.tt-suggestion', function() {
+            HideHint()
+            TagBox.tagging( "add", $(this).text() );
+            TagBox.tagging( "emptyInput" );
+        });
+
+        $(document).ready(function(){
+            var post_image_url = $('#id_image_url');
+            var preview = $('#preview');
+            SelectHint();
+            $('select').material_select();
+            $('ul.tabs').tabs();
+            loadTags( tagBox );
+        });
+    }
+}
 
 function playPause() {
     /* воспроизведение/пауза при клике на видео */

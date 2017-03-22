@@ -1,6 +1,7 @@
 <h2 class="text-center">Привет, {{ request.user.username }}!</h2>
 
 {% block content %}
+<div id="one-col" style="display: none;"></div>
 
 <div>
   <form action="{% url 'dashboard' %}" method="post"

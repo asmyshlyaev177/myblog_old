@@ -2,10 +2,7 @@
 
 {% block content %}
 
-<script>
-$('.top-menu').hide()
-oneCol();
-</script>
+<div id="one-col" style="display: none;"></div>
 
 <div class="post z-depth-1">
 
@@ -224,80 +221,6 @@ border-color: #84c7c1;
 </style>
 
 <div style="height: 100"></div>
-<script>
-scrollProcessing = true;
-$(document).ready(function(){
-  var post_image_url = $('#id_image_url');
-  var preview = $('#preview');
 
-	SelectHint();
-
-  $('select').material_select();
-
-  $('ul.tabs').tabs();
-});
-
-
-var tagging_options = {
-  "no-duplicate": true,
-  "no-comma": false,
-  "no-duplicate-callback": HideHint,
-  "forbidden-chars-callback": null,
-  "tag-on-blur": false,
-  "no-spacebar": true,
-  "case-sensitive": true,
-  //"close-char": "X",
-  "close-class": "material-icons close",
-  "tag-class": "chip",
-  "close-char": "close",
-  "forbidden-chars": [],
-	"forbidden-words": [],
-};
-
-var TagBox = $("#tagBox");
-TagBox.tagging( tagging_options);
-
-var taglist = new Bloodhound({
-  datumTokenizer: Bloodhound.tokenizers.whitespace,
-  queryTokenizer: Bloodhound.tokenizers.whitespace,
-  prefetch: {
-  url: '/tags.json',
-  cache: false
-   }
-});
-
-$('.type-zone').typeahead(null, {
-  name: 'taglist',
-  source: taglist,
-  hint: true,
-  highlight: true,
-  minLength: 2,
-  limit: 10
-});
-
-TagBox.on( "add:after", function (el, tagging){
-    HintPos();
-    CopyTags();
-    TagBox.tagging( "emptyInput" );
-    HideHint()
-} );
-
-TagBox.on( "remove:after", function (el, tagging){
-    HintPos();
-    CopyTags();
-} );
-
-loadTags( tagBox );
-    
-$(document).on('click', '.tt-suggestion', function() {
-	HideHint()
-	TagBox.tagging( "add", $(this).text() );
-	TagBox.tagging( "emptyInput" );
-});
-
-$('html, body').scrollTop( 0 );
-$('#id_title').focus();
-
-</script>
 </div>
 {% endblock %}

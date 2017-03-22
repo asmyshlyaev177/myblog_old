@@ -49,7 +49,7 @@ class CommentForm(forms.ModelForm):
     class Meta:
         model = Comment
         fields = ('text', )
-        widgets = {'text': FroalaEditor(
+        """widgets = {'text': FroalaEditor(
             options={'toolbarInline': False,
                     'iframe': False,
                     'toolbarSticky': False,
@@ -101,6 +101,7 @@ class CommentForm(forms.ModelForm):
                         'clearFormatting'
                     ]}
                     )}
+                    )}"""
 
 
 class AddPostForm(forms.ModelForm):
@@ -127,7 +128,7 @@ class AddPostForm(forms.ModelForm):
             'locked': ('Редактирование запрещено'),
         }
 
-        widgets = {
+        """widgets = {
             'text': FroalaEditor(
 
                                 options={'toolbarInline': False,
@@ -230,4 +231,4 @@ class AddPostForm(forms.ModelForm):
                                             'undo', 'redo',
                                             'clearFormatting'
                                         ]})
-        }
+        }"""
