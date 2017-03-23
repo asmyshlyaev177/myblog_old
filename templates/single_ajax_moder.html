@@ -2,7 +2,7 @@
 {% load is_moderator %}
 {% load cache %}
 
-{% cache 60 single_moder request.path request.user|is_moderator:post %}
+{% cache 10 single_moder request.path request.user|is_moderator:post %}
 
 {% autoescape off %}
 <div class="post z-depth-1">

@@ -21,12 +21,21 @@ from blog import views
 from django.views.static import serve
 from django.conf import settings
 from django.views.decorators.cache import cache_page
-import debug_toolbar
 from django.contrib.auth import views as auth_views
+from django.contrib.sitemaps.views import index, sitemap
+from blog.sitemap import BlogSitemap
+
+import debug_toolbar
+
+sitemaps = {'posts': BlogSitemap() }
 
 urlpatterns = [
     #url(r'^silk/', include('silk.urls', namespace='silk')),
     url(r'^clear-cache\/?', views.clear_cache, name='clear_cache'),
+
+    url(r'^sitemap\.xml$', index, {'sitemaps': sitemaps}),
+    url(r'^sitemap-(?P<section>.+)\.xml$', sitemap, {'sitemaps': sitemaps},
+        name='django.contrib.sitemaps.views.sitemap'),
     
     #url(r'^test\/?$', views.test_view, name='test_view'),
     

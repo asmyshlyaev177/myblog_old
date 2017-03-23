@@ -11,14 +11,14 @@
         {% if post.author.avatar %}
 
           <img src="{{ post.author.avatar.url }}"
-          alt="Avatar"
+          alt="Avatar" title="Avatar-{{post.author.username}}"
           width="{{ post.author.avatar.width }}"
           height="{{ post.author.avatar.height }}"
-          class="img-responsive">
+          class="img-avatar img-responsive">
 
         {% else %}
-        <img src="/static/img/avatar.jpg" class ="img-avatar"
-             height="50" width="50"/>
+        <img src="/static/img/avatar.jpg" class="img-avatar img-responsive" 
+             title="Avatar-default" alt="Avatar" height="50" width="50">
         {% endif %}
       </div>
     </div>

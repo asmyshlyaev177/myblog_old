@@ -1,6 +1,6 @@
 {% load post_header %}
 {% load cache %}
-{% cache 7200 single_ajax request.user.is_anonymous request.path %}
+{% cache 10 single_ajax request.user.is_anonymous request.path %}
 
 {% autoescape off %}
 <div class="post z-depth-1">

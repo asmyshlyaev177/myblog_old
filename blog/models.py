@@ -250,7 +250,7 @@ class Post(models.Model):
         return self.comments
     def is_locked(self):
         return self.locked
-    description = models.CharField("Описание", max_length=700)
+    description = models.TextField("Описание", max_length=700)
     text = models.TextField()
     today = datetime.date.today()
     upload_path = str(today.year) + '/' + str(today.month)\
@@ -264,9 +264,14 @@ class Post(models.Model):
     #main_image = JSONField(null = True, blank = True, max_length=1000)
 
     def get_comments_count(self):
+        count = 0
         cache_str = "count_comments_" + str(self.id)
-        query = self.comment_set.count()
-        count = cache.get_or_set(cache_str, query, 7200)
+        if cache.ttl(cache_str):
+            count = cache.get(cache_str)
+        else:
+            query = self.comment_set.count()
+            cache.set(cache_str, query, 360)
+            #count = cache.get_or_set(cache_str, query, 360)
         return count
 
     def post_thumb_ext(self):
@@ -306,7 +311,7 @@ class Post(models.Model):
                 ("P", "Опубликован"),
     )
     status = models.CharField("Статус", max_length=1, choices=STATUS, default="D")
-
+    
     class Meta:
         ordering = ['-published']
         verbose_name_plural = "posts"

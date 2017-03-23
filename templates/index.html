@@ -1,9 +1,11 @@
 {% load staticfiles %}
 {% load compress %}
+{% load meta %}
+
 
 <!DOCTYPE html>
 <html>
-<head>
+<head {% meta_namespaces %}>
 <meta charset="utf-8">
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <title>{% block title %}{% endblock %}</title>
@@ -29,9 +31,12 @@
     <link href="/static/froala_editor/css/plugins/video.min.css" type="text/css" media="all" rel="stylesheet" />
     <link href="/static/froala_editor/css/plugins/char_counter.min.css" type="text/css" media="all" rel="stylesheet" />
     <link rel="stylesheet" href="/static/css/tagging.css" type="text/css">
-    
     <link rel="stylesheet" href="/static/css/custom.css" type="text/css" />
+    
     {% endcompress %}
+
+{% include 'meta/meta.html' %}
+{{ meta.og_description }}
 </head>
 
 
@@ -43,7 +48,7 @@
           <div class="col s12 m12 l12 header1">
             <a class="waves-effect brand-logo left ajax-menu menu"
             url="" href="/">
-              <img alt="logo" id="logo" src="#"/>
+              <img alt="logo" id="logo" src="#" title="logo" />
               <div id="site-name" style="display: inline-block;">
                 Название сайта
               </div>
@@ -56,18 +61,18 @@
                 <p id="user_auth" style="display: none;" user={{request.user.id}}></p>
                   {% if user.avatar %}
                             <p><img src="{{ user.avatar.url }}"
-                            alt="Avatar"
+                            alt="Avatar" title="Avatar-{{user.username}}"
                             width="50"
                             height="50"
                             class = "img-avatar circle z-depth-2 hoverable"></p>
                   {% else %}
-                  <p><img src="/static/img/avatar.jpg"
+                  <p><img src="/static/img/avatar.jpg" title="Avatar-default"
                     class ="hoverable img-avatar circle"
-                    width="50" height="50"/></p>
+                    width="50" height="50" alt="Avatar"/></p>
                   {% endif %}
               {% else %}
-                <p><img src="/static/img/avatar.jpg" width="50" height="50"
-                  class ="img-avatar circle z-depth-2 hoverable"/></p>
+                <p><img src="/static/img/avatar.jpg" width="50" height="50" title="Avatar-default"
+                  class ="img-avatar circle z-depth-2 hoverable" alt="Avatar"/></p>
               {% endif %}
             </a>
 

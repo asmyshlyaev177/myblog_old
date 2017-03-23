@@ -13,6 +13,9 @@ import os
 import datetime
 
 #CELERY_RESULT_BACKEND = 'django-db'  # for testing
+SITE_ID = 1
+
+#SILKY_PYTHON_PROFILER = True
 
 CHANNEL_LAYERS = {
     "default": {
@@ -158,7 +161,9 @@ INSTALLED_APPS = [
     #'django_celery_results',
     #'django_celery_beat',
     'social_django',
-    # 'silk',
+    'django.contrib.sites',
+    'django.contrib.sitemaps',
+    #'silk',
 ]
  
 CELERY_BROKER_URL = 'amqp://django:Qvjuzowu177Qvjuzowu177Qvjuzowu177@127.0.0.1:5672//'
@@ -173,6 +178,7 @@ STATIC_ROOT = '/root/myblog/myblog/blog/static/'
 MEDIA_ROOT = '/root/myblog/myblog/blog/static/media/'
 MEDIA_URL = '/media/'
 
+
 STATICFILES_FINDERS = (
     'django.contrib.staticfiles.finders.FileSystemFinder',
     'django.contrib.staticfiles.finders.AppDirectoriesFinder',
@@ -182,7 +188,7 @@ STATICFILES_FINDERS = (
 
 # COMPRESS_ROOT = STATIC_URL
 # COMPRESS_OFFLINE = True
-COMPRESS_ENABLED = True  # удобней выключить потом включу
+COMPRESS_ENABLED = False  # удобней выключить потом включу
 COMPRESS_CSS_FILTERS = ['compressor.filters.css_default.CssAbsoluteFilter',
                         'compressor.filters.cssmin.rCSSMinFilter']
 # IMAGEKIT_DEFAULT_CACHEFILE_STRATEGY = 'imagekit.cachefiles.strategies.JustInTime'
@@ -200,7 +206,7 @@ MIDDLEWARE_CLASSES = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'django.middleware.locale.LocaleMiddleware',
     'django.middleware.cache.FetchFromCacheMiddleware',
-    # 'silk.middleware.SilkyMiddleware',
+    #'silk.middleware.SilkyMiddleware',
 
 ]
 

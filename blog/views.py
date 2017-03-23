@@ -19,7 +19,8 @@ from django.contrib.auth.views import (login as def_login,
                                 password_change as def_password_change)
 
 hot_rating = 3
-
+import resource
+    
 @never_cache
 def test_view(request):
     """
@@ -441,11 +442,11 @@ def list(request, category=None, tag=None, pop=None):
     context['cat_list'] = get_cat_list()
     context['page'] = page
 
+    print('Views memory usage: %s (kb)' % resource.getrusage(resource.RUSAGE_SELF).ru_maxrss)
     if not posts and page:
         return HttpResponse('last_page')
     else:
         return render(request, template, context)
-
 
 #@cache_page(30)
 #@cache_control(max_age=30)
