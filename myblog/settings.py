@@ -164,6 +164,7 @@ INSTALLED_APPS = [
     'django.contrib.sites',
     'django.contrib.sitemaps',
     #'silk',
+    'meta',
 ]
  
 CELERY_BROKER_URL = 'amqp://django:Qvjuzowu177Qvjuzowu177Qvjuzowu177@127.0.0.1:5672//'
@@ -173,10 +174,21 @@ TEMPLATE_DEBUG = True
 THUMBNAIL_DEBUG = True
 THUMBNAIL_PRESERVE_FORMAT = True
 
+BASE_URL = 'http://192.168.1.70'
 STATIC_URL = '/static/'
 STATIC_ROOT = '/root/myblog/myblog/blog/static/'
 MEDIA_ROOT = '/root/myblog/myblog/blog/static/media/'
 MEDIA_URL = '/media/'
+SITE_DESCRIPTION = 'Site description'
+GPLUS = 'google_plus_url'
+FB = 'fb_url'
+VK = 'vk_url'
+META_SITE_PROTOCOL = 'http'
+META_SITE_DOMAIN = '192.168.1.70'
+META_SITE_NAME = "Test site"
+META_USE_OG_PROPERTIES = True
+META_USE_TWITTER_PROPERTIES = True
+META_USE_GOOGLEPLUS_PROPERTIES = True
 
 
 STATICFILES_FINDERS = (

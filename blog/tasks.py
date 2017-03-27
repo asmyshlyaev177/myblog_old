@@ -319,6 +319,7 @@ def addPost(post_id, tag_list, moderated, group=None):
         post_raw.main_image_srcset = srcsetThumb(post_raw.post_image, post_id=post_raw.id)
         # change post_image link to webm
         if not BeautifulSoup(post_raw.main_image_srcset, "html5lib").video == None:
+            post_raw.post_image_gif = post_raw.post_image
             post_image_file = BeautifulSoup(post_raw.main_image_srcset, "html5lib")\
                                         .video.source['src']
             post_raw.post_image = stripMediaFromPath(post_image_file)

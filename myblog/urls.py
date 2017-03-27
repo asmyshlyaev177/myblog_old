@@ -32,6 +32,8 @@ sitemaps = {'posts': BlogSitemap() }
 urlpatterns = [
     #url(r'^silk/', include('silk.urls', namespace='silk')),
     url(r'^clear-cache\/?', views.clear_cache, name='clear_cache'),
+    url(r'^cbv/(?P<tag>([^\/]+))/(?P<title>([^\/]+))-(?P<pk>([-vi\d]+))\/?$',
+            views.single_post_cbv.as_view(), name='single_post_cbv'),
 
     url(r'^sitemap\.xml$', index, {'sitemaps': sitemaps}),
     url(r'^sitemap-(?P<section>.+)\.xml$', sitemap, {'sitemaps': sitemaps},

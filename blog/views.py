@@ -20,20 +20,6 @@ from django.contrib.auth.views import (login as def_login,
 
 hot_rating = 3
 import resource
-    
-@never_cache
-def test_view(request):
-    """
-    Тестовая вьюшка для отдельного поста
-    """
-
-    template = 'test.html'
-
-    context = {}
-    context['post'] = Post.objects.get(id=6520)
-    context['cat_list'] = get_cat_list()
-
-    return render(request, template, context)
 
 def clear_cache(request):
     """
@@ -451,6 +437,54 @@ def list(request, category=None, tag=None, pop=None):
 #@cache_page(30)
 #@cache_control(max_age=30)
 #@vary_on_headers('X-Requested-With', 'Cookie')
+
+from django.views.generic import DetailView
+
+from meta.views import MetadataMixin
+from django.utils.decorators import method_decorator
+@method_decorator(never_cache, name='dispatch')
+class single_post_cbv(DetailView, MetadataMixin):
+    context_object_name = 'post'
+    user_known = False
+    
+    def get_queryset(self):
+        cache_str = "post_single_" + str(id)
+        query = Post.objects\
+                .prefetch_related("tags", "category", "author", "main_tag")\
+                .get(pk=self.kwargs['pk'])
+        post = cache.get_or_set(cache_str, query, 7200)
+        return Post.objects.filter(id=self.kwargs['pk'])
+    
+    def get_context_data(self, **kwargs):
+        context = super(single_post_cbv, self).get_context_data(**kwargs)
+        
+        #self.pk = self.kwargs['pk']
+        comment_form = CommentForm()
+        comments = Comment.objects.filter(post=self.kwargs['pk'])
+        if self.request.is_ajax():
+            self.template_name = 'single_ajax.html'
+            if not self.request.user.is_anonymous():
+                if self.request.user.moderator\
+                or self.request.user.is_superuser:
+                    self.template_name = 'single_ajax_moder.html'
+        else:
+            self.template_name = 'single.html'
+            if not self.request.user.is_anonymous():
+                if self.request.user.moderator\
+                or self.request.user.is_superuser:
+                    self.template_name = 'single_moder.html'
+        if self.request.user.is_authenticated:
+            self.user_known = True
+        else:
+            self.user_known = False
+        context['good_posts'] = get_good_posts(category=self.get_queryset()[0].category.id,
+                                               private=self.user_known)
+        context['cat_list'] = get_cat_list()
+        context['meta'] = self.get_object().as_meta(self.request)
+        context['comment_form'] = comment_form
+        context['comments'] = comments
+        return context
+
 @never_cache
 def single_post(request, tag, title, id):
     """
@@ -483,10 +517,10 @@ def single_post(request, tag, title, id):
 
     comments = Comment.objects.filter(post=post)
 
+    user_known = False
     if request.user.is_authenticated:
         user_known = True
-    else:
-        user_known = False
+        
     good_posts = get_good_posts(category=post.category.id, private=user_known)
     context = {}
     context['good_posts'] = good_posts
@@ -494,6 +528,7 @@ def single_post(request, tag, title, id):
     context['cat_list'] = get_cat_list()
     context['comment_form'] = comment_form
     context['comments'] = comments
+    context['meta'] = post.as_meta()
 
     return render(request, template, context)
 

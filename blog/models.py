@@ -91,6 +91,10 @@ class myUser(AbstractBaseUser, PermissionsMixin):
     #is_superuser = models.BooleanField("Админ всего и вся", default=False)
     moderated = models.BooleanField("Модерируется", default=False)
     moderator = models.BooleanField("Модератор", default=False)
+    moderator_of_tags = models.ManyToManyField('Tag', blank=True,
+                verbose_name="Модерирует тэги")
+    moderator_of_categories = models.ManyToManyField('Category', blank=True,
+                verbose_name="Модерирует категории")
     user_last_login = models.DateTimeField(auto_now=True)
     date_joined = models.DateTimeField(auto_now_add=True)
     REQUIRED_FIELDS = ['email', ]
@@ -100,15 +104,11 @@ class myUser(AbstractBaseUser, PermissionsMixin):
                     ("N", "Normal"),
                     ("B", "Blocked"),
     )
-    rating = models.FloatField('Рейтинг', default=0.0)
-    votes_amount = models.CharField(max_length=1, choices=VOTES_AMOUNT, default="N")
-    moderator_of_tags = models.ManyToManyField('Tag', blank=True, null=True,
-                verbose_name="Модерирует тэги")
-    moderator_of_categories = models.ManyToManyField('Category', blank=True, null=True,
-                verbose_name="Модерирует категории")
     can_post = models.BooleanField("Может добавлять посты", default=True)
     can_comment = models.BooleanField("Может комментировать", default=True)
     can_complain = models.BooleanField("Может жаловаться", default=True)
+    rating = models.FloatField('Рейтинг', default=0.0)
+    votes_amount = models.CharField(max_length=1, choices=VOTES_AMOUNT, default="N")
     objects = MyUserManager()
 
     def get_avatar(self):
@@ -228,7 +228,9 @@ class UserVotes(models.Model):
 
 
 
-class Post(models.Model):
+    
+from meta.models import ModelMeta
+class Post(models.Model, ModelMeta):
     """
     Модель поста
     """
@@ -258,6 +260,8 @@ class Post(models.Model):
     post_image = models.FileField(upload_to=upload_path, blank=True,
                                    null=True, max_length=500,
                                   validators=[validate_post_image])
+    post_image_gif = models.FileField(upload_to=upload_path, blank=True,
+                                   null=True, max_length=500)
     image_url = models.URLField(null=True, blank=True, max_length=1000)
     main_image_srcset = models.TextField(null=True, blank=True,
                                         max_length=800)
@@ -276,8 +280,7 @@ class Post(models.Model):
 
     def post_thumb_ext(self):
         if self.post_thumbnail:
-            ext = []
-            ext = self.post_thumbnail.path.split('.')[-1]
+            ext = os.path.splitext(self.post_thumbnail.path)[-1].split('.')[-1]
             return ext
         else:
             return False
@@ -311,10 +314,24 @@ class Post(models.Model):
                 ("P", "Опубликован"),
     )
     status = models.CharField("Статус", max_length=1, choices=STATUS, default="D")
-    
+
     class Meta:
         ordering = ['-published']
         verbose_name_plural = "posts"
+
+    _metadata = {
+        'title': 'title',
+        'description': 'description',
+        'image': 'get_meta_image',
+    }
+    
+    def get_meta_image(self):
+        if self.post_image_gif:
+            return self.post_image_gif.url
+        elif self.post_image:
+            return self.post_image.url
+        else:
+            return None
 
     def __str__(self):
         return self.title

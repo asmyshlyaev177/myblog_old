@@ -5,6 +5,7 @@ from PIL import Image
 from django.utils.encoding import uri_to_iri, iri_to_uri
 from moviepy.editor import *
 from django.core.cache import cache
+from django.conf import settings
 
 src_szs = [480, 800, 1366, 1600, 1920]
 
@@ -230,8 +231,8 @@ def srcsets(text, wrap_a, post_id=None):
                 if ext == "gif" or ext == "webm":
                     webm = convertGifToWebm(link, file, ext, post_id)
                     img.replaceWith(webm)  
-                    if ext == "gif":
-                        os.remove(file)
+                    #if ext == "gif":
+                    #    os.remove(file)
                 else:
                     # если картинка больше нужного размера создаём миниатюру
                     srcset, alt = convertImgToSrcset(link, file, original_pic, src_szs)
@@ -262,3 +263,59 @@ def stripMediaFromPath(file):
         return uri_to_iri(new_path)
     else:
         return uri_to_iri(file)
+    
+def get_schemaorg(type=None, id=None):
+    schema = {'@context': 'http://schema.org'}
+    logo = {'@type': 'ImageObject',
+            'contentUrl': '{}{}'.format(settings.BASE_URL, '/logo.png'),
+            'encodingFormat': 'png',
+            'name': 'logo',
+            'text': 'logo',
+            'url': '{}'.format(settings.BASE_URL)}
+    sameAs = [settings.GPLUS, settings.FB, settings.VK]
+    
+    if type=='post':
+        post = Post.objects.prefetch_related('category', 'author').get(id=id)
+        schema['@type'] = 'Article'
+        schema['inLanguage'] = 'ru_RU'
+        schema['articleSection'] = post.main_tag.name
+        author = {'@type': 'Person'}
+        author['name'] = post.author.username
+        if post.author.avatar:
+            image = {'@type': 'ImageObject'}
+            image['contentUrl'] = "{}{}".format(settings.BASE_URL, post.author.avatar.url)
+            image['encodingFormat'] = os.path.splitext(post.author.avatar.file.name)[-1].split('.')[-1]
+            image['url'] = image['contentUrl']
+            image['width'] = post.author.avatar.width
+            image['height'] = post.author.avatar.height
+            author['image'] = image
+        schema['author'] = author
+        schema['datePublished'] = post.published.isoformat()
+        schema['dateModified'] = post.edited.isoformat()
+        schema['copyrightYear'] = post.published.year
+        schema['description'] = post.description
+        schema['headline'] = post.title
+
+        if post.post_image:
+            image = {'@type': 'ImageObject'}
+            clip = VideoFileClip(post.post_image.path)
+            image['contentUrl'] = "{}{}".format(settings.BASE_URL, post.post_image.url)
+            image['encodingFormat'] = post.post_thumb_ext()
+            image['url'] = image['contentUrl']
+            image['width'], image['height'] = clip.size
+            image['text'] = post.title
+            image['name'] = os.path.split(os.path.splitext(post.post_image.url)[0])[-1]
+            image['thumbnailUrl'] = "{}{}".format(settings.BASE_URL, post.post_thumbnail.url)
+            schema['image'] = image
+
+        schema['keywords'] = ', '.join(list(post.tags.values_list('name', flat=True)))
+        schema['mainEntityOfPage'] = "{}{}".format(settings.BASE_URL, post.get_absolute_url())
+        schema['name'] = schema['headline']
+        schema['url'] = schema['mainEntityOfPage']
+
+        publisher = {'@type': 'Organization', 'description': settings.SITE_DESCRIPTION}
+        publisher['logo'] = logo
+        publisher['sameAs'] = sameAs
+        schema['publisher'] = publisher
+    
+    return schema

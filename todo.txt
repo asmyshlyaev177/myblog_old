@@ -46,8 +46,6 @@ while d <= end_date:
     d += delta
 
 
-рейтинг в админке
-
 Своя проверка валидности форм <input formnovalidate> <form action="demo_form.asp" novalidate>
 http://qtip2.com/guides#integration
 https://github.com/chrisdavies/tlite
