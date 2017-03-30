@@ -19,6 +19,7 @@ from django.contrib.auth.views import (login as def_login,
                                 password_change as def_password_change)
 
 hot_rating = 3
+
 import resource
 
 def clear_cache(request):
@@ -368,7 +369,7 @@ def complain_elem(request, type, objid, reason):
 #@cache_page(30)
 #@cache_control(max_age=30)
 #@vary_on_headers('X-Requested-With', 'Cookie')
-@never_cache
+#@never_cache
 def list(request, category=None, tag=None, pop=None):
     """
     Лист постов
@@ -485,7 +486,7 @@ class single_post_cbv(DetailView, MetadataMixin):
         context['comments'] = comments
         return context
 
-@never_cache
+#@never_cache
 def single_post(request, tag, title, id):
     """
     Вьюшка для отдельного поста

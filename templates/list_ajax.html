@@ -1,6 +1,6 @@
 {% load post_header %}
 {% load cache %}
-{% cache 60 list_ajax request.user.is_anonymous request.path page %}
+{% cache 6 list_ajax request.user.is_anonymous request.path page %}
 {% autoescape off %}
 
 {% if page == None %}

@@ -142,6 +142,7 @@ class AddPostForm(forms.ModelForm):
                                         или перетащите изображение''',
                                         'imageMaxSize': 1024 * 1024 * 50,
                                         'pasteDeniedTags': ['script'],
+                                        'charCounterMax': 2500,
                                         'imageEditButtons': [
                                             'imageAlign', 'imageRemove',
                                             '|', 'imageLink', 'linkOpen',

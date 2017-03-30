@@ -359,9 +359,7 @@ function ClickAjaxMenu() {
             }
 	} 
     if ( ajax_menu.is(".brand-logo") ) {
-        sidebarUrl = "/sidebar/";
-        pageUrl = "/";
-		catUrl = ""
+        pageUrl = "/";	
     }
 
 	$('html, body').scrollTop( 0 );
@@ -372,8 +370,6 @@ function ClickAjaxMenu() {
     document.title = "My blog!";}
 
     window.history.pushState({state:'new'}, "",  pageUrl); // добавляем новый адрес в историю
-    detectPageUrl();
-    selectActiveTabs();
     ChangePageNew( pageUrl );
     return false;
 
@@ -412,10 +408,12 @@ function ChangePageNew( link ) {
 				delete sockets[socket];
 			}
 		//} catch(err) {}
-
+        if (link == "/" ) {
+            link = "";
+        }
 		$.ajax({
 	      type:"GET",
-			  //cache : false,
+			  cache : false,
 			  url: link,
               timeout: 5000,
 	      success:function(data){
@@ -434,6 +432,8 @@ function ChangePageNew( link ) {
                 tagBoxInit();
                 editorInit();
                 Comments();
+                detectPageUrl();
+                selectActiveTabs();
 	          }
 	     });
         /* запрос сайдбара */
@@ -464,6 +464,7 @@ function detectPageUrl() {
     pageUrl = window.location.pathname;
     if ( pageUrl == '/' ) {
         sidebarUrl = "/sidebar/";
+        catUrl = "";
     }
 	if ( path.indexOf('pop-all') || path.indexOf('pop-best') ) {
 		pop = path[path.length-1];
@@ -542,11 +543,15 @@ function wsConnect() {
 	if ( $(".socket").length > 0 && userAuth ) {
         /* берём последнюю часть пути как адрес сокета */
         var socket_path = "ws://" + window.location.host + '/ws/';
-        socket_path += decodeURIComponent(window.location.pathname).split('/').filter(Boolean).slice(-1)[0];
-
+        var urlString = decodeURIComponent(window.location.pathname).split('/').filter(Boolean).slice(-1)[0]
+        var eof = urlString.lastIndexOf('-')
+        var strlen = urlString.length
+        var strPostfix = urlString.slice(eof + 1, strlen)
+        socket_path += strPostfix;
+        
 		var socket = new ReconnectingWebSocket(
 			socket_path, null, {maxReconnectInterval: 2000, maxReconnectAttempts: 10});
-
+        
 		socket.onmessage = function(e) {
 
 				var elem = JSON.parse(e.data);
@@ -559,7 +564,7 @@ function wsConnect() {
                        ( socket_path != "ws://192.168.1.70/ws/add-post" &&
                                 String(elem['id']) == String(postId)) )  {
                         $("#post-link").attr('href', elem['url']);
-                        $("#post-link").attr('url', elem['url'].slice(1));
+                        $("#post-link").attr('url', '/' + elem['url'].slice(1));
                         $("#post-adding").hide();
                         $("#post-added-link").show();
                         loader.hide();
