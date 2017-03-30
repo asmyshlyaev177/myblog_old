@@ -23,6 +23,7 @@ from django.core.cache import cache
 from mptt.models import MPTTModel, TreeForeignKey
 from django.contrib.auth.models import Group
 from celery import Celery
+from meta.models import ModelMeta
 from blog.functions import (srcsets, findFile, findLink, saveImage,
                             srcsetThumb, deleteThumb, validate_post_image)
 app = Celery('tasks', broker='pyamqp://guest@localhost//')
@@ -225,12 +226,8 @@ class UserVotes(models.Model):
     manual = models.BooleanField(default=False)
     user = models.ForeignKey('myUser', db_index=True)
 
-
-
-
     
-from meta.models import ModelMeta
-class Post(models.Model, ModelMeta):
+class Post(ModelMeta, models.Model):
     """
     Модель поста
     """

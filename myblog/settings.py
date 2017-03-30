@@ -39,7 +39,7 @@ SHELL_PLUS_PRE_IMPORTS = (
     ('blog.functions', ('deleteThumb', 'srcsetThumb', 'findLink',
                         'findFile', 'saveImage', 'srcsets',)),
     ('django.core.cache', ('cache',)),
-    ('datetime'),
+    ('datetime'), ('os'), ('json'),
 )
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
@@ -189,6 +189,9 @@ META_SITE_NAME = "Test site"
 META_USE_OG_PROPERTIES = True
 META_USE_TWITTER_PROPERTIES = True
 META_USE_GOOGLEPLUS_PROPERTIES = True
+LOGO_SRC = "/123.png"
+LOGO_TEXT = "My logo"
+LOGO_FORMAT = "png"
 
 
 STATICFILES_FINDERS = (

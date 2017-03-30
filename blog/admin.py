@@ -1,6 +1,6 @@
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
-from blog.models import Post, Category, Tag, myUser, Comment
+from blog.models import (Post, Category, Tag, myUser, Comment)
 from django import forms
 from django.utils.text import slugify
 from imagekit.admin import AdminThumbnail
@@ -11,7 +11,6 @@ from django.contrib.auth.models import AbstractBaseUser
 from froala_editor.widgets import FroalaEditor
 from django.utils.html import format_html
 from mptt.admin import MPTTModelAdmin
-
 
 class UserAdmin(BaseUserAdmin):
     form = MyUserChangeForm
@@ -48,13 +47,17 @@ class UserAdmin(BaseUserAdmin):
 admin.site.register(myUser, UserAdmin)
 #admin.site.register(Group)
 
+#from schema.admin import SchemaInline
 
 class PostAdmin(admin.ModelAdmin):
+
+    #inlines = [SchemaInline, ]
     empty_value_display = '-empty-'
     fields = ('title', 'get_image', 'post_image', 'private',
                 'rateable', 'comments', 'locked',
               'description', 'text', 'author', 'category', 'tags',
-                'published', 'url', 'main_tag', 'status')
+                'published', 'url', 'main_tag', 'status',
+             'mform_type')
     readonly_fields = ('get_image',)
     list_display = ('title', 'author', 'category',
                     'status', 'private', 'published')
@@ -68,7 +71,6 @@ class PostAdmin(admin.ModelAdmin):
 
 
 admin.site.register(Post, PostAdmin)
-
 
 class CategoryAdmin(admin.ModelAdmin):
     list_display = ('name', 'description')

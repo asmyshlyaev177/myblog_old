@@ -129,6 +129,7 @@ yum --enablerepo="remi" install redis -y
 cd /root
 wget -4 https://www.rabbitmq.com/releases/rabbitmq-server/v3.6.6/rabbitmq-server-3.6.6-1.el6.noarch.rpm
 wget -4 https://packages.erlang-solutions.com/erlang/esl-erlang/FLAVOUR_1_general/esl-erlang_19.2~centos~6_i386.rpm
+#wget -4 https://packages.erlang-solutions.com/erlang/esl-erlang/FLAVOUR_1_general/esl-erlang_19.3-1~centos~6_amd64.rpm
 wget -4 https://github.com/jasonmcintosh/esl-erlang-compat/releases/download/1.1.1/esl-erlang-compat-18.1-1.noarch.rpm
 yum install esl-erlang_19.2~centos~6_i386.rpm -y
 yum install -y esl-erlang-compat-18.1-1.noarch.rpm 
@@ -182,7 +183,7 @@ EOT
 deactivate
 # Supervisor
 mkdir -p /var/log/supervisor
-mkdir -p /var/log/ginicorn
+mkdir -p /var/log/gunicorn
 mkdir -p /var/log/redis
 mkdir -p /var/run/redis
 mkdir -p /var/log/celery/

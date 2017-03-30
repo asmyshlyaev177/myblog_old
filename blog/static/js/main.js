@@ -359,9 +359,7 @@ function ClickAjaxMenu() {
             }
 	} 
     if ( ajax_menu.is(".brand-logo") ) {
-        sidebarUrl = "/sidebar/";
-        pageUrl = "/";
-		catUrl = ""
+        pageUrl = "/";	
     }
 
 	$('html, body').scrollTop( 0 );
@@ -372,8 +370,6 @@ function ClickAjaxMenu() {
     document.title = "My blog!";}
 
     window.history.pushState({state:'new'}, "",  pageUrl); // добавляем новый адрес в историю
-    detectPageUrl();
-    selectActiveTabs();
     ChangePageNew( pageUrl );
     return false;
 
@@ -412,10 +408,12 @@ function ChangePageNew( link ) {
 				delete sockets[socket];
 			}
 		//} catch(err) {}
-
+        if (link == "/" ) {
+            link = "";
+        }
 		$.ajax({
 	      type:"GET",
-			  //cache : false,
+			  cache : false,
 			  url: link,
               timeout: 5000,
 	      success:function(data){
@@ -434,6 +432,8 @@ function ChangePageNew( link ) {
                 tagBoxInit();
                 editorInit();
                 Comments();
+                detectPageUrl();
+                selectActiveTabs();
 	          }
 	     });
         /* запрос сайдбара */
@@ -464,6 +464,7 @@ function detectPageUrl() {
     pageUrl = window.location.pathname;
     if ( pageUrl == '/' ) {
         sidebarUrl = "/sidebar/";
+        catUrl = "";
     }
 	if ( path.indexOf('pop-all') || path.indexOf('pop-best') ) {
 		pop = path[path.length-1];
