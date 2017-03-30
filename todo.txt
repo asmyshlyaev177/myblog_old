@@ -38,13 +38,6 @@ sudo -u postgres reindexdb -a
 счётчик новых постов в категориях
 post_new_cat1_month 'day' = { 'hour':'count' } увеличивать значение при доб поста
 
-итерация дат
-d = start_date
-delta = datetime.timedelta(days=1)
-while d <= end_date:
-    print d.strftime("%Y-%m-%d")
-    d += delta
-
 
 Своя проверка валидности форм <input formnovalidate> <form action="demo_form.asp" novalidate>
 http://qtip2.com/guides#integration
@@ -58,8 +51,3 @@ AMP страницы
 
 https://github.com/geuis/helium-css
 https://css-tricks.com/prefetching-preloading-prebrowsing/
-
-************************************
-https://habrahabr.ru/post/198982/
-Развлекательных сайтов и мусора достаточно, нужен качественный интересный контент,
-наподобии статей на разные темы, переводы как вариант - 1000зн 50-100 р, 6000зн статья

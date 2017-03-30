@@ -3,6 +3,7 @@
 {% cache 10 single_ajax request.user.is_anonymous request.path %}
 
 {% autoescape off %}
+
 <div class="post z-depth-1">
 <h1 class="center-align post-title">{{ post.title }}</h1>
 

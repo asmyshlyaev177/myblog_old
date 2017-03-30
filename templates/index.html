@@ -1,6 +1,7 @@
 {% load staticfiles %}
 {% load compress %}
 {% load meta %}
+{% load settings %}
 
 <!DOCTYPE html>
 <html>
@@ -33,6 +34,15 @@
     
     {% endcompress %}
 
+{% autoescape off %}
+{% block schema %}    
+    {% if schemaorg %}
+        <script type="application/ld+json">
+        {{schemaorg}}
+        </script>
+    {% endif %}
+{% endblock %}
+{% endautoescape %}
 </head>
 
 
@@ -43,10 +53,12 @@
         <div class="row">
           <div class="col s12 m12 l12 header1">
             <a class="waves-effect brand-logo left ajax-menu menu"
-            url="" href="/">
-              <img alt="logo" id="logo" src="#" title="logo" />
+            url="/" href="/">
+              <img alt="logo" id="logo" src="{% settings_value 'LOGO_SRC' %}" 
+                   title="logo" />
+                
               <div id="site-name" style="display: inline-block;">
-                Название сайта
+                Мой блог
               </div>
             </a>
 

@@ -215,10 +215,10 @@ def commentImage(comment_id):
     comment['level'] = comment_raw.level
     comment['comment'] = 1
     comment['created'] = (comment_raw.created + delta_tz).strftime('%Y.%m.%d %H:%M')
-    group = comment_raw.post.get_absolute_url().strip('/').split('/')[-1]
+    group = comment_raw.post.get_absolute_url().strip('/').split('/')[-1].split('-')[-1]
     Group(group).send({
         # "text": "[user] %s" % message.content['text'],
-        "text": json.dumps(c),
+        "text": json.dumps(comment),
                         })
     return "Comment with id {} from user {} \
         proccessed".format(str(comment_id),
@@ -341,12 +341,6 @@ def addPost(post_id, tag_list, moderated, group=None):
     post['author'] = post_raw.author.id
     post['id'] = post_raw.id
     post['post'] = 1
-
-    if not group:
-        group = "add-post"
-    Group(group).send({
-        "text": json.dumps(post) })
-
     cache_str = ["page_" + str(post_raw.category) + "*",
                  "page_None*",
                 "good_posts_" + str(post_raw.category) + "_*",
@@ -355,3 +349,9 @@ def addPost(post_id, tag_list, moderated, group=None):
                 ]
     for i in cache_str:
         cache.delete_pattern(i)
+
+    group = "add-post"
+    Group(group).send({
+        "text": json.dumps(post) })
+
+
