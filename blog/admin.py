@@ -56,7 +56,8 @@ class PostAdmin(admin.ModelAdmin):
     fields = ('title', 'get_image', 'post_image', 'private',
                 'rateable', 'comments', 'locked',
               'description', 'text', 'author', 'category', 'tags',
-                'published', 'url', 'main_tag', 'status')
+                'published', 'url', 'main_tag', 'status',
+             'mform_type')
     readonly_fields = ('get_image',)
     list_display = ('title', 'author', 'category',
                     'status', 'private', 'published')
