@@ -444,7 +444,7 @@ from django.views.generic import DetailView
 from meta.views import MetadataMixin
 from django.utils.decorators import method_decorator
 @method_decorator(never_cache, name='dispatch')
-class single_post_cbv(DetailView, MetadataMixin):
+class single_post(DetailView, MetadataMixin):
     context_object_name = 'post'
     user_known = False
     
@@ -486,11 +486,9 @@ class single_post_cbv(DetailView, MetadataMixin):
         context['comments'] = comments
         return context
 
-#@never_cache
+"""
 def single_post(request, tag, title, id):
-    """
     Вьюшка для отдельного поста
-    """
 
     if request.is_ajax():
         template = 'single_ajax.html'
@@ -532,6 +530,7 @@ def single_post(request, tag, title, id):
     context['meta'] = post.as_meta()
 
     return render(request, template, context)
+"""
 
 
 @cache_page(7200)

@@ -32,8 +32,6 @@ sitemaps = {'posts': BlogSitemap() }
 urlpatterns = [
     #url(r'^silk/', include('silk.urls', namespace='silk')),
     url(r'^clear-cache\/?', views.clear_cache, name='clear_cache'),
-    url(r'^cbv/(?P<tag>([^\/]+))/(?P<title>([^\/]+))-(?P<pk>([-vi\d]+))\/?$',
-            views.single_post_cbv.as_view(), name='single_post_cbv'),
 
     url(r'^sitemap\.xml$', index, {'sitemaps': sitemaps}),
     url(r'^sitemap-(?P<section>.+)\.xml$', sitemap, {'sitemaps': sitemaps},
@@ -88,8 +86,10 @@ urlpatterns = [
 
     url(r'^(?P<tag>([^\/]+))/pop-(?P<pop>[-\w]+)\/?$', views.list, name='tag_pop'),
 
-    url(r'^(?P<tag>([^\/]+))/(?P<title>([^\/]+))-(?P<id>([-vi\d]+))\/?$',
-            views.single_post, name='single_post'),
+    #url(r'^(?P<tag>([^\/]+))/(?P<title>([^\/]+))-(?P<id>([-vi\d]+))\/?$',
+    #        views.single_post, name='single_post'),
+    url(r'^/(?P<tag>([^\/]+))/(?P<title>([^\/]+))-(?P<pk>([-vi\d]+))\/?$',
+            views.single_post.as_view(), name='single_post'),
 
     url(r'^media/(?P<path>.*)\/?$', serve,
             {'document_root': settings.MEDIA_ROOT}),

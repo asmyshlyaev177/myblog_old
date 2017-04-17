@@ -105,7 +105,7 @@ def saveImage(link, file, w, h=3500):
     sz_tuple = (w, h)
 
     img.thumbnail(sz_tuple, Image.ANTIALIAS)
-    img.save(file_out, subsampling=0, quality='keep')  # сохраняем
+    img.save(file_out, subsampling=0, quality=85)  # сохраняем
     return link_out
 
 
