@@ -39,7 +39,7 @@ urlpatterns = [
     
     #url(r'^test\/?$', views.test_view, name='test_view'),
     
-    url(r'sidebar/(?P<category>([^\/]+))?\/?', views.sidebar, name='sidebar'),
+    url(r'sidebar/(?P<category>([^\/]+))?\/?', views.sidebar.as_view(), name='sidebar'),
     url(r'^add-comment/(?P<postid>[-vi\d]+)/(?P<parent>[-vi\d]+)\/?',
         views.addComment, name='add-comment'),
     url(r'^comments/(?P<postid>[-vi\d]+)\/?', views.comments, name='comments'),
@@ -59,7 +59,7 @@ urlpatterns = [
 
     url(r'^signup\/?$', views.signup, name='signup'),
     url(r'^signup_success\/?$', views.signup_success, name='signup_success'),
-    url(r'^login\/?$', views.login, name='login'),
+    url(r'^login\/?$', views.login.as_view(), name='login'),
     url(r'^dashboard\/?$', views.dashboard, name='dashboard'),
     url(r'^dashboard/my-posts\/?$', views.my_posts, name='my_posts'),
     url(r'^logout\/?$', auth_views.logout, name='logout'),
@@ -88,7 +88,7 @@ urlpatterns = [
 
     #url(r'^(?P<tag>([^\/]+))/(?P<title>([^\/]+))-(?P<id>([-vi\d]+))\/?$',
     #        views.single_post, name='single_post'),
-    url(r'^/(?P<tag>([^\/]+))/(?P<title>([^\/]+))-(?P<pk>([-vi\d]+))\/?$',
+    url(r'^(?P<tag>([-\w]+))/(?P<title>([-\w]+))-(?P<pk>([-vi\d]+))\/?$',
             views.single_post.as_view(), name='single_post'),
 
     url(r'^media/(?P<path>.*)\/?$', serve,

@@ -1,23 +1,26 @@
 # -*- coding: utf-8 -*-
 from django.shortcuts import render
-from blog.models import (Post, Category, Tag, Comment, myUser, Complain)
-#  from slugify import slugify
 from django.utils.text import slugify
-from blog.forms import SignupForm, MyUserChangeForm, AddPostForm, CommentForm
 from django.http import (HttpResponseRedirect, HttpResponseForbidden,
                         HttpResponse, HttpResponseNotFound)
 from django.views.decorators.csrf import csrf_protect, csrf_exempt
 from django.contrib.auth.decorators import login_required
+from django.contrib.auth import views as auth
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 import json, sys, os, datetime
 from django.views.decorators.cache import cache_page, never_cache
 from django.views.decorators.vary import vary_on_headers
 from django.views.decorators.cache import cache_control
 from django.core.cache import cache
+from django.views import generic
+from meta.views import MetadataMixin
+from django.utils.decorators import method_decorator
 from blog.tasks import addPost, Rate, commentImage, ComplainObj
 from django.contrib.auth.views import (login as def_login,
                                 password_change as def_password_change)
 
+from blog.forms import SignupForm, MyUserChangeForm, AddPostForm, CommentForm
+from blog.models import (Post, Category, Tag, Comment, myUser, Complain)
 hot_rating = 3
 
 import resource
@@ -61,10 +64,11 @@ def get_good_posts(category=None, private=None):
     return posts
 
 
-def sidebar(request, category=None):
-    """
-    Вьюшка для сайдбара
-    """
+
+
+"""
+def sidebar_old(request, category=None):
+    #Вьюшка для сайдбара
     template = "sidebar.html"
     if request.user.is_authenticated:
         user_known = True
@@ -72,7 +76,39 @@ def sidebar(request, category=None):
         user_known = False
     good_posts = get_good_posts(category=category, private=user_known)
     return render(request, template, {'good_posts': good_posts, 'category': category})
+"""
 
+
+class sidebar(generic.ListView):
+    context_object_name = 'good_posts'
+    template_name = "sidebar.html"
+    
+    def get_queryset(self, **kwargs):
+        self.user_known = user_is_auth(self.request)
+        queryset = get_good_posts(category=self.kwargs['category'], private=self.user_known)
+        return queryset
+    
+    def get_context_data(self, **kwargs):
+        context = super(sidebar, self).get_context_data(**kwargs)
+        context['category'] = self.kwargs['category']
+        return context
+    
+
+def user_is_auth(request):
+    if request.user.is_authenticated:
+            return True
+    else:
+            return False
+
+def user_is_moder(request):
+    if not request.user.is_anonymous():
+        if request.user.moderator\
+        or request.user.is_superuser:
+            return True
+        else:
+            return False
+    else:
+        return False
 
 def get_cat_list():
     """
@@ -84,7 +120,7 @@ def get_cat_list():
 @cache_page(3600)
 @cache_control(max_age=3600)
 @vary_on_headers('X-Requested-With', 'Cookie')
-def login(request, *args, **kwargs):
+def login_old(request, *args, **kwargs):
     """Логин"""
     if request.is_ajax():
         template = 'registration/login_ajax.html'
@@ -93,6 +129,20 @@ def login(request, *args, **kwargs):
 
     return def_login(request, *args, **kwargs, template_name=template,
                                 extra_context={'cat_list': get_cat_list()})
+
+@method_decorator(never_cache, name='dispatch')
+class login(auth.LoginView):
+    """Логин
+    Почему-то не работает в моадальном окне
+    """
+    def get_context_data(self, **kwargs):
+        context = super(login, self).get_context_data(**kwargs)
+        if self.request.is_ajax():
+            self.template_name = 'registration/login_ajax.html'
+        else:
+            self.template_name = 'registration/login.html'
+        context['cat_list'] = get_cat_list()
+        return context
 
 
 @cache_page(7200)
@@ -410,8 +460,6 @@ def list(request, category=None, tag=None, pop=None):
                     .prefetch_related("tags", "category", "author", "main_tag")\
                     .only("id", "title", "author", "category", "main_image_srcset",
                      "description", "rating", "created", "url")
-                    #.select_related("category", "author")\
-                    #.prefetch_related('tags')
 
         paginator = Paginator(post_list, 3)
 
@@ -429,7 +477,7 @@ def list(request, category=None, tag=None, pop=None):
     context['cat_list'] = get_cat_list()
     context['page'] = page
 
-    print('Views memory usage: %s (kb)' % resource.getrusage(resource.RUSAGE_SELF).ru_maxrss)
+    #print('Views memory usage: %s (kb)' % resource.getrusage(resource.RUSAGE_SELF).ru_maxrss)
     if not posts and page:
         return HttpResponse('last_page')
     else:
@@ -439,12 +487,9 @@ def list(request, category=None, tag=None, pop=None):
 #@cache_control(max_age=30)
 #@vary_on_headers('X-Requested-With', 'Cookie')
 
-from django.views.generic import DetailView
 
-from meta.views import MetadataMixin
-from django.utils.decorators import method_decorator
 @method_decorator(never_cache, name='dispatch')
-class single_post(DetailView, MetadataMixin):
+class single_post(generic.DetailView, MetadataMixin):
     context_object_name = 'post'
     user_known = False
     
@@ -453,31 +498,25 @@ class single_post(DetailView, MetadataMixin):
         query = Post.objects\
                 .prefetch_related("tags", "category", "author", "main_tag")\
                 .get(pk=self.kwargs['pk'])
-        post = cache.get_or_set(cache_str, query, 7200)
+        cache.get_or_set(cache_str, query, 7200)
         return Post.objects.filter(id=self.kwargs['pk'])
     
     def get_context_data(self, **kwargs):
-        context = super(single_post_cbv, self).get_context_data(**kwargs)
+        context = super(single_post, self).get_context_data(**kwargs)
         
         #self.pk = self.kwargs['pk']
         comment_form = CommentForm()
         comments = Comment.objects.filter(post=self.kwargs['pk'])
         if self.request.is_ajax():
             self.template_name = 'single_ajax.html'
-            if not self.request.user.is_anonymous():
-                if self.request.user.moderator\
-                or self.request.user.is_superuser:
-                    self.template_name = 'single_ajax_moder.html'
+            if user_is_moder(self.request):
+                self.template_name = 'single_ajax_moder.html'
         else:
             self.template_name = 'single.html'
-            if not self.request.user.is_anonymous():
-                if self.request.user.moderator\
-                or self.request.user.is_superuser:
-                    self.template_name = 'single_moder.html'
-        if self.request.user.is_authenticated:
-            self.user_known = True
-        else:
-            self.user_known = False
+            if user_is_moder(self.request):
+                self.template_name = 'single_moder.html'
+                    
+        self.user_known = user_is_auth(self.request)
         context['good_posts'] = get_good_posts(category=self.get_queryset()[0].category.id,
                                                private=self.user_known)
         context['cat_list'] = get_cat_list()
@@ -485,6 +524,12 @@ class single_post(DetailView, MetadataMixin):
         context['comment_form'] = comment_form
         context['comments'] = comments
         return context
+
+    def render_to_response(self, context, **response_kwargs):
+        if context['post'].private and not self.request.user.is_authenticated:
+            return HttpResponseNotFound()
+        else:
+            return super(single_post, self).render_to_response(context, **response_kwargs)
 
 """
 def single_post(request, tag, title, id):

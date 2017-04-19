@@ -9,52 +9,147 @@ from blog.views import (list, get_good_posts, login,
                         my_posts, edit_post, add_post, rate_elem,
                         single_post, password_change, get_cat_list)
 
-import unittest, re, time, os, json
+import unittest, re, time, os, json, random
 from django.core.cache import cache
 from bs4 import BeautifulSoup
 from splinter import Browser
-from blog.models import myUser, Post
+from blog.models import myUser, Post, Category, Tag
 from blog.tasks import addPost
 
 os.environ['DJANGO_LIVE_TEST_SERVER_ADDRESS'] = '192.168.1.70:8092-9000'
 
-
-class MyTest(LiveServerTestCase):
-    fixtures = ['db.json']
-    serialized_rollback = True
+def create_posts(self, from_num=1, to_num=20, private=False):
+        self.cats = (self.cat1, self.cat2)
+        self.tags = (self.tag1, self.tag2)
+        for i in range(from_num, to_num+1):
+            self.cat = random.choice(self.cats)
+            self.tag = random.choice(self.tags)
+            p = Post.objects.create(title = "post{}".format(str(i)),
+                    description = "post description {}".format(str(i)),
+                    status = "P", rating = float(i),
+                    category = self.cat, author = self.user,
+                    text = "post text {}".format(str(i)),
+                    main_tag = self.tag, private=private,
+                    url= self.tag.url)
+            p.tags.add(self.tag)
+            p.save()
+                
+class Test_pages_anon(TestCase):
+    #serialized_rollback = True
     cache.clear()
-
-    def setUp(self): 	
-        self.c = Browser('django')
-         	
-    def tearDown(self): 	
-        self.c.quit() 
+    allow_database_queries = True
+                
+    @classmethod
+    def setUpClass(cls):
+        super(Test_pages_anon, cls).setUpClass()
+        cache.clear()
+        cls.user = myUser.objects.create(username='testuser', email='testmail@mail.ru')
+        cls.user.set_password = 'testpass'
+        cls.user.save()
+        cls.cat1 = Category.objects.create(name="cat1", order=1,
+						              description="cat1 desc")
+        cls.cat2 = Category.objects.create(name="cat2", order=2,
+						              description="cat2 desc")
         
-    def test_0_main_page_and_single_page(self):
-        """
-        Test for main page works correctly
-        """
-        print("Test main page")
-        c = Client()
-        self.resp = c.get('/')
-        assert self.resp.status_code == 200
-        assert b'<div class="post z-depth-1">' in self.resp.content
-        assert b'<div class="sidebar col' in self.resp.content
-        url = self.resp.context['posts'][0].get_absolute_url()
-        self.resp = c.get(url)
-        assert self.resp.status_code == 200
-        b'<div class="post z-depth-1">' in self.resp.content
-        b'<div id="Comments_title">' in self.resp.content
-        b'<div class="post-sidebar z-depth-1">' in self.resp.content
+        cls.tag1 = Tag.objects.create(name="tag1", url="tag1",
+						      description="tag1 desc", category=cls.cat1)
+        cls.tag2 = Tag.objects.create(name="tag2", url="tag2",
+						      description="tag2 desc", category=cls.cat1)
+        create_posts(cls, from_num=1, to_num=20)
+        create_posts(cls, from_num=1, to_num=20, private=True)
+    
+    @classmethod
+    def tearDownClass(cls):
+        cache.clear()
+        super(Test_pages_anon, cls).tearDownClass()
+        
+    def setUp(self):
+        client = Client()
+        
 
-    def test_1_categories(self):
-        categories = get_cat_list().values_list('slug', flat=True)
-        c = Client()
-        for cat in categories:
-            self.resp = c.get('/cat/{}'.format(cat))
-            assert self.resp.context['posts'].count() == 3
-            assert 'good_posts' in self.resp.context
-            assert b'sidebar-inner' in self.resp.content
+    
+    def test_0_posts_created(self):
+        assert Post.objects.all().count() == 40
+        
+    def page_content(self, category=None, best=False, tag=None):
+        assert self.resp.status_code == 200
+        assert self.cat1 in self.resp.context['cat_list']
+        assert self.cat2 in self.resp.context['cat_list']
+        self.good_posts = self.resp.context['good_posts']
+        self.posts = self.resp.context['posts']
+        assert len(self.posts) > 0
+        assert len(self.good_posts) == 4
+        if category:
+            assert len(self.posts) == len([post for post in self.posts if post.category == category])
+            assert len(self.good_posts) == len([post for post in self.good_posts if post.category == category])
+        if tag:
+            assert len(self.posts) == len([post for post in self.posts if tag in post.tags.all()])
+        assert len([post for post in self.good_posts if post.rating > 5]) \
+                == len(self.good_posts)
+        if best:
+            assert len([post for post in self.posts if post.rating > 3]) \
+                    == len(self.posts)
+        return True
+    
+    def test_1_list_root(self):
+        self.resp = self.client.get('/')
+        assert self.page_content() == True
+        
+    def test_2_list_cat1(self):
+        self.resp = self.client.get('/cat/{}'.format(self.cat1.slug))
+        assert self.page_content(self.cat1) == True
+        
+    def test_3_list_cat1_new(self):
+        self.resp = self.client.get('/cat/{}/pop-all'.format(self.cat1.slug))
+        assert self.page_content(self.cat1) == True
+        
+    def test_4_list_cat1_best(self):
+        self.resp = self.client.get('/cat/{}/pop-best'.format(self.cat1.slug))
+        assert self.page_content(self.cat1, best=True) == True
+        
+    def test_5_list_cat2(self):
+        self.resp = self.client.get('/cat/{}'.format(self.cat2.slug))
+        assert self.page_content(self.cat2) == True
+        
+    def test_6_list_cat2_new(self):
+        self.resp = self.client.get('/cat/{}/pop-all'.format(self.cat2.slug))
+        assert self.page_content(self.cat2) == True
+        
+    def test_7_list_cat2_best(self):
+        self.resp = self.client.get('/cat/{}/pop-best'.format(self.cat2.slug))
+        assert self.page_content(self.cat2, best=True) == True
+        
+    def test_8_tag1(self):
+        self.resp = self.client.get('/{}'.format(self.tag1.url))
+        assert self.page_content(tag=self.tag1) == True
+        
+    def test_9_tag2(self):
+        self.resp = self.client.get('/{}'.format(self.tag2.url))
+        assert self.page_content(tag=self.tag2) == True
+
+    def test_10_single(self):
+        post = random.choice(Post.objects.all())
+        self.resp = self.client.get('/{}'.format(str(post.get_absolute_url())))
+        assert self.resp.status_code == 200
+        
+    def test_11_signup_page(self):
+        self.resp = self.client.get('/signup')
+        assert self.resp.status_code == 200
+        
+    def test_11_login_page(self):
+        self.resp = self.client.get('/login')
+        assert self.resp.status_code == 200
+        
+    def test_12_pagination(self):
+        self.resp = self.client.get('/?page=2')
+        assert self.page_content() == True
+        
+    #def_test_20_list_private
+    
+    #Post.objects.all.delete()
+    #create_posts(cls, from_num=1, to_num=2)
+    #create_posts(cls, from_num=1, to_num=2, private=True)
+    """      
 
     def test_2_signup(self):
         print("Test signup")
@@ -122,42 +217,4 @@ class MyTest(LiveServerTestCase):
         assert 'test tag' in self.c.html
         s = re.findall(r"/media/[\d]{4}/[\d]{1,2}/[\d]{1,2}/test_pic_(.*)-(1366|800|480).jpg", self.c.html)
         assert len(s) > 0 
-        
-    """def test_5_edit_post(self):
-        self.post = Post.objects.first()
-        self.user = myUser.objects.create(username="testuser", email = 'test@mail.ru')
-        self.user.set_password('Poison123')
-        self.user.moderator_of_categories = [self.post.category]
-        self.user.save()
-        
-        self.c.visit('/')
-        self.c.find_by_id('user-menu').click()
-        self.c.find_by_id('login-link').click()
-        self.c.fill('username', 'test@mail.ru')
-        self.c.fill('password', 'Poison123')
-        self.c.find_by_value('Login').click()
-        time.sleep(2)
-        
-        url = '/edit-post-{}'.format(self.post.id)
-        self.c.visit(url)
-        self.c.fill('title', 'testpost456')
-        self.c.select('category', '2')
-        self.c.fill('description', 'test description2')
-        self.c.fill('text', 'test text2')
-        self.c.fill('hidden_tags', 'test tag2')
-        self.c.find_by_value('Save').click()
-        
-        assert Post.objects.filter(title='testpost456').exists()
-        postid = Post.objects.get(title='testpost456').id
-        addPost(postid, ["test tag2"], False)
-        url = Post.objects.get(id=postid).get_absolute_url()
-        
-        self.c.visit(url)
-        assert self.c.status_code.code == 200
-        assert '<div class="post z-depth-1">' in self.c.html
-        assert '<div id="Comments_title">' in self.c.html
-        assert '<div class="post-sidebar z-depth-1">' in self.c.html
-        assert 'testpost456' in self.c.html
-        assert 'test description2' in self.c.html
-        assert 'test text2' in self.c.html
-        assert 'test tag2' in self.c.html"""
+        """
