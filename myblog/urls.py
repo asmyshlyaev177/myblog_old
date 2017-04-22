@@ -39,7 +39,7 @@ urlpatterns = [
     
     #url(r'^test\/?$', views.test_view, name='test_view'),
     
-    url(r'sidebar/(?P<category>([^\/]+))?\/?', views.sidebar.as_view(), name='sidebar'),
+    url(r'sidebar/(?P<category>([^\/]+))?\/?', views.Sidebar.as_view(), name='sidebar'),
     url(r'^add-comment/(?P<postid>[-vi\d]+)/(?P<parent>[-vi\d]+)\/?',
         views.addComment, name='add-comment'),
     url(r'^comments/(?P<postid>[-vi\d]+)\/?', views.comments, name='comments'),
@@ -51,15 +51,15 @@ urlpatterns = [
     #url(r'^$', cache_page(60 * 15)(views.Index), name='Index'),
     url(r'^__debug__/', include(debug_toolbar.urls)),
     url(r'^admin\/?', admin.site.urls, name='myadmin'),
-    url(r'^$', views.list, name='list'),
-    url(r'^pop-(?P<pop>[-\w]+)\/?$', views.list, name='list_pop'),
+    url(r'^$', views.List.as_view(), name='list'),
+    url(r'^pop-(?P<pop>[-\w]+)\/?$', views.List_pop.as_view(), name='list_pop'),
     #url(r'^ckeditor/', include('ckeditor_uploader.urls')),
     url(r'^add-post\/?$', views.add_post, name='add_post'),
     url(r'^edit-post-(?P<postid>[-vi\d]+)\/?$', views.edit_post, name='edit_post'),
 
     url(r'^signup\/?$', views.signup, name='signup'),
     url(r'^signup_success\/?$', views.signup_success, name='signup_success'),
-    url(r'^login\/?$', views.login.as_view(), name='login'),
+    url(r'^login\/?$', views.Login.as_view(), name='login'),
     url(r'^dashboard\/?$', views.dashboard, name='dashboard'),
     url(r'^dashboard/my-posts\/?$', views.my_posts, name='my_posts'),
     url(r'^logout\/?$', auth_views.logout, name='logout'),
@@ -80,16 +80,16 @@ urlpatterns = [
     url(r'^complain/(?P<type>[-\w]+)/(?P<objid>[-vi\d]+)/(?P<reason>([^\/]+))\/?$',
         views.complain_elem, name='complain'),
 
-    url(r'^cat/(?P<category>([^\/]+))\/?$', views.list, name='category'),
-    url(r'^cat/(?P<category>([^\/]+))/pop-(?P<pop>[-\w]+)\/?$', views.list, name='category_pop'),
-    url(r'^(?P<tag>([^\/]+))\/?$', views.list, name='tag'),
+    url(r'^cat/(?P<category>([^\/]+))\/?$', views.List_cat.as_view(), name='category'),
+    url(r'^cat/(?P<category>([^\/]+))/pop-(?P<pop>[-\w]+)\/?$', views.List_cat_pop.as_view(), name='category_pop'),
+    url(r'^(?P<tag>([^\/]+))\/?$', views.List_tag.as_view(), name='tag'),
 
-    url(r'^(?P<tag>([^\/]+))/pop-(?P<pop>[-\w]+)\/?$', views.list, name='tag_pop'),
+    url(r'^(?P<tag>([^\/]+))/pop-(?P<pop>[-\w]+)\/?$', views.List_tag_pop.as_view(), name='tag_pop'),
 
     #url(r'^(?P<tag>([^\/]+))/(?P<title>([^\/]+))-(?P<id>([-vi\d]+))\/?$',
     #        views.single_post, name='single_post'),
     url(r'^(?P<tag>([-\w]+))/(?P<title>([-\w]+))-(?P<pk>([-vi\d]+))\/?$',
-            views.single_post.as_view(), name='single_post'),
+            views.Single_post.as_view(), name='single_post'),
 
     url(r'^media/(?P<path>.*)\/?$', serve,
             {'document_root': settings.MEDIA_ROOT}),

@@ -32,7 +32,6 @@ $(window).load(function(){
 	Scroll();
 	ClickAjaxMenu();
     BackForwardButtons();
-    //loginForm();
 	rate();
     ReplyBtn();
 	AddCommentBtn();
@@ -54,31 +53,6 @@ function scrollProcessingCheck() {
             scrollProcessing = false
         }
 }
-
-/*
-function loginForm() {
-    $(document).on('submit', $('#loginform'), function(e) {
-        e.preventDefault();
-        var form = $(this);
-        var csrf = getCookie('csrftoken');
-        $.ajax({
-            headers: {'X-CSRFToken': csrf},
-            type: 'POST',
-            url: '/login',
-            data:
-                 {
-                username: $("#loginform :input[name='username']").val(),
-                password: $("#loginform :input[name='password']").val(),
-                next: $("#loginform :input[name='next']").val()
-                //csrfmiddlewaretoken: csrf
-                 }
-        }).done( function(data) {
-                window.location.reload(true);
-            });
-    });
-} */
-
-
 
 function userMenu() {
     /* закрываем меню пользователи при клики по пункту */
@@ -762,6 +736,7 @@ function editorInit() {
             $(description).froalaEditor(params);
         }
         if ( text.length > 0 ) {
+            params.charCounterMax = 1500;
             params.placeholderText = placeholderText;
             params.toolbarButtons = imageLink(toolbarButtons, "insert");
             params.toolbarButtonsMD = imageLink(toolbarButtonsMD, "insert");

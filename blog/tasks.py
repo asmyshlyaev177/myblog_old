@@ -330,6 +330,7 @@ def addPost(post_id, tag_list, moderated, group=None):
             file = uri_to_iri(findFile(link))
             post_image_file = saveImage(link, file, 150, h=150)
         post_raw.post_thumbnail = stripMediaFromPath(post_image_file)
+        post_raw.post_thumb_ext = post_image_file.split('.')[-1]
 
     if not moderated:
         post_raw.status = "P"

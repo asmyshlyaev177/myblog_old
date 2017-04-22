@@ -145,7 +145,7 @@ SESSION_CACHE_ALIAS = "default"
 
 INSTALLED_APPS = [
     'django.contrib.staticfiles',
-    #'debug_toolbar',
+    'debug_toolbar',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -210,7 +210,7 @@ COMPRESS_CSS_FILTERS = ['compressor.filters.css_default.CssAbsoluteFilter',
 
 # MIDDLEWARE = [  #for debug toolbar
 MIDDLEWARE_CLASSES = [
-    #'debug_toolbar.middleware.DebugToolbarMiddleware',
+    'debug_toolbar.middleware.DebugToolbarMiddleware',
     'django.middleware.cache.UpdateCacheMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',

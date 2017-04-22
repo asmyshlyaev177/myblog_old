@@ -275,17 +275,18 @@ class Post(ModelMeta, models.Model):
             #count = cache.get_or_set(cache_str, query, 360)
         return count
 
-    def post_thumb_ext(self):
+    """def post_thumb_ext(self):
         if self.post_thumbnail:
             ext = os.path.splitext(self.post_thumbnail.path)[-1].split('.')[-1]
             return ext
         else:
-            return False
+            return False"""
 
     post_image.short_description = 'Image'
     post_thumbnail = models.ImageField(upload_to=upload_path,
                                        blank=True, null=True,
                                       max_length=500)
+    post_thumb_ext = models.CharField(max_length = 6, blank = True, null = True)
 
     def get_image(self):
         return mark_safe('<img src="%s" class ="responsive-img center-align"/>'
