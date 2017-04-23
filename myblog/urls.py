@@ -41,8 +41,8 @@ urlpatterns = [
     
     url(r'sidebar/(?P<category>([^\/]+))?\/?', views.Sidebar.as_view(), name='sidebar'),
     url(r'^add-comment/(?P<postid>[-vi\d]+)/(?P<parent>[-vi\d]+)\/?',
-        views.addComment, name='add-comment'),
-    url(r'^comments/(?P<postid>[-vi\d]+)\/?', views.comments, name='comments'),
+        views.AddComment.as_view(), name='add-comment'),
+    url(r'^comments/(?P<postid>[-vi\d]+)\/?', views.Comments.as_view(), name='comments'),
     url(r'^tags.json\/?', views.tags, name='tags'),
 
     url('login-social/', include('social_django.urls', namespace='social')),

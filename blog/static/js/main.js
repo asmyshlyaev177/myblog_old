@@ -83,14 +83,13 @@ function Comments() {
             type: "GET",
             cache : false,
             url: link,
-            async: false,
+            //async: false,
             timeout: 5000,
             success: function(data){
-            $(data).appendTo( $("#Comments_title") );
+                $(data).appendTo( $("#Comments_title") );
             },
         });
     }
-	
 	 });
 }
 
@@ -284,24 +283,23 @@ function loadMore(){
 	console.log("load url " + pageUrl+ "?page=" +page);
      $.ajax({
       type:"GET",
-		  //cache : false,
+    //cache : false,
       url:pageUrl+"?page="+page,
       timeout: 5000,
-      success:function(data){
-         if ( data != 'last_page') {
+      statusCode: { 
+         200: function(data){
              $('.content').append(data); //adds data to the end of the table
              //console.log(data);
                scrollProcessing = false; // the processing variable prevents
                                                  //multiple ajax calls when scrolling
-         } else {
+         },
+         404: function() {
              $('.content').append('<p id="last_page"></p>')
          }
-
-         loader.hide();
-         disableRate();
-          }
+        }
      });
-
+    loader.hide();
+    disableRate();
 }
 
 function ToTop() {
@@ -506,7 +504,8 @@ function cloneComment( data ) {
 			comment.find('.comment-date').html( data['created'] );
     var last_child = "";
     var parent = "";
-	if ( parseInt(comment['level']) > 0 ) {
+    
+	if ( parseInt(data['level']) > 0 ) {
 		var p_str = "[comment_id="+parseInt(data['parent']) +"]" ;
 		parent = $( p_str );
 		last_child = $("[parent="+parseInt(data['parent']) +"]").last();
@@ -515,7 +514,6 @@ function cloneComment( data ) {
 		comment.wrap('<ul><li></li></ul>');
 		comment.css('display', 'block');
 	}
-
 	if (last_child.length > 0) {
 		last_child = $( last_child ).parent('li');
 		$( last_child ).after(comment);
@@ -527,7 +525,6 @@ function cloneComment( data ) {
 		}
 	}
 	comment.css('display', 'block');
-	//stubImgs();
 }
 
 function checkUserAuth() {

@@ -4,7 +4,7 @@ from django.contrib.staticfiles.testing import StaticLiveServerTestCase
 from django.contrib.auth.models import AnonymousUser, User
 
 from blog.views import (List, get_good_posts, Login,
-                        Sidebar, get_cat_list, comments,
+                        Sidebar, get_cat_list, Comments,
                         addComment, tags, signup, dashboard,
                         my_posts, edit_post, add_post, rate_elem,
                         Single_post, password_change, get_cat_list, List)
@@ -267,8 +267,12 @@ class Test_user_login(Base_test_mixin, TestCase):
     def test_17_my_posts(self):
         self.resp = self.client.get('/dashboard/my-posts')
         assert self.resp.status_code == 200
+        
+    def test_18_add_post(self):
+        self.resp = self.client.get('/add-post')
+        assert self.resp.status_code == 200
     
-    def test_18_logout(self):
+    def test_19_logout(self):
         self.resp = self.client.get('/logout?next=/')
         assert self.resp.status_code == 302       
 

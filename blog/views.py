@@ -67,18 +67,6 @@ def get_good_posts(category=None, private=None):
 
 
 
-"""
-def sidebar_old(request, category=None):
-    #Вьюшка для сайдбара
-    template = "sidebar.html"
-    if request.user.is_authenticated:
-        user_known = True
-    else:
-        user_known = False
-    good_posts = get_good_posts(category=category, private=user_known)
-    return render(request, template, {'good_posts': good_posts, 'category': category})
-"""
-
 
 class Sidebar(generic.ListView):
     context_object_name = 'good_posts'
@@ -118,19 +106,6 @@ def get_cat_list():
     return cache.get_or_set("cat_list", Category.objects.all(), 36000)
 
 
-@cache_page(3600)
-@cache_control(max_age=3600)
-@vary_on_headers('X-Requested-With', 'Cookie')
-def login_old(request, *args, **kwargs):
-    """Логин"""
-    if request.is_ajax():
-        template = 'registration/login_ajax.html'
-    else:
-        template = 'registration/login.html'
-
-    return def_login(request, *args, **kwargs, template_name=template,
-                                extra_context={'cat_list': get_cat_list()})
-
 @method_decorator(never_cache, name='dispatch')
 class Login(auth.LoginView):
     """
@@ -146,43 +121,46 @@ class Login(auth.LoginView):
         return context
 
 
-@cache_page(7200)
-@cache_control(max_age=7200)
-def comments(request, postid):
-    """ 
-    Комментарии для поста
-    """
+def get_comments(postid):
     cache_str = "comment_" + str(postid)
-    query = Comment.objects.filter(post=postid)\
+    if cache.ttl(cache_str):
+        comments = cache.get(cache_str)
+    else:    
+        query = Comment.objects.filter(post=postid)\
             .prefetch_related("author")
-    comments = cache.get_or_set(cache_str, query, 7200)
+        comments = cache.set(cache_str, query, 3600)
+    return comments
+        
+class Comments(generic.TemplateView):
+    template_name = 'comments-ajax.html'
+    
+    def get_context_data(self, **kwargs):
+        context = super(Comments, self).get_context_data(**kwargs)
+        context['comments'] = get_comments(self.kwargs['postid'])
+        return context
+    
 
-    template = 'comments-ajax.html'
-    return render(request, template,
-                  {'comments': comments})
-
-
-@never_cache
-@login_required(login_url='/login')
-def addComment(request, postid, parent=0):
-    """
-    Добавление поста
-    """
-    if request.method == "POST":
-        comment_form = CommentForm(request.POST, request.FILES)
-        if comment_form.is_valid():
-            parent_comment = int(parent)
-            comment = comment_form.save(commit=False)
-            comment.author = request.user
-            comment.post = Post.objects.only('id').get(id=postid)
-            if parent_comment != 0:
-                comment.parent = Comment.objects.only('id').get(id=parent_comment)
+@method_decorator([login_required, never_cache], name='dispatch')
+class AddComment(generic.View):
+    http_method_names = [u'post']
+    parent = 0
+    
+    def post(self, request, *args, **kwargs):
+        form = CommentForm(request.POST, request.FILES)
+        if form.is_valid():
+            try:
+                self.parent = int(self.kwargs['parent'])
+            except:
+                pass
+            comment = form.save(commit=False)
+            comment.author = self.request.user
+            comment.post = Post.objects.only('id').get(id=self.kwargs['postid'])
+            if self.parent != 0:
+                comment.parent = Comment.objects.only('id').get(id=self.parent)
             comment.save()
             commentImage.delay(comment.id)
 
             return HttpResponse("OK")
-    else:
-        pass
 
 
 @never_cache
@@ -424,7 +402,7 @@ def complain_elem(request, type, objid, reason):
 #@vary_on_headers('X-Requested-With', 'Cookie')
 #@never_cache
 
-@method_decorator(never_cache, name='dispatch')
+#@method_decorator(never_cache, name='dispatch')
 class List(generic.ListView):
     allow_empty = True
     context_object_name = 'posts'
@@ -496,81 +474,13 @@ class List_tag_pop(List_pop):
     
     
 
-def list_old(request, category=None, tag=None, pop=None):
-    """
-    Лист постов
-    Категория/тэг и популярность опциональна
-    Пожалуй самая часто используемая вьюшка
-    """
-    context = {}
-
-    if request.is_ajax():
-        template = 'list_ajax.html'
-    else:
-        template = 'list.html'
-
-    user_known = False
-    if request.user.is_authenticated:
-        user_known = True
-    if not pop:
-        pop = 'all'
-    page = request.GET.get('page')
-
-    cache_str = "page_" + str(category) + "_" + \
-        str(tag) + "_" + str(pop) + "_" + str(user_known) + \
-        "_" + str(page)
-
-    if cache.ttl(cache_str):
-        posts = cache.get(cache_str)
-    else:
-        post_list = Post.objects.filter(status="P")
-        if tag:
-            post_list = post_list.filter(tags__url=tag)
-        if category:
-            post_list = post_list.filter(category__slug=category)
-        if not user_known:
-            post_list = post_list.exclude(private=True)
-        if pop == "best":
-            post_list = post_list.filter(rating__gte=hot_rating)
-        post_list = post_list\
-                    .prefetch_related("tags", "category", "author", "main_tag")\
-                    .only("id", "title", "author", "category", "main_image_srcset",
-                     "description", "rating", "created", "url")
-
-        paginator = Paginator(post_list, 3)
-
-        try:
-            posts = paginator.page(page).object_list
-        except PageNotAnInteger:
-            posts = paginator.page(1).object_list
-        except EmptyPage:
-            posts = None
-        cache.set(cache_str, posts, 7200)
-    good_posts = get_good_posts(category=category, private=user_known)
-
-    context['good_posts'] = good_posts
-    context['posts'] = posts
-    context['cat_list'] = get_cat_list()
-    context['page'] = page
-
-    #print('Views memory usage: %s (kb)' % resource.getrusage(resource.RUSAGE_SELF).ru_maxrss)
-    if not posts and page:
-        return HttpResponse('last_page')
-    else:
-        return render(request, template, context)
-
-#@cache_page(30)
-#@cache_control(max_age=30)
-#@vary_on_headers('X-Requested-With', 'Cookie')
-
-
-@method_decorator(never_cache, name='dispatch')
+#@method_decorator(never_cache, name='dispatch')
 class Single_post(generic.DetailView, MetadataMixin):
     context_object_name = 'post'
     user_known = False
     
     def get_queryset(self):
-        cache_str = "post_single_" + str(id)
+        cache_str = "post_single_" + str(self.kwargs['pk'])
         query = Post.objects\
                 .prefetch_related("tags", "category", "author", "main_tag")\
                 .get(pk=self.kwargs['pk'])
@@ -579,10 +489,7 @@ class Single_post(generic.DetailView, MetadataMixin):
     
     def get_context_data(self, **kwargs):
         context = super(Single_post, self).get_context_data(**kwargs)
-        
-        #self.pk = self.kwargs['pk']
         comment_form = CommentForm()
-        comments = Comment.objects.filter(post=self.kwargs['pk'])
         if self.request.is_ajax():
             self.template_name = 'single_ajax.html'
             if user_is_moder(self.request):
@@ -598,7 +505,7 @@ class Single_post(generic.DetailView, MetadataMixin):
         context['cat_list'] = get_cat_list()
         context['meta'] = self.get_object().as_meta(self.request)
         context['comment_form'] = comment_form
-        context['comments'] = comments
+        context['comments'] = get_comments(self.kwargs['pk'])
         return context
 
     def render_to_response(self, context, **response_kwargs):
@@ -606,52 +513,6 @@ class Single_post(generic.DetailView, MetadataMixin):
             return HttpResponseNotFound()
         else:
             return super(Single_post, self).render_to_response(context, **response_kwargs)
-
-"""
-def single_post(request, tag, title, id):
-    Вьюшка для отдельного поста
-
-    if request.is_ajax():
-        template = 'single_ajax.html'
-        if not request.user.is_anonymous():
-            if request.user.moderator\
-            or request.user.is_superuser:
-                template = 'single_ajax_moder.html'
-    else:
-        template = 'single.html'
-        if not request.user.is_anonymous():
-            if request.user.moderator\
-            or request.user.is_superuser:
-                template = 'single_moder.html'
-
-    cache_str = "post_single_" + str(id)
-    query = Post.objects\
-            .prefetch_related("tags", "category", "author", "main_tag")\
-            .get(pk=id)
-    post = cache.get_or_set(cache_str, query, 7200)
-
-    if post.private and not request.user.is_authenticated:
-        return HttpResponseNotFound()
-
-    comment_form = CommentForm()
-
-    comments = Comment.objects.filter(post=post)
-
-    user_known = False
-    if request.user.is_authenticated:
-        user_known = True
-        
-    good_posts = get_good_posts(category=post.category.id, private=user_known)
-    context = {}
-    context['good_posts'] = good_posts
-    context['post'] = post
-    context['cat_list'] = get_cat_list()
-    context['comment_form'] = comment_form
-    context['comments'] = comments
-    context['meta'] = post.as_meta()
-
-    return render(request, template, context)
-"""
 
 
 @cache_page(7200)
