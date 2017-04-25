@@ -1,7 +1,8 @@
 # -*- coding: utf-8 -*-
 from django.shortcuts import render
 from django.utils.text import slugify
-from django.http import (HttpResponseRedirect, HttpResponseForbidden,
+from django.utils.encoding import uri_to_iri, iri_to_uri
+from django.http import (HttpResponseRedirect, HttpResponseForbidden, JsonResponse,
                         HttpResponse, HttpResponseNotFound, Http404)
 from django.views.decorators.csrf import csrf_protect, csrf_exempt
 from django.contrib.auth.decorators import login_required
@@ -163,109 +164,85 @@ class AddComment(generic.View):
             return HttpResponse("OK")
 
 
-@never_cache
-def tags(request):
-    """
-    Список тэгов для добавления/редактирования поста
-    """
-    # tags = Tag.objects.all().values().cache()
-    query = Tag.objects.all().values("name")
-    tags = cache.get_or_set("taglist", query, 36000)
-    data = []
-    for tag in tags:
-        data.append(tag['name'])
-
-    return HttpResponse(json.dumps(data), content_type="application/json")
-
-
-@csrf_protect
-@cache_page(7200)
-@cache_control(max_age=7200)
-@vary_on_headers('X-Requested-With')
-def signup(request):
-    """Регистрация"""
-    if request.is_ajax():
-        template = 'registration/signup-ajax.html'
-    else:
-        template = 'registration/signup.html'
-    if request.method == 'POST':
-        form = SignupForm(request.POST)
-        if form.is_valid():
-            form.save()
-            return HttpResponseRedirect('/signup_success/')
-    form = SignupForm()
-    return render(request, template, {'form': form,
-                                                'cat_list': get_cat_list()})
-
-
-def signup_success(request):
-    """Заглушка при успешной регистрации"""
-    return render(request, 'registration/signup_success.html')
-
-
-@login_required(login_url='/login')
-# @cache_page( 5 )
-# @vary_on_headers('X-Requested-With','Cookie')
-# @cache_control(max_age=5,private=True)
-# @never_cache
-@never_cache
-def dashboard(request):
-    """
-    Данные о пользователи, мэйл, аватар и т.д.
-    """
-    if request.is_ajax():
-        template = 'dashboard-ajax.html'
-    else:
-        template = 'dashboard.html'
-
-    if request.method == 'POST':
-        form = MyUserChangeForm(request.POST, request.FILES,
-                                instance=request.user)
-        if form.is_valid():
-            form.save()
-    else:
-        form = MyUserChangeForm(instance=request.user)
-
-    return render(request, template, {'cat_list': get_cat_list(),
-                                              'form': form},
-                                                            )
-
-
-@login_required(redirect_field_name='next', login_url='/login')
-# @cache_page(5 )
-# @cache_control(max_age=5, private=True)
-# @vary_on_headers('X-Requested-With','Cookie')
-@never_cache
-def my_posts(request):
-    """
-    Страница с постами пользователя
-    """
-    if request.is_ajax():
-        template = 'dash-my-posts-ajax.html'
-    else:
-        template = 'dash-my-posts.html'
-    # post_list = Post.objects.filter(author=request.user.id).cache()
-    post_list = Post.objects.prefetch_related()\
-                .select_related().filter(author=request.user.id)
-
-    paginator = Paginator(post_list, 5)
-    page = request.GET.get('page')
-
-    try:
-        posts = paginator.page(page).object_list
-    except PageNotAnInteger:
-        posts = paginator.page(1).object_list
-    except EmptyPage:
-        posts = None
+@method_decorator(never_cache, name='dispatch')
+class Tags(generic.View):
     
-    context = {}
-    context['posts'] = posts
-    context['cat_list'] = get_cat_list()
+    def get(self, *args, **kwargs):
+        query = Tag.objects.all().values("name")
+        tags = cache.get_or_set("taglist", query, 36000)
+        data = []
+        for tag in tags:
+            data.append(tag['name'])
+        return HttpResponse(json.dumps(data))
 
-    if not posts and page:
-        return HttpResponse('last_page')
-    else:
-        return render(request, template, context)
+class Signup(generic.edit.FormView):
+    template_name = 'registration/signup.html'
+    form_class = SignupForm
+    success_url = '/signup_success'
+    
+    def get_context_data(self, **kwargs):
+        context = super(Signup, self).get_context_data(**kwargs)
+        context['cat_list'] = get_cat_list()
+        context['form'] = SignupForm()
+        if self.request.is_ajax():
+            self.template_name = 'registration/signup-ajax.html'
+        return context
+    
+    def post(self, request, *qrgs, **kwargs):
+        form = self.get_form()
+        if form.is_valid():
+            form.save()
+            return self.form_valid(form)
+        else:
+            return self.form_invalid(form)
+    
+
+class Signup_success(generic.View):
+    
+    def get(self, *args, **kwargs):
+        cat_list = get_cat_list()
+        return render(self.request, 'registration/signup_success.html', {'cat_list': cat_list})
+    
+
+@method_decorator([never_cache, login_required], name='dispatch')
+class Dashboard(generic.edit.UpdateView):
+    template_name = 'dashboard.html'
+    form_class = MyUserChangeForm
+    success_url = '/dashboard'
+    
+    def get_context_data(self, **kwargs):
+        context = super(Dashboard, self).get_context_data(**kwargs)
+        context['cat_list'] = get_cat_list()
+        return context
+    
+    def get_object(self):
+        user = myUser.objects.get(id=self.request.user.id)
+        return user
+    
+    
+@method_decorator(login_required, name='dispatch')
+class My_posts(generic.ListView):
+    template_name = 'dash-my-posts.html'
+    allow_empty = True
+    context_object_name = 'posts'
+    paginate_by = 3
+    paginate_orphans = 2
+    queryset = Post.objects.all()
+    
+    def get_queryset(self):
+        posts = self.queryset.filter(author=self.request.user)\
+                    .prefetch_related("tags", "category", "author", "main_tag").select_related()\
+                    .only("id", "title", "author", "category", "main_image_srcset", "main_tag", "tags",
+                    "description", "rating", "created", "url")
+        return posts
+    
+    def get_context_data(self, **kwargs):
+        context = super(My_posts, self).get_context_data(**kwargs)
+        context['cat_list'] = get_cat_list()
+        context['good_posts'] = get_good_posts(private=True)
+        if self.request.is_ajax():
+            self.template_name = 'dash-my-posts-ajax.html'
+        return context
 
 
 @never_cache
@@ -408,13 +385,10 @@ class List(generic.ListView):
     context_object_name = 'posts'
     paginate_by = 3
     template_name = 'list.html'
-    queryset = Post.objects.filter(status="P")
+    queryset = Post.objects.all()
     paginate_orphans = 2
     user_known = False
     category = None
-    tag = None
-    pop = None
-    page = None
     
     def get_context_data(self, **kwargs):
         context = super(List, self).get_context_data(**kwargs)
@@ -433,7 +407,7 @@ class List(generic.ListView):
         return context
     
     def get_queryset(self):
-        post_list = self.queryset
+        post_list = self.queryset.filter(status="P")
         if not self.user_known:
             post_list = post_list.exclude(private=True)
         post_list = post_list\

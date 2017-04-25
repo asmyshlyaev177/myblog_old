@@ -43,12 +43,11 @@ urlpatterns = [
     url(r'^add-comment/(?P<postid>[-vi\d]+)/(?P<parent>[-vi\d]+)\/?',
         views.AddComment.as_view(), name='add-comment'),
     url(r'^comments/(?P<postid>[-vi\d]+)\/?', views.Comments.as_view(), name='comments'),
-    url(r'^tags.json\/?', views.tags, name='tags'),
-
+    url(r'^tags.json\/?', views.Tags.as_view(), name='tags'),
+    
     url('login-social/', include('social_django.urls', namespace='social')),
 
     url(r'^froala_editor\/?', include('froala_editor.urls')),
-    #url(r'^$', cache_page(60 * 15)(views.Index), name='Index'),
     url(r'^__debug__/', include(debug_toolbar.urls)),
     url(r'^admin\/?', admin.site.urls, name='myadmin'),
     url(r'^$', views.List.as_view(), name='list'),
@@ -57,11 +56,11 @@ urlpatterns = [
     url(r'^add-post\/?$', views.add_post, name='add_post'),
     url(r'^edit-post-(?P<postid>[-vi\d]+)\/?$', views.edit_post, name='edit_post'),
 
-    url(r'^signup\/?$', views.signup, name='signup'),
-    url(r'^signup_success\/?$', views.signup_success, name='signup_success'),
+    url(r'^signup\/?$', views.Signup.as_view(), name='signup'),
+    url(r'^signup_success\/?$', views.Signup_success.as_view(), name='signup_success'),
     url(r'^login\/?$', views.Login.as_view(), name='login'),
-    url(r'^dashboard\/?$', views.dashboard, name='dashboard'),
-    url(r'^dashboard/my-posts\/?$', views.my_posts, name='my_posts'),
+    url(r'^dashboard\/?$', views.Dashboard.as_view(), name='dashboard'),
+    url(r'^dashboard/my-posts\/?$', views.My_posts.as_view(), name='my_posts'),
     url(r'^logout\/?$', auth_views.logout, name='logout'),
     url(r'^password_change\/?$', views.password_change, name='password_change'),
     url(r'^password_change/done\/?$', auth_views.password_change_done,

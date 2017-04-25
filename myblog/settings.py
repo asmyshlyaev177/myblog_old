@@ -40,6 +40,8 @@ SHELL_PLUS_PRE_IMPORTS = (
                         'findFile', 'saveImage', 'srcsets',)),
     ('django.core.cache', ('cache',)),
     ('datetime'), ('os'), ('json'),
+    ('django.test', ('RequestFactory', 'Client')),
+    ('blog', ('views')),
 )
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)

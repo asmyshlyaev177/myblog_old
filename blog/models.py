@@ -399,7 +399,7 @@ class Category(models.Model):
 
     def save(self, *args, **kwargs):
         # if not self.slug:
-        self.slug = slugify(self.name.lower(), allow_unicode=True)
+        #self.slug = slugify(self.name.lower(), allow_unicode=True)
         super(Category, self).save(*args, **kwargs)
 
 
