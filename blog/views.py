@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 from django.shortcuts import render
 from django.utils.text import slugify
 from django.utils.encoding import uri_to_iri, iri_to_uri
@@ -9,6 +8,7 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth import views as auth
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger, InvalidPage
 import json, sys, os, datetime
+from django.db.models import Case, Value, When, Count
 from django.views.decorators.cache import cache_page, never_cache
 from django.views.decorators.vary import vary_on_headers
 from django.views.decorators.cache import cache_control
@@ -74,7 +74,7 @@ class Sidebar(generic.ListView):
     template_name = "sidebar.html"
     
     def get_queryset(self, **kwargs):
-        self.user_known = user_is_auth(self.request)
+        self.user_known = self.request.user.is_authenticated()
         queryset = get_good_posts(category=self.kwargs['category'], private=self.user_known)
         return queryset
     
@@ -84,27 +84,58 @@ class Sidebar(generic.ListView):
         return context
     
 
-def user_is_auth(request):
-    if request.user.is_authenticated:
-            return True
-    else:
-            return False
-
-def user_is_moder(request):
-    if not request.user.is_anonymous():
-        if request.user.moderator\
-        or request.user.is_superuser:
-            return True
+def user_has_rights(user, object):
+    result = False
+    if not user.is_anonymous:
+        cache_str = "user_rights_" + str(type(object)) + "_" + str(object.id)
+        if cache.ttl(cache_str):
+            result = cache.get(cache_str)
         else:
-            return False
+            if user_is_author(user, object) or \
+            user_is_moder(user, object) or \
+            request.user.is_superuser:
+                result = True
+            else:
+                False
+            cache.set(cache_str, result, timeout=900)
+    return result
+    
+def user_is_moder(user, object):
+    result = False
+    if type(object) == Post:
+        post = object
+        post_tags = set(tag for tag in post.tags.values_list('id', flat=True))
+        user_moder_tags = \
+        set(t for t in user.moderator_of_tags.values_list('id', flat=True))
+
+        if len(post_tags & user_moder_tags) > 0\
+                or post.category.id in \
+                user.moderator_of_categories.values_list('id', flat=True):
+            result = True
+    return result
+
+def user_is_author(user, object):
+    if user.id == object.author.id:
+        return True
     else:
         return False
+    
 
 def get_cat_list():
     """
     Лист категорий
     """
-    return cache.get_or_set("cat_list", Category.objects.all(), 36000)
+    if cache.ttl('cat_list'):
+        cat_list = cache.get('cat_list')
+    else:  
+        a_day_ago = datetime.date.today() - datetime.timedelta(days=1)
+        cat_list = Category.objects.annotate(new=Count(Case(
+            When(post__published__gte=a_day_ago, then=Value(1))), default=0, distinct=True)
+        #,pop=Count(Case(
+        #    When(post__published__gte=a_day_ago, post__rating__gte=hot_rating, then=Value(1))), default=0, distinct=True)
+                                            ) 
+        cache.set('cat_list', cat_list, 3600)
+    return cat_list
 
 
 @method_decorator(never_cache, name='dispatch')
@@ -196,7 +227,6 @@ class Signup(generic.edit.FormView):
         else:
             return self.form_invalid(form)
     
-
 class Signup_success(generic.View):
     
     def get(self, *args, **kwargs):
@@ -212,6 +242,8 @@ class Dashboard(generic.edit.UpdateView):
     
     def get_context_data(self, **kwargs):
         context = super(Dashboard, self).get_context_data(**kwargs)
+        if self.request.is_ajax():
+            self.template_name = 'dashboard-ajax.html'
         context['cat_list'] = get_cat_list()
         return context
     
@@ -245,107 +277,107 @@ class My_posts(generic.ListView):
         return context
 
 
-@never_cache
-def edit_post(request, postid):
-    """
-    Редактирование постов
-    """
-    if request.is_ajax():
-        template = 'edit_post-ajax.html'
-    else:
-        template = 'edit_post.html'
-    post = Post.objects.select_related().prefetch_related().get(id=postid)
-
-    if request.user.is_authenticated:
-        if request.user.is_superuser\
-                or request.user.is_moderator(post)\
-                or request.user.id == post.author.id:
-
-            if request.method == 'POST':
-                form = AddPostForm(request.POST, request.FILES, instance=post)
-                if form.is_valid():
-                    data = form.save(commit=False)
-                    if request.user.moderated:
-                        moderated = True
-                    else:
-                        moderated = False
-                    data.url = slugify(data.title, allow_unicode=True)
-                    title = data.title
-                    tag_list = request.POST['hidden_tags'].split(',')  # tags list
-
-                    have_new_tags = False
-                    data.save()
-                    post_id = data.id
-                    group = "edit-post-" + str(post_id)
-                    addPost.apply_async(args=[post_id, tag_list, moderated], kwargs={'group': group}, countdown=7)
-
-                    return render(request, 'added-post.html',
-                                  {'title': title,
-                                   'cat_list': get_cat_list()})
-
-            else:
-                form = AddPostForm(instance=post)
-
-            tags_list = []
-            for tag in post.tags.all():
-                tags_list.append(tag.name)
-            return render(request, template,
-                        {'form': form, 'post': post,
-                         'cat_list': get_cat_list(), 'tags_list': tags_list})
-
-    else:
-        return HttpResponseForbidden()
-
-
-@login_required(redirect_field_name='next', login_url='/login')
-@cache_page(9)
-@cache_control(max_age=9)
-@vary_on_headers('X-Requested-With')
-def add_post(request):
-    """
-    Добавление постов
-    """
-    if request.is_ajax():
-        template = 'add_post-ajax.html'
-    else:
-        template = 'add_post.html'
-
-    if request.method == 'POST':
-        if not request.POST._mutable:
-            request.POST._mutable = True
-        form = AddPostForm(request.POST, request.FILES)
-        form.data['status'] = 'D'
-
-        if form.is_valid():
-
-            data = form.save(commit=False)
-            if request.user.moderated:
-                moderated = True
-            else:
-                moderated = False
-
-            data.author = request.user
-            data.url = slugify(data.title, allow_unicode=True)
-            title = data.title
-            tag_list = request.POST['hidden_tags'].split(',')  # tags list
-
-            data.save()
-            post_id = data.id
-            #addPost.delay(post_id, tag_list, moderated)
-            addPost.apply_async(args=[post_id, tag_list, moderated], countdown=12)
-
-            return render(request, 'added-post.html',
-                          {'title': title,
-                           'cat_list': get_cat_list()})
+@method_decorator([login_required, never_cache], name='dispatch')
+class Add_Post(generic.edit.CreateView):
+    model = Post
+    form_class = AddPostForm
+    title = None
+    
+    def get_context_data(self, **kwargs):
+        if self.request.is_ajax():
+            self.template_name = 'add_post-ajax.html'
         else:
-            return HttpResponse(str(form.errors))
+            self.template_name = 'add_post.html'
+        context = super(Add_Post, self).get_context_data(**kwargs)
+        context['cat_list'] = get_cat_list()
+        return context
+    
+    def form_valid(self, form):
+        self.object = form.save(commit=False)
+        self.object.author = self.request.user
+        self.object.url = slugify(self.object.title, allow_unicode=True)
+        tag_list = self.request.POST['hidden_tags'].split(',')
+        self.title = self.request.POST['title']
+        self.object.save()
+        self.success_url = 'post-saved{}'.format(self.object.id)
+        group = "post-saved{}".format(self.object.id)
+        addPost.apply_async(args=[self.object.id, tag_list, self.request.user.moderated], kwargs={'group': group}, countdown=7)
+        return super(Add_Post, self).form_valid(form)
+    
+    def get_form_kwargs(self):
+        kwargs = super(Add_Post, self).get_form_kwargs()
+        #import pdb
+        #pdb.set_trace()
+        if 'data' in kwargs.keys():
+            kwargs['data']._mutable = True
+            kwargs['data'].update({'status': 'D'})
+            kwargs['data']._mutable = False
+        return kwargs
+        
+    def render_to_response(self, context, **response_kwargs):
+        context['title'] = self.title
+        return super(Add_Post, self).render_to_response(context, **response_kwargs)
 
-    form = AddPostForm()
+class Post_Saved(generic.TemplateView):
+    template_name = 'added-post.html'
+    
+    def get_context_data(self, **kwargs):
+        context = super(Post_Saved, self).get_context_data(**kwargs)
+        context['cat_list'] = get_cat_list()
+        return context
 
-    return render(request, template, {'form': form,
-                                             'cat_list': get_cat_list()})
 
+@method_decorator([login_required, never_cache], name='dispatch')
+class Edit_Post(generic.edit.UpdateView):
+    model = Post
+    form_class = AddPostForm
+    context_object_name = 'post'
+    title = None
+    
+    def get(self, request, *args, **kwargs):
+        self.object = self.get_object()
+        tags_list_orig = []
+        for tag in self.object.tags.all():
+            tags_list_orig.append(tag.name)
+        self.tags_list_orig = tags_list_orig
+        
+        if user_has_rights(self.request.user, self.object):
+                    return super(Edit_Post, self).get(request, *args, **kwargs)
+        else:
+            return HttpResponseForbidden()
+        
+    def post(self, request, *args, **kwargs):
+        if user_has_rights(self.request.user, self.get_object()):
+                    return super(Edit_Post, self).post(request, *args, **kwargs)
+        else:
+            return HttpResponseForbidden()
+    
+    def form_valid(self, form):
+        self.object = form.save(commit=False)
+        self.object.url = slugify(self.object.title, allow_unicode=True)
+        tag_list_new = self.request.POST['hidden_tags'].split(',')  # tags list
+        self.title = self.request.POST['title']
+        self.object.save()
+        group = "post-saved{}".format(self.object.id)
+        self.success_url = 'post-saved{}'.format(self.object.id)
+        addPost.apply_async(args=[self.object.id, tag_list_new, self.request.user.moderated], kwargs={'group': group}, countdown=7)
+        return super(Edit_Post, self).form_valid(form)
+    
+    def get_context_data(self, **kwargs):
+        if self.request.is_ajax():
+            self.template_name = 'edit_post-ajax.html'
+        else:
+            self.template_name = 'edit_post.html'
+        context = super(Edit_Post, self).get_context_data(**kwargs)
+        context['cat_list'] = get_cat_list()
+        context['tags_list'] = self.tags_list_orig
+        return context
+    
 
+    def render_to_response(self, context, **response_kwargs):
+        context['title'] = self.title
+        return super(Edit_Post, self).render_to_response(context, **response_kwargs)
+        
 @login_required(redirect_field_name='next', login_url='/login')
 @never_cache
 def rate_elem(request, type, id, vote):
@@ -385,14 +417,14 @@ class List(generic.ListView):
     context_object_name = 'posts'
     paginate_by = 3
     template_name = 'list.html'
-    queryset = Post.objects.all()
+    queryset = Post.objects.all().filter(status="P")
     paginate_orphans = 2
     user_known = False
     category = None
     
     def get_context_data(self, **kwargs):
         context = super(List, self).get_context_data(**kwargs)
-        self.user_known = user_is_auth(self.request)
+        self.user_known = self.request.user.is_authenticated
         try:
             self.category = self.kwargs['category']
         except:
@@ -407,11 +439,12 @@ class List(generic.ListView):
         return context
     
     def get_queryset(self):
-        post_list = self.queryset.filter(status="P")
+        post_list = self.queryset
         if not self.user_known:
             post_list = post_list.exclude(private=True)
         post_list = post_list\
-                    .prefetch_related("tags", "category", "author", "main_tag")\
+                    .prefetch_related("tags", "category", "author", "main_tag", "comment_set")\
+                    .annotate(comments_count=Count('comment'))\
                     .only("id", "title", "author", "category", "main_image_srcset", "main_tag", "tags",
                      "description", "rating", "created", "url")
         return post_list
@@ -466,14 +499,14 @@ class Single_post(generic.DetailView, MetadataMixin):
         comment_form = CommentForm()
         if self.request.is_ajax():
             self.template_name = 'single_ajax.html'
-            if user_is_moder(self.request):
+            if user_has_rights(self.request.user, context['post']):
                 self.template_name = 'single_ajax_moder.html'
         else:
             self.template_name = 'single.html'
-            if user_is_moder(self.request):
+            if user_has_rights(self.request.user, context['post']):
                 self.template_name = 'single_moder.html'
                     
-        self.user_known = user_is_auth(self.request)
+        self.user_known = self.request.user.is_authenticated
         context['good_posts'] = get_good_posts(category=self.get_queryset()[0].category.id,
                                                private=self.user_known)
         context['cat_list'] = get_cat_list()

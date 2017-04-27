@@ -126,36 +126,6 @@ class myUser(AbstractBaseUser, PermissionsMixin):
     def get_short_name(self):
         return self.username.lower()
 
-    def is_moderator(self, obj):
-        result = False
-        #obj = Post.objects.get(id=obj)
-        cache_str = "is_moderator_" + str(self.id) + "_" + str(obj)
-        if cache.ttl(cache_str):
-            result = cache.get(cache_str)
-        else:
-            if type(obj) == Post:
-                post = obj
-                #user = myUser.objects.select_related().prefetch_related()\
-                #                                        .get(id=user.id)
-                user = self
-                post_tags = set(tag for tag in post.tags.values_list('id', flat=True))
-                user_moder_tags = \
-                set(t for t in user.moderator_of_tags.values_list('id', flat=True))
-
-                if len(post_tags & user_moder_tags) > 0\
-                        or post.category.id in \
-                        user.moderator_of_categories.values_list('id', flat=True)\
-                        or user.is_superuser:
-                    result = True
-            cache.set(cache_str, result, timeout=900)
-        return result
-
-    #def has_perm(self, perm, obj=None):
-    #    if self.is_superuser:
-    #        return True
-
-    #def has_module_perms(self, app_label):
-    #    return True
 
     class Meta:
         verbose_name_plural = "Пользователи"
@@ -264,23 +234,6 @@ class Post(ModelMeta, models.Model):
                                         max_length=800)
     #main_image = JSONField(null = True, blank = True, max_length=1000)
 
-    def get_comments_count(self):
-        count = 0
-        cache_str = "count_comments_" + str(self.id)
-        if cache.ttl(cache_str):
-            count = cache.get(cache_str)
-        else:
-            query = self.comment_set.count()
-            cache.set(cache_str, query, 360)
-            #count = cache.get_or_set(cache_str, query, 360)
-        return count
-
-    """def post_thumb_ext(self):
-        if self.post_thumbnail:
-            ext = os.path.splitext(self.post_thumbnail.path)[-1].split('.')[-1]
-            return ext
-        else:
-            return False"""
 
     post_image.short_description = 'Image'
     post_thumbnail = models.ImageField(upload_to=upload_path,
@@ -420,14 +373,13 @@ class Tag(models.Model):
     index_together = [
         ["id", "name", "rating"],
     ]
-    name = models.CharField(max_length=30)
+    name = models.CharField(max_length=40, unique=True)
     url = models.CharField(max_length=140, unique=True)
     created = models.DateTimeField(auto_now_add=True)
     private = models.BooleanField(default=False)
     rateable = models.BooleanField(default=True)
     description = models.TextField(max_length=700, blank=True, null=True)
     rating = models.FloatField('Рейтинг', default=0.0)
-    category = models.ForeignKey('Category', blank=True, null=True)
 
     class Meta:
         verbose_name_plural = "Тэги"

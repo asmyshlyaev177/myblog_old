@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 from celery import Celery
 from datetime import timedelta
 import os, datetime, json, re
@@ -14,6 +13,7 @@ from blog.functions import (srcsets, srcsetThumb, saveImage,
                             stripMediaFromPath,
                            findLink, findFile, cleanTagsFromSoup)
 from django.core.cache import cache
+from django.core.cache.utils import make_template_fragment_key
 from channels import Group
 from myblog.celery import app
 
@@ -43,10 +43,10 @@ def Rate(userid, date_joined, votes_type, type, elem_id, vote):
         votes = {}
         if date_joined < dt - delta:
             coef = 0.25
-            votes['votes'] = 200
+            votes['votes'] = 20
         else:
             coef = 0.0
-            votes['votes'] = 100
+            votes['votes'] = 10
 
         votes['weight'] = 0.25 + coef + user_rating.rating / 50
 
@@ -215,7 +215,8 @@ def commentImage(comment_id):
     comment['level'] = comment_raw.level
     comment['comment'] = 1
     comment['created'] = (comment_raw.created + delta_tz).strftime('%Y.%m.%d %H:%M')
-    group = comment_raw.post.get_absolute_url().strip('/').split('/')[-1].split('-')[-1]
+    group = comment_raw.post.get_absolute_url().strip('/').split('/')[-1]
+    #.split('-')[-1]
     Group(group).send({
         # "text": "[user] %s" % message.content['text'],
         "text": json.dumps(comment),
@@ -236,27 +237,21 @@ def addPost(post_id, tag_list, moderated, group=None):
     post_raw = Post.objects.select_related().prefetch_related().get(id=post_id)
     nsfw = post_raw.private
     have_new_tags = False
+    _ = False
     post_raw.tags.clear()
     tag = None
     for i in tag_list:
         if len(i) > 2:
             if nsfw:
                 tag_url = slugify(i.lower() + "_nsfw", allow_unicode=True)
-                try:
-                    tag = Tag.objects.get(url__iexact=tag_url)
-                except:
-                    have_new_tags = True
-                    tag = Tag.objects.create(name=i, url=tag_url)
+                tag, _ = Tag.objects.get_or_create(name=i, url=tag_url)
             else:
                 tag_url = slugify(i.lower(), allow_unicode=True)
-                try:
-                    tag = Tag.objects.get(url__iexact=tag_url)
-                except:
-                    have_new_tags = True
-                    tag = Tag.objects.create(name=i, url=tag_url)
-
-            if have_new_tags:
-                tag.save()
+                tag, _ = Tag.objects.get_or_create(name=i, url=tag_url)
+                
+            if _:
+                have_new_tags = True
+                
             post_raw.tags.add(tag)
     if have_new_tags:
         cache.delete_pattern("taglist")
@@ -346,12 +341,16 @@ def addPost(post_id, tag_list, moderated, group=None):
                  "page_None*",
                 "good_posts_" + str(post_raw.category) + "_*",
                  "good_posts_None_*",
-                 "post_single_" + str(post_raw.id)+"*"
+                 "post_single_" + str(post_raw.id)+"*",
+                 str(make_template_fragment_key('list')),
+                 str(make_template_fragment_key('list_ajax'))
                 ]
     for i in cache_str:
         cache.delete_pattern(i)
-
-    group = "add-post"
+    
+    if not group:
+        group = "post-saved"
+    
     Group(group).send({
         "text": json.dumps(post) })
 

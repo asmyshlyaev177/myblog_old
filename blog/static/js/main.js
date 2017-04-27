@@ -483,7 +483,10 @@ function selectActiveTabs() {
 }
 
 function toggleTopMenu() {
-    if ( single_page || pageUrl == "/dashboard/my-posts" ) {
+    var r = RegExp('^\/edit-post-\d*', 'u');
+    if ( pageUrl == "/dashboard/my-posts" 
+       || pageUrl == "/signup" || pageUrl == "/add-post"
+       || r.test(pageUrl) || pageUrl == "/dashboard" ) {
         $('.top-menu').hide();
     } else {
         $('.top-menu').show();
@@ -541,10 +544,12 @@ function wsConnect() {
         /* берём последнюю часть пути как адрес сокета */
         var socket_path = "ws://" + window.location.host + '/ws/';
         var urlString = decodeURIComponent(window.location.pathname).split('/').filter(Boolean).slice(-1)[0]
-        var eof = urlString.lastIndexOf('-')
-        var strlen = urlString.length
-        var strPostfix = urlString.slice(eof + 1, strlen)
-        socket_path += strPostfix;
+        //var eof = urlString.lastIndexOf('-')
+        //var strlen = urlString.length
+        //var strPostfix = urlString.slice(eof + 1, strlen)
+        //socket_path += strPostfix;
+        socket_path += urlString;
+        console.log('socket_path ', socket_path);
         
 		var socket = new ReconnectingWebSocket(
 			socket_path, null, {maxReconnectInterval: 2000, maxReconnectAttempts: 10});
@@ -555,13 +560,13 @@ function wsConnect() {
 				if ( elem['comment'] ) {
 					cloneComment(elem);
 				} else if (elem['post'] ) {
-                    var postId = socket_path.split('-').filter(Boolean).slice(-1)[0];
-                    //console.log(elem);
-                    if ( parseInt($("#user_auth").attr('user')) == parseInt(elem['author']) ||
-                       ( socket_path != "ws://192.168.1.70/ws/add-post" &&
-                                String(elem['id']) == String(postId)) )  {
+                    var postId = socket_path.split('-').filter(Boolean).slice(-1)[0].replace ( /[^\d.]/g, '' );
+                    
+                    if (( parseInt($("#user_auth").attr('user')) == parseInt(elem['author'])) || ( parseInt(postId) == parseInt(elem['id']) ) && ($("#post-link").length))
+                    {
                         $("#post-link").attr('href', elem['url']);
                         $("#post-link").attr('url', '/' + elem['url'].slice(1));
+                        $("#post-link").text(elem['title']);
                         $("#post-adding").hide();
                         $("#post-added-link").show();
                         loader.hide();

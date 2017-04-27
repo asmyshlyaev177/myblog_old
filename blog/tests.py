@@ -6,7 +6,7 @@ from django.contrib.auth.models import AnonymousUser, User
 from blog.views import (List, get_good_posts, Login,
                         Sidebar, get_cat_list, Comments,
                         AddComment, Tags, Signup, Dashboard,
-                        My_posts, edit_post, add_post, rate_elem,
+                        My_posts, Edit_Post, Add_Post, rate_elem,
                         Single_post, password_change, get_cat_list, List)
 
 import unittest, re, time, os, json, random, glob, shutil
@@ -169,7 +169,7 @@ class Test_anon_pages(Base_test_mixin, TestCase):
     def test_14_edit_anon(self):
         post = Post.objects.first()
         self.resp = self.client.get('/edit-post-{}'.format(post.id))
-        assert self.resp.status_code == 403
+        assert self.resp.status_code == 302
         
     def test_15_dasboard(self):
         self.resp = self.client.get('/dashboard')
@@ -342,18 +342,11 @@ class Test_add_post(TestCase):
         return True
     
     def test_0_add_post(self):
-        """self.client = RequestFactory()
-        self.req = self.client.post('/add-post', {'title': 'testpost1', 'status': 'D', 
-                                                   'description': 'post desc', 'category': str(self.cat1.id), 
-                                                   'text': '123', 'tag': str(self.tag1.name), 
-                                                   'hidden_tags': str(self.tag1.name)})
-        self.req.user = self.user
-        self.resp = add_post(self.req)
-        print(self.resp.status_code)"""
+        self.client = Client()
         self.resp = self.client.post('/add-post', {'title': 'testpost1', 'status': 'D', 
                                                    'description': 'post desc', 'category': str(self.cat1.id), 
                                                    'text': '123', 'tag': str(self.tag1.name), 
-                                                   'hidden_tags': str(self.tag1.name)})
+                                                   'hidden_tags': str(self.tag1.name)})           
         assert self.resp.status_code == 302
         self.post = Post.objects.get(title="testpost")
         assert self.add_post()

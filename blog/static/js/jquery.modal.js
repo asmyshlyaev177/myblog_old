@@ -146,7 +146,7 @@
         this.$elm.show();
       }
       this.$elm.trigger($.modal.OPEN, [this._ctx()]);
-      h = this.$elm.height()+150+ 'px';  //my code!
+      h = this.$elm.height()+10+ 'px';  //my code!
       this.$elm.css('min-height', h);
     },
 

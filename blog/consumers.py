@@ -6,7 +6,8 @@ from django.utils.encoding import uri_to_iri
 # Connected to websocket.connect
 @channel_session
 def ws_add(message):
-    path = uri_to_iri(message.content['path'].strip('/').split('/')[-1].split('-')[-1])
+    path = uri_to_iri(message.content['path'].strip('/').split('/')[-1]) 
+    #.split('-')[-1])
     #print("************************")
     #print(str(path))
     #print("************************")
@@ -25,7 +26,8 @@ def ws_message(message):
     #print("**********TEXT**************")
     #print(str(message.content['text']))
 
-    group = uri_to_iri(message.content['path'].strip('/').split('/')[-1].split('-')[-1])
+    group = uri_to_iri(message.content['path'].strip('/').split('/')[-1] )
+    #.split('-')[-1])
     Group(group).send({
         "text": message.content['text'],
     })
@@ -34,5 +36,6 @@ def ws_message(message):
 # Connected to websocket.disconnect
 @channel_session
 def ws_disconnect(message):
-    group = uri_to_iri(message.content['path'].strip('/').split('/')[-1].split('-')[-1])
+    group = uri_to_iri(message.content['path'].strip('/').split('/')[-1]) 
+    #.split('-')[-1])
     Group(group).discard(message.reply_channel)
