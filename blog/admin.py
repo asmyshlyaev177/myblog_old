@@ -82,7 +82,7 @@ admin.site.register(Category, CategoryAdmin)
 class TagAdminForm(forms.ModelForm):
     class Meta:
         model = Tag
-        fields = ('name', 'category',
+        fields = ('name',
                   'url', 'private', 'rateable', 'description')
         widgets = {
             'description': FroalaEditor(
@@ -116,10 +116,10 @@ class TagAdminForm(forms.ModelForm):
 
 class TagAdmin(admin.ModelAdmin):
     form = TagAdminForm
-    list_display = ('name', 'url', 'private', 'rateable', 'category')
+    list_display = ('name', 'url', 'private', 'rateable')
     search_fields = ['name', 'url', 'description']
     readonly_fields = ('created',)
-    list_filter = ['category', 'private', 'rateable']
+    list_filter = ['private', 'rateable']
     orderinng = ['name', ]
 
 

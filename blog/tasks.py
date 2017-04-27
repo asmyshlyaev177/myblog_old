@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 from celery import Celery
 from datetime import timedelta
 import os, datetime, json, re
@@ -236,27 +235,21 @@ def addPost(post_id, tag_list, moderated, group=None):
     post_raw = Post.objects.select_related().prefetch_related().get(id=post_id)
     nsfw = post_raw.private
     have_new_tags = False
+    _ = False
     post_raw.tags.clear()
     tag = None
     for i in tag_list:
         if len(i) > 2:
             if nsfw:
                 tag_url = slugify(i.lower() + "_nsfw", allow_unicode=True)
-                try:
-                    tag = Tag.objects.get(url__iexact=tag_url)
-                except:
-                    have_new_tags = True
-                    tag = Tag.objects.create(name=i, url=tag_url)
+                tag, _ = Tag.objects.get_or_create(name=i, url=tag_url)
             else:
                 tag_url = slugify(i.lower(), allow_unicode=True)
-                try:
-                    tag = Tag.objects.get(url__iexact=tag_url)
-                except:
-                    have_new_tags = True
-                    tag = Tag.objects.create(name=i, url=tag_url)
-
-            if have_new_tags:
-                tag.save()
+                tag, _ = Tag.objects.get_or_create(name=i, url=tag_url)
+                
+            if _:
+                have_new_tags = True
+                
             post_raw.tags.add(tag)
     if have_new_tags:
         cache.delete_pattern("taglist")
@@ -351,7 +344,9 @@ def addPost(post_id, tag_list, moderated, group=None):
     for i in cache_str:
         cache.delete_pattern(i)
 
-    group = "add-post"
+    if not group:
+        group = "post-saved"
+    
     Group(group).send({
         "text": json.dumps(post) })
 

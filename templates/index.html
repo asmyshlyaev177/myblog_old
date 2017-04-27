@@ -95,7 +95,11 @@
               url = "{{ cat.slug }}"
               class="waves-effect ajax-menu menu z-depth-2 hoverable"
                id="{{ cat.slug }}" cat>
-              {{ cat.name }}</a></li>
+              {{ cat.name }}
+                  {% if cat.new %}
+                  <span class="badge">{{cat.new}}</span>
+                  {% endif %}
+                </a></li>
         {% endfor %}
       </ul>
 

@@ -51,11 +51,11 @@ urlpatterns = [
     url(r'^__debug__/', include(debug_toolbar.urls)),
     url(r'^admin\/?', admin.site.urls, name='myadmin'),
     url(r'^$', views.List.as_view(), name='list'),
-    url(r'^pop-(?P<pop>[-\w]+)\/?$', views.List_pop.as_view(), name='list_pop'),
     #url(r'^ckeditor/', include('ckeditor_uploader.urls')),
-    url(r'^add-post\/?$', views.add_post, name='add_post'),
-    url(r'^edit-post-(?P<postid>[-vi\d]+)\/?$', views.edit_post, name='edit_post'),
-
+    url(r'^add-post\/?$', views.Add_Post.as_view(), name='add_post'),
+    url(r'^post-saved(?P<pk>[-vi\d]+)?\/?$', views.Post_Saved.as_view(), name='edited_post'),
+    url(r'^edit-post-(?P<pk>[-vi\d]+)\/?$', views.Edit_Post.as_view(), name='edit_post'),
+    
     url(r'^signup\/?$', views.Signup.as_view(), name='signup'),
     url(r'^signup_success\/?$', views.Signup_success.as_view(), name='signup_success'),
     url(r'^login\/?$', views.Login.as_view(), name='login'),
@@ -79,6 +79,7 @@ urlpatterns = [
     url(r'^complain/(?P<type>[-\w]+)/(?P<objid>[-vi\d]+)/(?P<reason>([^\/]+))\/?$',
         views.complain_elem, name='complain'),
 
+    url(r'^pop-(?P<pop>[-\w]+)\/?$', views.List_pop.as_view(), name='list_pop'),
     url(r'^cat/(?P<category>([^\/]+))\/?$', views.List_cat.as_view(), name='category'),
     url(r'^cat/(?P<category>([^\/]+))/pop-(?P<pop>[-\w]+)\/?$', views.List_cat_pop.as_view(), name='category_pop'),
     url(r'^(?P<tag>([^\/]+))\/?$', views.List_tag.as_view(), name='tag'),
