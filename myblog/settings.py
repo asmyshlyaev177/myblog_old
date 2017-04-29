@@ -79,19 +79,19 @@ DEFAULT_EMAIL_FROM = 'asmyshlyaev177@gmail.com'
 
 
 SOCIAL_AUTH_ADMIN_USER_SEARCH_FIELDS = ['email']
-SOCIAL_AUTH_FACEBOOK_KEY = 'key'
-SOCIAL_AUTH_FACEBOOK_SECRET = 'secret'
+SOCIAL_AUTH_FACEBOOK_KEY = '1927430520825162'
+SOCIAL_AUTH_FACEBOOK_SECRET = 'de68e12333a4f5aa9047bcb9890d321c'
 SOCIAL_AUTH_FACEBOOK_SCOPE = ['email']
 SOCIAL_AUTH_FACEBOOK_PROFILE_EXTRA_PARAMS = {
                     'locale': 'ru_RU',
                     'fields': 'name, email'
 }
-SOCIAL_AUTH_GOOGLE_OAUTH2_KEY = 'key'
-SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET = 'secret'
-SOCIAL_AUTH_VK_OAUTH2_KEY = 'key'
-SOCIAL_AUTH_VK_OAUTH2_SECRET = 'secret'
+SOCIAL_AUTH_GOOGLE_OAUTH2_KEY = '1045385512187-e4divcire3dki16s275vc5ng1pdd130m.apps.googleusercontent.com'
+SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET = 'ltnCm00I7ckU1vMi43h4whAc'
+SOCIAL_AUTH_VK_OAUTH2_KEY = '6009730'
+SOCIAL_AUTH_VK_OAUTH2_SECRET = 'ExiDBpzo5uMqdysG3ZDa'
 SOCIAL_AUTH_VK_OAUTH2_SCOPE = ['email']
-# SOCIAL_AUTH_VK_APP_USER_MODE = 2
+SOCIAL_AUTH_VK_APP_USER_MODE = 2
 SOCIAL_AUTH_USER_MODEL = 'blog.myUser'
 SOCIAL_AUTH_PROTECTED_USER_FIELDS = ['email', ]
 
@@ -147,7 +147,7 @@ SESSION_CACHE_ALIAS = "default"
 
 INSTALLED_APPS = [
     'django.contrib.staticfiles',
-    'debug_toolbar',
+     #'debug_toolbar',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -176,7 +176,7 @@ TEMPLATE_DEBUG = True
 THUMBNAIL_DEBUG = True
 THUMBNAIL_PRESERVE_FORMAT = True
 
-BASE_URL = 'http://192.168.1.70'
+BASE_URL = 'http://asmyshlyaev177.tk'
 STATIC_URL = '/static/'
 STATIC_ROOT = '/root/myblog/myblog/blog/static/'
 MEDIA_ROOT = '/root/myblog/myblog/blog/static/media/'
@@ -186,7 +186,7 @@ GPLUS = 'google_plus_url'
 FB = 'fb_url'
 VK = 'vk_url'
 META_SITE_PROTOCOL = 'http'
-META_SITE_DOMAIN = '192.168.1.70'
+META_SITE_DOMAIN = 'asmyshlyaev177.tk'
 META_SITE_NAME = "Test site"
 META_USE_OG_PROPERTIES = True
 META_USE_TWITTER_PROPERTIES = True
@@ -205,14 +205,14 @@ STATICFILES_FINDERS = (
 
 # COMPRESS_ROOT = STATIC_URL
 # COMPRESS_OFFLINE = True
-COMPRESS_ENABLED = False  # удобней выключить потом включу
+COMPRESS_ENABLED = True  # удобней выключить потом включу
 COMPRESS_CSS_FILTERS = ['compressor.filters.css_default.CssAbsoluteFilter',
                         'compressor.filters.cssmin.rCSSMinFilter']
 # IMAGEKIT_DEFAULT_CACHEFILE_STRATEGY = 'imagekit.cachefiles.strategies.JustInTime'
 
 # MIDDLEWARE = [  #for debug toolbar
 MIDDLEWARE_CLASSES = [
-    'debug_toolbar.middleware.DebugToolbarMiddleware',
+    #'debug_toolbar.middleware.DebugToolbarMiddleware',
     'django.middleware.cache.UpdateCacheMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
@@ -253,14 +253,14 @@ WSGI_APPLICATION = 'myblog.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/1.10/ref/settings/#databases
 
-"""DATABASES = {
+DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
         'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
     }
-}"""
+}
 
-DATABASES = {
+"""DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
         'NAME': 'myblog',
@@ -270,7 +270,7 @@ DATABASES = {
         'CONN_MAX_AGE': 0, #none for production
         #'PORT': '6432',
     }
-}
+}"""
 
 
 # Password validation

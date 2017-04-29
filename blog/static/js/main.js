@@ -483,7 +483,10 @@ function selectActiveTabs() {
 }
 
 function toggleTopMenu() {
-    if ( single_page || pageUrl == "/dashboard/my-posts" ) {
+    var r = RegExp('^\/post-saved.*|^\/edit-post-\d*', 'u');
+    if ( pageUrl == "/dashboard/my-posts" 
+       || pageUrl == "/signup" || pageUrl == "/add-post"
+       || r.test(pageUrl) || pageUrl == "/dashboard" ) {
         $('.top-menu').hide();
     } else {
         $('.top-menu').show();

@@ -242,6 +242,8 @@ class Dashboard(generic.edit.UpdateView):
     
     def get_context_data(self, **kwargs):
         context = super(Dashboard, self).get_context_data(**kwargs)
+        if self.request.is_ajax():
+            self.template_name = 'dashboard-ajax.html'
         context['cat_list'] = get_cat_list()
         return context
     

@@ -42,10 +42,10 @@ def Rate(userid, date_joined, votes_type, type, elem_id, vote):
         votes = {}
         if date_joined < dt - delta:
             coef = 0.25
-            votes['votes'] = 200
+            votes['votes'] = 10
         else:
             coef = 0.0
-            votes['votes'] = 100
+            votes['votes'] = 5
 
         votes['weight'] = 0.25 + coef + user_rating.rating / 50
 
@@ -214,7 +214,8 @@ def commentImage(comment_id):
     comment['level'] = comment_raw.level
     comment['comment'] = 1
     comment['created'] = (comment_raw.created + delta_tz).strftime('%Y.%m.%d %H:%M')
-    group = comment_raw.post.get_absolute_url().strip('/').split('/')[-1].split('-')[-1]
+    group = comment_raw.post.get_absolute_url().strip('/').split('/')[-1]
+    #.split('-')[-1]
     Group(group).send({
         # "text": "[user] %s" % message.content['text'],
         "text": json.dumps(comment),

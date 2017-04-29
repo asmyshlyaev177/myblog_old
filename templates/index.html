@@ -52,10 +52,8 @@
     <div class="nav-wrapper">
         <div class="row">
           <div class="col s12 m12 l12 header1">
-            <a class="waves-effect brand-logo left ajax-menu menu"
+            <a class="center waves-effect brand-logo ajax-menu menu"
             url="/" href="/">
-              <img alt="logo" id="logo" src="{% settings_value 'LOGO_SRC' %}" 
-                   title="logo" />
                 
               <div id="site-name" style="display: inline-block;">
                 Мой блог
@@ -63,25 +61,27 @@
             </a>
 
             <a href="#" id="user-menu" data-activates="user-menu-list" data-constrainWidth="false"
-               data-beloworigin="true" class="dropdown-button right user-menu">
+               data-beloworigin="true" class="valign-wrapper dropdown-button right user-menu">
 
+		<div class="valign-wrapper">
               {% if user.is_authenticated %}
-                <p id="user_auth" style="display: none;" user={{request.user.id}}></p>
+                <div id="user_auth" style="display: none;" user={{request.user.id}}></div>
                   {% if user.avatar %}
-                            <p><img src="{{ user.avatar.url }}"
+                            <img src="{{ user.avatar.url }}"
                             alt="Avatar" title="Avatar-{{user.username}}"
                             width="50"
                             height="50"
-                            class = "img-avatar circle z-depth-2 hoverable"></p>
+                            class = "valign img-avatar circle z-depth-2 hoverable">
                   {% else %}
-                  <p><img src="/static/img/avatar.jpg" title="Avatar-default"
-                    class ="hoverable img-avatar circle"
-                    width="50" height="50" alt="Avatar"/></p>
+                  <img src="/static/img/avatar.jpg" title="Avatar-default"
+                    class ="hoverable img-avatar circle valign"
+                    width="50" height="50" alt="Avatar"/>
                   {% endif %}
               {% else %}
-                <p><img src="/static/img/avatar.jpg" width="50" height="50" title="Avatar-default"
-                  class ="img-avatar circle z-depth-2 hoverable" alt="Avatar"/></p>
+                <img src="/static/img/avatar.jpg" width="50" height="50" title="Avatar-default"
+                  class ="img-avatar circle z-depth-2 hoverable valign" alt="Avatar"/>
               {% endif %}
+		</div>
             </a>
 
           </div>

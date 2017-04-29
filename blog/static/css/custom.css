@@ -32,6 +32,14 @@ h4, h4:hover {
     background-color: rgba(250, 250, 250, 1);
 }
 
+.reply-btn {
+	margin: 10px;
+}
+
+.post > .flow-text {
+	padding-left: 10px;
+}
+
 form.signup {
 	padding: 0.1rem 1rem 2rem 1rem;
 }
@@ -159,7 +167,8 @@ video {
 
 .header1 {
 	background-color: #039be5;
-  padding-bottom: 1rem!important;
+	padding-top: 1%!important;
+	padding-bottom: 1%!important;
 }
 
 .pop-tabs {
