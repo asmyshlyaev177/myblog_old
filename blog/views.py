@@ -19,12 +19,17 @@ from django.utils.decorators import method_decorator
 from blog.tasks import addPost, Rate, commentImage, ComplainObj
 from django.contrib.auth.views import (login as def_login,
                                 password_change as def_password_change)
-
-from blog.forms import SignupForm, MyUserChangeForm, AddPostForm, CommentForm
+from haystack.generic_views import SearchView
+from blog.forms import (SignupForm, MyUserChangeForm, 
+                        AddPostForm, CommentForm, PostSearchForm)
 from blog.models import (Post, Category, Tag, Comment, myUser, Complain)
 hot_rating = 3
 
 import resource
+
+class PostSearchView(SearchView):
+    form_class = PostSearchForm
+    template_name = 'search/search.html'
 
 def clear_cache(request):
     """

@@ -35,6 +35,7 @@ django-compressor==2.1.1
 django-debug-toolbar==1.7
 django-extensions==1.7.7
 django-froala-editor==2.5.0
+django-haystack==2.6.0
 django-imagekit==4.0
 django-meta==1.3.2
 django-mptt==0.8.7
@@ -137,4 +138,5 @@ wcwidth==0.1.7
 webencodings==0.5
 Werkzeug==0.12
 widgetsnbextension==2.0.0
+xapian-haystack==2.1.0
 zope.interface==4.4.0

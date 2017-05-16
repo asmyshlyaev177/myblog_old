@@ -5,8 +5,11 @@ from django import forms
 from blog.models import myUser, Post, Comment
 from django.conf import settings
 from froala_editor.widgets import FroalaEditor
+from haystack.forms import SearchForm
 
-
+class PostSearchForm(SearchForm):
+    pass
+    
 class SignupForm(forms.ModelForm):
     """Форма регистрации"""
     password1 = forms.CharField(label='Пароль', widget=forms.PasswordInput)

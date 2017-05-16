@@ -32,7 +32,8 @@ sitemaps = {'posts': BlogSitemap() }
 urlpatterns = [
     #url(r'^silk/', include('silk.urls', namespace='silk')),
     url(r'^clear-cache\/?', views.clear_cache, name='clear_cache'),
-
+    url(r'^search/', include('haystack.urls')),
+    url(r'^mysearch\/?$', views.PostSearchView.as_view(), name='search_view'),
     url(r'^sitemap\.xml$', index, {'sitemaps': sitemaps}),
     url(r'^sitemap-(?P<section>.+)\.xml$', sitemap, {'sitemaps': sitemaps},
         name='django.contrib.sitemaps.views.sitemap'),

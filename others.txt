@@ -80,3 +80,28 @@ $('#id_text').on('froalaEditor.image.beforeRemove', function (e, editor, $img)  
 $('#id_text').on('froalaEditor.image.beforeRemove', function (e, editor, $img)  {
 	console.log("/delete_image" + $img.attr('src'));
   })
+
+
+XAPIAN
+yum install libuuid-devel uuid-devel
+source /opt/rh/devtoolset-2/enable
+sudo apt-get install uuid-dev
+Create ~/src if it doesn't exist yet:
+
+$ mkdir ~/src
+Install and configure:
+
+$ cd ~/src 
+$ wget http://oligarchy.co.uk/xapian/1.2.6/xapian-core-1.2.6.tar.gz 
+$ wget http://oligarchy.co.uk/xapian/1.2.6/xapian-bindings-1.2.6.tar.gz 
+$ tar -xzvf xapian-core-1.2.6.tar.gz 
+$ tar -xzvf xapian-bindings-1.2.6.tar.gz
+$ cd xapian-core-1.2.6 
+$ mkdir -p $HOME/bin/xapian 
+$ ./configure --prefix=$HOME/bin/xapian 
+$ make 
+$ make install
+$ cd ../xapian-bindings-1.2.6 
+$ ./configure --prefix=$HOME/bin/xapian-bindings XAPIAN_CONFIG=$HOME/bin/xapian/bin/xapian-config PYTHON=/home/vagrant/.virtualenvs/djangoproj/bin/python PYTHON_LIB=/home/vagrant/.virtualenvs/djangoproj/lib/python2.7 --with-python3 --without-ruby --without-php --without-tcl 
+$ make 
+$ make install
