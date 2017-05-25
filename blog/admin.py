@@ -3,9 +3,9 @@ from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
 from django.utils.html import format_html
 from froala_editor.widgets import FroalaEditor
-
+from django.contrib.auth.forms import UserCreationForm
+from blog.forms import MyUserChangeForm
 from blog.models import (Post, Category, Tag, MyUser, Comment)
-from .forms import (UserCreationForm, MyUserChangeForm)
 
 
 class UserAdmin(BaseUserAdmin):

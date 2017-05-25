@@ -285,10 +285,10 @@ class Post(ModelMeta, models.Model):
         return self.title
 
     def get_absolute_url(self):
-        return "/%s/%s-%i/" % (self.main_tag.url, self.url, self.id)
+        return "/post/%s/%s-%i/" % (self.main_tag.url, self.url, self.id)
 
     def get_url(self):
-        return "%s/%s-%i/" % (self.main_tag.url, self.url, self.id)
+        return "post/%s/%s-%i/" % (self.main_tag.url, self.url, self.id)
 
     def get_category(self):
         return self.category.get_url
@@ -347,8 +347,8 @@ class Category(models.Model):
         return cat_list
 
     def save(self, *args, **kwargs):
-        # if not self.slug:
-        # self.slug = slugify(self.name.lower(), allow_unicode=True)
+        if len(self.slug) < 1:
+            self.slug = slugify(self.name.lower(), allow_unicode=True)
         super(Category, self).save(*args, **kwargs)
 
 
@@ -384,11 +384,11 @@ class Tag(models.Model):
     def __str__(self):
         return self.name
 
-        # def save(self, *args, **kwargs):
-        #    if not self.url:
-        #        self.url = slugify(self.name.lower())
+    def save(self, *args, **kwargs):
+        if len(self.url) < 1:
+            self.url = slugify(self.name.lower())
 
-        #    super(Tag, self).save(*args, **kwargs)
+        super(Tag, self).save(*args, **kwargs)
 
 
 @receiver(models.signals.pre_delete, sender=Tag)

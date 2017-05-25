@@ -80,13 +80,13 @@ urlpatterns = [
     url(r'^pop-(?P<pop>[-\w]+)\/?$', views.ListPop.as_view(), name='list_pop'),
     url(r'^cat/(?P<category>([^\/]+))\/?$', views.ListCat.as_view(), name='category'),
     url(r'^cat/(?P<category>([^\/]+))/pop-(?P<pop>[-\w]+)\/?$', views.ListCatPop.as_view(), name='category_pop'),
-    url(r'^(?P<tag>([^\/]+))\/?$', views.ListTag.as_view(), name='tag'),
+    url(r'^tag/(?P<tag>([^\/]+))\/?$', views.ListTag.as_view(), name='tag'),
 
-    url(r'^(?P<tag>([^\/]+))/pop-(?P<pop>[-\w]+)\/?$', views.ListTagPop.as_view(), name='tag_pop'),
+    url(r'^tag/(?P<tag>([^\/]+))/pop-(?P<pop>[-\w]+)\/?$', views.ListTagPop.as_view(), name='tag_pop'),
 
     # url(r'^(?P<tag>([^\/]+))/(?P<title>([^\/]+))-(?P<id>([-vi\d]+))\/?$',
     #        views.single_post, name='single_post'),
-    url(r'^(?P<tag>([-\w]+))/(?P<title>([-\w]+))-(?P<pk>([-vi\d]+))\/?$',
+    url(r'^post/(?P<tag>([-\w]+))/(?P<title>([-\w]+))-(?P<pk>([-vi\d]+))\/?$',
         views.SinglePost.as_view(), name='single_post'),
 
     url(r'^media/(?P<path>.*)\/?$', serve,

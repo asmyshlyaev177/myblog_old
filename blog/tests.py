@@ -75,9 +75,9 @@ class BaseTestMixin(object):
                                            slug="cat2")
 
         cls.tag1 = Tag.objects.create(name="tag1", url="tag1",
-                                      description="tag1 desc", category=cls.cat1)
+                                      description="tag1 desc")
         cls.tag2 = Tag.objects.create(name="tag2", url="tag2",
-                                      description="tag2 desc", category=cls.cat1)
+                                      description="tag2 desc")
         create_posts(cls, from_num=1, to_num=20)
         create_posts(cls, from_num=1, to_num=20, private=True)
 
@@ -125,16 +125,16 @@ class TestAnonPages(BaseTestMixin, TestCase):
         assert page_content(self, self.cat2, best=True) is True
 
     def test_8_tag1(self):
-        self.resp = self.client.get('/{}'.format(self.tag1.url))
+        self.resp = self.client.get('/tag/{}'.format(self.tag1.url))
         assert page_content(self, tag=self.tag1) is True
 
     def test_9_tag2(self):
-        self.resp = self.client.get('/{}'.format(self.tag2.url))
+        self.resp = self.client.get('/tag/{}'.format(self.tag2.url))
         assert page_content(self, tag=self.tag2) is True
 
     def test_10_single(self):
         post = random.choice(Post.objects.all())
-        self.resp = self.client.get('/{}'.format(str(post.get_absolute_url())))
+        self.resp = self.client.get('{}'.format(post.get_absolute_url()))
         assert self.resp.status_code == 200
 
     def test_11_signup_page(self):
@@ -230,16 +230,16 @@ class TestUserLogin(BaseTestMixin, TestCase):
         assert page_content(self, self.cat2, best=True) is True
 
     def test_8_tag1(self):
-        self.resp = self.client.get('/{}'.format(self.tag1.url))
+        self.resp = self.client.get('/tag/{}'.format(self.tag1.url))
         assert page_content(self, tag=self.tag1) is True
 
     def test_9_tag2(self):
-        self.resp = self.client.get('/{}'.format(self.tag2.url))
+        self.resp = self.client.get('/tag/{}'.format(self.tag2.url))
         assert page_content(self, tag=self.tag2) is True
 
     def test_10_single(self):
         post = random.choice(Post.objects.all())
-        self.resp = self.client.get('/{}'.format(str(post.get_absolute_url())))
+        self.resp = self.client.get('{}'.format(str(post.get_absolute_url())))
         assert self.resp.status_code == 200
 
     def test_11_signup_page(self):
@@ -303,9 +303,9 @@ class TestAddPost(TestCase):
         create_category(self)
         self.client = Client()
         self.tag1 = Tag.objects.create(name="tag1", url="tag1",
-                                       description="tag1 desc", category=self.cat1)
+                                       description="tag1 desc")
         self.tag2 = Tag.objects.create(name="tag2", url="tag2",
-                                       description="tag2 desc", category=self.cat1)
+                                       description="tag2 desc")
         self.post = Post.objects.create(title="testpost", status="D",
                                         description="post desc",
                                         category=self.cat1, author=self.user,
@@ -331,7 +331,7 @@ class TestAddPost(TestCase):
         self.post.refresh_from_db()
         assert self.post.status == "P"
         assert self.tag1 in self.post.tags.all()
-        assert self.post.get_absolute_url() == "/{}/{}-{}/".format(self.post.main_tag.url, self.post.url, self.post.id)
+        assert self.post.get_absolute_url() == "/post/{}/{}-{}/".format(self.post.main_tag.url, self.post.url, self.post.id)
         assert self.post.description == "post desc"
         assert "123" in self.post.text
         assert self.post.author == self.user

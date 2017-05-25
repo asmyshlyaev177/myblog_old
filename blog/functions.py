@@ -24,8 +24,9 @@ def delete_thumb(text):
     удаляем картинки при удалении поста 
     """
     img_links = \
-        re.findall\
-        (r"/(?P<year>\d{4})/(?P<month>\d{1,2})/(?P<day>\d{1,2})/(?P<file>\S*)-(?P<res>\d{3,4})\.(?P<ext>\S*)", str(text))
+        re.findall \
+            (r"/(?P<year>\d{4})/(?P<month>\d{1,2})/(?P<day>\d{1,2})/(?P<file>\S*)-(?P<res>\d{3,4})\.(?P<ext>\S*)",
+             str(text))
     img_path = []
     # ищем полные пути до картинок
     for img in img_links:
