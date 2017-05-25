@@ -2,7 +2,7 @@ from django.contrib.auth.forms import (UserCreationForm,
                                        UserChangeForm,
                                        ReadOnlyPasswordHashField)
 from django import forms
-from blog.models import myUser, Post, Comment
+from blog.models import MyUser, Post, Comment
 from django.conf import settings
 from froala_editor.widgets import FroalaEditor
 
@@ -14,7 +14,7 @@ class SignupForm(forms.ModelForm):
                                 widget=forms.PasswordInput)
 
     class Meta:
-        model = myUser
+        model = MyUser
         fields = ('username', 'email')
         labels = {
             'username': ('Имя пользователя(должно быть уникально)'),
@@ -39,7 +39,7 @@ class SignupForm(forms.ModelForm):
 class MyUserChangeForm(forms.ModelForm):
     """ редактирование инфы о пользователе в дашборде"""
     class Meta:
-        model = myUser
+        model = MyUser
         fields = ('username', 'email', 'avatar')
 
 

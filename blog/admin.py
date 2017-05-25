@@ -1,16 +1,12 @@
+from django import forms
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
-from blog.models import (Post, Category, Tag, myUser, Comment)
-from django import forms
-from django.utils.text import slugify
-from imagekit.admin import AdminThumbnail
-from .forms import (UserCreationForm, UserChangeForm, MyUserChangeForm,
-                    CommentForm)
-from django.contrib.auth.models import Group
-from django.contrib.auth.models import AbstractBaseUser
-from froala_editor.widgets import FroalaEditor
 from django.utils.html import format_html
-from mptt.admin import MPTTModelAdmin
+from froala_editor.widgets import FroalaEditor
+
+from blog.models import (Post, Category, Tag, MyUser, Comment)
+from .forms import (UserCreationForm, MyUserChangeForm)
+
 
 class UserAdmin(BaseUserAdmin):
     form = MyUserChangeForm
@@ -25,38 +21,36 @@ class UserAdmin(BaseUserAdmin):
                            'moderator_of_tags', 'moderator_of_categories')}),
     )
 
-    #add_fieldsets = (
+    # add_fieldsets = (
     #    (None, {
     #    'classes': ('wide',),
     #    'fields': ('username', 'email','password1','password2')}
     #        ),
-    #)
+    # )
 
     readonly_fields = ('date_joined', 'last_login', 'get_avatar')
     search_fields = ['email', 'username']
     ordering = ['username', 'email']
     show_full_result_count = True
     list_filter = ('is_active',
-                       'is_staff')
+                   'is_staff')
     filter_horizontal = ()
 
     def get_avatar(self, obj):
         return obj.get_avatar()
+
     get_avatar.short_description = "Текущий аватар"
 
-admin.site.register(myUser, UserAdmin)
-#admin.site.register(Group)
 
-#from schema.admin import SchemaInline
+admin.site.register(MyUser, UserAdmin)
+
 
 class PostAdmin(admin.ModelAdmin):
-
-    #inlines = [SchemaInline, ]
     empty_value_display = '-empty-'
     fields = ('title', 'get_image', 'post_image', 'private',
-                'rateable', 'comments', 'locked',
+              'rateable', 'comments', 'locked',
               'description', 'text', 'author', 'category', 'tags',
-                'published', 'url', 'main_tag', 'status')
+              'published', 'url', 'main_tag', 'status')
     readonly_fields = ('get_image',)
     list_display = ('title', 'author', 'category',
                     'status', 'private', 'published')
@@ -64,12 +58,12 @@ class PostAdmin(admin.ModelAdmin):
     ordering = ['-status', '-published', 'title']
     show_full_result_count = True
     list_filter = ['category', 'status',
-                    'created', 'published', 'private', 'edited']
-    #url = Post.get_absolute_url()
+                   'created', 'published', 'private', 'edited']
     prepopulated_fields = {"url": ('title',)}
 
 
 admin.site.register(Post, PostAdmin)
+
 
 class CategoryAdmin(admin.ModelAdmin):
     list_display = ('name', 'description')
@@ -86,29 +80,29 @@ class TagAdminForm(forms.ModelForm):
                   'url', 'private', 'rateable', 'description')
         widgets = {
             'description': FroalaEditor(
-                                options={'toolbarInline': False,
-                                        'iframe': False,
-                                        'toolbarSticky': False,
-                                        'imageDefaultWidth': 800,
-                                        'language': 'ru',
-                                        'placeholderText': '''Напишите что-нибудь
-                                        или перетащите изображение''',
-                                        'imageMaxSize': 1024 * 1024 * 19,
-                                        'pasteDeniedTags': ['script'],
-                                        'imageEditButtons': [
-                                            'imageAlign', 'imageRemove',
-                                            '|', 'imageLink', 'linkOpen',
-                                            'linkEdit', 'linkRemove', '-',
-                                            'imageDisplay', 'imageStyle',
-                                            'imageAlt', 'imageSize', 'html'
-                                        ]},
-                                plugins=('align', 'char_counter', 'code_beautifier',
-                                     'code_view', 'colors', 'draggable', 'emoticons',
-                                     'entities', 'file', 'font_family', 'font_size',
-                                     'fullscreen', 'image_manager', 'image', 'inline_style',
-                                     'line_breaker', 'link', 'lists', 'paragraph_format',
-                                     'paragraph_style', 'quick_insert', 'quote', 'save', 'table',
-                                     'url', 'video'),
+                options={'toolbarInline': False,
+                         'iframe': False,
+                         'toolbarSticky': False,
+                         'imageDefaultWidth': 800,
+                         'language': 'ru',
+                         'placeholderText': '''Напишите что-нибудь
+                                          или перетащите изображение''',
+                         'imageMaxSize': 1024 * 1024 * 19,
+                         'pasteDeniedTags': ['script'],
+                         'imageEditButtons': [
+                             'imageAlign', 'imageRemove',
+                             '|', 'imageLink', 'linkOpen',
+                             'linkEdit', 'linkRemove', '-',
+                             'imageDisplay', 'imageStyle',
+                             'imageAlt', 'imageSize', 'html'
+                         ]},
+                plugins=('align', 'char_counter', 'code_beautifier',
+                         'code_view', 'colors', 'draggable', 'emoticons',
+                         'entities', 'file', 'font_family', 'font_size',
+                         'fullscreen', 'image_manager', 'image', 'inline_style',
+                         'line_breaker', 'link', 'lists', 'paragraph_format',
+                         'paragraph_style', 'quick_insert', 'quote', 'save', 'table',
+                         'url', 'video'),
             ),
 
         }
@@ -132,29 +126,29 @@ class CommentAdminForm(forms.ModelForm):
         fields = ("author", "text", "removed", "post")
         widgets = {
             'text': FroalaEditor(
-                                options={'toolbarInline': False,
-                                        'iframe': False,
-                                        'toolbarSticky': False,
-                                        'imageDefaultWidth': 800,
-                                        'language': 'ru',
-                                        'placeholderText': '''Напишите что-нибудь
-                                        или перетащите изображение''',
-                                        'imageMaxSize': 1024 * 1024 * 19,
-                                        'pasteDeniedTags': ['script'],
-                                        'imageEditButtons': [
-                                            'imageAlign', 'imageRemove',
-                                            '|', 'imageLink', 'linkOpen',
-                                            'linkEdit', 'linkRemove', '-',
-                                            'imageDisplay', 'imageStyle',
-                                            'imageAlt', 'imageSize', 'html'
-                                        ]},
-                                plugins=('align', 'char_counter', 'code_beautifier',
-                                     'code_view', 'colors', 'draggable', 'emoticons',
-                                     'entities', 'file', 'font_family', 'font_size',
-                                     'fullscreen', 'image_manager', 'image', 'inline_style',
-                                     'line_breaker', 'link', 'lists', 'paragraph_format',
-                                     'paragraph_style', 'quick_insert', 'quote', 'save', 'table',
-                                     'url', 'video'),
+                options={'toolbarInline': False,
+                         'iframe': False,
+                         'toolbarSticky': False,
+                         'imageDefaultWidth': 800,
+                         'language': 'ru',
+                         'placeholderText': '''Напишите что-нибудь
+                                          или перетащите изображение''',
+                         'imageMaxSize': 1024 * 1024 * 19,
+                         'pasteDeniedTags': ['script'],
+                         'imageEditButtons': [
+                             'imageAlign', 'imageRemove',
+                             '|', 'imageLink', 'linkOpen',
+                             'linkEdit', 'linkRemove', '-',
+                             'imageDisplay', 'imageStyle',
+                             'imageAlt', 'imageSize', 'html'
+                         ]},
+                plugins=('align', 'char_counter', 'code_beautifier',
+                         'code_view', 'colors', 'draggable', 'emoticons',
+                         'entities', 'file', 'font_family', 'font_size',
+                         'fullscreen', 'image_manager', 'image', 'inline_style',
+                         'line_breaker', 'link', 'lists', 'paragraph_format',
+                         'paragraph_style', 'quick_insert', 'quote', 'save', 'table',
+                         'url', 'video'),
             ),
         }
 
@@ -165,10 +159,12 @@ class CommentAdmin(admin.ModelAdmin):
 
     def _text(self, obj):
         return format_html(obj.text)
+
     readonly_fields = ("created",)
     search_fields = ["text", "author__username", "post__title"]
     list_filter = ["created", "removed"]
-    raw_id_fields = ("post", )
+    raw_id_fields = ("post",)
     ordering = ["created", ]
+
 
 admin.site.register(Comment, CommentAdmin)

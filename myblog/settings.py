@@ -9,13 +9,13 @@ https://docs.djangoproject.com/en/1.10/topics/settings/
 For the full list of settings and their values, see
 https://docs.djangoproject.com/en/1.10/ref/settings/
 """
-import os
 import datetime
+import os
 
-#CELERY_RESULT_BACKEND = 'django-db'  # for testing
+# CELERY_RESULT_BACKEND = 'django-db'  # for testing
 SITE_ID = 1
 
-#SILKY_PYTHON_PROFILER = True
+# SILKY_PYTHON_PROFILER = True
 
 CHANNEL_LAYERS = {
     "default": {
@@ -28,16 +28,15 @@ CHANNEL_LAYERS = {
     },
 }
 
-
 NOTEBOOK_ARGUMENTS = [
     '--ip', '0.0.0.0',
     '--port', '8888',
 ]
 
 SHELL_PLUS_PRE_IMPORTS = (
-    ('blog.models', ('Post', 'myUser', 'Category', 'Tag', 'UserVotes')),
-    ('blog.functions', ('deleteThumb', 'srcsetThumb', 'findLink',
-                        'findFile', 'saveImage', 'srcsets',)),
+    ('blog.models', ('Post', 'MyUser', 'Category', 'Tag', 'UserVotes')),
+    ('blog.functions', ('delete_thumb', 'srcset_thumb', 'find_link',
+                        'find_file', 'save_image', 'make_srcsets',)),
     ('django.core.cache', ('cache',)),
     ('datetime'), ('os'), ('json'),
     ('django.test', ('RequestFactory', 'Client')),
@@ -59,9 +58,9 @@ DEBUG = True
 LOGIN_URL = '/login'
 
 FROALA_INCLUDE_JQUERY = False
-FROALA_UPLOAD_PATH = str(datetime.date.today().year) + '/'\
-    + str(datetime.date.today().month)\
-    + '/' + str(datetime.date.today().day) + '/'
+FROALA_UPLOAD_PATH = str(datetime.date.today().year) + '/' \
+                     + str(datetime.date.today().month) \
+                     + '/' + str(datetime.date.today().day) + '/'
 
 ALLOWED_HOSTS = ['*']
 DEBUG_TOOLBAR_PATCH_SETTINGS = False
@@ -77,14 +76,13 @@ EMAIL_HOST_USER = 'asmyshlyaev177@gmail.com'
 EMAIL_HOST_PASSWORD = 'mypass'
 DEFAULT_EMAIL_FROM = 'asmyshlyaev177@gmail.com'
 
-
 SOCIAL_AUTH_ADMIN_USER_SEARCH_FIELDS = ['email']
 SOCIAL_AUTH_FACEBOOK_KEY = 'key'
 SOCIAL_AUTH_FACEBOOK_SECRET = 'secret'
 SOCIAL_AUTH_FACEBOOK_SCOPE = ['email']
 SOCIAL_AUTH_FACEBOOK_PROFILE_EXTRA_PARAMS = {
-                    'locale': 'ru_RU',
-                    'fields': 'name, email'
+    'locale': 'ru_RU',
+    'fields': 'name, email'
 }
 SOCIAL_AUTH_GOOGLE_OAUTH2_KEY = 'key'
 SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET = 'secret'
@@ -92,11 +90,11 @@ SOCIAL_AUTH_VK_OAUTH2_KEY = 'key'
 SOCIAL_AUTH_VK_OAUTH2_SECRET = 'secret'
 SOCIAL_AUTH_VK_OAUTH2_SCOPE = ['email']
 # SOCIAL_AUTH_VK_APP_USER_MODE = 2
-SOCIAL_AUTH_USER_MODEL = 'blog.myUser'
+SOCIAL_AUTH_USER_MODEL = 'blog.MyUser'
 SOCIAL_AUTH_PROTECTED_USER_FIELDS = ['email', ]
 
-#LOGIN_REDIRECT_URL = '/'
-#LOGOUT_REDIRECT_URL = '/'
+# LOGIN_REDIRECT_URL = '/'
+# LOGOUT_REDIRECT_URL = '/'
 
 # SOCIAL_AUTH_LOGIN_REDIRECT_URL = '/'
 # SOCIAL_AUTH_LOGIN_ERROR_URL = '/login-error/'
@@ -104,7 +102,6 @@ SOCIAL_AUTH_PROTECTED_USER_FIELDS = ['email', ]
 # SOCIAL_AUTH_NEW_ASSOCIATION_REDIRECT_URL = '/new-association-redirect-url/'
 # SOCIAL_AUTH_INACTIVE_USER_URL = '/inactive-user/'
 SOCIAL_AUTH_URL_NAMESPACE = 'social'
-
 
 SOCIAL_AUTH_PIPELINE = (
     'social.pipeline.social_auth.social_details',
@@ -129,7 +126,7 @@ AUTHENTICATION_BACKENDS = (
     'django.contrib.auth.backends.ModelBackend',
 )
 
-AUTH_USER_MODEL = 'blog.myUser'
+AUTH_USER_MODEL = 'blog.MyUser'
 
 CACHES = {
     "default": {
@@ -156,21 +153,20 @@ INSTALLED_APPS = [
     'blog',
     'froala_editor',
     'compressor',
-    #'django_cleanup',
+    # 'django_cleanup',
     'django_extensions',
     'mptt',
     'channels',
-    #'django_celery_results',
-    #'django_celery_beat',
+    # 'django_celery_results',
+    # 'django_celery_beat',
     'social_django',
     'django.contrib.sites',
     'django.contrib.sitemaps',
-    #'silk',
+    # 'silk',
     'meta',
 ]
- 
-CELERY_BROKER_URL = 'amqp://django:Qvjuzowu177Qvjuzowu177Qvjuzowu177@127.0.0.1:5672//'
 
+CELERY_BROKER_URL = 'amqp://django:Qvjuzowu177Qvjuzowu177Qvjuzowu177@127.0.0.1:5672//'
 
 TEMPLATE_DEBUG = True
 THUMBNAIL_DEBUG = True
@@ -194,7 +190,6 @@ META_USE_GOOGLEPLUS_PROPERTIES = True
 LOGO_SRC = "/123.png"
 LOGO_TEXT = "My logo"
 LOGO_FORMAT = "png"
-
 
 STATICFILES_FINDERS = (
     'django.contrib.staticfiles.finders.FileSystemFinder',
@@ -223,7 +218,7 @@ MIDDLEWARE_CLASSES = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'django.middleware.locale.LocaleMiddleware',
     'django.middleware.cache.FetchFromCacheMiddleware',
-    #'silk.middleware.SilkyMiddleware',
+    # 'silk.middleware.SilkyMiddleware',
 
 ]
 
@@ -249,7 +244,6 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'myblog.wsgi.application'
 
-
 # Database
 # https://docs.djangoproject.com/en/1.10/ref/settings/#databases
 
@@ -267,11 +261,10 @@ DATABASES = {
         'USER': 'mybloguser',
         'PASSWORD': 'Qvjuzowu177Qvjuzowu177Qvjuzowu177',
         'HOST': '/var/run/postgresql',
-        'CONN_MAX_AGE': 0, #none for production
-        #'PORT': '6432',
+        'CONN_MAX_AGE': 0,  # none for production
+        # 'PORT': '6432',
     }
 }
-
 
 # Password validation
 # https://docs.djangoproject.com/en/1.10/ref/settings/#auth-password-validators
@@ -291,7 +284,6 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
-
 # Internationalization
 # https://docs.djangoproject.com/en/1.10/topics/i18n/
 
@@ -304,7 +296,6 @@ USE_L10N = True
 LANGUAGES = [
     ('ru', ('Russian')),
 ]
-
 
 USE_TZ = True
 

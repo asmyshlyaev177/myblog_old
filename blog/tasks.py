@@ -1,33 +1,33 @@
-from celery import Celery
-from datetime import timedelta
-import os, datetime, json, re
-from blog.models import (myUser, Post, Tag, Category, Comment, Complain)
-from django.utils.text import slugify
-from bs4 import BeautifulSoup
-from PIL import Image
+import datetime
+import json
+import os
+import pytz
 from urllib.parse import urlparse, urlencode
-import datetime, pytz
-from django.utils.encoding import uri_to_iri, iri_to_uri
 from urllib.request import urlopen, Request
-from blog.functions import (srcsets, srcsetThumb, saveImage,
-                            stripMediaFromPath,
-                           findLink, findFile, cleanTagsFromSoup)
+from bs4 import BeautifulSoup
+from channels import Group
 from django.core.cache import cache
 from django.core.cache.utils import make_template_fragment_key
-from channels import Group
+from django.utils.encoding import uri_to_iri, iri_to_uri
+from django.utils.text import slugify
+
+from blog.functions import (make_srcsets, srcset_thumb, save_image,
+                            strip_media_from_path,
+                            find_link, find_file, clean_tags_from_soup)
+from blog.models import (MyUser, Post, Tag, Comment, Complain)
 from myblog.celery import app
 
 delta_tz = datetime.timedelta(hours=+3)
 tz = datetime.timezone(delta_tz)
 
 
-@app.task(name="Rate")
-def Rate(userid, date_joined, votes_type, type, elem_id, vote):
+@app.task(name="rate")
+def rate(userid, date_joined, votes_type, type, elem_id, vote):
     """
     Оценка постов и комментов
     """
     if type == "post":
-        element = Post.objects.only('id', 'rateable', 'category')\
+        element = Post.objects.only('id', 'rateable', 'category') \
             .select_related('category').get(id=elem_id)
     elif type == "comment":
         element = Comment.objects.only('id').get(id=elem_id)
@@ -36,10 +36,9 @@ def Rate(userid, date_joined, votes_type, type, elem_id, vote):
     dt = datetime.datetime.now(tz=tz)
     uv = cache.get('user_votes_' + str(userid))
 
-    if uv is None:   # user votes кол-во голосов у юзеров
-        date_joined = pytz.utc.localize\
-            (datetime.datetime.strptime(date_joined, '%Y_%m_%d'))
-        user_rating = myUser.objects.only('rating').get(id=userid)
+    if uv is None:  # user votes кол-во голосов у юзеров
+        date_joined = pytz.utc.localize(datetime.datetime.strptime(date_joined, '%Y_%m_%d'))
+        user_rating = MyUser.objects.only('rating').get(id=userid)
         votes = {}
         if date_joined < dt - delta:
             coef = 0.25
@@ -74,8 +73,8 @@ def Rate(userid, date_joined, votes_type, type, elem_id, vote):
                 p_data['category'] = element.category.id
                 cache.set(r_key, p_data, timeout=3024000)
         elif type == "comment":
-                # example vote_comment_2016_12_24_23_16_35_968626
-                # {'elem_id': 55, 'rate': -0.5}
+            # example vote_comment_2016_12_24_23_16_35_968626
+            # {'elem_id': 55, 'rate': -0.5}
             cache.set(r_key, p_data, timeout=3024000)
 
         cache.set('user_votes_' + str(userid), uv, timeout=uv_ttl)
@@ -83,12 +82,12 @@ def Rate(userid, date_joined, votes_type, type, elem_id, vote):
         return "Element type {} with id {} rated".format(str(type), str(elem_id))
     else:
         return "No votes for user with id {},\
-            type {} with id {} rated"\
+            type {} with id {} rated" \
             .format(str(user_id), str(type), str(elem_id))
 
 
-@app.task(name='ComplainObj')
-def ComplainObj(type, objid, userid, reason):
+@app.task(name='complain_obj')
+def complain_obj(type, objid, userid, reason):
     """
     При жалобе создаём новый объект или обновляем существующий
     """
@@ -97,24 +96,23 @@ def ComplainObj(type, objid, userid, reason):
     else:
         obj = Post.objects.only('id', 'can_complain').get(id=objid)
 
-    user = myUser.objects.only('id', 'rating', 'email').get(id=userid)
+    user = MyUser.objects.only('id', 'rating', 'email').get(id=userid)
     if obj.can_complain:
-        if type =="comment":
+        if type == "comment":
             complain, new = Complain.objects.get_or_create(comment=obj)
         else:
             complain, new = Complain.objects.get_or_create(post=obj)
-        
-        if not user.email in complain.users_complained:
-            complain_raw=json.loads(complain.users_complained)
+
+        if user.email not in complain.users_complained:
+            complain_raw = json.loads(complain.users_complained)
             complain_raw[user.email] = reason
             complain.users_complained = json.dumps(complain_raw)
             complain.score += user.rating
             complain.save()
-    
-    
 
-@app.task(name="CalcRating")
-def CalcRating():
+
+@app.task(name="calc_rating")
+def calc_rating():
     """
     Подсчёт рейтинга постов, комментов и юзеров
     """
@@ -171,13 +169,13 @@ def CalcRating():
     cache.delete_pattern("good_posts_*")
 
 
-@app.task(name="commentImage")
-def commentImage(comment_id):
+@app.task(name="comment_image")
+def comment_image(comment_id):
     """
     Конвертирование картинок в комментах
     """
     comment_raw = Comment.objects.select_related('author').get(id=comment_id)
-    soup = srcsets(comment_raw.text, True)
+    soup = make_srcsets(comment_raw.text, True)
     # выравниваем видео по центру
     ifr_links = soup.find_all("iframe")
     ifr_class = []
@@ -189,12 +187,12 @@ def commentImage(comment_id):
             ifr_class.append('center-align')
             i['class'] = ifr_class
 
-    comment_raw.text = cleanTagsFromSoup(soup)
+    comment_raw.text = clean_tags_from_soup(soup)
     comment_raw.save()
 
     cache_str = "comment_" + str(comment_raw.post.id)
     cache.delete(cache_str)
-    cache_str= "count_comments_" + str(comment_raw.post.id)
+    cache_str = "count_comments_" + str(comment_raw.post.id)
     cache.delete(cache_str)
 
     comment = {}
@@ -216,18 +214,18 @@ def commentImage(comment_id):
     comment['comment'] = 1
     comment['created'] = (comment_raw.created + delta_tz).strftime('%Y.%m.%d %H:%M')
     group = comment_raw.post.get_absolute_url().strip('/').split('/')[-1]
-    #.split('-')[-1]
+    # .split('-')[-1]
     Group(group).send({
         # "text": "[user] %s" % message.content['text'],
         "text": json.dumps(comment),
-                        })
+    })
     return "Comment with id {} from user {} \
         proccessed".format(str(comment_id),
-        str(comment_raw.author.username))
+                           str(comment_raw.author.username))
 
 
-@app.task(name="addPost")
-def addPost(post_id, tag_list, moderated, group=None):
+@app.task(name="add_post")
+def add_post(post_id, tag_list, moderated, group=None):
     """
     Обработка поста при добавлении
     Тэги, сжатие и конвертация изображений и т.д.
@@ -248,10 +246,10 @@ def addPost(post_id, tag_list, moderated, group=None):
             else:
                 tag_url = slugify(i.lower(), allow_unicode=True)
                 tag, _ = Tag.objects.get_or_create(name=i, url=tag_url)
-                
+
             if _:
                 have_new_tags = True
-                
+
             post_raw.tags.add(tag)
     if have_new_tags:
         cache.delete_pattern("taglist")
@@ -259,7 +257,7 @@ def addPost(post_id, tag_list, moderated, group=None):
     if tag:
         post_raw.main_tag = tag
     else:
-        #tag = Tag.objects.get(id=8)
+        # tag = Tag.objects.get(id=8)
         tag, _ = Tag.objects.get_or_create(name="Разное")
         if _:
             tag.url = "others"
@@ -267,7 +265,7 @@ def addPost(post_id, tag_list, moderated, group=None):
         post_raw.main_tag = tag
 
     # ищем картинки в тексте
-    soup = srcsets(post_raw.text, True, post_id=post_id)
+    soup = make_srcsets(post_raw.text, True, post_id=post_id)
 
     # выравниваем видео по центру
     ifr_links = soup.find_all("iframe")
@@ -280,22 +278,21 @@ def addPost(post_id, tag_list, moderated, group=None):
             ifr_class.append('center-align')
             i['class'] = ifr_class
 
-    post_raw.text = cleanTagsFromSoup(soup)
+    post_raw.text = clean_tags_from_soup(soup)
 
     # image from url
 
     if post_raw.image_url:
         today = datetime.date.today()
         upload_path1 = '/root/myblog/myblog/blog/static/media/' + \
-        str(today.year) + '/' + str(today.month) + '/' + str(today.day) + '/'
-        upload_path = str(today.year) + '/' + str(today.month) + \
-                                        '/' + str(today.day) + '/'
+                       str(today.year) + '/' + str(today.month) + '/' + str(today.day) + '/'
+        upload_path = str(today.year) + '/' + str(today.month) + '/' + str(today.day) + '/'
         filename = urlparse(post_raw.image_url).path.split('/')[-1]
         save_path = os.path.join(upload_path1, filename)
         user_agent = 'Mozilla/5.0 (Windows NT 6.1; Win64; x64)'
         headers = {'User-Agent': user_agent}
         browser_headers = {'name': 'Alex',
-                      'location': 'Moscow', }
+                           'location': 'Moscow', }
         data = urlencode(browser_headers)
         data = data.encode('ascii')
 
@@ -311,20 +308,20 @@ def addPost(post_id, tag_list, moderated, group=None):
         post_raw.image_url = ""
 
     if post_raw.post_image:
-        post_raw.main_image_srcset = srcsetThumb(post_raw.post_image, post_id=post_raw.id)
+        post_raw.main_image_srcset = srcset_thumb(post_raw.post_image, post_id=post_raw.id)
         # change post_image link to webm
-        if not BeautifulSoup(post_raw.main_image_srcset, "html5lib").video == None:
+        if BeautifulSoup(post_raw.main_image_srcset, "html5lib").video is not None:
             post_raw.post_image_gif = post_raw.post_image
-            post_image_file = BeautifulSoup(post_raw.main_image_srcset, "html5lib")\
-                                        .video.source['src']
-            post_raw.post_image = stripMediaFromPath(post_image_file)
+            post_image_file = BeautifulSoup(post_raw.main_image_srcset, "html5lib") \
+                .video.source['src']
+            post_raw.post_image = strip_media_from_path(post_image_file)
         else:
-            soup = BeautifulSoup(post_raw.main_image_srcset, "html5lib")\
-                    .img['src']
-            link = findLink(iri_to_uri(soup))
-            file = uri_to_iri(findFile(link))
-            post_image_file = saveImage(link, file, 150, h=150)
-        post_raw.post_thumbnail = stripMediaFromPath(post_image_file)
+            soup = BeautifulSoup(post_raw.main_image_srcset, "html5lib") \
+                .img['src']
+            link = find_link(iri_to_uri(soup))
+            file = uri_to_iri(find_file(link))
+            post_image_file = save_image(link, file, 150, h=150)
+        post_raw.post_thumbnail = strip_media_from_path(post_image_file)
         post_raw.post_thumb_ext = post_image_file.split('.')[-1]
 
     if not moderated:
@@ -339,19 +336,17 @@ def addPost(post_id, tag_list, moderated, group=None):
     post['post'] = 1
     cache_str = ["page_" + str(post_raw.category) + "*",
                  "page_None*",
-                "good_posts_" + str(post_raw.category) + "_*",
+                 "good_posts_" + str(post_raw.category) + "_*",
                  "good_posts_None_*",
-                 "post_single_" + str(post_raw.id)+"*",
+                 "post_single_" + str(post_raw.id) + "*",
                  str(make_template_fragment_key('list')),
                  str(make_template_fragment_key('list_ajax'))
-                ]
+                 ]
     for i in cache_str:
         cache.delete_pattern(i)
-    
+
     if not group:
         group = "post-saved"
-    
+
     Group(group).send({
-        "text": json.dumps(post) })
-
-
+        "text": json.dumps(post)})

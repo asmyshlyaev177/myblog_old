@@ -23,7 +23,7 @@ class Migration(migrations.Migration):
 
     operations = [
         migrations.CreateModel(
-            name='myUser',
+            name='MyUser',
             fields=[
                 ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
                 ('password', models.CharField(max_length=128, verbose_name='password')),
@@ -31,7 +31,7 @@ class Migration(migrations.Migration):
                 ('is_superuser', models.BooleanField(default=False, help_text='Designates that this user has all permissions without explicitly assigning them.', verbose_name='superuser status')),
                 ('username', models.CharField(max_length=30, unique=True, verbose_name='Логин')),
                 ('rateable', models.BooleanField(default=True)),
-                ('avatar', imagekit.models.fields.ProcessedImageField(blank=True, upload_to=blog.models.myUser.user_directory_path, verbose_name='Аватар')),
+                ('avatar', imagekit.models.fields.ProcessedImageField(blank=True, upload_to=blog.models.MyUser.user_directory_path, verbose_name='Аватар')),
                 ('email', models.EmailField(max_length=254, unique=True)),
                 ('is_active', models.BooleanField(default=True, verbose_name='Активен')),
                 ('is_staff', models.BooleanField(default=False, verbose_name='Персонал')),

@@ -1,5 +1,5 @@
-from .models import myUser as User
-from django.conf import settings
+from .models import MyUser as User
+
 
 # Бэкэнды авторизации по логину и емайлу
 class UsernameAuthBackend(object):
@@ -34,3 +34,4 @@ class EmailAuthBackend(object):
             return User.objects.get(pk=user_id)
         except User.DoesNotExist:
             return None
+
